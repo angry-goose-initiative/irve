@@ -3,9 +3,7 @@
  *
  * TODO description
  *
- * TODO this file will be a pair that takes the state and the decoded opcode and performs an
- * operation if it matches; the pair will be registered within the state/system and be called to
- * handle the opcode if it matches
+ * Like instruction handler, but for memory addresses
  *
 */
 
@@ -42,10 +40,10 @@ pub enum MatchCriteria {
 //TODO may need a lifetime parameter here for the callback
 //IMPORTANT: Actually, no, the InstructionHandler will be consumed when it is registered
 //and if the user wants to communicate with their own code, they can use a channel
-pub trait InstructionHandler {
+pub trait MemoryHandler {
     const MATCH_CRITERIA: MatchCriteria;
    
-    fn handle(&self, state: &mut State/*, opcode: &Opcode*/)/* -> Result<(), Error>*/;
+    fn handle(&self, state: &mut State/*, addr: address*/)/* -> Result<(), Error>*/;
     
     //TODO
 }
