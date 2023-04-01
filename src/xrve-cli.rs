@@ -7,7 +7,7 @@
 
 /* Imports */
 
-//TODO (include "use" and "mod" here)
+use xrve::System;
 
 /* Constants */
 
@@ -32,5 +32,7 @@
 /* Functions */
 
 fn main() {
+    let mut system = System::new();
+
     todo!();
 }
