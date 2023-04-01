@@ -7,6 +7,7 @@
 
 /* Imports */
 
+mod instruction_handler;
 mod decode;
 //TODO (include "use" and "mod" here)
 
@@ -24,7 +25,14 @@ mod decode;
 
 /* Types */
 
-//TODO
+pub struct State {
+    //TODO
+}
+
+pub struct System {
+    state: State,
+    //TODO structure for mapping to instruction handlers
+}
 
 /* Associated Functions and Methods */
 
