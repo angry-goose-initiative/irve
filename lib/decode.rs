@@ -24,12 +24,12 @@
 /* Types */
 
 pub enum DecodedInstruction {
-    RType{funct7: u8, rs2: u8, rs1: u8, funct3: u8, rd: u8, opcode: u8},
-    IType{imm12: u16, rs1: u8, funct3: u8, rd: u8, opcode: u8},
-    SType{imm12: u16, rs2: u8, rs1: u8, funct3: u8, opcode: u8},
-    BType{imm13: u16, rs2: u8, rs1: u8, funct3: u8, opcode: u8},
-    UType{imm20: u32, rd: u8, opcode: u8},
-    JType{imm21: u32, rd: u8, opcode: u8},
+    RType{rs2: u8, rs1: u8, rd: u8, opcode: DecodedRTypeOpcode},
+    IType{imm12: u16, rs1: u8, funct3: u8, rd: u8, opcode: u8},//TODO what about those without imm12?
+    SType{imm12: u16, rs2: u8, rs1: u8, opcode: DecodedSTypeOpcode},
+    BType{imm13: u16, rs2: u8, rs1: u8, funct3: u8, opcode: u8},//TODO
+    UType{imm20: u32, rd: u8, opcode: u8},//TODO
+    JType{imm21: u32, rd: u8, opcode: u8},//TODO
     Other{raw: u32},//Custom
     Invalid
 }
@@ -53,7 +53,29 @@ pub enum DecodedRTypeOpcode {
     Divu,
     Rem,
     Remu,
-    Other,//Custom//TODO how to bundle funct7 and funct3 with this?
+    Other{funct7: u8, funct3: u8},//Custom
+    Invalid
+}
+
+pub enum DecodedITypeOpcode {
+    Addi,
+    Slti,
+    Sltiu,
+    Xori,
+    Ori,
+    Andi,
+    Slli,
+    Srli,
+    Srai,
+    Other{funct7: u8, funct3: u8},//Custom//TODO this occurs for bad slli/srli/srai 
+    Invalid
+}
+
+pub enum DecodedSTypeOpcode {
+    Sb,
+    Sh,
+    Sw,
+    Other{funct3: u8},//Custom
     Invalid
 }
 
