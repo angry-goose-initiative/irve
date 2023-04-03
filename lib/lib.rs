@@ -57,6 +57,7 @@ pub struct State {
     registers: [u32; 31],
 
     physical_memory: Box<[u8]>,
+    csrs: [u32; 4096],
 
     //TODO
 }
@@ -77,13 +78,14 @@ impl System {
     }
 
     pub fn single_step(self: &mut Self) {
+        log!(self, LogLevel::VerboseInfo{verbosity: 1}, "Executing step");
         //TODO
     }
 
     pub fn run_in_thread(self: &mut Self) {
         log!(self, LogLevel::Info, "Starting XRVE in thread");
-        log!(self, LogLevel::Debug, "Testing macro with arguments {}", 123);
-        log!(self, "Testing macro without log level"); 
+        //log!(self, LogLevel::Debug, "Testing macro with arguments {}", 123);
+        //log!(self, "Testing macro without log level"); 
         //TODO
     }
 
