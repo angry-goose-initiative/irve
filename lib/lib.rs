@@ -23,19 +23,12 @@ mod decode;
 
 //TODO (also pub(crate) use the_macro statements here too)
 macro_rules! log {
-    ($system:expr, $message:expr) => {
-        $system.log(LogLevel::Debug, $message.to_string());
+    ($system:expr, $level:expr, $($format_args:expr),*) => {
+        $system.log($level, format!($($format_args),*));
     };
-    ($system:expr, $level:expr, $message:expr) => {
-        $system.log($level, $message.to_string());
+    ($system:expr, $($format_args:expr),*) => {
+        $system.log(LogLevel::Info, format!($($format_args),*));
     };
-    //Copilot gave me this, figure out what it does
-    //($system:expr, $level:expr, $message:expr, $($arg:tt)*) => {
-        //$system.log(format!($message, $($arg)*));
-    //};
-    //($system:expr, $message:expr, $($arg:tt)*) => {
-        //$system.log(format!($message, $($arg)*));
-    //};
 }
 
 /* Static Variables */
@@ -87,7 +80,9 @@ impl System {
     }
 
     pub fn run_in_thread(self: &mut Self) {
-        log!(self, "Starting XRVE in thread");
+        log!(self, LogLevel::Info, "Starting XRVE in thread");
+        log!(self, LogLevel::Debug, "Testing macro with arguments {}", 123);
+        log!(self, "Testing macro without log level"); 
         //TODO
     }
 
