@@ -27,7 +27,7 @@ macro_rules! log {
         $system.log($level, format!($($format_args),*));
     };
     ($system:expr, $($format_args:expr),*) => {
-        $system.log(LogLevel::Info, format!($($format_args),*));
+        $system.log(LogLevel::NormalInfo, format!($($format_args),*));
     };
 }
 
@@ -41,7 +41,8 @@ macro_rules! log {
 pub enum LogLevel {
     Error,
     Warning,
-    Info,
+    NormalInfo,
+    VerboseInfo{verbosity: u128},
     Debug
 }
 
