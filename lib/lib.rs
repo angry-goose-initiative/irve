@@ -64,7 +64,9 @@ pub struct State {
     registers: [u32; 31],
 
     physical_memory: Box<[u8]>,
-    csrs: [u32; 4096],
+    insts_retired: u64,
+
+    boot_time: std::time::Instant//Used for calculating time since boot for one of the RISC-V CSRs
 
     //TODO
 }
@@ -98,6 +100,7 @@ impl System {
         //TODO execute
         //TODO handle peripherals, interrupts, etc
 
+        self.state.insts_retired += 1;
     }
 
     fn fetch(self: &mut Self) -> RawInstruction {
@@ -162,7 +165,9 @@ impl State {
             registers: [0; 31],
             physical_memory: vec![0; 0x1000].into_boxed_slice(),//TODO set this properly
             //TODO
-            csrs: [0; 4096],//TODO set this properly
+            insts_retired: 0,
+            boot_time: std::time::Instant::now()
+            
         }
     }
 }
