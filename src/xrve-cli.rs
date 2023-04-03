@@ -34,5 +34,12 @@ use xrve::System;
 fn main() {
     let mut system = System::new();
 
+    let log_receiver = system.get_log_receiver();
+
+    //TESTING
+    loop {
+        println!("{}", log_receiver.recv().unwrap());
+    }
+
     todo!();
 }

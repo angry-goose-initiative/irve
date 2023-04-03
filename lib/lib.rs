@@ -7,7 +7,11 @@
 
 /* Imports */
 
+use std::sync::mpsc;
+
 mod instruction_handler;
+mod memory_handler;
+mod csr_handler;
 mod decode;
 //TODO (include "use" and "mod" here)
 
@@ -28,6 +32,7 @@ mod decode;
 pub struct System {
     state: State,
     //TODO structure for mapping to instruction handlers
+    log_sender: Option<mpsc::Sender<String>>,
 }
 
 pub struct State {
@@ -41,11 +46,24 @@ impl System {
         let mut system = Self {
             state: State::new(),
             //TODO
+            log_sender: None,
         };
 
         //system.register_instruction_handler();//TODO register base spec instruction handler
         
         system
+    }
+
+    fn log(self: &Self, message: String) {
+        if let Some(sender) = &self.log_sender {
+            sender.send(message).unwrap();
+        }
+    }
+
+    pub fn get_log_receiver(self: &mut Self) -> mpsc::Receiver<String> {
+        let (sender, reciever) = mpsc::channel();
+        self.log_sender = Some(sender);
+        reciever
     }
 
     //Design decision: We will not allow handlers to be unregistered
@@ -58,7 +76,11 @@ impl System {
         //TODO
     }
 
+    pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
+        //TODO
+    }
 
+    //TODO a function for registering a handler that runs each tick?
 
     //Add a function for single-step execution
     //and another for creating a thread and giving it the state/list of instruction handlers
