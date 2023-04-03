@@ -22,6 +22,21 @@ mod decode;
 /* Macros */
 
 //TODO (also pub(crate) use the_macro statements here too)
+macro_rules! log {
+    ($system:expr, $message:expr) => {
+        $system.log(LogLevel::Debug, $message.to_string());
+    };
+    ($system:expr, $level:expr, $message:expr) => {
+        $system.log($level, $message.to_string());
+    };
+    //Copilot gave me this, figure out what it does
+    //($system:expr, $level:expr, $message:expr, $($arg:tt)*) => {
+        //$system.log(format!($message, $($arg)*));
+    //};
+    //($system:expr, $message:expr, $($arg:tt)*) => {
+        //$system.log(format!($message, $($arg)*));
+    //};
+}
 
 /* Static Variables */
 
@@ -29,13 +44,26 @@ mod decode;
 
 /* Types */
 
+#[derive(Debug)]
+pub enum LogLevel {
+    Error,
+    Warning,
+    Info,
+    Debug
+}
+
 pub struct System {
     state: State,
     //TODO structure for mapping to instruction handlers
-    log_sender: Option<mpsc::Sender<String>>,
+    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,
 }
 
 pub struct State {
+    pc: u32,
+    registers: [u32; 31],
+
+    physical_memory: Box<[u8]>,
+
     //TODO
 }
 
@@ -54,15 +82,25 @@ impl System {
         system
     }
 
-    fn log(self: &Self, message: String) {
+    pub fn single_step(self: &mut Self) {
+        //TODO
+    }
+
+    pub fn run_in_thread(self: &mut Self) {
+        log!(self, "Starting XRVE in thread");
+        //TODO
+    }
+
+    fn log(self: &Self, level: LogLevel, message: String) {
         if let Some(sender) = &self.log_sender {
-            sender.send(message).unwrap();
+            sender.send((level, message)).unwrap();
         }
     }
 
-    pub fn get_log_receiver(self: &mut Self) -> mpsc::Receiver<String> {
+    pub fn get_log_receiver(self: &mut Self) -> mpsc::Receiver<(LogLevel, String)> {
         let (sender, reciever) = mpsc::channel();
         self.log_sender = Some(sender);
+        log!(self, "XRVE Log started");
         reciever
     }
 
@@ -93,6 +131,9 @@ impl System {
 impl State {
     pub fn new() -> Self {
         Self {
+            pc: 0,
+            registers: [0; 31],
+            physical_memory: vec![0; 0x1000].into_boxed_slice(),//TODO set this properly
             //TODO
         }
     }

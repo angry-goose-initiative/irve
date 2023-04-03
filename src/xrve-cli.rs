@@ -36,9 +36,12 @@ fn main() {
 
     let log_receiver = system.get_log_receiver();
 
+    system.run_in_thread();
+
     //TESTING
     loop {
-        println!("{}", log_receiver.recv().unwrap());
+        let (log_level, message) = log_receiver.recv().unwrap();
+        println!("{:?}: {}", log_level, message);
     }
 
     todo!();
