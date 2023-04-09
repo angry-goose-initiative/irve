@@ -1,13 +1,15 @@
-/* NAME//TODO
+/* lib.rs
  * By: John Jekel
  *
- * TODO description
+ * The eXtensible RISC-V Emulator library
  *
 */
 
 /* Imports */
 
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc;
+use std::sync::Arc;
 use std::thread;
 
 mod instruction_handler;
@@ -52,11 +54,21 @@ pub enum LogLevel {
 }
 
 pub struct System {
-    state: State,
+    state: Option<State>,
     //TODO structure for mapping to instruction handlers
-    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,
+    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,//TODO move this to IO
 
-    thread: Option<thread::JoinHandle<()>>//TODO return type
+    io: Option<IO>,
+
+    thread: Option<thread::JoinHandle<(State, IO)>>,//Thread returns the state and IO when it exits
+                                                   //to give us back ownership
+
+    thread_stop_request: Arc<AtomicBool>//We give the thread a reference to this so it stops when we want it to
+}
+
+pub struct IO {
+    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,
+    //TODO
 }
 
 pub struct State {
@@ -76,10 +88,12 @@ pub struct State {
 impl System {
     pub fn new() -> Self {
         let mut system = Self {
-            state: State::new(),
+            state: Some(State::new()),
             //TODO
             log_sender: None,
-            thread: None
+            io: Some(IO::new()),
+            thread: None,
+            thread_stop_request: Arc::new(AtomicBool::new(false))
         };
 
         //system.register_instruction_handler();//TODO register base spec instruction handler
@@ -93,6 +107,7 @@ impl System {
         self.tick();
     }
 
+    //TODO move this to state?
     fn tick(self: &mut Self) {
         log!(self, 2, "Executing tick");
         let fetched_instruction = self.fetch();
@@ -100,7 +115,7 @@ impl System {
         //TODO execute
         //TODO handle peripherals, interrupts, etc
 
-        self.state.insts_retired += 1;
+        //self.state.insts_retired += 1;
     }
 
     fn fetch(self: &mut Self) -> RawInstruction {
@@ -112,9 +127,34 @@ impl System {
     pub fn run_in_thread(self: &mut Self) {
         assert!(self.thread.is_none(), "Cannot start running in a thread while one is already running");
         log!(self, "Starting XRVE in thread");
-        //log!(self, LogLevel::Debug, "Testing macro with arguments {}", 123);
-        //log!(self, "Testing macro without log level"); 
-        //TODO
+
+        //Set the thread stop request to false so that we don't exit as soon as we enter
+        self.thread_stop_request.store(false, std::sync::atomic::Ordering::Relaxed);
+
+        //Setup the variables to be moved into the closure
+        let state = self.state.take().unwrap();
+        let io = self.io.take().unwrap();
+        //Clone the thread stop request Arc so that we can give it to the thread
+        let thread_stop_request_clone = self.thread_stop_request.clone();
+
+        //Launch the thread and give it the state and IO
+        self.thread = Some(thread::spawn(move || -> (State, IO) {
+            return Self::the_thread(state, io, thread_stop_request_clone);
+        }));
+    }
+
+    pub fn stop_thread(self: &mut Self) {
+        assert!(self.thread.is_some(), "Cannot stop thread when one is not running");
+        log!(self, "Stopping XRVE thread");
+
+        //Request that the thread stop, take and join the thread handle, and take back the state and IO
+        self.thread_stop_request.store(true, std::sync::atomic::Ordering::Relaxed);
+        let thread = self.thread.take().unwrap();
+        let (state, io) = thread.join().unwrap();
+        self.state = Some(state);
+        self.io = Some(io);
+
+        log!(self, "XRVE thread stopped successfully");
     }
 
     fn log(self: &Self, level: LogLevel, message: String) {
@@ -156,6 +196,24 @@ impl System {
     //
 
     //TODO add a function for getting a reciever for logging
+    //
+
+    //TODO move this into a separate file, perhaps not even a member function, but just a free
+    //function that takes a state and IO and returns a state and IO
+    pub fn the_thread(state: State, io: IO, thread_stop_request: Arc<AtomicBool>) -> (State, IO) {
+        //TODO
+        todo!();
+        return (state, io);
+    }
+}
+
+impl IO {
+    pub fn new() -> Self {
+        Self {
+            log_sender: None,
+            //TODO
+        }
+    }
 }
 
 impl State {

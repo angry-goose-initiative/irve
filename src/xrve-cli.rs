@@ -37,7 +37,7 @@ fn main() {
     let log_receiver = system.get_log_receiver();
 
     //TESTING
-    system.single_step();
+    //system.single_step();
     system.run_in_thread();
     loop {
         let (log_level, message) = log_receiver.recv().unwrap();
