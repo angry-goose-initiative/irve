@@ -25,7 +25,7 @@ mod decode;
 /* Macros */
 
 //TODO (also pub(crate) use the_macro statements here too)
-macro_rules! log {
+macro_rules! log {//TODO have the log accept an Option<Logger> and use that instead of the system
     ($system:expr, $level:expr, $($format_args:expr),*) => {
         $system.log($level.into(), format!($($format_args),*));
     };
@@ -40,6 +40,9 @@ macro_rules! log {
 
 /* Types */
 
+//TODO figure out a clean way to do this and still have consistent macros
+type Logger = mpsc::Sender<(LogLevel, String)>;//TODO change this to an Option<mpsc::Sender<(LogLevel, String)>>
+
 pub enum RawInstruction {
     Regular(u32),
     Compressed(u16)
@@ -53,21 +56,23 @@ pub enum LogLevel {
     Debug
 }
 
-pub struct System {
+pub struct System {//TODO rename to Instance
     state: Option<State>,
     //TODO structure for mapping to instruction handlers
-    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,//TODO move this to IO
+    logger: Option<Logger>,
 
     io: Option<IO>,
 
-    thread: Option<thread::JoinHandle<(State, IO)>>,//Thread returns the state and IO when it exits
+    thread: Option<thread::JoinHandle<(State, Option<Logger>, IO)>>,//Thread returns the state and IO when it exits
                                                    //to give us back ownership
 
+    //We need it to be atomic to avoid tearing
+    //We need an Arc so that the lifetime is static (since the thread requires static lifetimes on
+    //variables it captures)
     thread_stop_request: Arc<AtomicBool>//We give the thread a reference to this so it stops when we want it to
 }
 
 pub struct IO {
-    log_sender: Option<mpsc::Sender<(LogLevel, String)>>,
     //TODO
 }
 
@@ -85,12 +90,12 @@ pub struct State {
 
 /* Associated Functions and Methods */
 
-impl System {
+impl System {//TODO rename to Instance
     pub fn new() -> Self {
         let mut system = Self {
             state: Some(State::new()),
             //TODO
-            log_sender: None,
+            logger: None,
             io: Some(IO::new()),
             thread: None,
             thread_stop_request: Arc::new(AtomicBool::new(false))
@@ -132,14 +137,16 @@ impl System {
         self.thread_stop_request.store(false, std::sync::atomic::Ordering::Relaxed);
 
         //Setup the variables to be moved into the closure
-        let state = self.state.take().unwrap();
-        let io = self.io.take().unwrap();
+        let mut state = self.state.take().unwrap();
+        let mut logger = self.logger.take();
+        let mut io = self.io.take().unwrap();
         //Clone the thread stop request Arc so that we can give it to the thread
         let thread_stop_request_clone = self.thread_stop_request.clone();
 
         //Launch the thread and give it the state and IO
-        self.thread = Some(thread::spawn(move || -> (State, IO) {
-            return Self::the_thread(state, io, thread_stop_request_clone);
+        self.thread = Some(thread::spawn(move || -> (State, Option<Logger>, IO) {
+            Self::the_thread(&mut state, &mut logger, &mut io, thread_stop_request_clone);
+            return (state, logger, io);
         }));
     }
 
@@ -150,23 +157,25 @@ impl System {
         //Request that the thread stop, take and join the thread handle, and take back the state and IO
         self.thread_stop_request.store(true, std::sync::atomic::Ordering::Relaxed);
         let thread = self.thread.take().unwrap();
-        let (state, io) = thread.join().unwrap();
+        let (state, logger, io) = thread.join().unwrap();
         self.state = Some(state);
+        self.logger = logger;
         self.io = Some(io);
 
         log!(self, "XRVE thread stopped successfully");
     }
 
     fn log(self: &Self, level: LogLevel, message: String) {
-        if let Some(sender) = &self.log_sender {
-            sender.send((level, message)).unwrap();
+        if let Some(logger) = &self.logger {
+            logger.send((level, message)).unwrap();
         }
     }
 
     pub fn get_log_receiver(self: &mut Self) -> mpsc::Receiver<(LogLevel, String)> {
-        assert!(self.log_sender.is_none(), "Cannot setup logging twice");
+        assert!(self.logger.is_none(), "Cannot setup logging twice");
+        //TODO also ensure that the thread is not running
         let (sender, reciever) = mpsc::channel();
-        self.log_sender = Some(sender);
+        self.logger = Some(sender);
         log!(self, "XRVE Log started");
         reciever
     }
@@ -175,16 +184,19 @@ impl System {
     //TODO perhaps allow priorities?
     pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
         log!(self, 1, "Registering instruction handler");
+        todo!();
         //TODO
     }
 
     pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
         log!(self, 1, "Registering memory handler");
+        todo!();
         //TODO
     }
 
     pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
         log!(self, 1, "Registering CSR handler");
+        todo!();
         //TODO
     }
 
@@ -200,17 +212,23 @@ impl System {
 
     //TODO move this into a separate file, perhaps not even a member function, but just a free
     //function that takes a state and IO and returns a state and IO
-    pub fn the_thread(state: State, io: IO, thread_stop_request: Arc<AtomicBool>) -> (State, IO) {
-        //TODO
-        todo!();
-        return (state, io);
+    pub fn the_thread(state: &mut State, logger: &mut Option<Logger>, io: &mut IO, thread_stop_request: Arc<AtomicBool>) {
+        //log!(logger, 1, "XRVE thread started");
+        loop {
+            if thread_stop_request.load(std::sync::atomic::Ordering::Relaxed) {
+                //log!(logger, 1, "XRVE thread stop request received");
+                break;
+            }
+
+            //TODO
+            todo!();
+        }
     }
 }
 
 impl IO {
     pub fn new() -> Self {
         Self {
-            log_sender: None,
             //TODO
         }
     }
