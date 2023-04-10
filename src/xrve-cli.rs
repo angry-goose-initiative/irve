@@ -7,7 +7,7 @@
 
 /* Imports */
 
-use xrve::System;
+use xrve::Instance;
 
 /* Constants */
 
@@ -32,12 +32,12 @@ use xrve::System;
 /* Functions */
 
 fn main() {
-    let mut system = System::new();
+    let mut system = Instance::new();
 
     let log_receiver = system.get_log_receiver();
 
     //TESTING
-    //system.single_step();
+    system.single_step();
     system.run_in_thread();
     loop {
         let (log_level, message) = log_receiver.recv().unwrap();
