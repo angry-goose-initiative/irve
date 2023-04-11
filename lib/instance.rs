@@ -10,8 +10,7 @@
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::thread;
-use crate::logging::log;
-use crate::logging::Logger;
+crate::logging::use_logging!();
 use crate::logging::LogLevel;
 use crate::logging::LogReciever;
 use crate::state::State;
@@ -20,6 +19,7 @@ use crate::instruction_handler;
 use crate::memory_handler;
 use crate::csr_handler;
 use crate::logging;
+use crate::fetch::fetch_raw;
 
 /* Constants */
 
@@ -36,10 +36,6 @@ use crate::logging;
 /* Types */
 
 //TODO move this elsewhere
-pub enum RawInstruction {
-    Regular(u32),
-    Compressed(u16)
-}
 
 pub struct Instance {
     state: Option<State>,
@@ -77,26 +73,8 @@ impl Instance {
 
     pub fn single_step(self: &mut Self) {
         assert!(self.thread.is_none(), "Cannot single step while thread is running");
-        log!(self.logger, 1, "Executing single-step step");
-        self.tick();
-    }
-
-    //TODO move this to state?
-    fn tick(self: &mut Self) {
-        log!(self.logger, 2, "Executing tick");
-        let fetched_instruction = self.fetch();
-        //TODO decode
-        //TODO execute
-        //TODO handle peripherals, interrupts, etc
-
-        //self.state.insts_retired += 1;
-    }
-
-    fn fetch(self: &mut Self) -> RawInstruction {
-        log!(self.logger, 3, "Executing fetch");
-        //TODO
-        //todo!();
-        return RawInstruction::Regular(0);//TESTING
+        log!(self.logger, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
+        tick(self.state.as_mut().unwrap(), &mut self.logger, self.io.as_mut().unwrap());
     }
 
     pub fn run_in_thread(self: &mut Self) {
@@ -145,7 +123,7 @@ impl Instance {
         //Initialize logging, saving the Logger in our Instance and returning the LogReciever
         let (logger, log_reciever) = logging::init_logging();
         self.logger = logger;
-        log!(self.logger, LogLevel::Info(255), "Returning log reciever to user");
+        log!(self.logger, LogLevel::Info(2), "Returning log reciever to user");
         log_reciever
     }
 
@@ -193,7 +171,13 @@ pub fn emulation_thread(state: &mut State, logger: &mut Logger, io: &mut IO, thr
             break;
         }
 
-        //TODO
-        todo!();
+        log!(logger, 128, "Executing tick; {} instructions retired", state.retired_insts());
+        tick(state, logger, io);
     }
+}
+
+pub fn tick(state: &mut State, logger: &mut Logger, io: &mut IO) {
+    let raw_inst = fetch_raw(state, logger);
+    //todo!();
+    state.retire_inst();
 }

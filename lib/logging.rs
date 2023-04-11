@@ -15,6 +15,7 @@ use std::sync::mpsc;
 
 /* Macros */
 
+//TODO add compile time option to disable logging for better performance (just have the log! macro do nothing)
 //TODO (also pub(crate) use the_macro statements here too)
 macro_rules! log {
     //Level could be a LogLevel or a u8 for the verbosity of Info
@@ -26,11 +27,19 @@ macro_rules! log {
     //Defaults to Debug
     ($logger:expr, $($format_args:expr),*) => {
         if let Some(log_sender) = $logger.as_mut() {
-            log_sender.send((LogLevel::Debug, format!($($format_args),*))).unwrap();
+            log_sender.send((crate::logging::LogLevel::Debug, format!($($format_args),*))).unwrap();
         }
     };
 }
 pub(crate) use log;
+
+macro_rules! use_logging {
+    () => {
+        use crate::logging::log;
+        use crate::logging::Logger;
+    };
+}
+pub(crate) use use_logging;
 
 /* Static Variables */
 

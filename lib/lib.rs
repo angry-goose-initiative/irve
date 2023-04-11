@@ -1,16 +1,23 @@
 /* lib.rs
  * By: John Jekel
  *
- * The eXtensible RISC-V Emulator library
+ * The eXtensible RISC-V Emulator's library
+ *
+*/
+
+/**
+ * The eXtensible RISC-V Emulator's library
+ *
+ * //TODO
  *
 */
 
 /* Imports */
 
-
 mod instruction_handler;
 mod memory_handler;
 mod csr_handler;
+mod fetch;
 mod decode;
 mod instance;
 mod io;

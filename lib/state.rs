@@ -49,6 +49,34 @@ impl State {
             
         }
     }
+
+    pub fn pc(&self) -> u32 {
+        self.pc
+    }
+
+    pub fn get_r(&self, r: u8) -> u32 {
+        assert!(r < 32);
+        if r == 0 {
+            0
+        } else {
+            self.registers[(r as usize) - 1]
+        }
+    }
+
+    pub fn set_r(&mut self, r: u8, val: u32) {
+        assert!(r < 32);
+        if r != 0 {
+            self.registers[(r as usize) - 1] = val;
+        }
+    }
+
+    pub fn retire_inst(&mut self) {
+        self.insts_retired += 1;
+    }
+
+    pub fn retired_insts(&self) -> u64 {
+        self.insts_retired
+    }
 }
 
 /* Functions */

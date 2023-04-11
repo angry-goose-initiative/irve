@@ -39,7 +39,7 @@ fn main() {
     //TESTING
     system.single_step();
     system.run_in_thread();
-    loop {
+    for _ in 0..30 {
         let (log_level, message) = log_receiver.recv().unwrap();
         println!("{:?}: {}", log_level, message);
     }
