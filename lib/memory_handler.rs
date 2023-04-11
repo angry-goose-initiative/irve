@@ -9,7 +9,7 @@
 
 /* Imports */
 
-use crate::State;
+use crate::state::State;
 
 /* Constants */
 
