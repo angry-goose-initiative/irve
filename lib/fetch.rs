@@ -26,6 +26,7 @@ crate::logging::use_logging!();
 /* Types */
 
 //TODO
+#[derive(Debug)]
 pub enum RawInstruction {
     Regular(u32),
     Compressed(u16),
@@ -39,11 +40,11 @@ pub enum RawInstruction {
 
 /* Functions */
 
-pub fn fetch_raw(state: &mut State, logger: &mut Logger) -> RawInstruction {
-    log!(logger, 129, "Fetching instruction from address 0x{:08x}", state.pc());
+pub fn fetch_raw(state: &mut State, l: &mut Logger) -> RawInstruction {
+    log!(l, 129, "Fetching instruction from address 0x{:08x}", state.pc());
 
     if (state.pc() % 2) != 0 {
-        log!(logger, 130, "Address isn't aligned to a 2-byte boundary");
+        log!(l, 130, "Address isn't aligned to a 2-byte boundary");
         return RawInstruction::Unaligned;
     }
 

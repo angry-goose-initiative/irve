@@ -1,8 +1,9 @@
-/* io.rs
+/* NAME//TODO
  * By: John Jekel
  *
- * Contains IO related code for the RISC-V system
- * TODO move IO to just be a part of the state
+ * TODO description
+ *
+ * TODO this will be the struct that holds memory handlers for physical memory
  *
 */
 
@@ -24,19 +25,11 @@
 
 /* Types */
 
-pub struct IO {
-    //TODO
-}
+//TODO
 
 /* Associated Functions and Methods */
 
-impl IO {
-    pub fn new() -> Self {
-        Self {
-            //TODO
-        }
-    }
-}
+//TODO
 
 /* Functions */
 

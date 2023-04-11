@@ -8,6 +8,11 @@
 /* Imports */
 
 //TODO (include "use" and "mod" here)
+use crate::instruction_handler;
+use crate::memory_handler;
+use crate::csr_handler;
+
+use crate::pmmap;
 
 /* Constants */
 
@@ -24,6 +29,7 @@
 /* Types */
 
 pub struct State {
+    //TODO group registers into a separate struct
     pc: u32,
     registers: [u32; 31],
 
@@ -32,7 +38,9 @@ pub struct State {
 
     boot_time: std::time::Instant//Used for calculating time since boot for one of the RISC-V CSRs
 
-    //TODO
+    //TODO add some sort of handler state
+    
+    //TODO have the state maintain a logger too for handlers to use
 }
 
 /* Associated Functions and Methods */
@@ -48,6 +56,8 @@ impl State {
             boot_time: std::time::Instant::now()
             
         }
+
+        //TODO register default handlers here
     }
 
     pub fn pc(&self) -> u32 {
@@ -71,11 +81,30 @@ impl State {
     }
 
     pub fn retire_inst(&mut self) {
-        self.insts_retired += 1;
+        //Use wrapping_add to prevent overflow
+        self.insts_retired = self.insts_retired.wrapping_add(1);
     }
 
     pub fn retired_insts(&self) -> u64 {
         self.insts_retired
+    }
+
+    //Design decision: We will not allow handlers to be unregistered
+    //TODO perhaps allow priorities?
+    //TODO perhaps have handlers be in a seperate struct than state to keep state small?
+    pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
+        todo!();
+        //TODO
+    }
+
+    pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
+        todo!();
+        //TODO
+    }
+
+    pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
+        todo!();
+        //TODO
     }
 }
 

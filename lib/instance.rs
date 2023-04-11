@@ -40,7 +40,7 @@ use crate::fetch::fetch_raw;
 pub struct Instance {
     state: Option<State>,
     //TODO structure for mapping to instruction handlers
-    logger: Logger,
+    l: Logger,
 
     io: Option<IO>,
 
@@ -60,7 +60,7 @@ impl Instance {
         let mut system = Self {
             state: Some(State::new()),
             //TODO
-            logger: None,
+            l: None,
             io: Some(IO::new()),
             thread: None,
             thread_stop_request: Arc::new(AtomicBool::new(false))
@@ -73,20 +73,20 @@ impl Instance {
 
     pub fn single_step(self: &mut Self) {
         assert!(self.thread.is_none(), "Cannot single step while thread is running");
-        log!(self.logger, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
-        tick(self.state.as_mut().unwrap(), &mut self.logger, self.io.as_mut().unwrap());
+        log!(self.l, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
+        tick(self.state.as_mut().unwrap(), self.io.as_mut().unwrap(), &mut self.l);
     }
 
     pub fn run_in_thread(self: &mut Self) {
         assert!(self.thread.is_none(), "Cannot start running in a thread while one is already running");
-        log!(self.logger, 0, "Starting XRVE in thread");
+        log!(self.l, 0, "Starting XRVE in thread");
 
         //Set the thread stop request to false so that we don't exit as soon as we enter
         self.thread_stop_request.store(false, std::sync::atomic::Ordering::Relaxed);
 
         //Setup the variables to be moved into the closure
         let mut state = self.state.take().unwrap();
-        let mut logger = self.logger.take();//Recall Logger is an Option internally
+        let mut logger = self.l.take();//Recall Logger is an Option internally
         let mut io = self.io.take().unwrap();
         //Clone the thread stop request Arc so that we can give it to the thread
         let thread_stop_request_clone = self.thread_stop_request.clone();
@@ -95,14 +95,14 @@ impl Instance {
         self.thread = Some(thread::spawn(move || -> (State, Logger, IO) {
             //We just give the actual thread function references to it dosn't have to be
             //responsible for returning them at the end
-            emulation_thread(&mut state, &mut logger, &mut io, thread_stop_request_clone);
+            emulation_thread(&mut state, &mut io, thread_stop_request_clone, &mut logger);
             return (state, logger, io);
         }));
     }
 
     pub fn stop_thread(self: &mut Self) {
         assert!(self.thread.is_some(), "Cannot stop thread when one is not running");
-        log!(self.logger, 0, "Stopping XRVE thread");
+        log!(self.l, 0, "Stopping XRVE thread");
 
         //Request that the thread stop
         self.thread_stop_request.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -110,20 +110,20 @@ impl Instance {
         //Join the thread, and take back the things we gave it
         let (state, logger, io) = self.thread.take().unwrap().join().unwrap();
         self.state = Some(state);
-        self.logger = logger;
+        self.l = logger;
         self.io = Some(io);
 
-        log!(self.logger, 0, "XRVE thread stopped successfully");
+        log!(self.l, 0, "XRVE thread stopped successfully");
     }
 
     pub fn get_log_receiver(self: &mut Self) -> LogReciever {
-        assert!(self.logger.is_none(), "Cannot setup logging twice");
+        assert!(self.l.is_none(), "Cannot setup logging twice");
         assert!(self.thread.is_none(), "Cannot setup logging while thread is running");
 
         //Initialize logging, saving the Logger in our Instance and returning the LogReciever
         let (logger, log_reciever) = logging::init_logging();
-        self.logger = logger;
-        log!(self.logger, LogLevel::Info(2), "Returning log reciever to user");
+        self.l = logger;
+        log!(self.l, LogLevel::Info(2), "Returning log reciever to user");
         log_reciever
     }
 
@@ -131,21 +131,21 @@ impl Instance {
     //TODO perhaps allow priorities?
     pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
         assert!(self.thread.is_none(), "Cannot register instruction handler while thread is running");
-        log!(self.logger, 1, "Registering instruction handler");
+        log!(self.l, 1, "Registering instruction handler");
         todo!();
         //TODO
     }
 
     pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
         assert!(self.thread.is_none(), "Cannot register memory handler while thread is running");
-        log!(self.logger, 1, "Registering memory handler");
+        log!(self.l, 1, "Registering memory handler");
         todo!();
         //TODO
     }
 
     pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
         assert!(self.thread.is_none(), "Cannot register CSR handler while thread is running");
-        log!(self.logger, 1, "Registering CSR handler");
+        log!(self.l, 1, "Registering CSR handler");
         todo!();
         //TODO
     }
@@ -163,21 +163,22 @@ impl Instance {
 
 /* Functions */
 
-pub fn emulation_thread(state: &mut State, logger: &mut Logger, io: &mut IO, thread_stop_request: Arc<AtomicBool>) {
-    log!(logger, 0, "XRVE thread started");
+pub fn emulation_thread(state: &mut State, io: &mut IO, thread_stop_request: Arc<AtomicBool>, l: &mut Logger) {
+    log!(l, 0, "XRVE thread started");
     loop {
         if thread_stop_request.load(std::sync::atomic::Ordering::Relaxed) {
-            log!(logger, 0, "XRVE thread stop request received");
+            log!(l, 0, "XRVE thread stop request received");
             break;
         }
 
-        log!(logger, 128, "Executing tick; {} instructions retired", state.retired_insts());
-        tick(state, logger, io);
+        log!(l, 128, "Executing tick; {} instructions retired", state.retired_insts());
+        tick(state, io, l);
     }
 }
 
-pub fn tick(state: &mut State, logger: &mut Logger, io: &mut IO) {
-    let raw_inst = fetch_raw(state, logger);
+pub fn tick(state: &mut State, io: &mut IO, l: &mut Logger) {
+    let raw_inst = fetch_raw(state, l);
+    log!(l, LogLevel::Debug, "Fetched instruction: {:?}", raw_inst);//TESTING
     //todo!();
     state.retire_inst();
 }
