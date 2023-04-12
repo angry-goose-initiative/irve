@@ -9,6 +9,7 @@
 
 use crate::pmmap::memory_handler::MemoryHandler;
 use crate::pmmap::memory_handler::AccessType;
+use crate::pmmap::memory_handler::AccessSize;
 use crate::pmmap::memory_handler::MatchCriteria;
 use crate::state::State;
 
@@ -43,9 +44,9 @@ impl Ram {
             match_criteria: Vec::new()
         };
 
-        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Fetch, start_addr, new_ram.end_addr()));
-        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Read, start_addr, new_ram.end_addr()));
-        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Write, start_addr, new_ram.end_addr()));
+        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Fetch, AccessSize::All, start_addr, new_ram.end_addr()));
+        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Read,  AccessSize::All, start_addr, new_ram.end_addr()));
+        new_ram.match_criteria.push(MatchCriteria::AddressRange(AccessType::Write, AccessSize::All, start_addr, new_ram.end_addr()));
 
         new_ram
     }

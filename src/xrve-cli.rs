@@ -37,8 +37,12 @@ fn main() {
 
     let log_receiver = system.get_log_receiver();
 
-    let ram = Ram::new(0x0000_0000, 0x0000_1000);
+    let ram = Ram::new(0, 1000);
+
     system.register_memory_handler(ram);
+
+    //TESTING load nop into memory
+    system.write_word_to_memory(0, 0x00000013);
 
     //TESTING
     system.single_step();

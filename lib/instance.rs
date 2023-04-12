@@ -168,6 +168,39 @@ impl Instance {
 
     //TODO add a function for getting a reciever for logging
     //
+    //
+
+    pub fn read_byte_from_memory(&mut self, addr: u32) -> Result<u8, ()> {
+        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        self.pmmap.as_mut().unwrap().read_byte(self.state.as_mut().unwrap(), addr)
+    }
+
+    pub fn write_byte_to_memory(&mut self, addr: u32, data: u8) -> Result<(), ()> {
+        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        self.pmmap.as_mut().unwrap().write_byte(self.state.as_mut().unwrap(), addr, data)
+    }
+
+    pub fn read_halfword_from_memory(&mut self, addr: u32) -> Result<u16, ()> {
+        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        self.pmmap.as_mut().unwrap().read_halfword(self.state.as_mut().unwrap(), addr)
+    }
+
+    pub fn write_halfword_to_memory(&mut self, addr: u32, data: u16) -> Result<(), ()> {
+        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        self.pmmap.as_mut().unwrap().write_halfword(self.state.as_mut().unwrap(), addr, data)
+    }
+
+    pub fn read_word_from_memory(&mut self, addr: u32) -> Result<u32, ()> {
+        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        self.pmmap.as_mut().unwrap().read_word(self.state.as_mut().unwrap(), addr)
+    }
+
+    pub fn write_word_to_memory(&mut self, addr: u32, data: u32) -> Result<(), ()> {
+        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        self.pmmap.as_mut().unwrap().write_word(self.state.as_mut().unwrap(), addr, data)
+    }
+
+    //TODO add functions for other access sizes?
 }
 
 /* Functions */

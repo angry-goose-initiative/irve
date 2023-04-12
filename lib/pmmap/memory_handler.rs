@@ -32,18 +32,25 @@ use crate::state::State;
 
 #[derive(Debug, Clone, Copy)]
 pub enum AccessType {
+    All,
     Fetch,
     Read,
     Write
 }
 
-//TODO add access size as well
+#[derive(Debug, Clone, Copy)]
+pub enum AccessSize {
+    All,
+    Byte,
+    Halfword,
+    Word
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum MatchCriteria {
-    Always(AccessType),
-    SingleAddress(AccessType, u32),
-    AddressRange(AccessType, u32, u32),//Inclusive
+    Always(AccessType, AccessSize),
+    SingleAddress(AccessType, AccessSize, u32),
+    AddressRange(AccessType, AccessSize, u32, u32),//Inclusive
     Never
 
     //TODO
@@ -106,13 +113,47 @@ pub trait MemoryHandler /*<const NUM_CRITERIA: usize>*/ {
 
 /* Associated Functions and Methods */
 
+impl AccessType {
+    fn satisfies(&self, other: &Self) -> bool {
+        use AccessType::*;
+
+        match (self, other) {
+            (All, _) => true,
+            (Fetch, Fetch) => true,
+            (Read, Read) => true,
+            (Write, Write) => true,
+            _ => false
+        }
+    }
+}
+
+impl AccessSize {
+    fn satisfies(&self, other: &Self) -> bool {
+        use AccessSize::*;
+
+        match (self, other) {
+            (All, _) => true,
+            (Byte, Byte) => true,
+            (Halfword, Halfword) => true,
+            (Word, Word) => true,
+            _ => false
+        }
+    }
+}
+
 impl MatchCriteria {
-    pub fn matches(&self, addr: u32, access_type: AccessType) -> bool {
+    pub fn satisfies(&self, addr: u32, access_type: AccessType, access_size: AccessSize) -> bool {
+        use MatchCriteria::*;
+
         match self {
-            MatchCriteria::Always(access_type)              => true,
-            MatchCriteria::SingleAddress(access_type, a)    => addr == *a,
-            MatchCriteria::AddressRange(access_type, a, b)  => (addr >= *a) && (addr <= *b),
-            default                                         => false
+            Always(match_access_type, match_access_size)
+                => (match_access_type.satisfies(&access_type)) && (match_access_size.satisfies(&access_size)),
+            SingleAddress(match_access_type, match_access_size, match_addr)
+                => (match_access_type.satisfies(&access_type)) && (match_access_size.satisfies(&access_size)) && (addr == *match_addr),
+            AddressRange(match_access_type, match_access_size, match_start_addr, match_end_addr)
+                => (match_access_type.satisfies(&access_type)) && (match_access_size.satisfies(&access_size)) && (addr >= *match_start_addr) && (addr <= *match_end_addr),
+            _
+                => false
         }
     }
 }
