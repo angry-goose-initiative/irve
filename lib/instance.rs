@@ -75,6 +75,8 @@ impl Instance {
         system
     }
 
+    //TODO add functions for reading and writing to memory so the user can load/dump memory
+
     pub fn single_step(self: &mut Self) {
         assert!(self.thread.is_none(), "Cannot single step while thread is running");
         log!(self.l, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
@@ -142,11 +144,10 @@ impl Instance {
         //TODO
     }
 
-    pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
+    pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler + Send + 'static) {
         assert!(self.thread.is_none(), "Cannot register memory handler while thread is running");
         log!(self.l, 1, "Registering memory handler");
-        //todo!();
-        //TODO
+        self.pmmap.as_mut().unwrap().register_handler(handler);
     }
 
     pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
@@ -155,6 +156,8 @@ impl Instance {
         //todo!();
         //TODO
     }
+
+    //pub fn add_ram
 
     //TODO a function for registering a handler that runs each tick?
 

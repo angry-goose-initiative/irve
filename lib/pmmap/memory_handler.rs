@@ -55,35 +55,37 @@ pub enum MatchCriteria {
 pub trait MemoryHandler /*<const NUM_CRITERIA: usize>*/ {
     //const MATCH_CRITERIA: MatchCriteria;//[MatchCriteria; NUM_CRITERIA];
    
-    fn get_match_criteria(&self) -> &[MatchCriteria];
+    fn get_match_criteria(&self) -> Vec<MatchCriteria>;
+
+    //TODO add a function to get an identifying string
 
     //Memory handlers are allowed to panic if they are unable to handle the request
     //So the match criteria should be checked before calling the handler functions
-    fn fetch_byte(&self, state: &mut State, addr: u32) -> u8 {
+    fn fetch_byte(&mut self, state: &mut State, addr: u32) -> u8 {
         self.read_byte(state, addr)//By default just implement fetch with read
     }
-    fn read_byte(&self, state: &mut State, addr: u32) -> u8;
-    fn write_byte(&self, state: &mut State, addr: u32, data: u8);
+    fn read_byte(&mut self, state: &mut State, addr: u32) -> u8;
+    fn write_byte(&mut self, state: &mut State, addr: u32, data: u8);
 
     //The functions that read multiple bytes MUST BE ALIGNED or else they may panic
-    fn fetch_halfword(&self, state: &mut State, addr: u32) -> u16 {
+    fn fetch_halfword(&mut self, state: &mut State, addr: u32) -> u16 {
         self.read_halfword(state, addr)//By default just implement fetch with read
     }
-    fn read_halfword(&self, state: &mut State, addr: u32) -> u16 {
+    fn read_halfword(&mut self, state: &mut State, addr: u32) -> u16 {
         //By default just implement read_halfword with read_byte (LITTLE ENDIAN)
         let mut data = self.read_byte(state, addr) as u16;
         data |= (self.read_byte(state, addr + 1) as u16) << 8;
         data
     }
-    fn write_halfword(&self, state: &mut State, addr: u32, data: u16) {
+    fn write_halfword(&mut self, state: &mut State, addr: u32, data: u16) {
         //By default just implement write_halfword with write_byte (LITTLE ENDIAN)
         self.write_byte(state, addr, data as u8);
         self.write_byte(state, addr + 1, (data >> 8) as u8);
     }
-    fn fetch_word(&self, state: &mut State, addr: u32) -> u32 {
+    fn fetch_word(&mut self, state: &mut State, addr: u32) -> u32 {
         self.read_word(state, addr)//By default just implement fetch with read
     }
-    fn read_word(&self, state: &mut State, addr: u32) -> u32 {
+    fn read_word(&mut self, state: &mut State, addr: u32) -> u32 {
         //By default just implement read_word with read_byte (LITTLE ENDIAN)
         let mut data = self.read_byte(state, addr) as u32;
         data |= (self.read_byte(state, addr + 1) as u32) << 8;
@@ -91,7 +93,7 @@ pub trait MemoryHandler /*<const NUM_CRITERIA: usize>*/ {
         data |= (self.read_byte(state, addr + 3) as u32) << 24;
         data
     }
-    fn write_word(&self, state: &mut State, addr: u32, data: u32) {
+    fn write_word(&mut self, state: &mut State, addr: u32, data: u32) {
         //By default just implement write_word with write_byte (LITTLE ENDIAN)
         self.write_byte(state, addr, data as u8);
         self.write_byte(state, addr + 1, (data >> 8) as u8);

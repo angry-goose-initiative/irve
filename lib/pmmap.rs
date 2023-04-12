@@ -53,44 +53,45 @@ impl PhysicalMemoryMap {
     }
 
     //TODO functions for reading, writing, and fetching (which will lookup the proper handler)
-    pub fn fetch_byte(&self, state: &mut State, addr: u32) -> Result<u8, ()> {
+    pub fn fetch_byte(&mut self, state: &mut State, addr: u32) -> Result<u8, ()> {
         Ok(self.search(addr, AccessType::Fetch)?.fetch_byte(state, addr))
     }
-    pub fn read_byte(&self, state: &mut State, addr: u32) -> Result<u8, ()> {
+    pub fn read_byte(&mut self, state: &mut State, addr: u32) -> Result<u8, ()> {
         Ok(self.search(addr, AccessType::Read)?.read_byte(state, addr))
     }
-    pub fn write_byte(&self, state: &mut State, addr: u32, data: u8) -> Result<(), ()> {
+    pub fn write_byte(&mut self, state: &mut State, addr: u32, data: u8) -> Result<(), ()> {
         self.search(addr, AccessType::Write)?.write_byte(state, addr, data);
         Ok(())
     }
+
     //TODO what if we can only legally access the first byte in a multi-byte access?
     //How do we tell if we're allowed to access the rest of the bytes?
-    pub fn fetch_halfword(&self, state: &mut State, addr: u32) -> Result<u16, ()> {
+    pub fn fetch_halfword(&mut self, state: &mut State, addr: u32) -> Result<u16, ()> {
         Ok(self.search(addr, AccessType::Fetch)?.fetch_halfword(state, addr))
     }
-    pub fn read_halfword(&self, state: &mut State, addr: u32) -> Result<u16, ()> {
+    pub fn read_halfword(&mut self, state: &mut State, addr: u32) -> Result<u16, ()> {
         Ok(self.search(addr, AccessType::Read)?.read_halfword(state, addr))
     }
-    pub fn write_halfword(&self, state: &mut State, addr: u32, data: u16) -> Result<(), ()> {
+    pub fn write_halfword(&mut self, state: &mut State, addr: u32, data: u16) -> Result<(), ()> {
         self.search(addr, AccessType::Write)?.write_halfword(state, addr, data);
         Ok(())
     }
-    pub fn fetch_word(&self, state: &mut State, addr: u32) -> Result<u32, ()> {
+    pub fn fetch_word(&mut self, state: &mut State, addr: u32) -> Result<u32, ()> {
         Ok(self.search(addr, AccessType::Fetch)?.fetch_word(state, addr))
     }
-    pub fn read_word(&self, state: &mut State, addr: u32) -> Result<u32, ()> {
+    pub fn read_word(&mut self, state: &mut State, addr: u32) -> Result<u32, ()> {
         Ok(self.search(addr, AccessType::Read)?.read_word(state, addr))
     }
-    pub fn write_word(&self, state: &mut State, addr: u32, data: u32) -> Result<(), ()> {
+    pub fn write_word(&mut self, state: &mut State, addr: u32, data: u32) -> Result<(), ()> {
         self.search(addr, AccessType::Write)?.write_word(state, addr, data);
         Ok(())
     }
 
-    fn search(&self, addr: u32, access_type: AccessType) -> Result<&Box<dyn MemoryHandler + Send>, ()> {
+    fn search(&mut self, addr: u32, access_type: AccessType) -> Result<&mut Box<dyn MemoryHandler + Send>, ()> {
         //TODO do this in a more efficient way
         
         //Linearly search the handlers for a match
-        for handler in &self.handlers {
+        for handler in &mut self.handlers {
             //Linearly search the criteria in each handler for a match
             for criterion in handler.get_match_criteria() {
                 if criterion.matches(addr, access_type) {

@@ -43,8 +43,9 @@ fn main() {
     //TESTING
     system.single_step();
     system.run_in_thread();
-    for _ in 0..30 {
-        let (log_level, message) = log_receiver.recv().unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(1));
+    system.stop_thread();
+    while let Ok((log_level, message)) = log_receiver.try_recv() {
         println!("{:?}: {}", log_level, message);
     }
 
