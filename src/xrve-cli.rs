@@ -8,6 +8,7 @@
 /* Imports */
 
 use xrve::Instance;
+use xrve::pmmap::ram::Ram;
 
 /* Constants */
 
@@ -35,6 +36,9 @@ fn main() {
     let mut system = Instance::new();
 
     let log_receiver = system.get_log_receiver();
+
+    let ram = Ram::new(0x0000_0000, 0x0000_1000);
+    system.register_memory_handler(ram);
 
     //TESTING
     system.single_step();

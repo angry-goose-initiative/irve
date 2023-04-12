@@ -9,9 +9,12 @@
 
 /* Imports */
 
+pub mod memory_handler;
+pub mod ram;
+
 use crate::state::State;
-use crate::memory_handler::MemoryHandler;
-use crate::memory_handler::AccessType;
+use memory_handler::MemoryHandler;
+use memory_handler::AccessType;
 
 /* Constants */
 

@@ -9,10 +9,10 @@
 
 //TODO (include "use" and "mod" here)
 use crate::instruction_handler;
-use crate::memory_handler;
 use crate::csr_handler;
 
 use crate::pmmap;
+use pmmap::memory_handler;
 
 /* Constants */
 

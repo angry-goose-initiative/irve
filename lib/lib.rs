@@ -15,7 +15,6 @@
 /* Imports */
 
 mod instruction_handler;
-mod memory_handler;
 mod csr_handler;
 mod fetch;
 mod decode;
@@ -23,7 +22,7 @@ mod instance;
 mod io;
 mod logging;
 mod state;
-mod pmmap;
+pub mod pmmap;
 
 pub use instance::Instance;
 pub use logging::LogReciever;

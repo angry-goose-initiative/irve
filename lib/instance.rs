@@ -16,7 +16,7 @@ use crate::logging::LogReciever;
 use crate::state::State;
 use crate::io::IO;
 use crate::instruction_handler;
-use crate::memory_handler;
+use crate::pmmap::memory_handler;
 use crate::csr_handler;
 use crate::logging;
 use crate::fetch::fetch_raw;
@@ -138,21 +138,21 @@ impl Instance {
     pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
         assert!(self.thread.is_none(), "Cannot register instruction handler while thread is running");
         log!(self.l, 1, "Registering instruction handler");
-        todo!();
+        //todo!();
         //TODO
     }
 
     pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
         assert!(self.thread.is_none(), "Cannot register memory handler while thread is running");
         log!(self.l, 1, "Registering memory handler");
-        todo!();
+        //todo!();
         //TODO
     }
 
     pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
         assert!(self.thread.is_none(), "Cannot register CSR handler while thread is running");
         log!(self.l, 1, "Registering CSR handler");
-        todo!();
+        //todo!();
         //TODO
     }
 
