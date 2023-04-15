@@ -1,7 +1,5 @@
-/* NAME//TODO
+/* memory_handler.rs
  * By: John Jekel
- *
- * TODO description
  *
  * Like instruction handler, but for PHYSICAL memory addresses
  *
@@ -159,5 +157,9 @@ impl MatchCriteria {
 }
 
 /* Functions */
+
+//TODO
+
+/* Tests */
 
 //TODO

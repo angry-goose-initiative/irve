@@ -76,3 +76,6 @@ pub fn fetch_raw(state: &mut State, pmmap: &mut PhysicalMemoryMap, l: &mut Logge
     }
 }
 
+/* Tests */
+
+//TODO

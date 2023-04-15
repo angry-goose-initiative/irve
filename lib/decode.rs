@@ -7,7 +7,9 @@
 
 /* Imports */
 
-//TODO (include "use" and "mod" here)
+use crate::fetch::RawInstruction;
+use crate::instruction_handler::InstructionHandler;
+use std::collections::HashMap;
 
 /* Constants */
 
@@ -23,7 +25,7 @@
 
 /* Types */
 
-pub enum DecodedInstruction {
+/*pub enum DecodedInstruction {
     RType{rs2: u8, rs1: u8, rd: u8, opcode: DecodedRTypeOpcode},
     IType{imm12: u16, rs1: u8, funct3: u8, rd: u8, opcode: u8},//TODO what about those without imm12?
     SType{imm12: u16, rs2: u8, rs1: u8, opcode: DecodedSTypeOpcode},
@@ -111,7 +113,7 @@ pub enum DecodedInstructionOld {
     Reserved3,
     Custom3,
     Bge80
-}
+}*/
 
 
 /*typedef enum {
@@ -122,11 +124,152 @@ pub enum DecodedInstructionOld {
 } opcode_t;
 */
 //TODO
+//
+//
+
+
+//TODO new development after this point (this is what we will stick with, not the above)
+
+pub struct Decoder {
+    handlers: HashMap<MajorOpcode, Box<dyn InstructionHandler + Send>>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum MajorOpcode {
+    Load,
+    LoadFp,
+    Custom0,
+    MiscMem,
+    OpImm,
+    Auipc,
+    OpImm32,
+    //48b//TODO figure out how to allow variable length instructions
+    Store,
+    StoreFp,
+    Custom1,
+    Amo,
+    Op,
+    Lui,
+    Op32,
+    //64b//TODO figure out how to allow variable length instructions
+    MAdd,
+    MSub,
+    NMSub,
+    NMAdd,
+    OpFp,
+    //Reserved,//TODO how to allow use of reserved opcodes?
+    Custom2,
+    //48b//TODO figure out how to allow variable length instructions
+    Branch,
+    Jalr,
+    //Reserved,//TODO how to allow use of reserved opcodes?
+    Jal,
+    System,
+    //Reserved,//TODO how to allow use of reserved opcodes?
+    Custom3,
+    //>=80b//TODO figure out how to allow variable length instructions
+}
+
+//
 
 /* Associated Functions and Methods */
 
+impl Decoder {
+    pub fn new() -> Self {
+        Self {
+            handlers: HashMap::new(),
+        }
+    }
+
+    //Returns the previous handler if there was one
+    pub fn register_handler(&mut self, handler: impl InstructionHandler + Send + 'static) -> Option<Box<dyn InstructionHandler + Send>> {
+        self.handlers.insert(MajorOpcode::Load, Box::new(handler))
+    }
+
+    pub fn decode(&self, raw_inst: RawInstruction) -> Result<&mut Box<dyn InstructionHandler + Send>, ()> {
+        todo!();//Lookup handler in hashmap and return it
+    }
+}
+
 //TODO
+impl TryFrom<RawInstruction> for MajorOpcode {
+    type Error = ();
+    fn try_from(raw_inst: RawInstruction) -> Result<Self, Self::Error> {
+        match raw_inst {
+            RawInstruction::Regular(instruction) => {
+                let opcode = (instruction & 0b1111100) >> 2;
+                let opcode_lower = opcode & 0b111;
+                let opcode_upper = (opcode >> 3) & 0b11;
+                match (opcode_upper, opcode_lower) {
+                    (0b00, 0b000) => Ok(MajorOpcode::Load),
+                    (0b00, 0b001) => Ok(MajorOpcode::LoadFp),
+                    (0b00, 0b010) => Ok(MajorOpcode::Custom0),
+                    (0b00, 0b011) => Ok(MajorOpcode::MiscMem),
+                    (0b00, 0b100) => Ok(MajorOpcode::OpImm),
+                    (0b00, 0b101) => Ok(MajorOpcode::Auipc),
+                    (0b00, 0b110) => Ok(MajorOpcode::OpImm32),
+                    //48b//TODO figure out how to allow variable length instructions
+                    (0b01, 0b000) => Ok(MajorOpcode::Store),
+                    (0b01, 0b001) => Ok(MajorOpcode::StoreFp),
+                    (0b01, 0b010) => Ok(MajorOpcode::Custom1),
+                    (0b01, 0b011) => Ok(MajorOpcode::Amo),
+                    (0b01, 0b100) => Ok(MajorOpcode::Op),
+                    (0b01, 0b101) => Ok(MajorOpcode::Lui),
+                    (0b01, 0b110) => Ok(MajorOpcode::Op32),
+                    //64b//TODO figure out how to allow variable length instructions
+                    (0b10, 0b000) => Ok(MajorOpcode::MAdd),
+                    (0b10, 0b001) => Ok(MajorOpcode::MSub),
+                    (0b10, 0b010) => Ok(MajorOpcode::NMSub),
+                    (0b10, 0b011) => Ok(MajorOpcode::NMAdd),
+                    (0b10, 0b100) => Ok(MajorOpcode::OpFp),
+                    //Reserved,//TODO how to allow use of reserved opcodes?
+                    (0b10, 0b110) => Ok(MajorOpcode::Custom2),
+                    //48b//TODO figure out how to allow variable length instructions
+                    (0b11, 0b000) => Ok(MajorOpcode::Branch),
+                    (0b11, 0b001) => Ok(MajorOpcode::Jalr),
+                    //Reserved,//TODO how to allow use of reserved opcodes?
+                    (0b11, 0b011) => Ok(MajorOpcode::Jal),
+                    (0b11, 0b100) => Ok(MajorOpcode::System),
+                    //Reserved,//TODO how to allow use of reserved opcodes?
+                    (0b11, 0b110) => Ok(MajorOpcode::Custom3),
+                    //>=80b//TODO figure out how to allow variable length instructions
+                    _ => Err(())
+                }
+            },
+            RawInstruction::Compressed(_) => {
+                return Self::try_from(decompress(raw_inst));
+            },
+            RawInstruction::Unaligned => {
+                return Err(());
+            },
+            RawInstruction::Fault => {
+                return Err(());
+            }
+        }
+    }
+}
+
 
 /* Functions */
 
-//TODO
+fn decompress(instruction: RawInstruction) -> RawInstruction {
+    assert!(matches!(instruction, RawInstruction::Compressed(_)));
+    todo!();
+}
+
+/* Tests */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn major_opcode_try_into_sanity() {
+        let inst0 = RawInstruction::Regular(0x00000013);
+        assert_eq!(MajorOpcode::try_from(inst0), Ok(MajorOpcode::OpImm));
+        let inst1 = RawInstruction::Unaligned;
+        assert_eq!(MajorOpcode::try_from(inst1), Err(()));
+        let inst2 = RawInstruction::Fault;
+        assert_eq!(MajorOpcode::try_from(inst2), Err(()));
+    }
+}

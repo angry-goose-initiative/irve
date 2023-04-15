@@ -224,3 +224,7 @@ pub fn tick(state: &mut State, pmmap: &mut PhysicalMemoryMap, io: &mut IO, l: &m
     //todo!();
     state.retire_inst();
 }
+
+/* Tests */
+
+//TODO

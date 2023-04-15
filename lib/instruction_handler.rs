@@ -12,6 +12,7 @@
 /* Imports */
 
 use crate::state::State;
+use crate::decode::MajorOpcode;
 
 /* Constants */
 
@@ -31,21 +32,25 @@ use crate::state::State;
     //TODO
 //}
 
-pub enum MatchCriteria {
-    Always,
 
+/*pub enum MatchCriteria {
+    Always,
+    Opcode(MajorOpcode),
     Never,
 
     //TODO
-}
+}*/
 
 //TODO may need a lifetime parameter here for the callback
 //IMPORTANT: Actually, no, the InstructionHandler will be consumed when it is registered
 //and if the user wants to communicate with their own code, they can use a channel
 pub trait InstructionHandler {
-    const MATCH_CRITERIA: MatchCriteria;
+    //const MATCH_CRITERIA: MatchCriteria;
    
-    fn handle(&self, state: &mut State/*, opcode: &Opcode*/)/* -> Result<(), Error>*/;
+    //fn handle(&self, state: &mut State/*, opcode: &Opcode*/)/* -> Result<(), Error>*/;
+    fn get_major_opcode_handled(&self) -> MajorOpcode;
+    fn handle(&self, state: &mut State);//TODO also pass it some pre-preprocessed instruction, or
+                                        //provide common facilities for getting instruction fields
     
     //TODO
 }
@@ -53,7 +58,23 @@ pub trait InstructionHandler {
 /* Associated Functions and Methods */
 
 //TODO
+//
+
+/*impl MatchCriteria {
+    pub fn satisfies(&self, opcode: MajorOpcode) -> bool {
+        match self {
+            MatchCriteria::Always => true,
+            MatchCriteria::Opcode(match_opcode) => opcode == *match_opcode,
+            MatchCriteria::Never => false,
+        }
+    }
+}*/
+
 
 /* Functions */
+
+//TODO
+
+/* Tests */
 
 //TODO

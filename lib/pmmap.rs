@@ -1,9 +1,8 @@
-/* NAME//TODO
+/* pmmap.rs
  * By: John Jekel
  *
- * TODO description
- *
- * TODO this will be the struct that holds memory handlers for physical memory
+ * Physical Memory Map for XRVE
+ * (holds memory handlers and manages memory accesses)
  *
 */
 
@@ -109,5 +108,9 @@ impl PhysicalMemoryMap {
 }
 
 /* Functions */
+
+//TODO
+
+/* Tests */
 
 //TODO
