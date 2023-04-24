@@ -51,7 +51,7 @@ pub fn fetch_raw(state: &mut State, pmmap: &mut PhysicalMemoryMap, l: &mut Logge
     }
 
     //Get the first/only halfword of the instruction
-    let mut first_halfword: u16;
+    let first_halfword: u16;
     if let Ok(halfword) = pmmap.read_halfword(state, state.pc()) {
         log!(l, 130, "Read first halfword of instruction: 0x{:04x}", halfword);
         first_halfword = halfword;

@@ -23,6 +23,7 @@ mod io;
 mod logging;
 mod state;
 pub mod pmmap;
+pub mod standard_extensions;
 
 pub use instance::Instance;
 pub use logging::LogReciever;

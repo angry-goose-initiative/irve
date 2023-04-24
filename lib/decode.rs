@@ -183,15 +183,15 @@ impl Decoder {
 
     //Returns the previous handler if there was one
     pub fn register_handler(&mut self, handler: impl InstructionHandler + Send + 'static) -> Option<Box<dyn InstructionHandler + Send>> {
-        self.handlers.insert(MajorOpcode::Load, Box::new(handler))
+        self.handlers.insert(handler.get_major_opcode_handled(), Box::new(handler))
     }
 
-    pub fn decode(&self, raw_inst: RawInstruction) -> Result<&mut Box<dyn InstructionHandler + Send>, ()> {
-        todo!();//Lookup handler in hashmap and return it
+    pub fn decode(&mut self, raw_inst: RawInstruction) -> Result<&mut Box<dyn InstructionHandler + Send>, ()> {
+        let major_opcode = MajorOpcode::try_from(raw_inst)?;
+        self.handlers.get_mut(&major_opcode).ok_or(())
     }
 }
 
-//TODO
 impl TryFrom<RawInstruction> for MajorOpcode {
     type Error = ();
     fn try_from(raw_inst: RawInstruction) -> Result<Self, Self::Error> {
@@ -253,7 +253,7 @@ impl TryFrom<RawInstruction> for MajorOpcode {
 /* Functions */
 
 fn decompress(instruction: RawInstruction) -> RawInstruction {
-    assert!(matches!(instruction, RawInstruction::Compressed(_)));
+    debug_assert!(matches!(instruction, RawInstruction::Compressed(_)));
     todo!();
 }
 

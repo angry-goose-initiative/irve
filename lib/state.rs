@@ -64,7 +64,7 @@ impl State {
     }
 
     pub fn get_r(&self, r: u8) -> u32 {
-        assert!(r < 32);
+        debug_assert!(r < 32);
         if r == 0 {
             0
         } else {
@@ -73,7 +73,7 @@ impl State {
     }
 
     pub fn set_r(&mut self, r: u8, val: u32) {
-        assert!(r < 32);
+        debug_assert!(r < 32);
         if r != 0 {
             self.registers[(r as usize) - 1] = val;
         }
@@ -113,4 +113,38 @@ impl State {
 
 /* Tests */
 
-//TODO
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_state() {
+        let _ = State::new();
+    }
+
+    #[test]
+    fn retires_correctly() {
+        let mut state = State::new();
+
+        for i in 0..100 {
+            assert_eq!(state.retired_insts(), i);
+            state.retire_inst();
+        }
+    }
+
+    #[test]
+    fn gp_registers_working() {
+        let mut state = State::new();
+
+        for i in 0..32 {
+            state.set_r(i, (i as u32) * 123 + 456);
+        }
+
+        assert_eq!(state.get_r(0), 0);
+        for i in 1..32 {
+            assert_eq!(state.get_r(i), (i as u32) * 123 + 456);
+        }
+    }
+
+    //TODO more tests
+}

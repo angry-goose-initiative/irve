@@ -90,8 +90,18 @@ impl PhysicalMemoryMap {
     }
 
     fn search(&mut self, addr: u32, access_type: AccessType, access_size: AccessSize) -> Result<&mut Box<dyn MemoryHandler + Send>, ()> {
-        //TODO do this in a more efficient way
-        //TODO disallow unaligned accesses
+        //NOTE: We don't have to worry about accesses crossing multiple handlers or a handler and unmapped memory
+        //because the MatchCriteria AddressRange variant requires that the size of the range be a multiple of the access size
+
+        //TODO do this in a more efficient way than linear search
+
+        //Bail out if an unaligned access is attempted (satisfied will panic if the access is unaligned)
+        match access_size {
+            AccessSize::All => panic!("All is disallowed as a search criterion"),//TODO replace with debug panic
+            AccessSize::Byte => {},//Byte accesses have no restrictions
+            AccessSize::Halfword => if (addr & 0x1) != 0 { return Err(()); },
+            AccessSize::Word => if (addr & 0x3) != 0 { return Err(()); },
+        }
         
         //Linearly search the handlers for a match
         for handler in &mut self.handlers {
@@ -113,4 +123,71 @@ impl PhysicalMemoryMap {
 
 /* Tests */
 
-//TODO
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_pmmap() {
+        let _ = PhysicalMemoryMap::new();
+    }
+
+    #[test]
+    fn register_handler() {
+        let mut pmmap = PhysicalMemoryMap::new();
+
+        pmmap.register_handler(ram::Ram::new(0x1234, 0x5678));
+    }
+
+    #[test]
+    fn search_sanity() {
+        let mut pmmap = PhysicalMemoryMap::new();
+
+        assert!(pmmap.search(0x1238, AccessType::Read, AccessSize::Byte).is_err());
+        assert!(pmmap.search(0x123C, AccessType::Read, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1244, AccessType::Read, AccessSize::Word).is_err());
+        assert!(pmmap.search(0x1248, AccessType::Write, AccessSize::Byte).is_err());
+        assert!(pmmap.search(0x124C, AccessType::Write, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1250, AccessType::Write, AccessSize::Word).is_err());
+
+        pmmap.register_handler(ram::Ram::new(0x1234, 0x5678));
+
+        assert!(pmmap.search(0x1238, AccessType::Read, AccessSize::Byte).is_ok());
+        assert!(pmmap.search(0x123C, AccessType::Read, AccessSize::Halfword).is_ok());
+        assert!(pmmap.search(0x1240, AccessType::Read, AccessSize::Word).is_ok());
+        assert!(pmmap.search(0x1248, AccessType::Write, AccessSize::Byte).is_ok());
+        assert!(pmmap.search(0x124C, AccessType::Write, AccessSize::Halfword).is_ok());
+        assert!(pmmap.search(0x1250, AccessType::Write, AccessSize::Word).is_ok());
+
+        assert!(pmmap.search(0x1000, AccessType::Read, AccessSize::Byte).is_err());
+        assert!(pmmap.search(0x1000, AccessType::Read, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1000, AccessType::Read, AccessSize::Word).is_err());
+        assert!(pmmap.search(0x1000, AccessType::Write, AccessSize::Byte).is_err());
+        assert!(pmmap.search(0x1000, AccessType::Write, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1000, AccessType::Write, AccessSize::Word).is_err());
+    }
+
+    #[test]
+    fn search_unaligned() {
+        let mut pmmap = PhysicalMemoryMap::new();
+
+        assert!(pmmap.search(0x123B, AccessType::Read, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x123F, AccessType::Read, AccessSize::Word).is_err());
+        assert!(pmmap.search(0x1247, AccessType::Write, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x124B, AccessType::Write, AccessSize::Word).is_err());
+
+        pmmap.register_handler(ram::Ram::new(0x1234, 0x5678));
+
+        assert!(pmmap.search(0x123B, AccessType::Read, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x123F, AccessType::Read, AccessSize::Word).is_err());
+        assert!(pmmap.search(0x1247, AccessType::Write, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x124B, AccessType::Write, AccessSize::Word).is_err());
+
+        assert!(pmmap.search(0x1001, AccessType::Read, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1001, AccessType::Read, AccessSize::Word).is_err());
+        assert!(pmmap.search(0x1001, AccessType::Write, AccessSize::Halfword).is_err());
+        assert!(pmmap.search(0x1001, AccessType::Write, AccessSize::Word).is_err());
+    }
+
+    //TODO more tests
+}

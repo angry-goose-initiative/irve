@@ -78,13 +78,13 @@ impl Instance {
     //TODO add functions for reading and writing to memory so the user can load/dump memory
 
     pub fn single_step(self: &mut Self) {
-        assert!(self.thread.is_none(), "Cannot single step while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot single step while thread is running");
         log!(self.l, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
         tick(self.state.as_mut().unwrap(), self.pmmap.as_mut().unwrap(), self.io.as_mut().unwrap(), &mut self.l);
     }
 
     pub fn run_in_thread(self: &mut Self) {
-        assert!(self.thread.is_none(), "Cannot start running in a thread while one is already running");
+        debug_assert!(self.thread.is_none(), "Cannot start running in a thread while one is already running");
         log!(self.l, 0, "Starting XRVE in thread");
 
         //Set the thread stop request to false so that we don't exit as soon as we enter
@@ -108,7 +108,7 @@ impl Instance {
     }
 
     pub fn stop_thread(self: &mut Self) {
-        assert!(self.thread.is_some(), "Cannot stop thread when one is not running");
+        debug_assert!(self.thread.is_some(), "Cannot stop thread when one is not running");
         log!(self.l, 0, "Stopping XRVE thread");
 
         //Request that the thread stop
@@ -125,8 +125,8 @@ impl Instance {
     }
 
     pub fn get_log_receiver(self: &mut Self) -> LogReciever {
-        assert!(self.l.is_none(), "Cannot setup logging twice");
-        assert!(self.thread.is_none(), "Cannot setup logging while thread is running");
+        debug_assert!(self.l.is_none(), "Cannot setup logging twice");
+        debug_assert!(self.thread.is_none(), "Cannot setup logging while thread is running");
 
         //Initialize logging, saving the Logger in our Instance and returning the LogReciever
         let (logger, log_reciever) = logging::init_logging();
@@ -138,20 +138,20 @@ impl Instance {
     //Design decision: We will not allow handlers to be unregistered
     //TODO perhaps allow priorities?
     pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
-        assert!(self.thread.is_none(), "Cannot register instruction handler while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot register instruction handler while thread is running");
         log!(self.l, 1, "Registering instruction handler");
         //todo!();
         //TODO
     }
 
     pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler + Send + 'static) {
-        assert!(self.thread.is_none(), "Cannot register memory handler while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot register memory handler while thread is running");
         log!(self.l, 1, "Registering memory handler");
         self.pmmap.as_mut().unwrap().register_handler(handler);
     }
 
     pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
-        assert!(self.thread.is_none(), "Cannot register CSR handler while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot register CSR handler while thread is running");
         log!(self.l, 1, "Registering CSR handler");
         //todo!();
         //TODO
@@ -171,32 +171,32 @@ impl Instance {
     //
 
     pub fn read_byte_from_memory(&mut self, addr: u32) -> Result<u8, ()> {
-        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
         self.pmmap.as_mut().unwrap().read_byte(self.state.as_mut().unwrap(), addr)
     }
 
     pub fn write_byte_to_memory(&mut self, addr: u32, data: u8) -> Result<(), ()> {
-        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
         self.pmmap.as_mut().unwrap().write_byte(self.state.as_mut().unwrap(), addr, data)
     }
 
     pub fn read_halfword_from_memory(&mut self, addr: u32) -> Result<u16, ()> {
-        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
         self.pmmap.as_mut().unwrap().read_halfword(self.state.as_mut().unwrap(), addr)
     }
 
     pub fn write_halfword_to_memory(&mut self, addr: u32, data: u16) -> Result<(), ()> {
-        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
         self.pmmap.as_mut().unwrap().write_halfword(self.state.as_mut().unwrap(), addr, data)
     }
 
     pub fn read_word_from_memory(&mut self, addr: u32) -> Result<u32, ()> {
-        assert!(self.thread.is_none(), "Cannot read memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
         self.pmmap.as_mut().unwrap().read_word(self.state.as_mut().unwrap(), addr)
     }
 
     pub fn write_word_to_memory(&mut self, addr: u32, data: u32) -> Result<(), ()> {
-        assert!(self.thread.is_none(), "Cannot write memory while thread is running");
+        debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
         self.pmmap.as_mut().unwrap().write_word(self.state.as_mut().unwrap(), addr, data)
     }
 
@@ -227,4 +227,20 @@ pub fn tick(state: &mut State, pmmap: &mut PhysicalMemoryMap, io: &mut IO, l: &m
 
 /* Tests */
 
-//TODO
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_instance() {
+        let _ = Instance::new();
+    }
+
+    #[test]
+    fn get_log_receiver() {
+        let mut instance = Instance::new();
+        let _ = instance.get_log_receiver();
+    }
+
+    //TODO more tests
+}

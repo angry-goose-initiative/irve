@@ -37,7 +37,7 @@ pub struct Ram {
 
 impl Ram {
     pub fn new(start_addr: u32, size: u32) -> Self {
-        assert!(size > 0, "Cannot create empty Ram");
+        debug_assert!(size > 0, "Cannot create empty Ram");
         let mut new_ram = Self {
             start_addr: start_addr,
             backing_memory: vec![RESET_CONTENTS; size as usize].into_boxed_slice(),
@@ -62,12 +62,12 @@ impl MemoryHandler for Ram {
     }
 
     fn read_byte(&mut self, state: &mut State, addr: u32) -> u8 {
-        assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram read out of bounds");
+        debug_assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram read out of bounds");
         self.backing_memory[(addr - self.start_addr) as usize]
     }
 
     fn write_byte(&mut self, state: &mut State, addr: u32, data: u8) {
-        assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram write out of bounds");
+        debug_assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram write out of bounds");
         self.backing_memory[(addr - self.start_addr) as usize] = data;
     }
 }
