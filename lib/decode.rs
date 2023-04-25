@@ -80,53 +80,7 @@ pub enum DecodedSTypeOpcode {
     Other{funct3: u8},//Custom
     Invalid
 }
-
-pub enum DecodedInstructionOld {
-    Load{imm12: u16, rs1: u8, rd: u8},
-    LoadFP,
-    Custom0,
-    MiscMem,
-    OpImm,
-    Auipc,
-    OpImm32,
-    B480,
-    Store,
-    StoreFP,
-    Custom1,
-    Amo,
-    Op,
-    Lui,
-    Op32,
-    B64,
-    MAdd,
-    MSub,
-    NmSub,
-    OpFP,
-    Reserved0,
-    Custom2,
-    B481,
-    Branch,
-    Jalr,
-    Reserved1,
-    Jal,
-    System,
-    Reserved3,
-    Custom3,
-    Bge80
-}*/
-
-
-/*typedef enum {
-    LOAD = 0b00000, LOAD_FP = 0b00001, CUSTOM_0 = 0b00010, MISC_MEM = 0b00011, OP_IMM = 0b00100, AUIPC = 0b00101, OP_IMM_32 = 0b00110, B48_0 = 0b00111,
-    STORE = 0b01000, STORE_FP = 0b01001, CUSTOM_1 = 0b01010, AMO = 0b01011, OP = 0b01100, LUI = 0b01101, OP_32 = 0b01110, B64 = 0b01111,
-    MADD = 0b10000, MSUB = 0b10001, NMSUB = 0b10011, OP_FP = 0b10100, RESERVED_0 = 0b10101, CUSTOM_2 = 0b10110, B48_1 = 0b10111,
-    BRANCH = 0b11000, JALR = 0b11001, RESERVED_1 = 0b11010, JAL = 0b11011, SYSTEM = 0b11100, RESERVED_3 = 0b11101, CUSTOM_3 = 0b11110, BGE80 = 0b11111,
-} opcode_t;
 */
-//TODO
-//
-//
-
 
 //TODO new development after this point (this is what we will stick with, not the above)
 
@@ -170,7 +124,19 @@ pub enum MajorOpcode {
     //>=80b//TODO figure out how to allow variable length instructions
 }
 
-//
+pub trait RISCVStandardFieldsAccessible {
+    fn rd(&self) -> Option<u8>;
+    fn rs1(&self) -> Option<u8>;
+    fn rs2(&self) -> Option<u8>;
+    fn funct3(&self) -> Option<u8>;
+    fn funct7(&self) -> Option<u8>;
+    fn imm_i(&self) -> Option<u32>;
+    fn imm_s(&self) -> Option<u32>;
+    fn imm_b(&self) -> Option<u32>;
+    fn imm_u(&self) -> Option<u32>;
+    fn imm_j(&self) -> Option<u32>;
+    fn shamt(&self) -> Option<u8>;
+}
 
 /* Associated Functions and Methods */
 
@@ -187,14 +153,14 @@ impl Decoder {
     }
 
     pub fn decode(&mut self, raw_inst: RawInstruction) -> Result<&mut Box<dyn InstructionHandler + Send>, ()> {
-        let major_opcode = MajorOpcode::try_from(raw_inst)?;
+        let major_opcode = MajorOpcode::try_from(&raw_inst)?;
         self.handlers.get_mut(&major_opcode).ok_or(())
     }
 }
 
-impl TryFrom<RawInstruction> for MajorOpcode {
+impl TryFrom<&RawInstruction> for MajorOpcode {
     type Error = ();
-    fn try_from(raw_inst: RawInstruction) -> Result<Self, Self::Error> {
+    fn try_from(raw_inst: &RawInstruction) -> Result<Self, Self::Error> {
         match raw_inst {
             RawInstruction::Regular(instruction) => {
                 let opcode = (instruction & 0b1111100) >> 2;
@@ -237,7 +203,7 @@ impl TryFrom<RawInstruction> for MajorOpcode {
                 }
             },
             RawInstruction::Compressed(_) => {
-                return Self::try_from(decompress(raw_inst));
+                return Self::try_from(&decompress(raw_inst));
             },
             RawInstruction::Unaligned => {
                 return Err(());
@@ -249,10 +215,156 @@ impl TryFrom<RawInstruction> for MajorOpcode {
     }
 }
 
+impl RISCVStandardFieldsAccessible for u32 {
+    fn rd(&self) -> Option<u8> {
+        Some(((self >> 7) & 0b11111) as u8)
+    }
+
+    fn rs1(&self) -> Option<u8> {
+        Some(((self >> 15) & 0b11111) as u8)
+    }
+
+    fn rs2(&self) -> Option<u8> {
+        Some(((self >> 20) & 0b11111) as u8)
+    }
+
+    fn funct3(&self) -> Option<u8> {
+        Some(((self >> 12) & 0b111) as u8)
+    }
+
+    fn funct7(&self) -> Option<u8> {
+        Some(((self >> 25) & 0b1111111) as u8)
+    }
+
+    fn imm_i(&self) -> Option<u32> {
+        Some(((*self as i32) >> 20) as u32)//Sign extension using arithmetic shift with i32
+    }
+
+    fn imm_s(&self) -> Option<u32> {
+        todo!()
+    }
+
+    fn imm_b(&self) -> Option<u32> {
+        todo!()
+    }
+
+    fn imm_u(&self) -> Option<u32> {
+        todo!()
+    }
+
+    fn imm_j(&self) -> Option<u32> {
+        todo!()
+    }
+
+    fn shamt(&self) -> Option<u8> {
+        Some(((self >> 20) & 0b11111) as u8)
+    }
+}
+
+impl RISCVStandardFieldsAccessible for RawInstruction {
+    fn rd(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.rd(),
+            RawInstruction::Compressed(_) => decompress(self).rd(),
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn rs1(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.rs1(),
+            RawInstruction::Compressed(_) => decompress(self).rs1(),
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn rs2(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.rs2(),
+            RawInstruction::Compressed(_) => decompress(self).rs2(),
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn funct3(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.funct3(),
+            RawInstruction::Compressed(_) => decompress(self).funct3(),
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn funct7(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.funct7(),
+            RawInstruction::Compressed(_) => decompress(self).funct7(),
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn imm_i(&self) -> Option<u32> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.imm_i(),
+            RawInstruction::Compressed(_) => todo!(),//TODO Can the compress format even hold an immediate?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn imm_s(&self) -> Option<u32> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.imm_s(),
+            RawInstruction::Compressed(_) => todo!(),//TODO Can the compress format even hold an immediate?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn imm_b(&self) -> Option<u32> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.imm_b(),
+            RawInstruction::Compressed(_) => todo!(),//TODO Can the compress format even hold an immediate?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn imm_u(&self) -> Option<u32> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.imm_u(),
+            RawInstruction::Compressed(_) => todo!(),//TODO Can the compress format even hold an immediate?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn imm_j(&self) -> Option<u32> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.imm_j(),
+            RawInstruction::Compressed(_) => todo!(),//Can the compress format even hold an immediate?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+
+    fn shamt(&self) -> Option<u8> {
+        match self {
+            RawInstruction::Regular(inst_bits) => inst_bits.shamt(),
+            RawInstruction::Compressed(_) => todo!(),//Can the compress format even hold a shamt?
+            RawInstruction::Unaligned => None,
+            RawInstruction::Fault => None
+        }
+    }
+}
 
 /* Functions */
 
-fn decompress(instruction: RawInstruction) -> RawInstruction {
+fn decompress(instruction: &RawInstruction) -> RawInstruction {
     debug_assert!(matches!(instruction, RawInstruction::Compressed(_)));
     todo!();
 }
@@ -266,10 +378,12 @@ mod tests {
     #[test]
     fn major_opcode_try_into_sanity() {
         let inst0 = RawInstruction::Regular(0x00000013);
-        assert_eq!(MajorOpcode::try_from(inst0), Ok(MajorOpcode::OpImm));
+        assert_eq!(MajorOpcode::try_from(&inst0), Ok(MajorOpcode::OpImm));
         let inst1 = RawInstruction::Unaligned;
-        assert_eq!(MajorOpcode::try_from(inst1), Err(()));
+        assert_eq!(MajorOpcode::try_from(&inst1), Err(()));
         let inst2 = RawInstruction::Fault;
-        assert_eq!(MajorOpcode::try_from(inst2), Err(()));
+        assert_eq!(MajorOpcode::try_from(&inst2), Err(()));
     }
+
+    //TODO add more tests (decompress, but also the field/immediate access functions)
 }

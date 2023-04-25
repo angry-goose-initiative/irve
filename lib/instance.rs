@@ -21,6 +21,7 @@ use crate::csr_handler;
 use crate::logging;
 use crate::fetch::fetch_raw;
 use crate::pmmap::PhysicalMemoryMap;
+use crate::decode::Decoder;
 
 /* Constants */
 
@@ -41,12 +42,13 @@ use crate::pmmap::PhysicalMemoryMap;
 pub struct Instance {
     state: Option<State>,
     pmmap: Option<PhysicalMemoryMap>,
+    decoder: Option<Decoder>,
     //TODO structure for mapping to instruction handlers
     l: Logger,
 
     io: Option<IO>,
 
-    thread: Option<thread::JoinHandle<(State, PhysicalMemoryMap, IO, Logger)>>,//Thread returns the state and IO when it exits
+    thread: Option<thread::JoinHandle<(State, PhysicalMemoryMap, Decoder, IO, Logger)>>,//Thread returns the state and IO when it exits
                                                    //to give us back ownership
 
 
@@ -60,9 +62,10 @@ pub struct Instance {
 
 impl Instance {
     pub fn new() -> Self {
-        let mut system = Self {
+        let system = Self {
             state: Some(State::new()),
             pmmap: Some(PhysicalMemoryMap::new()),
+            decoder: Some(Decoder::new()),
             //TODO
             l: None,
             io: Some(IO::new()),
@@ -80,7 +83,7 @@ impl Instance {
     pub fn single_step(self: &mut Self) {
         debug_assert!(self.thread.is_none(), "Cannot single step while thread is running");
         log!(self.l, 128, "Executing single-step step; {} instructions retired", self.state.as_ref().unwrap().retired_insts());
-        tick(self.state.as_mut().unwrap(), self.pmmap.as_mut().unwrap(), self.io.as_mut().unwrap(), &mut self.l);
+        tick(self.state.as_mut().unwrap(), self.pmmap.as_mut().unwrap(), self.decoder.as_mut().unwrap(), self.io.as_mut().unwrap(), &mut self.l);
     }
 
     pub fn run_in_thread(self: &mut Self) {
@@ -93,17 +96,18 @@ impl Instance {
         //Setup the variables to be moved into the closure
         let mut state = self.state.take().unwrap();
         let mut pmmap = self.pmmap.take().unwrap();
+        let mut decoder = self.decoder.take().unwrap();
         let mut io = self.io.take().unwrap();
         let mut logger = self.l.take();//Recall Logger is an Option internally
         //Clone the thread stop request Arc so that we can give it to the thread
         let thread_stop_request_clone = self.thread_stop_request.clone();
 
         //Launch the thread and give it the state and IO
-        self.thread = Some(thread::spawn(move || -> (State, PhysicalMemoryMap, IO, Logger) {
+        self.thread = Some(thread::spawn(move || -> (State, PhysicalMemoryMap, Decoder, IO, Logger) {
             //We just give the actual thread function references to it dosn't have to be
             //responsible for returning them at the end
-            emulation_thread(&mut state, &mut pmmap, &mut io, thread_stop_request_clone, &mut logger);
-            return (state, pmmap, io, logger);
+            emulation_thread(&mut state, &mut pmmap, &mut decoder, &mut io, thread_stop_request_clone, &mut logger);
+            return (state, pmmap, decoder, io, logger);
         }));
     }
 
@@ -115,9 +119,10 @@ impl Instance {
         self.thread_stop_request.store(true, std::sync::atomic::Ordering::Relaxed);
 
         //Join the thread, and take back the things we gave it
-        let (state, pmmap, io, logger) = self.thread.take().unwrap().join().unwrap();
+        let (state, pmmap, decoder, io, logger) = self.thread.take().unwrap().join().unwrap();
         self.state = Some(state);
         self.pmmap = Some(pmmap);
+        self.decoder = Some(decoder);
         self.l = logger;
         self.io = Some(io);
 
@@ -137,11 +142,10 @@ impl Instance {
 
     //Design decision: We will not allow handlers to be unregistered
     //TODO perhaps allow priorities?
-    pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
+    pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler + Send + 'static) -> Option<Box<dyn instruction_handler::InstructionHandler + Send>> {
         debug_assert!(self.thread.is_none(), "Cannot register instruction handler while thread is running");
         log!(self.l, 1, "Registering instruction handler");
-        //todo!();
-        //TODO
+        self.decoder.as_mut().unwrap().register_handler(handler)//Return the old handler if there was one
     }
 
     pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler + Send + 'static) {
@@ -205,7 +209,7 @@ impl Instance {
 
 /* Functions */
 
-pub fn emulation_thread(state: &mut State, pmmap: &mut PhysicalMemoryMap, io: &mut IO, thread_stop_request: Arc<AtomicBool>, l: &mut Logger) {
+pub fn emulation_thread(state: &mut State, pmmap: &mut PhysicalMemoryMap, decoder: &mut Decoder, io: &mut IO, thread_stop_request: Arc<AtomicBool>, l: &mut Logger) {
     log!(l, 0, "XRVE thread started");
     loop {
         if thread_stop_request.load(std::sync::atomic::Ordering::Relaxed) {
@@ -214,13 +218,20 @@ pub fn emulation_thread(state: &mut State, pmmap: &mut PhysicalMemoryMap, io: &m
         }
 
         log!(l, 128, "Executing tick; {} instructions retired", state.retired_insts());
-        tick(state, pmmap, io, l);
+        tick(state, pmmap, decoder, io, l);
     }
 }
 
-pub fn tick(state: &mut State, pmmap: &mut PhysicalMemoryMap, io: &mut IO, l: &mut Logger) {
+pub fn tick(state: &mut State, pmmap: &mut PhysicalMemoryMap, decoder: &mut Decoder, io: &mut IO, l: &mut Logger) {
     let raw_inst = fetch_raw(state, pmmap, l);
     log!(l, LogLevel::Debug, "Fetched instruction: {:?}", raw_inst);//TESTING
+    let inst_handle = decoder.decode(raw_inst);
+    //log!(l, LogLevel::Debug, "Decoded instruction: {:?}", inst_handle);//TESTING
+    let unwrapped_inst_handle = inst_handle.unwrap();//TESTING
+    unwrapped_inst_handle.handle(state, pmmap, raw_inst);//, io, l);
+
+    //TODO handle interrupts, exceptions, etc.
+                                            
     //todo!();
     state.retire_inst();
 }

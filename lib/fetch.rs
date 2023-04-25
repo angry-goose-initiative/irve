@@ -27,7 +27,7 @@ crate::logging::use_logging!();
 /* Types */
 
 //TODO
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum RawInstruction {
     Regular(u32),
     Compressed(u16),

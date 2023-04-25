@@ -157,11 +157,6 @@ impl MatchCriteria {
             }
 
             //Ensure the access is aligned
-            let access_size = match self {
-                Always(_, match_access_size) => access_size,
-                SingleAddress(_, match_access_size, _) => access_size,
-                AddressRange(_, match_access_size, _, _) => access_size
-            };
             match access_size {
                 AccessSize::Halfword => debug_assert!((addr & 1) == 0, "Address must be aligned to the access size"),
                 AccessSize::Word => debug_assert!((addr & 3) == 0, "Address must be aligned to the access size"),

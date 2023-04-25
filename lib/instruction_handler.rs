@@ -13,6 +13,8 @@
 
 use crate::state::State;
 use crate::decode::MajorOpcode;
+use crate::pmmap::PhysicalMemoryMap;
+use crate::fetch::RawInstruction;
 
 /* Constants */
 
@@ -49,8 +51,7 @@ pub trait InstructionHandler {
    
     //fn handle(&self, state: &mut State/*, opcode: &Opcode*/)/* -> Result<(), Error>*/;
     fn get_major_opcode_handled(&self) -> MajorOpcode;
-    fn handle(&self, state: &mut State);//TODO also pass it some pre-preprocessed instruction, or
-                                        //provide common facilities for getting instruction fields
+    fn handle(&self, state: &mut State, pmmap: &mut PhysicalMemoryMap, instruction: RawInstruction);
     
     //TODO
 }

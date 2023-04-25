@@ -2,17 +2,13 @@
  * By: John Jekel
  *
  * Contains the state of the RISC-V system
+ * //TODO have this hold everthing but the logger, and then create a new thing called CPUState that just holds registers and stuff
  *
 */
 
 /* Imports */
 
-//TODO (include "use" and "mod" here)
-use crate::instruction_handler;
-use crate::csr_handler;
-
-use crate::pmmap;
-use pmmap::memory_handler;
+//TODO
 
 /* Constants */
 
@@ -88,22 +84,8 @@ impl State {
         self.insts_retired
     }
 
-    //Design decision: We will not allow handlers to be unregistered
-    //TODO perhaps allow priorities?
-    //TODO perhaps have handlers be in a seperate struct than state to keep state small?
-    pub fn register_instruction_handler(&mut self, handler: impl instruction_handler::InstructionHandler) {
-        todo!();
-        //TODO
-    }
-
-    pub fn register_memory_handler(&mut self, handler: impl memory_handler::MemoryHandler) {
-        todo!();
-        //TODO
-    }
-
-    pub fn register_csr_handler(&mut self, handler: impl csr_handler::CSRHandler) {
-        todo!();
-        //TODO
+    pub fn time_since_boot(&self) -> std::time::Duration {
+        self.boot_time.elapsed()
     }
 }
 
