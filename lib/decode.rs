@@ -152,6 +152,9 @@ impl Decoder {
         self.handlers.insert(handler.get_major_opcode_handled(), Box::new(handler))
     }
 
+    //TODO have the handler return false if it was invalid, then try the next handler to allow
+    //overlapping handlers
+
     pub fn decode(&mut self, raw_inst: RawInstruction) -> Result<&mut Box<dyn InstructionHandler + Send>, ()> {
         let major_opcode = MajorOpcode::try_from(&raw_inst)?;
         self.handlers.get_mut(&major_opcode).ok_or(())

@@ -44,6 +44,8 @@ pub struct OpImmInstructionHandler {
     //No state needed
 }
 
+//TODO others
+
 /* Associated Functions and Methods */
 
 impl OpInstructionHandler {
@@ -78,12 +80,44 @@ impl StoreInstructionHandler {
     }
 }
 
+//TODO others
+
 impl InstructionHandler for OpInstructionHandler {
     fn get_major_opcode_handled(&self) -> MajorOpcode {
         MajorOpcode::Op
     }
     fn handle(&self, state: &mut State, _: &mut PhysicalMemoryMap, instruction: RawInstruction) {
-        todo!();
+        //Get common fields from the instruction
+        let rd_index = instruction.rd().expect("instruction should be a valid Op instruction");
+        debug_assert!(rd_index < 32, "rd should be less than 32");
+        let rs1_index = instruction.rs1().expect("instruction should be a valid Op instruction");
+        debug_assert!(rs1_index < 32, "rs1 should be less than 32");
+        let rs2_index = instruction.rs2().expect("instruction should be a valid Op instruction");
+        debug_assert!(rs2_index < 32, "rs2 should be less than 32");
+        let funct3 = instruction.funct3().expect("instruction should be a valid Op instruction");
+        let funct7 = instruction.funct7().expect("instruction should be a valid Op instruction");
+
+        //Access rs1 and rs2
+        let rs1 = state.get_r(rs1_index);
+        let rs2 = state.get_r(rs2_index);
+
+        //Perform the ALU operation
+        let result = match (funct7, funct3) {
+            (0b0000000, 0b000) => rs1.wrapping_add(rs2),//ADD
+            (0b0100000, 0b000) => rs1.wrapping_sub(rs2),//SUB
+            (0b0000000, 0b001) => rs1 << (rs2 & 0b11111),//SLL
+            (0b0000000, 0b010) => if (rs1 as i32) < (rs2 as i32) { 1 } else { 0 },//SLT
+            (0b0000000, 0b011) => if rs1 < rs2 { 1 } else { 0 },//SLTU
+            (0b0000000, 0b100) => rs1 ^ rs2,//XOR
+            (0b0000000, 0b101) => rs1 >> (rs2 & 0b11111),//SRL
+            (0b0100000, 0b101) => ((rs1 as i32) >> (rs2 & 0b11111)) as u32,//SRA
+            (0b0000000, 0b110) => rs1 | rs2,//OR
+            (0b0000000, 0b111) => rs1 & rs2,//AND
+            _ => panic!("Invalid funct3 and funct7 combo for Op")//TODO make this debug_panic
+        };
+
+        //Write the result to rd
+        state.set_r(rd_index, result);
     }
 }
 
@@ -107,7 +141,7 @@ impl InstructionHandler for OpImmInstructionHandler {
         //Access rs1
         let rs1 = state.get_r(rs1_index);
 
-        //Compute the ALU operation
+        //Perform the ALU operation
         let result = match funct3 {
             0b000 => rs1.wrapping_add(imm),//ADDI 
             0b001 => rs1 << shamt,//SLLI
@@ -142,6 +176,8 @@ impl InstructionHandler for LoadInstructionHandler {
         todo!();
     }
 }
+
+//TODO others
 
 /* Functions */
 
