@@ -176,35 +176,35 @@ impl Instance {
 
     pub fn read_byte_from_memory(&mut self, addr: u32) -> Result<u8, ()> {
         debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
-        self.pmmap.as_mut().unwrap().read_byte(self.state.as_mut().unwrap(), addr)
+        self.pmmap.as_mut().unwrap().read_byte(self.state.as_mut().unwrap(), addr, &mut self.l)
     }
 
     pub fn write_byte_to_memory(&mut self, addr: u32, data: u8) -> Result<(), ()> {
         debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
-        self.pmmap.as_mut().unwrap().write_byte(self.state.as_mut().unwrap(), addr, data)
+        self.pmmap.as_mut().unwrap().write_byte(self.state.as_mut().unwrap(), addr, data, &mut self.l)
     }
 
     pub fn read_halfword_from_memory(&mut self, addr: u32) -> Result<u16, ()> {
         debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
-        self.pmmap.as_mut().unwrap().read_halfword(self.state.as_mut().unwrap(), addr)
+        self.pmmap.as_mut().unwrap().read_halfword(self.state.as_mut().unwrap(), addr, &mut self.l)
     }
 
     pub fn write_halfword_to_memory(&mut self, addr: u32, data: u16) -> Result<(), ()> {
         debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
-        self.pmmap.as_mut().unwrap().write_halfword(self.state.as_mut().unwrap(), addr, data)
+        self.pmmap.as_mut().unwrap().write_halfword(self.state.as_mut().unwrap(), addr, data, &mut self.l)
     }
 
     pub fn read_word_from_memory(&mut self, addr: u32) -> Result<u32, ()> {
         debug_assert!(self.thread.is_none(), "Cannot read memory while thread is running");
-        self.pmmap.as_mut().unwrap().read_word(self.state.as_mut().unwrap(), addr)
+        self.pmmap.as_mut().unwrap().read_word(self.state.as_mut().unwrap(), addr, &mut self.l)
     }
 
     pub fn write_word_to_memory(&mut self, addr: u32, data: u32) -> Result<(), ()> {
         debug_assert!(self.thread.is_none(), "Cannot write memory while thread is running");
-        self.pmmap.as_mut().unwrap().write_word(self.state.as_mut().unwrap(), addr, data)
+        self.pmmap.as_mut().unwrap().write_word(self.state.as_mut().unwrap(), addr, data, &mut self.l)
     }
 
-    //TODO add functions for other access sizes?
+    //TODO add functions for other access sizes (64bit, blocks of memory for init?)
 }
 
 /* Functions */
@@ -226,7 +226,7 @@ pub fn tick(state: &mut State, pmmap: &mut PhysicalMemoryMap, decoder: &mut Deco
     let raw_inst = fetch_raw(state, pmmap, l);
     log!(LogLevel::Debug, "Fetched instruction: {:?}", raw_inst);//TESTING
     let inst_handle = decoder.decode(raw_inst);
-    //log!(l, LogLevel::Debug, "Decoded instruction: {:?}", inst_handle);//TESTING
+    //log!("Decoded instruction: {:?}", inst_handle);//TESTING
     let unwrapped_inst_handle = inst_handle.unwrap();//TESTING
     unwrapped_inst_handle.handle(state, pmmap, raw_inst);//, io, l);
 

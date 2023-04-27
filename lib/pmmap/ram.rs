@@ -7,6 +7,8 @@
 
 /* Imports */
 
+use crate::logging::prelude::*;
+
 use crate::pmmap::memory_handler::MemoryHandler;
 use crate::pmmap::memory_handler::AccessType;
 use crate::pmmap::memory_handler::AccessSize;
@@ -61,13 +63,16 @@ impl MemoryHandler for Ram {
         return self.match_criteria.clone();
     }
 
-    fn read_byte(&mut self, state: &mut State, addr: u32) -> u8 {
+    fn read_byte(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u8 {
         debug_assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram read out of bounds");
-        self.backing_memory[(addr - self.start_addr) as usize]
+        let data = self.backing_memory[(addr - self.start_addr) as usize];
+        log!(255, "Ram: Read 0x{:x} from address 0x{:x}", data, addr);
+        data
     }
 
-    fn write_byte(&mut self, state: &mut State, addr: u32, data: u8) {
+    fn write_byte(&mut self, state: &mut State, addr: u32, data: u8, l: &mut Logger) {
         debug_assert!((addr >= self.start_addr) && (addr < self.end_addr()), "Ram write out of bounds");
+        log!(255, "Ram: Write 0x{:x} to address 0x{:x}", data, addr);
         self.backing_memory[(addr - self.start_addr) as usize] = data;
     }
 }

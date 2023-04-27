@@ -7,6 +7,8 @@
 
 /* Imports */
 
+use crate::logging::prelude::*;
+
 use crate::state::State;
 
 /* Constants */
@@ -65,44 +67,44 @@ pub trait MemoryHandler /*<const NUM_CRITERIA: usize>*/ {
 
     //Memory handlers are allowed to panic if they are unable to handle the request
     //So the match criteria should be checked before calling the handler functions
-    fn fetch_byte(&mut self, state: &mut State, addr: u32) -> u8 {
-        self.read_byte(state, addr)//By default just implement fetch with read
+    fn fetch_byte(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u8 {
+        self.read_byte(state, addr, l)//By default just implement fetch with read
     }
-    fn read_byte(&mut self, state: &mut State, addr: u32) -> u8;
-    fn write_byte(&mut self, state: &mut State, addr: u32, data: u8);
+    fn read_byte(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u8;
+    fn write_byte(&mut self, state: &mut State, addr: u32, data: u8, l: &mut Logger);
 
     //The functions that read multiple bytes MUST BE ALIGNED or else they may panic
-    fn fetch_halfword(&mut self, state: &mut State, addr: u32) -> u16 {
-        self.read_halfword(state, addr)//By default just implement fetch with read
+    fn fetch_halfword(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u16 {
+        self.read_halfword(state, addr, l)//By default just implement fetch with read
     }
-    fn read_halfword(&mut self, state: &mut State, addr: u32) -> u16 {
+    fn read_halfword(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u16 {
         //By default just implement read_halfword with read_byte (LITTLE ENDIAN)
-        let mut data = self.read_byte(state, addr) as u16;
-        data |= (self.read_byte(state, addr + 1) as u16) << 8;
+        let mut data = self.read_byte(state, addr, l) as u16;
+        data |= (self.read_byte(state, addr + 1, l) as u16) << 8;
         data
     }
-    fn write_halfword(&mut self, state: &mut State, addr: u32, data: u16) {
+    fn write_halfword(&mut self, state: &mut State, addr: u32, data: u16, l: &mut Logger) {
         //By default just implement write_halfword with write_byte (LITTLE ENDIAN)
-        self.write_byte(state, addr, data as u8);
-        self.write_byte(state, addr + 1, (data >> 8) as u8);
+        self.write_byte(state, addr, data as u8, l);
+        self.write_byte(state, addr + 1, (data >> 8) as u8, l);
     }
-    fn fetch_word(&mut self, state: &mut State, addr: u32) -> u32 {
-        self.read_word(state, addr)//By default just implement fetch with read
+    fn fetch_word(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u32 {
+        self.read_word(state, addr, l)//By default just implement fetch with read
     }
-    fn read_word(&mut self, state: &mut State, addr: u32) -> u32 {
+    fn read_word(&mut self, state: &mut State, addr: u32, l: &mut Logger) -> u32 {
         //By default just implement read_word with read_byte (LITTLE ENDIAN)
-        let mut data = self.read_byte(state, addr) as u32;
-        data |= (self.read_byte(state, addr + 1) as u32) << 8;
-        data |= (self.read_byte(state, addr + 2) as u32) << 16;
-        data |= (self.read_byte(state, addr + 3) as u32) << 24;
+        let mut data = self.read_byte(state, addr, l) as u32;
+        data |= (self.read_byte(state, addr + 1, l) as u32) << 8;
+        data |= (self.read_byte(state, addr + 2, l) as u32) << 16;
+        data |= (self.read_byte(state, addr + 3, l) as u32) << 24;
         data
     }
-    fn write_word(&mut self, state: &mut State, addr: u32, data: u32) {
+    fn write_word(&mut self, state: &mut State, addr: u32, data: u32, l: &mut Logger) {
         //By default just implement write_word with write_byte (LITTLE ENDIAN)
-        self.write_byte(state, addr, data as u8);
-        self.write_byte(state, addr + 1, (data >> 8) as u8);
-        self.write_byte(state, addr + 2, (data >> 16) as u8);
-        self.write_byte(state, addr + 3, (data >> 24) as u8);
+        self.write_byte(state, addr, data as u8, l);
+        self.write_byte(state, addr + 1, (data >> 8) as u8, l);
+        self.write_byte(state, addr + 2, (data >> 16) as u8, l);
+        self.write_byte(state, addr + 3, (data >> 24) as u8, l);
     }
     
     //TODO
@@ -163,8 +165,6 @@ impl MatchCriteria {
                 _ => {}
             }
         }
-
-
 
         match self {
             Always(match_access_type, match_access_size)
