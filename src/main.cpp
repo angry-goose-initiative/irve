@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "Memory.hpp"
+#include "emulator.h"
 
 /* Types */
 
@@ -30,6 +31,8 @@
 /* Function Implementations */
 
 int main() {
+
+    std::cout << "Memory testing" << std::endl;
     
     Memory memory;
 
@@ -44,6 +47,12 @@ int main() {
     std::cout << std::hex << memory.r(1, 0b000) << std::endl;
     // print the unsigned byte at address 1
     std::cout << std::hex << memory.r(1, 0b100) << std::endl;
+
+
+    std::cout << "Emulator testing" << std::endl;
+
+    emulator_t emulator;
+    //TODO more testing
 
     return 0;
 }
