@@ -11,7 +11,7 @@
 
 /* Includes */
 
-//TODO
+#include <iostream>
 
 /* Types */
 
@@ -27,7 +27,9 @@
 
 /* Function Implementations */
 
-//TODO
+int main() {
+    std::cout << "Hello world!";
+}
 
 /* Static Function Implementations */
 

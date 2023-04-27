@@ -1,17 +1,14 @@
 # Makefile
 # By: John Jekel
 
-SOURCES = Makefile src/main.cpp
+SOURCES = Makefile src/*
 
 MAKEFLAGS += -j
 
 all: irve.bin
 
-irve: main.o 
-	g++ -O3 -Wall -Wextra main.o
-
-main.o: src/main.cpp
-	g++ -O3 -Wall -Wextra -c src/main.cpp
+irve.bin: $(SOURCES)
+	g++ -O3 -Wall -Wextra -o irve.bin src/*.cpp
 
 clean:
-	rm -f irve.bin *.o
+	rm -f irve.bin
