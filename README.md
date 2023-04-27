@@ -1,3 +1,5 @@
-# xrve
+# irve
 
-The eXtensible RISC-V Emulator
+The Inextensible RISC-V Emulator
+
+"Working our way up to stuff!"
