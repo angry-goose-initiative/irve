@@ -5,7 +5,8 @@
  *
 */
 
-/**
+/*!
+ *
  * The eXtensible RISC-V Emulator's library
  *
  * //TODO
@@ -14,6 +15,7 @@
 
 /* Imports */
 
+pub mod about;
 mod instruction_handler;
 mod csr_handler;
 mod fetch;
