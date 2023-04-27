@@ -45,6 +45,7 @@ int main() {
     // print the unsigned byte at address 1
     std::cout << std::hex << memory.r(1, 0b100) << std::endl;
 
+    return 0;
 }
 
 /* Static Function Implementations */

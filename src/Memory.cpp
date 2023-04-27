@@ -4,6 +4,8 @@
 
 #include "Memory.hpp"
 
+#include <cmath>
+
 // All of memory is initialized to 0
 Memory::Memory(): mem() {}
 
