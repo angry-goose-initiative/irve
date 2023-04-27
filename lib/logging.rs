@@ -7,6 +7,7 @@
 
 /* Imports */
 
+pub use xrve_proc_macro::log;
 use std::sync::mpsc;
 
 /* Constants */
@@ -17,7 +18,7 @@ use std::sync::mpsc;
 
 //TODO add compile time option to disable logging for better performance (just have the log! macro do nothing)
 //TODO (also pub(crate) use the_macro statements here too)
-macro_rules! log {
+macro_rules! log_with {
     //Level could be a LogLevel or a u8 for the verbosity of Info
     ($logger:expr, $level:expr, $($format_args:expr),*) => {
         if let Some(log_sender) = $logger.as_mut() {
@@ -31,11 +32,12 @@ macro_rules! log {
         }
     };
 }
-pub(crate) use log;
+pub(crate) use log_with;
 
 macro_rules! use_logging {
     () => {
         use crate::logging::log;
+        use crate::logging::log_with;
         use crate::logging::Logger;
     };
 }
@@ -71,6 +73,6 @@ impl From<u8> for LogLevel {
 pub fn init_logging() -> (Logger, LogReciever) {
     let (sender, reciever) = mpsc::channel();
     let mut logger = Some(sender);
-    log!(logger, 0, "XRVE Log started");
+    log_with!(logger, 0, "XRVE Log started");
     (logger, reciever)
 }

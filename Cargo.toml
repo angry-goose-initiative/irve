@@ -14,7 +14,14 @@ edition = "2021"
 #default-run = ""
 #documentation = ""
 
+[workspace]
+
+members = [
+    "xrve_proc_macro",
+]
+
 [dependencies]
+xrve_proc_macro = { path = "xrve_proc_macro" }
 
 [features]
 default = []

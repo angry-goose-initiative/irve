@@ -12,20 +12,20 @@ pub const CARGO: &str = env!("CARGO");
 pub const MANIFEST_DIR: &str = env!("CARGO_MANIFEST_DIR");
 
 pub mod version {
+    //use xrve_proc_macro::unstringify;
+
     ///str of libxrve's semantic version
     pub const STRING: &str =    env!("CARGO_PKG_VERSION");
 
     ///libxrve's semantic version, major number
     pub const MAJOR: u128 =     const_parse_to_u128(env!("CARGO_PKG_VERSION_MAJOR"));
+    //pub const MAJOR: u128 =     unstringify!(env!("CARGO_PKG_VERSION_MAJOR"));
 
     ///libxrve's semantic version, minor number
     pub const MINOR: u128 =     const_parse_to_u128(env!("CARGO_PKG_VERSION_MINOR"));
 
     ///libxrve's semantic version, patch number
     pub const PATCH: u128 =     const_parse_to_u128(env!("CARGO_PKG_VERSION_PATCH"));
-
-    /*///libxrve's semantic version, pre-release version*/
-    //pub const PRE: u128 =       const_parse_to_u128(env!("CARGO_PKG_VERSION_PRE"));//TODO this is empty?
 
     //Workaround since parse isn't const yet
     const fn const_parse_to_u128(string: &str) -> u128 {
