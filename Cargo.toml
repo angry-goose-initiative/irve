@@ -24,9 +24,10 @@ members = [
 xrve_proc_macro = { path = "xrve_proc_macro" }
 
 [features]
-default = []
+default = ["logging"]
 nightly-features = ["nightly-features-benches"]
 nightly-features-benches = []
+logging = []
 
 [lib]
 name = "xrve"

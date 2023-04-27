@@ -7,41 +7,36 @@
 
 /* Imports */
 
-pub use xrve_proc_macro::log;
 use std::sync::mpsc;
 
-/* Constants */
+/* Modules */
 
-//TODO
+pub mod prelude {
+    pub use xrve_proc_macro::log;
+    pub(crate) use crate::logging::log_with;
+    pub use crate::logging::LogLevel;
+    pub use crate::logging::Logger;
+}
 
 /* Macros */
 
-//TODO add compile time option to disable logging for better performance (just have the log! macro do nothing)
-//TODO (also pub(crate) use the_macro statements here too)
 macro_rules! log_with {
     //Level could be a LogLevel or a u8 for the verbosity of Info
     ($logger:expr, $level:expr, $($format_args:expr),*) => {
+        #[cfg(feature = "logging")]
         if let Some(log_sender) = $logger.as_mut() {
             log_sender.send(($level.into(), format!($($format_args),*))).unwrap();
         }
     };
     //Defaults to Debug
     ($logger:expr, $($format_args:expr),*) => {
+        #[cfg(feature = "logging")]
         if let Some(log_sender) = $logger.as_mut() {
             log_sender.send((crate::logging::LogLevel::Debug, format!($($format_args),*))).unwrap();
         }
     };
 }
 pub(crate) use log_with;
-
-macro_rules! use_logging {
-    () => {
-        use crate::logging::log;
-        use crate::logging::log_with;
-        use crate::logging::Logger;
-    };
-}
-pub(crate) use use_logging;
 
 /* Static Variables */
 

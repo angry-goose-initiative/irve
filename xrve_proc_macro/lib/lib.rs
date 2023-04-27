@@ -11,7 +11,7 @@
 
 use proc_macro::TokenStream;
 use proc_macro::TokenTree;
-use proc_macro::Literal;
+//use proc_macro::Literal;
 use std::str::FromStr;
 
 /* Constants */
@@ -64,14 +64,6 @@ pub fn unstringify(input_tokens: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn log(input_tokens: TokenStream) -> TokenStream {
-    //"TESTING".parse().unwrap()
-    //"compile_error!(\"TESTING\")".parse().unwrap()
-    //TODO
-    //todo!();
-    //TokenStream::new()
-    //if let Some(log_sender) = $logger.as_mut() {
-        //log_sender.send(($level.into(), format!($($format_args),*))).unwrap();
-    //}
     let mut log_command = "crate::logging::log_with!(l, ".to_string();
     log_command.push_str(input_tokens.to_string().as_str());
     log_command.push_str(")");

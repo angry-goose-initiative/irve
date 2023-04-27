@@ -7,21 +7,21 @@
 
 /* Imports */
 
+use crate::logging::prelude::*;
+
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::thread;
-crate::logging::use_logging!();
-use crate::logging::LogLevel;
-use crate::logging::LogReciever;
 use crate::state::State;
 use crate::io::IO;
 use crate::instruction_handler;
 use crate::pmmap::memory_handler;
 use crate::csr_handler;
-use crate::logging;
 use crate::fetch::fetch_raw;
 use crate::pmmap::PhysicalMemoryMap;
 use crate::decode::Decoder;
+use crate::logging::LogReciever;
+use crate::logging::init_logging;
 
 /* Constants */
 
@@ -134,7 +134,7 @@ impl Instance {
         debug_assert!(self.thread.is_none(), "Cannot setup logging while thread is running");
 
         //Initialize logging, saving the Logger in our Instance and returning the LogReciever
-        let (logger, log_reciever) = logging::init_logging();
+        let (logger, log_reciever) = init_logging();
         self.l = logger;
         log_with!(self.l, LogLevel::Info(2), "Returning log reciever to user");
         log_reciever

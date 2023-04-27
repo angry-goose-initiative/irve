@@ -7,10 +7,11 @@
 
 /* Imports */
 
+use crate::logging::prelude::*;
+
 //TODO (include "use" and "mod" here)
 use crate::state::State;
 use crate::pmmap::PhysicalMemoryMap;
-crate::logging::use_logging!();
 
 /* Constants */
 
