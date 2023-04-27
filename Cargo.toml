@@ -1,11 +1,11 @@
 [package]
-name = "xrve"
+name = "irve"
 version = "0.1.0"
-description = "The eXtensible RISC-V Emulator"
+description = "The Inextensible RISC-V Emulator"
 authors = ["John Zacarias Jekel <john@jekel.ca>"]
 readme = "README.md"
 #homepage = ""
-repository = "https://git.jekel.ca/JZJ/xrve"
+repository = "https://git.jekel.ca/JZJ/irve"
 license = "MIT"
 #license-file = "LICENSE"
 edition = "2021"
@@ -16,26 +16,26 @@ edition = "2021"
 
 [workspace]
 
-members = [
-    "xrve_proc_macro",
-]
+#members = [
+#    "xrve_proc_macro",
+#]
 
-[dependencies]
-xrve_proc_macro = { path = "xrve_proc_macro" }
+#[dependencies]
+#xrve_proc_macro = { path = "xrve_proc_macro" }
 
 [features]
-default = ["logging"]
+#default = ["logging"]
 nightly-features = ["nightly-features-benches"]
 nightly-features-benches = []
-logging = []
+#logging = []
 
 [lib]
-name = "xrve"
+name = "irve"
 path = "lib/lib.rs"
 
 [[bin]]
-name = "xrve-cli"
-path = "src/xrve-cli.rs"
+name = "irve-cli"
+path = "src/irve-cli.rs"
 
 [profile.dev]
 incremental = true

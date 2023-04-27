@@ -31,4 +31,6 @@
 
 /* Functions */
 
-//TODO
+fn main() {
+    println!("Hello world!");
+}
