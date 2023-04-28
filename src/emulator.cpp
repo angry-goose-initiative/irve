@@ -40,7 +40,7 @@ emulator_t::emulator_t(): m_cpu_state(), m_memory() {
 
 void emulator_t::tick() {
     this->m_cpu_state.increment_inst_count();
-    irvelog(0, "Tick begins");
+    irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     uint32_t inst = this->fetch();
 
@@ -52,7 +52,7 @@ void emulator_t::tick() {
 
     irvelog(1, "TODO handle interrupts");
 
-    irvelog(0, "Tick ends");
+    irvelog(0, "Tick %lu ends", this->get_inst_count());
 }
 
 uint64_t emulator_t::get_inst_count() const {

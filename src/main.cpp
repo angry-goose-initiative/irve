@@ -60,8 +60,13 @@ int main() {
     //TODO more testing
     irvelog(0, "Hello world! %d", 123);//TESTING
 
-    emulator.tick();//TESTING
+    //TESTING
+    for (uint32_t i = 0; i < 10; ++i) {
+        emulator.tick();
+    }
 
+
+    irvelog(0, "IRVE is shutting down. Bye bye!");
     return 0;
 }
 

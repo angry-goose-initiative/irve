@@ -21,7 +21,11 @@
 /* Function Implementations */
 
 decoded_inst_t::decoded_inst_t(uint32_t instruction) {
-    //this->m_invalid = !instruction || (instruction == 0xFFFFFFFF);
+    if (!instruction || (instruction == 0xFFFFFFFF)) {
+        this->m_format = INVALID;
+        return;
+    }
+
     this->m_opcode = (opcode_t) ((instruction >> 2) & 0b11111);
 
     switch (this->m_opcode) {
@@ -44,8 +48,7 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
             this->m_rs1 = (instruction >> 15) & 0b1111;
             this->m_funct3 = (instruction >> 12) & 0b111;
             this->m_rd = (instruction >> 7) & 0b1111;
-            //TODO don't do this for funct7 for this emulator (it only made sense for rv32esim)
-            this->m_funct7 = (this->m_funct3 == 0b101) ? instruction >> 25 : 0;//We need funct7 for immediate shifts, otherwise it should be 0 so that execute isn't confused
+            this->m_funct7 = instruction >> 25;
             break;
         //S-type
         case STORE:
@@ -80,19 +83,58 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
             this->m_format = INVALID;
             break;
     }
-
 }
 
 void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
-    //TODO only print valid fields
-    //TODO store the instruction format in the class
-    //TODO print the format here
-    irvelog(indent, "funct3 = 0x%X", this->m_funct3);
-    irvelog(indent, "funct7 = 0x%X", this->m_funct7);
-    irvelog(indent, "opcode = 0x%X", this->m_opcode);
-    irvelog(indent, "rd = x%u", this->m_rd);
-    irvelog(indent, "rs1 = x%u", this->m_rs1);
-    irvelog(indent, "rs2 = x%u", this->m_rs2);
-    irvelog(indent, "imm = 0x%X", this->m_imm);
-    //irvelog(indent, "invalid = %s", this->m_invalid ? "Yes" : "No");
+    switch (this->m_format) {
+        case R_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = R");
+            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
+            irvelog(indent, "funct7 = 0x%X", this->m_funct7);
+            irvelog(indent, "rd     = x%u", this->m_rd);
+            irvelog(indent, "rs1    = x%u", this->m_rs1);
+            irvelog(indent, "rs2    = x%u", this->m_rs2);
+            break;
+        case I_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = I");
+            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
+            irvelog(indent, "rd     = x%u", this->m_rd);
+            irvelog(indent, "rs1    = x%u", this->m_rs1);
+            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            break;
+        case S_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = S");
+            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
+            irvelog(indent, "rs1    = x%u", this->m_rs1);
+            irvelog(indent, "rs2    = x%u", this->m_rs2);
+            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            break;
+        case B_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = B");
+            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
+            irvelog(indent, "rs1    = x%u", this->m_rs1);
+            irvelog(indent, "rs2    = x%u", this->m_rs2);
+            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            break;
+        case U_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = U");
+            irvelog(indent, "rd     = x%u", this->m_rd);
+            irvelog(indent, "rs1    = x%u", this->m_rs1);
+            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            break;
+        case J_TYPE:
+            irvelog(indent, "opcode = 0x%X", this->m_opcode);
+            irvelog(indent, "type   = J");
+            irvelog(indent, "rd     = x%u", this->m_rd);
+            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            break;
+        case INVALID:
+            irvelog(indent, "Invalid Instruction!");
+            break;
+    }
 }
