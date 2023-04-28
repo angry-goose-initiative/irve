@@ -37,7 +37,10 @@ emulator_t::emulator_t(): cpu_state(), memory() {
 void emulator_t::tick() {
     this->cpu_state.increment_inst_count();
     irvelog(0, "Tick begins");
-    //TODO
+
+    irvelog(1, "TODO implement tick");
+
+    irvelog(0, "Tick ends");
 }
 
 uint64_t emulator_t::get_inst_count() const {

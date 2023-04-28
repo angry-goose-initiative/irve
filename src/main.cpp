@@ -56,7 +56,7 @@ int main() {
 
     emulator_t emulator;
     //TODO more testing
-    irvelog(0, "Hello world %d", 5);
+    irvelog(0, "Hello world! %d", 123);//TESTING
 
     emulator.tick();//TESTING
 
