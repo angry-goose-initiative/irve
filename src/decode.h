@@ -12,8 +12,7 @@
 
 /* Includes */
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
 
 /* Types */
 
@@ -27,7 +26,10 @@ typedef enum {
 
 ///decode_inst_t is a type holding the results from decoding a RISC-V instruction
 //NOTE: We are NOT supporting compressed instructions
-typedef struct {
+class decoded_inst_t {
+public:
+    void log(uint8_t indent) const;
+
     uint8_t funct3;
     uint8_t funct7;
     opcode_t opcode;//Bits [6:2]
@@ -36,10 +38,11 @@ typedef struct {
     uint8_t rs2;
     uint32_t imm;
     bool invalid;
-} decoded_inst_t;
+};
 
 /* Function/Class Declarations */
 
+void decode(decoded_inst_t* decoded_inst, uint32_t instruction, uint64_t inst_count);
 ///decode decodes a RISC-V instruction into a decoded_inst
 //void decode(const rv32esim_state_t* state, decoded_inst_t* decoded_inst, uint32_t instruction);
 

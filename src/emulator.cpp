@@ -15,6 +15,8 @@
 
 #include <cstdint>
 
+#include "decode.h"
+
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
 
@@ -42,7 +44,8 @@ void emulator_t::tick() {
 
     uint32_t inst = this->fetch();
 
-    irvelog(1, "TODO decode instruction");
+    decoded_inst_t decoded_inst;
+    decode(&decoded_inst, inst, this->get_inst_count());
 
     irvelog(1, "TODO execute instruction");
 
