@@ -1,5 +1,5 @@
 /* NAME//TODO
- * By: John Jekel
+ * By: John Jekel & Nick Chan
  *
  * TODO description
  *
@@ -48,19 +48,22 @@ void cpu_state_t::set_pc(uint32_t new_pc) {
     pc = new_pc;
 }
 
-uint32_t cpu_state_t::get_r(uint8_t reg_num) const {
-    assert((reg_num >= 0) && (reg_num < 31) && "Attempted to access invalid register");
-    if (reg_num == 0) {
-        return 0;
-    } else {
-        return reg[reg_num - 1];
-    }
+Reg cpu_state_t::get_r(uint8_t reg_num) const {
+    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
+    return reg[reg_num];
 }
 
 void cpu_state_t::set_r(uint8_t reg_num, uint32_t new_val) {
-    assert((reg_num >= 0) && (reg_num < 31) && "Attempted to access invalid register");
+    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
     if (reg_num != 0) {
-        reg[reg_num - 1] = new_val;
+        reg[reg_num].u = new_val;
+    }
+}
+
+void cpu_state_t::set_r(uint8_t reg_num, int32_t new_val) {
+    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
+    if (reg_num != 0) {
+        reg[reg_num].s = new_val;
     }
 }
 

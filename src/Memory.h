@@ -1,4 +1,7 @@
 /* Memory.hpp
+ * By Nick Chan
+ *
+ * TODO description
  * 
 */
 

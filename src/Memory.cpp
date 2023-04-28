@@ -1,8 +1,11 @@
 /* Memory.cpp
+ * By Nick Chan
+ * 
+ * TODO description
  * 
 */
 
-#include "Memory.hpp"
+#include "Memory.h"
 
 #include <cmath>
 
@@ -12,7 +15,8 @@ Memory::Memory(): mem() {}
 // Read from memory
 int32_t Memory::r(const uint32_t addr, const int8_t func3) const {
 
-    // TODO: check that address is valid
+    assert((addr < MEMSIZE) && "Invalid memory address");
+    assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
     // MSB of func3 determines signed/unsigned
     const int isUnsigned{func3 >> 2};
@@ -37,7 +41,8 @@ int32_t Memory::r(const uint32_t addr, const int8_t func3) const {
 // Write to memory
 void Memory::w(const uint32_t addr, const int8_t func3, const int32_t data) {
 
-    // TODO: check that address is valid
+    assert((addr < MEMSIZE) && "Invalid memory address");
+    assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
     // 2^(func3[1:0]) is the number of bytes
     int byte{static_cast<int>(pow(2, func3%4))};

@@ -1,5 +1,5 @@
 /* NAME//TODO
- * By: John Jekel
+ * By: John Jekel & Nick Chan
  *
  * TODO description
  *
@@ -11,6 +11,8 @@
 /* Includes */
 
 #include <cstdint>
+
+#include "Reg.h"
 
 /* Constants And Defines */
 
@@ -28,8 +30,9 @@ public:
     uint32_t get_pc() const;
     void set_pc(uint32_t new_pc);
 
-    uint32_t get_r(uint8_t reg_num) const;
+    Reg get_r(uint8_t reg_num) const;
     void set_r(uint8_t reg_num, uint32_t new_val);
+    void set_r(uint8_t reg_num, int32_t new_val);
 
     //TODO stuff for setting interrupts
     //TODO CSRs
@@ -37,7 +40,7 @@ public:
 private:
     uint64_t insts_retired;
     uint32_t pc;
-    uint32_t reg[31];
+    Reg reg[32];
 
     //TODO registers, interrupts, CSRs, etc
 };

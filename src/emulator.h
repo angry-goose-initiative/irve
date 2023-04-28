@@ -11,7 +11,7 @@
 /* Includes */
 
 #include "cpu_state.h"
-#include "Memory.hpp"
+#include "Memory.h"
 
 /* Constants And Defines */
 

@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "Memory.hpp"
+#include "Memory.h"
 #include "emulator.h"
 
 /* Types */
@@ -32,21 +32,21 @@
 
 int main() {
 
-    std::cout << "Memory testing" << std::endl;
+    // std::cout << "Memory testing" << std::endl;
     
-    Memory memory;
+    // Memory memory;
 
-    // write word 0x11223344 to address 0
-    memory.w(0, 0b010, 0x11223344);
-    memory.p(0);
-    // write halfword 0x9988 to address 1
-    memory.w(1, 0b001, 0x9988);
-    memory.p(0);
+    // // write word 0x11223344 to address 0
+    // memory.w(0, 0b010, 0x11223344);
+    // memory.p(0);
+    // // write halfword 0x9988 to address 1
+    // memory.w(1, 0b001, 0x9988);
+    // memory.p(0);
 
-    // print the signed byte at address 1
-    std::cout << std::hex << memory.r(1, 0b000) << std::endl;
-    // print the unsigned byte at address 1
-    std::cout << std::hex << memory.r(1, 0b100) << std::endl;
+    // // print the signed byte at address 1
+    // std::cout << std::hex << memory.r(1, 0b000) << std::endl;
+    // // print the unsigned byte at address 1
+    // std::cout << std::hex << memory.r(1, 0b100) << std::endl;
 
 
     std::cout << "Emulator testing" << std::endl;
