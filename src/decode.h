@@ -24,20 +24,28 @@ typedef enum {
     BRANCH = 0b11000, JALR = 0b11001, RESERVED_1 = 0b11010, JAL = 0b11011, SYSTEM = 0b11100, RESERVED_3 = 0b11101, CUSTOM_3 = 0b11110, BGE80 = 0b11111,
 } opcode_t;
 
+typedef enum {
+    R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE, INVALID
+} inst_format_t;
+
 ///decode_inst_t is a type holding the results from decoding a RISC-V instruction
 //NOTE: We are NOT supporting compressed instructions
 class decoded_inst_t {
 public:
-    void log(uint8_t indent) const;
+    decoded_inst_t(uint32_t instruction);
 
-    uint8_t funct3;
-    uint8_t funct7;
-    opcode_t opcode;//Bits [6:2]
-    uint8_t rd;
-    uint8_t rs1;
-    uint8_t rs2;
-    uint32_t imm;
-    bool invalid;
+    void log(uint8_t indent, uint64_t inst_count) const;
+private:
+    //TODO add getters ONLY and fail if a particular field is not valid for the instruction type including if the instruction is invalid
+    inst_format_t m_format;
+    uint8_t m_funct3;
+    uint8_t m_funct7;
+    opcode_t m_opcode;//Bits [6:2]
+    uint8_t m_rd;
+    uint8_t m_rs1;
+    uint8_t m_rs2;
+    uint32_t m_imm;
+    //bool m_invalid;
 };
 
 /* Function/Class Declarations */

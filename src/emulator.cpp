@@ -44,8 +44,9 @@ void emulator_t::tick() {
 
     uint32_t inst = this->fetch();
 
-    decoded_inst_t decoded_inst;
-    decode(&decoded_inst, inst, this->get_inst_count());
+    irvelog(1, "Decoding instruction 0x%08X", inst);
+    decoded_inst_t decoded_inst(inst);
+    decoded_inst.log(2, this->get_inst_count());
 
     irvelog(1, "TODO execute instruction");
 
