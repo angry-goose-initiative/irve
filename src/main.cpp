@@ -55,6 +55,8 @@ int main() {
     //std::cout << "Emulator testing" << std::endl;
 
     emulator_t emulator;
+    irvelog(0, "Starting IRVE");
+    irvelog(1, "The Inextensible RISC-V Emulator");
     //TODO more testing
     irvelog(0, "Hello world! %d", 123);//TESTING
 

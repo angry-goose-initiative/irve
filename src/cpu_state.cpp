@@ -16,6 +16,9 @@
 #include <cassert>
 #include <cstdint>
 
+#define INST_COUNT this->get_inst_count()
+#include "logging.h"
+
 /* Types */
 
 //TODO
@@ -30,7 +33,10 @@
 
 /* Function Implementations */
 
-cpu_state_t::cpu_state_t(): m_inst_count(0), m_pc(0), m_regs() {}
+cpu_state_t::cpu_state_t(): m_inst_count(0), m_pc(0), m_regs() {
+    irvelog(1, "Created new cpu_state instance");
+    this->log(1);
+}
 
 void cpu_state_t::increment_inst_count() {
     ++this->m_inst_count;
@@ -64,6 +70,15 @@ void cpu_state_t::set_r(uint8_t reg_num, int32_t new_val) {
     assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
     if (reg_num != 0) {
         this->m_regs[reg_num].s = new_val;
+    }
+}
+
+void cpu_state_t::log(uint8_t indent) const {
+    irvelog(indent + 1, "Inst Count: %lu", this->get_inst_count());
+    irvelog(indent + 1, "PC:\t\t0x%08x", this->get_pc());
+    irvelog(indent + 1, "Registers:");
+    for (uint8_t i = 0; i < 32; ++i) {
+        irvelog(indent + 2, "x%u:\t0x%08x", i, this->get_r(i).u);
     }
 }
 

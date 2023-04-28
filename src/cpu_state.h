@@ -18,7 +18,7 @@
 
 //TODO
 
-/* Types */
+/* Function/Class Declarations */
 
 class cpu_state_t {
 public:
@@ -34,6 +34,8 @@ public:
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
+    void log(uint8_t indent) const;
+
     //TODO stuff for setting interrupts
     //TODO CSRs
 
@@ -44,13 +46,5 @@ private:
 
     //TODO registers, interrupts, CSRs, etc
 };
-
-/* Global Variables */
-
-//TODO
-
-/* Function/Class Declarations */
-
-//TODO
 
 #endif//CPU_STATE_H

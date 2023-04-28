@@ -28,10 +28,10 @@ public:
     uint64_t get_inst_count() const;
 
 private:
-    uint32_t fetch();//TODO or should this be done in a seperate file?
+    uint32_t fetch() const;
 
-    cpu_state_t cpu_state;
-    Memory memory;
+    cpu_state_t m_cpu_state;
+    Memory m_memory;
 
     //TODO
 };

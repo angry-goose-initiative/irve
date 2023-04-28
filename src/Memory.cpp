@@ -10,8 +10,13 @@
 #include <cassert>
 #include <cmath>
 
+#define INST_COUNT 0//We only log at init
+#include "logging.h"
+
 // All of memory is initialized to 0
-Memory::Memory(): mem() {}
+Memory::Memory(): mem() {
+    irvelog(1, "Created new Memory instance");
+}
 
 // Read from memory
 int32_t Memory::r(const uint32_t addr, const int8_t func3) const {
