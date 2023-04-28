@@ -25,8 +25,11 @@ public:
 
     void tick();
 
-    //TODO
+    uint64_t get_inst_count() const;
+
 private:
+    uint32_t fetch();//TODO or should this be done in a seperate file?
+
     cpu_state_t cpu_state;
     Memory memory;
 

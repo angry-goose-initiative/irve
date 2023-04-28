@@ -16,6 +16,9 @@
 #include "Memory.h"
 #include "emulator.h"
 
+#define INST_COUNT emulator.get_inst_count()
+#include "logging.h"
+
 /* Types */
 
 //TODO
@@ -49,10 +52,13 @@ int main() {
     // std::cout << std::hex << memory.r(1, 0b100) << std::endl;
 
 
-    std::cout << "Emulator testing" << std::endl;
+    //std::cout << "Emulator testing" << std::endl;
 
     emulator_t emulator;
     //TODO more testing
+    irvelog(0, "Hello world %d", 5);
+
+    emulator.tick();//TESTING
 
     return 0;
 }

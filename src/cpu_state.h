@@ -24,8 +24,8 @@ class cpu_state_t {
 public:
     cpu_state_t();
 
-    void retire_inst();
-    uint64_t get_insts_retired() const;
+    void increment_inst_count();
+    uint64_t get_inst_count() const;
 
     uint32_t get_pc() const;
     void set_pc(uint32_t new_pc);
@@ -38,9 +38,9 @@ public:
     //TODO CSRs
 
 private:
-    uint64_t insts_retired;
-    uint32_t pc;
-    Reg reg[32];
+    uint64_t m_inst_count;
+    uint32_t m_pc;
+    Reg m_regs[32];
 
     //TODO registers, interrupts, CSRs, etc
 };

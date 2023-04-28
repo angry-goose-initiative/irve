@@ -7,6 +7,7 @@
 
 #include "Memory.h"
 
+#include <cassert>
 #include <cmath>
 
 // All of memory is initialized to 0
@@ -15,6 +16,7 @@ Memory::Memory(): mem() {}
 // Read from memory
 int32_t Memory::r(const uint32_t addr, const int8_t func3) const {
 
+    assert((func3 >= 0b000) && (func3 <= 0b111) && "Invalid func3");
     assert((addr < MEMSIZE) && "Invalid memory address");
     assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
