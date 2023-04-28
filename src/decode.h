@@ -35,17 +35,29 @@ public:
     decoded_inst_t(uint32_t instruction);
 
     void log(uint8_t indent, uint64_t inst_count) const;
+
+    //Check this before using the other getters
+    //The getters will assert that the fields actually exist in the format of the instruction
+    bool is_valid() const;
+    inst_format_t get_format() const;
+
+    opcode_t get_opcode() const;
+    uint8_t get_funct3() const;
+    uint8_t get_funct7() const;
+    uint8_t get_rd() const;
+    uint8_t get_rs1() const;
+    uint8_t get_rs2() const;
+    uint32_t get_imm() const;
 private:
-    //TODO add getters ONLY and fail if a particular field is not valid for the instruction type including if the instruction is invalid
     inst_format_t m_format;
+    opcode_t m_opcode;//Bits [6:2]
+
     uint8_t m_funct3;
     uint8_t m_funct7;
-    opcode_t m_opcode;//Bits [6:2]
     uint8_t m_rd;
     uint8_t m_rs1;
     uint8_t m_rs2;
     uint32_t m_imm;
-    //bool m_invalid;
 };
 
 /* Function/Class Declarations */

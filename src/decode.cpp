@@ -86,55 +86,108 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
 }
 
 void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
-    switch (this->m_format) {
+    switch (this->get_format()) {
         case R_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = R");
-            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
-            irvelog(indent, "funct7 = 0x%X", this->m_funct7);
-            irvelog(indent, "rd     = x%u", this->m_rd);
-            irvelog(indent, "rs1    = x%u", this->m_rs1);
-            irvelog(indent, "rs2    = x%u", this->m_rs2);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "funct3 = 0x%X", this->get_funct3());
+            irvelog(indent, "funct7 = 0x%X", this->get_funct7());
+            irvelog(indent, "rd     = x%u", this->get_rd());
+            irvelog(indent, "rs1    = x%u", this->get_rs1());
+            irvelog(indent, "rs2    = x%u", this->get_rs2());
             break;
         case I_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = I");
-            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
-            irvelog(indent, "rd     = x%u", this->m_rd);
-            irvelog(indent, "rs1    = x%u", this->m_rs1);
-            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "funct3 = 0x%X", this->get_funct3());
+            irvelog(indent, "rd     = x%u", this->get_rd());
+            irvelog(indent, "rs1    = x%u", this->get_rs1());
+            irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case S_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = S");
-            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
-            irvelog(indent, "rs1    = x%u", this->m_rs1);
-            irvelog(indent, "rs2    = x%u", this->m_rs2);
-            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "funct3 = 0x%X", this->get_funct3());
+            irvelog(indent, "rs1    = x%u", this->get_rs1());
+            irvelog(indent, "rs2    = x%u", this->get_rs2());
+            irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case B_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = B");
-            irvelog(indent, "funct3 = 0x%X", this->m_funct3);
-            irvelog(indent, "rs1    = x%u", this->m_rs1);
-            irvelog(indent, "rs2    = x%u", this->m_rs2);
-            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "funct3 = 0x%X", this->get_funct3());
+            irvelog(indent, "rs1    = x%u", this->get_rs1());
+            irvelog(indent, "rs2    = x%u", this->get_rs2());
+            irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case U_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = U");
-            irvelog(indent, "rd     = x%u", this->m_rd);
-            irvelog(indent, "rs1    = x%u", this->m_rs1);
-            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "rd     = x%u", this->get_rd());
+            irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case J_TYPE:
-            irvelog(indent, "opcode = 0x%X", this->m_opcode);
             irvelog(indent, "type   = J");
-            irvelog(indent, "rd     = x%u", this->m_rd);
-            irvelog(indent, "imm    = 0x%X", this->m_imm);
+            irvelog(indent, "opcode = 0x%X", this->get_opcode());
+            irvelog(indent, "rd     = x%u", this->get_rd());
+            irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case INVALID:
             irvelog(indent, "Invalid Instruction!");
             break;
     }
+}
+
+bool decoded_inst_t::is_valid() const {
+    return (this->get_format() != INVALID);
+}
+
+inst_format_t decoded_inst_t::get_format() const {
+    return this->m_format;
+}
+
+opcode_t decoded_inst_t::get_opcode() const {
+    assert((this->get_format() != INVALID) && "Attempt to get opcode of invalid instruction!");
+    return this->m_opcode;
+}
+
+uint8_t decoded_inst_t::get_funct3() const {
+    assert((this->get_format() != INVALID) && "Attempt to get funct3 of invalid instruction!");
+    assert((this->get_format() != U_TYPE) && "Attempt to get funct3 of U-type instruction!");
+    assert((this->get_format() != J_TYPE) && "Attempt to get funct3 of J-type instruction!");
+    return this->m_funct3;
+}
+
+uint8_t decoded_inst_t::get_funct7() const {
+    assert((this->get_format() != INVALID) && "Attempt to get funct7 of invalid instruction!");
+    assert((this->get_format() == R_TYPE) && "Attempt to get funct7 of non-R-type instruction!");
+    return this->m_funct7;
+}
+
+uint8_t decoded_inst_t::get_rd() const {
+    assert((this->get_format() != INVALID) && "Attempt to get rd of invalid instruction!");
+    assert((this->get_format() != S_TYPE) && "Attempt to get rd of S-type instruction!");
+    assert((this->get_format() != B_TYPE) && "Attempt to get rd of B-type instruction!");
+    return this->m_rd;
+}
+
+uint8_t decoded_inst_t::get_rs1() const {
+    assert((this->get_format() != INVALID) && "Attempt to get rs1 of invalid instruction!");
+    assert((this->get_format() != U_TYPE) && "Attempt to get rs1 of U-type instruction!");
+    assert((this->get_format() != J_TYPE) && "Attempt to get rs1 of J-type instruction!");
+    return this->m_rs1;
+}
+
+uint8_t decoded_inst_t::get_rs2() const {
+    assert((this->get_format() != INVALID) && "Attempt to get rs2 of invalid instruction!");
+    assert((this->get_format() != I_TYPE) && "Attempt to get rs2 of I-type instruction!");
+    assert((this->get_format() != U_TYPE) && "Attempt to get rs2 of U-type instruction!");
+    assert((this->get_format() != J_TYPE) && "Attempt to get rs2 of J-type instruction!");
+    return this->m_rs2;
+}
+
+uint32_t decoded_inst_t::get_imm() const {
+    assert((this->get_format() != INVALID) && "Attempt to get imm of invalid instruction!");
+    assert((this->get_format() != R_TYPE) && "Attempt to get imm of R-type instruction!");
+    return this->m_imm;
 }
