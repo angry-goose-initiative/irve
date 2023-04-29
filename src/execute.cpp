@@ -36,6 +36,14 @@
 
 /* Function Implementations */
 
+void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Memory &memory) {
+    assert(false && "TODO implement execute_load()");
+}
+
+void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Memory &memory) {
+    assert(false && "TODO implement execute_misc_mem()");
+}
+
 void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     irvelog(2, "Executing OP_IMM instruction");
 
@@ -107,6 +115,42 @@ void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) 
     //Increment PC
     cpu_state.set_pc(cpu_state.get_pc() + 4);
     irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+}
+
+void execute_auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_auipc()");
+}
+
+void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Memory &memory) {
+    assert(false && "TODO implement execute_store()");
+}
+
+void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Memory &memory) {
+    assert(false && "TODO implement execute_amo()");
+}
+
+void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_op()");
+}
+
+void execute_lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_lui()");
+}
+
+void execute_branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_branch()");
+}
+
+void execute_jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_jalr()");
+}
+
+void execute_jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+    assert(false && "TODO implement execute_jal()");
+}
+
+void execute_system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Memory &memory) {
+    assert(false && "TODO implement execute_system()");
 }
 
 /* Static Function Implementations */
