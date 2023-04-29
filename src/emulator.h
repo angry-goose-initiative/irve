@@ -11,7 +11,7 @@
 /* Includes */
 
 #include "cpu_state.h"
-#include "Memory.h"
+#include "memory.h"
 #include "decode.h"
 
 /* Constants And Defines */
@@ -36,7 +36,7 @@ private:
     void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
 
     cpu_state_t m_cpu_state;
-    Memory m_memory;
+    memory_t m_memory;
 
     //TODO
 };

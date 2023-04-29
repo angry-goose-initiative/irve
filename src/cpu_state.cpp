@@ -35,7 +35,6 @@ cpu_state_t::cpu_state_t() :
     m_inst_count(0), 
     m_pc(0),
     m_regs(),
-
     m_CSR(),
     m_privilege_mode(MACHINE_MODE)
 {
@@ -59,23 +58,16 @@ void cpu_state_t::set_pc(uint32_t new_pc) {
     this->m_pc = new_pc;
 }
 
-Reg cpu_state_t::get_r(uint8_t reg_num) const {
-    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
+reg_t cpu_state_t::get_r(uint8_t reg_num) const {
     return this->m_regs[reg_num];
 }
 
 void cpu_state_t::set_r(uint8_t reg_num, uint32_t new_val) {
-    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
-    if (reg_num != 0) {
-        this->m_regs[reg_num].u = new_val;
-    }
+    this->m_regs[reg_num].u = new_val;
 }
 
 void cpu_state_t::set_r(uint8_t reg_num, int32_t new_val) {
-    assert((reg_num >= 0) && (reg_num < 32) && "Attempted to access invalid register");
-    if (reg_num != 0) {
-        this->m_regs[reg_num].s = new_val;
-    }
+    this->m_regs[reg_num].s = new_val;
 }
 
 void cpu_state_t::log(uint8_t indent) const {
@@ -105,7 +97,7 @@ void cpu_state_t::log(uint8_t indent) const {
     }
 }
 
-Reg cpu_state_t::get_CSR(uint16_t CSR_num) const {
+reg_t cpu_state_t::get_CSR(uint16_t CSR_num) const {
     if((CSR_num & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
         // if not readable, throw exception to be caught?
     }

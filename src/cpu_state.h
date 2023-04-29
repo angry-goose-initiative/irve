@@ -12,7 +12,7 @@
 
 #include <cstdint>
 
-#include "Reg.h"
+#include "reg_file.h"
 
 /* Types */
 
@@ -34,11 +34,11 @@ public:
     uint32_t get_pc() const;
     void set_pc(uint32_t new_pc);
 
-    Reg get_r(uint8_t reg_num) const;
+    reg_t get_r(uint8_t reg_num) const;
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
-    Reg get_CSR(uint16_t CSR_num) const;
+    reg_t get_CSR(uint16_t CSR_num) const;
     void set_CSR(uint16_t CSR_num, uint32_t new_val);
     // TODO add a verstion of set for signed?
 
@@ -50,9 +50,9 @@ public:
 private:
     uint64_t m_inst_count;
     uint32_t m_pc;
-    Reg m_regs[32];
+    reg_file_t m_regs;
 
-    Reg m_CSR[4096];
+    reg_t m_CSR[4096];
     privilege_mode_t m_privilege_mode;
 
     //TODO registers, interrupts, CSRs, etc
