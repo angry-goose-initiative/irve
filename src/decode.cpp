@@ -12,6 +12,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <string>
 
 #include "common.h"
 
@@ -88,6 +89,7 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
 void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     switch (this->get_format()) {
         case R_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = R");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -97,6 +99,7 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs2    = x%u", this->get_rs2());
             break;
         case I_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = I");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -105,6 +108,7 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case S_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = S");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -113,6 +117,7 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case B_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = B");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -121,12 +126,14 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case U_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = U");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "rd     = x%u", this->get_rd());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case J_TYPE:
+            irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = J");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "rd     = x%u", this->get_rd());
@@ -190,4 +197,10 @@ uint32_t decoded_inst_t::get_imm() const {
     assert((this->get_format() != INVALID) && "Attempt to get imm of invalid instruction!");
     assert((this->get_format() != R_TYPE) && "Attempt to get imm of R-type instruction!");
     return this->m_imm;
+}
+
+std::string decoded_inst_t::disassemble() const {
+    assert((this->get_format() != INVALID) && "Attempt to disassemble invalid instruction!");
+
+    return std::string("TODO disassembly of instruction here");//TODO
 }
