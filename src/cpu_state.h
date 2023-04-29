@@ -13,10 +13,15 @@
 #include <cstdint>
 
 #include "Reg.h"
+#include "csrs.h"
 
-/* Constants And Defines */
+/* Types */
 
-//TODO
+typedef enum {
+    USER_MODE = 0b00,
+    SUPERVISOR_MODE = 0b01,
+    MACHINE_MODE = 0b11
+} privilege_mode_t;
 
 /* Function/Class Declarations */
 
@@ -40,9 +45,13 @@ public:
     //TODO CSRs
 
 private:
+    privilege_mode_t m_privilege_mode;
+
     uint64_t m_inst_count;
     uint32_t m_pc;
     Reg m_regs[32];
+
+    csrs_t m_csrs;
 
     //TODO registers, interrupts, CSRs, etc
 };
