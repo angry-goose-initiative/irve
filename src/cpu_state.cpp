@@ -116,6 +116,11 @@ void cpu_state_t::set_CSR(uint16_t CSR_num, uint32_t new_val) {
     if((CSR_num >> 10) == 0b11 || (CSR_num & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
         // if not writeable, throw exception to be caught?
     }
+
+    //TODO some CSRs are read only, some are write only, some are read/write
+    //Sometimes only PARTS of a CSR are writable or affect other bits
+    //We need to check for that and deal with it here
+
     m_CSR[CSR_num].u = new_val;
 }
 

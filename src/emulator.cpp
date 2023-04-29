@@ -13,9 +13,11 @@
 
 #include "emulator.h"
 
+#include <cassert>
 #include <cstdint>
 
 #include "decode.h"
+#include "execute.h"
 
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
@@ -48,7 +50,7 @@ void emulator_t::tick() {
     decoded_inst_t decoded_inst(inst);
     decoded_inst.log(2, this->get_inst_count());
 
-    irvelog(1, "TODO execute instruction");
+    this->execute(decoded_inst);
 
     irvelog(1, "TODO handle interrupts");
 
@@ -74,6 +76,68 @@ uint32_t emulator_t::fetch() const {
     //Log what we fetched and return it
     irvelog(1, "Fetched 0x%08x from 0x%08x", inst, this->m_cpu_state.get_pc());
     return inst;
+}
+
+//TODO move this to a separate file
+void emulator_t::execute(const decoded_inst_t &decoded_inst) {
+    irvelog(1, "Executing instruction");
+
+    assert(decoded_inst.is_valid() && "TODO handle invalid instructions");
+
+    //We can assume the opcode exists since the instruction is valid
+    switch (decoded_inst.get_opcode()) {
+        case LOAD:
+            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
+            //TODO
+            break;
+        case MISC_MEM:
+            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
+            //TODO
+            break;
+        case OP_IMM:
+            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");
+            execute_op_imm(decoded_inst, this->m_cpu_state);
+            break;
+        case AUIPC:
+            assert((decoded_inst.get_format() == U_TYPE) && "Instruction with AUIPC opcode had a non-U format!");
+            //TODO
+            break;
+        case STORE:
+            assert((decoded_inst.get_format() == S_TYPE) && "Instruction with STORE opcode had a non-S format!");
+            //TODO
+            break;
+        case AMO:
+            //TODO assertion
+            //TODO
+            break;
+        case OP:
+            assert((decoded_inst.get_format() == R_TYPE) && "Instruction with OP opcode had a non-R format!");
+            //TODO
+            break;
+        case LUI:
+            assert((decoded_inst.get_format() == U_TYPE) && "Instruction with LUI opcode had a non-U format!");
+            //TODO
+            break;
+        case BRANCH:
+            assert((decoded_inst.get_format() == B_TYPE) && "Instruction with BRANCH opcode had a non-B format!");
+            //TODO
+            break;
+        case JALR:
+            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with JALR opcode had a non-I format!");
+            //TODO
+            break;
+        case JAL:
+            assert((decoded_inst.get_format() == J_TYPE) && "Instruction with JAL opcode had a non-J format!");
+            //TODO
+            break;
+        case SYSTEM:
+            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
+            //TODO
+            break;
+        default:
+            assert(false && "Unimplemented opcode or not handled (maybe it should be?)");//TODO
+            break;
+    }
 }
 
 /* Static Function Implementations */
