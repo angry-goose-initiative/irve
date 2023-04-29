@@ -34,6 +34,10 @@ public:
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
+    Reg get_CSR(uint16_t CSR_num) const;
+    void set_CSR(uint16_t CSR_num, uint32_t new_val);
+    // TODO add a verstion of set for signed?
+
     void log(uint8_t indent) const;
 
     //TODO stuff for setting interrupts
@@ -43,6 +47,8 @@ private:
     uint64_t m_inst_count;
     uint32_t m_pc;
     Reg m_regs[32];
+    Reg m_CSR[4096];
+    uint8_t m_privilege_level; // TODO how is this changed?
 
     //TODO registers, interrupts, CSRs, etc
 };

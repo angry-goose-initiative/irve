@@ -33,7 +33,11 @@
 
 /* Function Implementations */
 
-cpu_state_t::cpu_state_t(): m_inst_count(0), m_pc(0), m_regs() {
+cpu_state_t::cpu_state_t(): 
+m_inst_count(0), 
+m_pc(0), m_regs(),
+m_CSR(),
+m_privilege_level(/*TODO what privilege level to start at*/) {
     irvelog(1, "Created new cpu_state instance");
     this->log(1);
 }
@@ -80,6 +84,20 @@ void cpu_state_t::log(uint8_t indent) const {
     for (uint8_t i = 0; i < 32; ++i) {
         irvelog(indent + 2, "x%u:\t0x%08x", i, this->get_r(i).u);
     }
+}
+
+Reg cpu_state_t::get_CSR(uint16_t CSR_num) const {
+    if((CSR_num & 0b1100000000) > (m_privilege_level << 8)) {
+        // if not readable, throw exception to be caught?
+    }
+    return this->m_CSR[CSR_num];
+}
+
+void cpu_state_t::set_CSR(uint16_t CSR_num, uint32_t new_val) {
+    if((CSR_num >> 10) == 0b11 || (CSR_num & 0b1100000000) > (m_privilege_level << 8)) {
+        // if not writeable, throw exception to be caught?
+    }
+    m_CSR[CSR_num].u = new_val;
 }
 
 /* Static Function Implementations */
