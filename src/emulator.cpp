@@ -34,7 +34,7 @@
 
 /* Function Implementations */
 
-emulator_t::emulator_t(): m_cpu_state(), m_memory() {
+emulator_t::emulator_t() : m_cpu_state(), m_memory() {
     irvelog(0, "Created new emulator instance");
 }
 

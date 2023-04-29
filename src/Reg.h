@@ -5,7 +5,8 @@
  * 
 */
 
-#pragma once
+#ifndef REG_H
+#define REG_H
 
 #include <cstdint>
 
@@ -15,3 +16,5 @@ public:
     int32_t& s;
     Reg(): u(), s(reinterpret_cast<int32_t&>(u)) {}
 };
+
+#endif

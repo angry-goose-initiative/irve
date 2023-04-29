@@ -13,7 +13,6 @@
 #include <cstdint>
 
 #include "Reg.h"
-#include "csrs.h"
 
 /* Types */
 
@@ -39,19 +38,22 @@ public:
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
+    Reg get_CSR(uint16_t CSR_num) const;
+    void set_CSR(uint16_t CSR_num, uint32_t new_val);
+    // TODO add a verstion of set for signed?
+
     void log(uint8_t indent) const;
 
     //TODO stuff for setting interrupts
     //TODO CSRs
 
 private:
-    privilege_mode_t m_privilege_mode;
-
     uint64_t m_inst_count;
     uint32_t m_pc;
     Reg m_regs[32];
 
-    csrs_t m_csrs;
+    Reg m_CSR[4096];
+    privilege_mode_t m_privilege_mode;
 
     //TODO registers, interrupts, CSRs, etc
 };

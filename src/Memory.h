@@ -5,7 +5,8 @@
  * 
 */
 
-#pragma once
+#ifndef MEMORY_H
+#define MEMORY_H
 
 #include <iostream>
 
@@ -21,3 +22,5 @@ public:
     void w(const uint32_t addr, const int8_t func3, const int32_t data);
     void p(const uint32_t addr) const;
 };
+
+#endif
