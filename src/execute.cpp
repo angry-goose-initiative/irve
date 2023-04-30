@@ -123,7 +123,44 @@ void execute_auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
 }
 
 void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
-    assert(false && "TODO implement execute_store()");
+    irvelog(2, "Executing store instruction");
+
+    assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
+    assert((decoded_inst.get_format() == S_TYPE) && "store instruction must be S_TYPE");
+
+    // Get operands
+    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    reg_t imm;
+    imm.u = decoded_inst.get_imm();
+    uint8_t func3 = decoded_inst.get_funct3();
+
+    switch(func3) {
+        case 0b000://SB
+            irvelog(3, "Mnemonic: SB");
+            break;
+        case 0b001://SH
+            irvelog(3, "Mnemonic: SH");
+            break;
+        case 0b010://SW
+            irvelog(3, "Mnemonic: SW");
+            break;
+        default:
+            assert(false && "We should never get here");
+            break;
+    }
+    // TODO what else should this log?
+    try {
+        // Note this will throw an excepteion if the memory address isn't valid (TODO)
+        memory.r(r1.u + imm.u, func3);
+    }
+    catch(...) {
+        // TODO what happens when we access invalid memory?
+    }
+
+    //Increment PC
+    cpu_state.set_pc(cpu_state.get_pc() + 4);
+    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
 void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
