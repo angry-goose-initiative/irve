@@ -50,8 +50,8 @@ int8_t emulator_t::mem_read_byte(uint32_t addr) const {
     return (int8_t)this->m_memory.r(addr, 0b000);
 }
 
-void emulator_t::mem_write_byte(uint32_t addr, int8_t data) {
-    this->m_memory.w(addr, 0b000, (int32_t)data);
+void emulator_t::mem_write(uint32_t addr, uint8_t size, int32_t data) {
+    this->m_memory.w(addr, size, data);
 }
 
 uint32_t emulator_t::fetch() const {
