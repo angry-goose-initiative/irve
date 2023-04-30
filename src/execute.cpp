@@ -37,7 +37,50 @@
 /* Function Implementations */
 
 void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
-    assert(false && "TODO implement execute_load()");
+    irvelog(2, "Executing load instruction");
+
+    assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
+    assert((decoded_inst.get_format() == I_TYPE) && "load instruction must be I_TYPE");
+
+    // Get operands
+    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t rd = cpu_state.get_r(decoded_inst.get_rd());
+    reg_t imm;
+    imm.u = decoded_inst.get_imm();
+    uint8_t func3 = decoded_inst.get_funct3();
+
+    switch(func3) {
+        case 0b000://LB
+            irvelog(3, "Mnemonic: LB");
+            break;
+        case 0b001://LH
+            irvelog(3, "Mnemonic: LH");
+            break;
+        case 0b010://LW
+            irvelog(3, "Mnemonic: LW");
+            break;
+        case 0b100://LBU
+            irvelog(3, "Mnemonic: LBU");
+            break;
+        case 0b101://LHU
+            irvelog(3, "Mnemonic: LHU");
+            break;
+        default:
+            assert(false && "We should never get here");
+            break;
+    }
+    try {
+        int32_t loaded = memory.r(r1.u + imm.u, func3);
+        irvelog(3, "Loaded 0x%08X from 0x%08X", loaded, r1.u + imm.u);
+        cpu_state.set_r(decoded_inst.get_rd(), loaded);
+    }
+    catch(...) {
+        // TODO what happens when we access invalid memory?
+    }
+
+    //Increment PC
+    cpu_state.set_pc(cpu_state.get_pc() + 4);
+    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
 void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
@@ -149,10 +192,11 @@ void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
             assert(false && "We should never get here");
             break;
     }
-    // TODO what else should this log?
+    
     try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
         memory.w(r1.u + imm.u, func3, r2.s);
+        irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
     }
     catch(...) {
         // TODO what happens when we access invalid memory?

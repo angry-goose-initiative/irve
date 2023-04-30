@@ -74,7 +74,8 @@ static void load_memory_image(emulator_t &emulator, const char *filename) {
     //     emulator.mem_write(i, 0b000, static_cast<int32_t>(byte));
     // }
 
-    std::fstream fin(filename);
+    std::string mem_file{filename};
+    std::fstream fin("testfiles/" + mem_file);
     assert(fin && "Failed to open memory image file");
     std::string in;
     uint32_t addr{};
