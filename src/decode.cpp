@@ -201,6 +201,12 @@ uint32_t decoded_inst_t::get_imm() const {
     return this->m_imm;
 }
 
+uint32_t decoded_inst_t::get_uimm() const {
+    assert((this->get_format() != INVALID) && "Attempt to get rs1 of invalid instruction!");
+    assert((this->get_format() == I_TYPE) && "Attempt to get uimm of non-I-type instruction!");
+    return ((uint32_t)this->m_rs1);
+}
+
 std::string decoded_inst_t::disassemble() const {
     assert((this->get_format() != INVALID) && "Attempt to disassemble invalid instruction!");
 

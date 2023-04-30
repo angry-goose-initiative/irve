@@ -52,6 +52,7 @@ public:
     uint8_t get_rs1() const;
     uint8_t get_rs2() const;
     uint32_t get_imm() const;
+    uint32_t get_uimm() const;
 
 private:
     std::string disassemble() const;
