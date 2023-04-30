@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 #define INST_COUNT 0//We only log at init
 #include "logging.h"
