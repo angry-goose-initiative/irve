@@ -1,9 +1,12 @@
 /* memory.cpp
- * By Nick Chan
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO description
+ * A class for the memory (RAM, not MMIO) of the emulator
  * 
 */
+
+/* Includes */
 
 #include "memory.h"
 
@@ -13,6 +16,8 @@
 
 #define INST_COUNT 0//We only log at init
 #include "logging.h"
+
+/* Function Implementations */
 
 // All of memory is initialized to 0
 memory_t::memory_t(): m_mem() {

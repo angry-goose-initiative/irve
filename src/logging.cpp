@@ -1,9 +1,10 @@
 /* logging.h
- * By: John Jekel
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * Logging facilities for
+ * Logging facilities for irve
  *
- * Based on code from rv32esim (in C originally)
+ * Based on code from rv32esim
 */
 
 /* Includes */

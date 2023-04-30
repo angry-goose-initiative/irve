@@ -1,13 +1,10 @@
-/* NAME//TODO
- * By: John Jekel
+/* emulator.cpp
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * The main emulator class used to instantiate an instance of irve
  *
 */
-
-/* Constants And Defines */
-
-//TODO
 
 /* Includes */
 
@@ -21,18 +18,6 @@
 
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
-
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
 
 /* Function Implementations */
 
@@ -139,7 +124,3 @@ void emulator_t::execute(const decoded_inst_t &decoded_inst) {
             break;
     }
 }
-
-/* Static Function Implementations */
-
-//TODO

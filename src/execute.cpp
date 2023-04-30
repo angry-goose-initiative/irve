@@ -1,13 +1,10 @@
-/* NAME//TODO
- * By: John Jekel & Nick Chan
+/* execute.cpp
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Utility functions for executing instructions
  *
 */
-
-/* Constants And Defines */
-
-//TODO
 
 /* Includes */
 
@@ -21,14 +18,6 @@
 
 #define INST_COUNT cpu_state.get_inst_count()
 #include "logging.h"
-
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
 
 /* Static Function Declarations */
 

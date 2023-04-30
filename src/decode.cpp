@@ -1,5 +1,6 @@
 /* decode.c
- * By: John Jekel
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
  * Code to decode RISC-V instructions
  *
