@@ -45,6 +45,7 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
         case OP_IMM:
         case JALR:
         case SYSTEM:
+        case MISC_MEM:
             this->m_format = I_TYPE;
             this->m_imm = SIGN_EXTEND_TO_32(instruction >> 20, 12);
             this->m_rs1 = (instruction >> 15) & 0b11111;

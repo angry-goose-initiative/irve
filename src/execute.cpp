@@ -21,7 +21,7 @@
 
 /* Static Function Declarations */
 
-//TODO
+static void goto_next_sequential_pc(cpu_state_t &cpu_state);
 
 /* Function Implementations */
 
@@ -78,8 +78,7 @@ void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
 
     //Increment PC
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
@@ -153,8 +152,7 @@ void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) 
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
     //Increment PC
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute_auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
@@ -199,8 +197,7 @@ void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
     }
 
     //Increment PC
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
@@ -283,9 +280,7 @@ void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
-    //Increment PC
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute_lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
@@ -311,3 +306,7 @@ void execute_system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, 
 /* Static Function Implementations */
 
 //TODO
+static void goto_next_sequential_pc(cpu_state_t &cpu_state) {
+    cpu_state.set_pc(cpu_state.get_pc() + 4);
+    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+}
