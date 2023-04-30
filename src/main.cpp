@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <fstream>
 
 #include "emulator.h"
 
@@ -60,16 +61,42 @@ int main(int argc, char **argv) {
 static void load_memory_image(emulator_t &emulator, const char *filename) {
     irvelog(0, "Loading memory image from file \"%s\"", filename);
 
-    //Read a file into the emulator byte-by-byte
-    FILE *file = fopen(filename, "rb");
-    assert((file != NULL) && "Failed to open memory image file");
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file);
-    rewind(file);
-    assert((file_size >= 0) && "Failed to get file size");
-    irvelog(1, "Memory image file size is %ld bytes", file_size);
-    for (long i = 0; i < file_size; ++i) {
-        int8_t byte = fgetc(file);
-        emulator.mem_write_byte(i, byte);
+    // //Read a file into the emulator byte-by-byte
+    // FILE *file = fopen(filename, "rb");
+    // assert((file != NULL) && "Failed to open memory image file");
+    // fseek(file, 0, SEEK_END);
+    // long file_size = ftell(file);
+    // rewind(file);
+    // assert((file_size >= 0) && "Failed to get file size");
+    // irvelog(1, "Memory image file size is %ld bytes", file_size);
+    // for (long i = 0; i < file_size; ++i) {
+    //     int8_t byte = fgetc(file);
+    //     emulator.mem_write(i, 0b000, static_cast<int32_t>(byte));
+    // }
+
+    std::fstream fin(filename);
+    assert(fin && "Failed to open memory image file");
+    std::string in;
+    uint32_t addr{};
+    while(fin >> in) {
+        int32_t instruction{};
+        assert(in.length() == 8 && "Memory image file is not formatted correctly");
+        for(int i{}; i<8; ++i) {
+            char c{static_cast<char>(toupper(in[i]))};
+            int32_t hex{};
+            if(c > 47 && c < 58) {
+                hex = c - 48;
+            }
+            else if(c > 64 && c < 71) {
+                hex = c - 55;
+            }
+            else {
+                assert(0 && "Invalid character in memory image file");
+            }
+            instruction += (hex << (28 - 4*i));
+        }
+        emulator.mem_write(addr, 0b010, instruction);
+        addr += 4;
     }
+    fin.close();
 }

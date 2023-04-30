@@ -152,7 +152,7 @@ void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
     // TODO what else should this log?
     try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
-        memory.r(r1.u + imm.u, func3);//FIXME shouldn't this be a write rather than a read since it is a store?
+        memory.w(r1.u + imm.u, func3, r2.s);
     }
     catch(...) {
         // TODO what happens when we access invalid memory?
