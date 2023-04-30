@@ -4,6 +4,8 @@
  *
  * Utility functions for executing instructions
  *
+ * Some inspiration from rv32esim
+ *
 */
 
 /* Includes */
@@ -216,66 +218,70 @@ void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
 
     //Perform the ALU operation
     reg_t result;
-    switch (decoded_inst.get_funct3()) {
-        case 0b000://ADD or SUB
-            if (decoded_inst.get_funct7() == 0b0000000) {//ADD
-                irvelog(3, "Mnemonic: ADD");
-                result.u = rs1.u + rs2.u;
-                irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, rs2.u, result);
-            } else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
-                irvelog(3, "Mnemonic: SUB");
-                result.u = rs1.u - rs2.u;
-                irvelog(3, "0x%08X - 0x%08X = 0x%08X", rs1.u, rs2.u, result);
-            } else {
-                assert(false && "Invalid funct7 for ADD or SUB");//TODO handle this
-            }
-            break;
-        case 0b001://SLL
-            irvelog(3, "Mnemonic: SLL");
-            result.u = rs1.u << (rs2.u & 0b11111);
-            irvelog(3, "0x%08X << 0x%08X logical = 0x%08X", rs1.u, rs2.u, result);
-            break;
-        case 0b010://SLT
-            irvelog(3, "Mnemonic: SLT");
-            result.s = rs1.s < rs2.s;
-            irvelog(3, "(0x%08X signed < 0x%08X signed) = 0x%08X", rs1.u, rs2.u, result);
-            break;
-        case 0b011://SLTU
-            irvelog(3, "Mnemonic: SLTU");
-            result.u = rs1.u < rs2.u;
-            irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) = 0x%08X", rs1.u, rs2, result);
-            break;
-        case 0b100://XOR
-            irvelog(3, "Mnemonic: XOR");
-            result.u = rs1.u ^ rs2.u;
-            irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, rs2.u, result);
-            break;
-        case 0b101://SRL or SRA
-            if (decoded_inst.get_funct7() == 0b0000000) {//SRL
-                irvelog(3, "Mnemonic: SRL");
-                result.u = rs1.u >> (rs2.u & 0b11111);
-                irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, rs2.u, result.u);
-            } else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
-                irvelog(3, "Mnemonic: SRA");
-                result.s = rs1.s >> (rs2.s & 0b11111);
-                irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, rs2.u, result.u);
-            } else {
-                assert(false && "Invalid funct7 for SRL or SRA");//TODO handle this
-            }
-            break;
-        case 0b110://OR
-            irvelog(3, "Mnemonic: OR");
-            result.u = rs1.u | rs2.u;
-            irvelog(3, "0x%08X | 0x%08X = 0x%08X", rs1.u, rs2.u, result);
-            break;
-        case 0b111://AND
-            irvelog(3, "Mnemonic: AND");
-            result.u = rs1.u & rs2.u;
-            irvelog(3, "0x%08X & 0x%08X = 0x%08X", rs1.u, rs2.u, result);
-            break;
-        default:
-            assert(false && "We should never get here");
-            break;
+    if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
+        assert(false && "TODO implement M extension instructions");
+    } else {//Others
+        switch (decoded_inst.get_funct3()) {
+            case 0b000://ADD or SUB
+                if (decoded_inst.get_funct7() == 0b0000000) {//ADD
+                    irvelog(3, "Mnemonic: ADD");
+                    result.u = rs1.u + rs2.u;
+                    irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                } else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
+                    irvelog(3, "Mnemonic: SUB");
+                    result.u = rs1.u - rs2.u;
+                    irvelog(3, "0x%08X - 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                } else {
+                    assert(false && "Invalid funct7 for ADD or SUB");//TODO handle this
+                }
+                break;
+            case 0b001://SLL
+                irvelog(3, "Mnemonic: SLL");
+                result.u = rs1.u << (rs2.u & 0b11111);
+                irvelog(3, "0x%08X << 0x%08X logical = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b010://SLT
+                irvelog(3, "Mnemonic: SLT");
+                result.s = rs1.s < rs2.s;
+                irvelog(3, "(0x%08X signed < 0x%08X signed) = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b011://SLTU
+                irvelog(3, "Mnemonic: SLTU");
+                result.u = rs1.u < rs2.u;
+                irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) = 0x%08X", rs1.u, rs2, result);
+                break;
+            case 0b100://XOR
+                irvelog(3, "Mnemonic: XOR");
+                result.u = rs1.u ^ rs2.u;
+                irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b101://SRL or SRA
+                if (decoded_inst.get_funct7() == 0b0000000) {//SRL
+                    irvelog(3, "Mnemonic: SRL");
+                    result.u = rs1.u >> (rs2.u & 0b11111);
+                    irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, rs2.u, result.u);
+                } else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
+                    irvelog(3, "Mnemonic: SRA");
+                    result.s = rs1.s >> (rs2.s & 0b11111);
+                    irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, rs2.u, result.u);
+                } else {
+                    assert(false && "Invalid funct7 for SRL or SRA");//TODO handle this
+                }
+                break;
+            case 0b110://OR
+                irvelog(3, "Mnemonic: OR");
+                result.u = rs1.u | rs2.u;
+                irvelog(3, "0x%08X | 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b111://AND
+                irvelog(3, "Mnemonic: AND");
+                result.u = rs1.u & rs2.u;
+                irvelog(3, "0x%08X & 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            default:
+                assert(false && "We should never get here");
+                break;
+        }
     }
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
