@@ -52,7 +52,8 @@ int main(int argc, char **argv) {
 static void load_memory_image(emulator_t &emulator, const char *filename) {
     irvelog(0, "Loading memory image from file \"%s\"", filename);
 
-    std::fstream fin(filename);
+    std::string mem_file{filename};
+    std::fstream fin("testfiles/" + mem_file);
     assert(fin && "Failed to open memory image file");
     std::string in;
     uint32_t addr{};
