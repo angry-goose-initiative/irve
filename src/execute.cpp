@@ -195,7 +195,7 @@ void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, 
         irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
     }
     catch(...) {
-        // TODO what happens when we access invalid memory?
+        assert(false && "TODO");// TODO what happens when we access invalid memory?
     }
 
     //Increment PC
