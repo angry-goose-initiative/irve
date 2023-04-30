@@ -25,7 +25,7 @@ static void goto_next_sequential_pc(cpu_state_t &cpu_state);
 
 /* Function Implementations */
 
-void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
     irvelog(2, "Executing LOAD instruction");
 
     assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
@@ -72,7 +72,7 @@ void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, me
     irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
-void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
     irvelog(2, "Executing MISC-MEM instruction");
     irvelog(3, "Mnemonic: TODO");
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
@@ -81,7 +81,7 @@ void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert((decoded_inst.get_opcode() == OP_IMM) && "op_imm instruction must have opcode OP_IMM");
@@ -155,11 +155,11 @@ void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) 
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute_auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert(false && "TODO implement execute_auipc()");
 }
 
-void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
     irvelog(2, "Executing store instruction");
 
     assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
@@ -200,11 +200,11 @@ void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
     assert(false && "TODO implement execute_amo()");
 }
 
-void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     irvelog(2, "Executing OP instruction"); 
 
     assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
@@ -283,23 +283,23 @@ void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute_lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert(false && "TODO implement execute_lui()");
 }
 
-void execute_branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert(false && "TODO implement execute_branch()");
 }
 
-void execute_jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert(false && "TODO implement execute_jalr()");
 }
 
-void execute_jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert(false && "TODO implement execute_jal()");
 }
 
-void execute_system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
     assert(false && "TODO implement execute_system()");
 }
 
