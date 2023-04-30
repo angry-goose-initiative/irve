@@ -64,18 +64,18 @@ void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) 
             break;
         case 0b001://SLLI
             irvelog(3, "Mnemonic: SLLI");
-            result = rs1 << imm;
+            result = rs1 << (imm & 0b11111);
             irvelog(3, "0x%08X << 0x%08X = 0x%08X", rs1, imm, result);
             break;
         case 0b010://SLTI
             irvelog(3, "Mnemonic: SLTI");
             result = ((int32_t)rs1 < (int32_t)imm) ? 1 : 0;
-            irvelog(3, "(0x%08X < 0x%08X) signed ? 1 : 0 = 0x%08X", rs1, imm, result);
+            irvelog(3, "(0x%08X signed < 0x%08X signed) ? 1 : 0 = 0x%08X", rs1, imm, result);
             break;
         case 0b011://SLTIU
             irvelog(3, "Mnemonic: SLTIU");
             result = (rs1 < imm) ? 1 : 0;
-            irvelog(3, "(0x%08X < 0x%08X) unsigned ? 1 : 0 = 0x%08X", rs1, imm, result);
+            irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) ? 1 : 0 = 0x%08X", rs1, imm, result);
             break;
         case 0b100://XORI
             irvelog(3, "Mnemonic: XORI");
@@ -85,11 +85,11 @@ void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) 
         case 0b101://SRLI or SRAI
             if (decoded_inst.get_funct7() == 0b0000000) {//SRLI
                 irvelog(3, "Mnemonic: SRLI");
-                result = rs1 >> imm;
+                result = rs1 >> (imm & 0b11111);
                 irvelog(3, "0x%08X >> 0x%08X = 0x%08X", rs1, imm, result);
             } else if (decoded_inst.get_funct7() == 0b0100000) {//SRAI
                 irvelog(3, "Mnemonic: SRAI");
-                result = (uint32_t)(((int32_t)rs1) >> imm);
+                result = (uint32_t)(((int32_t)rs1) >> (imm & 0b11111));
                 irvelog(3, "(0x%08X signed >> 0x%08X) signed = 0x%08X", rs1, imm, result);
             } else {
                 assert(false && "Invalid funct7 for SRLI or SRAI");//TODO handle this
@@ -130,7 +130,57 @@ void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, Mem
 }
 
 void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
-    assert(false && "TODO implement execute_op()");
+    irvelog(2, "Executing OP instruction"); 
+
+    assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
+    assert((decoded_inst.get_format() == R_TYPE) && "op instruction must be R_TYPE");
+
+    //Get operands
+    uint32_t rs1 = cpu_state.get_r(decoded_inst.get_rs1()).u;
+    uint32_t rs2 = cpu_state.get_r(decoded_inst.get_rs2()).u;
+
+    //Perform the ALU operation
+    uint32_t result;
+    switch (decoded_inst.get_funct3()) {
+        case 0b000://ADD or SUB
+            if (decoded_inst.get_funct7() == 0b0000000) {//ADD
+                irvelog(3, "Mnemonic: ADD");
+                result = rs1 + rs2;
+                irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1, rs2, result);
+            } else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
+                irvelog(3, "Mnemonic: SUB");
+                result = rs1 - rs2;
+                irvelog(3, "0x%08X - 0x%08X = 0x%08X", rs1, rs2, result);
+            } else {
+                assert(false && "Invalid funct7 for ADD or SUB");//TODO handle this
+            }
+            break;
+        case 0b001://SLL
+            irvelog(3, "Mnemonic: SLL");
+            result = rs1 << (rs2 & 0b11111);
+            irvelog(3, "0x%08X << 0x%08X = 0x%08X", rs1, rs2 & 0b11111, result);
+            break;
+        case 0b010://SLT
+            irvelog(3, "Mnemonic: SLT");
+            result = (int32_t)rs1 < (int32_t)rs2;
+            irvelog(3, "(0x%08X signed < 0x%08X signed) = 0x%08X", rs1, rs2, result);
+            break;
+        case 0b011://SLTU
+            irvelog(3, "Mnemonic: SLTU");
+            result = rs1 < rs2;
+            irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) = 0x%08X", rs1, rs2, result);
+            break;
+        default:
+            assert(false && "We should never get here");
+            break;
+    }
+
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
+    cpu_state.set_r(decoded_inst.get_rd(), result);
+
+    //Increment PC
+    cpu_state.set_pc(cpu_state.get_pc() + 4);
+    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
 void execute_lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
