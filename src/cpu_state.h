@@ -35,6 +35,7 @@ public:
     void set_pc(uint32_t new_pc);
 
     reg_t get_r(uint8_t reg_num) const;
+    void set_r(uint8_t reg_num, reg_t new_val);
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 

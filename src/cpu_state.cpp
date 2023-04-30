@@ -62,6 +62,10 @@ reg_t cpu_state_t::get_r(uint8_t reg_num) const {
     return this->m_regs[reg_num];
 }
 
+void cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
+    this->m_regs[reg_num] = new_val;
+}
+
 void cpu_state_t::set_r(uint8_t reg_num, uint32_t new_val) {
     this->m_regs[reg_num].u = new_val;
 }

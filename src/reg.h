@@ -10,11 +10,9 @@
 
 #include <cstdint>
 
-class reg_t {
-public:
+typedef union {
     uint32_t u;
-    int32_t& s;
-    reg_t(): u(), s(reinterpret_cast<int32_t&>(u)) {}
-};
+    int32_t s;
+} reg_t;
 
 #endif

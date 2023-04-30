@@ -173,11 +173,11 @@ void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
     assert((decoded_inst.get_format() == R_TYPE) && "op instruction must be R_TYPE");
 
-    /*
     //Get operands
-    uint32_t rs1 = cpu_state.get_r(decoded_inst.get_rs1()).u;
-    uint32_t rs2 = cpu_state.get_r(decoded_inst.get_rs2()).u;
+    reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
 
+    /*
     //Perform the ALU operation
     uint32_t result;
     switch (decoded_inst.get_funct3()) {
