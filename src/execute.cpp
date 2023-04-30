@@ -26,7 +26,7 @@
 /* Function Implementations */
 
 void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
-    irvelog(2, "Executing load instruction");
+    irvelog(2, "Executing LOAD instruction");
 
     assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
     assert((decoded_inst.get_format() == I_TYPE) && "load instruction must be I_TYPE");
@@ -73,11 +73,17 @@ void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, me
 }
 
 void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
-    assert(false && "TODO implement execute_misc_mem()");
+    irvelog(2, "Executing MISC-MEM instruction");
+    irvelog(3, "Mnemonic: TODO");
+    irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
+
+    //Increment PC
+    cpu_state.set_pc(cpu_state.get_pc() + 4);
+    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
 void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
-    irvelog(2, "Executing OP_IMM instruction");
+    irvelog(2, "Executing OP-IMM instruction");
 
     assert((decoded_inst.get_opcode() == OP_IMM) && "op_imm instruction must have opcode OP_IMM");
     assert((decoded_inst.get_format() == I_TYPE) && "op_imm instruction must be I_TYPE");
