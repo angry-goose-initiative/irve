@@ -294,7 +294,71 @@ void execute::lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
 }
 
 void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
-    assert(false && "TODO implement execute_branch()");
+    irvelog(2, "Executing branch instruction");
+
+    assert((decoded_inst.get_opcode() == BRANCH) && "branch instruction must have opcode BRANCH");
+    assert((decoded_inst.get_format() == B_TYPE) && "branch instruction must be B_TYPE");
+
+    // Get operands
+    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    reg_t imm;
+    imm.u = decoded_inst.get_imm();
+    uint8_t func3 = decoded_inst.get_funct3();
+
+    bool branch{};
+    switch(func3) {
+        case 0b000://BEQ
+            irvelog(3, "Mnemonic: BEQ");
+            branch = (r1.s == r2.s);
+            irvelog(3, "0x%08X == 0x%08X results in %X", r1.u, r2.u, branch);
+            break;
+        case 0b001://BNE
+            irvelog(3, "Mnemonic: BNE");
+            branch = (r1.s != r2.s);
+            irvelog(3, "0x%08X != 0x%08X results in %X", r1.u, r2.u, branch);
+            break;
+        case 0b100://BLT
+            irvelog(3, "Mnemonic: BLT");
+            branch = (r1.s < r2.s);
+            irvelog(3, "0x%08X < 0x%08X (signed) results in %X", r1.u, r2.u, branch);
+            break;
+        case 0b101://BGE
+            irvelog(3, "Mnemonic: BGE");
+            branch = (r1.s >= r2.s);
+            irvelog(3, "0x%08X >= 0x%08X (signed) results in %X", r1.u, r2.u, branch);
+            break;
+        case 0b110://BLTU
+            irvelog(3, "Mnemonic: BLTU");
+            branch = (r1.u < r2.u);
+            irvelog(3, "0x%08X < 0x%08X (unsigned) results in %X", r1.u, r2.u, branch);
+            break;
+        case 0b111://BGEU
+            irvelog(3, "Mnemonic: BGEU");
+            branch = (r1.u >= r2.u);
+            irvelog(3, "0x%08X >= 0x%08X (unsigned) results in %X", r1.u, r2.u, branch);
+            break;
+        default:
+            assert(false && "We should never get here");
+            break;
+    }
+
+    if(branch) {
+        uint32_t target_addr{cpu_state.get_pc() + imm.u};
+        // Target address on branches taken must be aligned on 4 byte boundary
+        // (2 byte boundary if supporting compressed instructions)
+        if(target_addr%4) {
+            assert(0 && "TODO implement instruction-address-misaligned exception");
+        }
+        else {
+            cpu_state.set_pc(target_addr);
+            irvelog(3, "Branching to 0x%08X", target_addr);
+        }
+    }
+    else {
+        cpu_state.set_pc(cpu_state.get_pc() + 4);
+        irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    }
 }
 
 void execute::jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
