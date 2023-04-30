@@ -1,12 +1,15 @@
 /* memory.hpp
- * By Nick Chan
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * A class for the memory (RAM, not MMIO) of the emulator
  * 
 */
 
 #ifndef MEMORY_H
 #define MEMORY_H
+
+/* Includes */
 
 #include <iostream>
 

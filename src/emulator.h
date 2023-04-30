@@ -1,7 +1,8 @@
-/* NAME//TODO
- * By: John Jekel
+/* emulator.h
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * The main emulator class used to instantiate an instance of irve
  *
 */
 
@@ -13,10 +14,6 @@
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
-
-/* Constants And Defines */
-
-//TODO
 
 /* Types */
 
@@ -38,15 +35,7 @@ private:
     cpu_state_t m_cpu_state;
     memory_t m_memory;
 
-    //TODO
+    //TODO other things
 };
-
-/* Global Variables */
-
-//TODO
-
-/* Function/Class Declarations */
-
-//TODO
 
 #endif//EMULATOR_H

@@ -1,7 +1,8 @@
-/* NAME//TODO
- * By: John Jekel & Nick Chan
+/* execute.h
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Utility functions for executing instructions
  *
 */
 
@@ -13,18 +14,6 @@
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
-
-/* Constants And Defines */
-
-//TODO
-
-/* Types */
-
-//TODO
-
-/* Global Variables */
-
-//TODO
 
 /* Function/Class Declarations */
 

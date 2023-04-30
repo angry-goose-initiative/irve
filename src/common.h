@@ -1,7 +1,8 @@
 /* common.h
- * By: John Jekel
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * Common things for
+ * Common things for irve code
  *
  * Based on code from rv32esim
 */
@@ -11,26 +12,10 @@
 
 /* Includes */
 
-#include <stdint.h>
+#include <cstdint>
 
 /* Macros */
 
 #define SIGN_EXTEND_TO_32(data, num_bits) (((uint32_t)(((int32_t)((((uint32_t)data) << (32 - num_bits)) & (1ull << 31))) >> (31 - num_bits))) | ((uint32_t)data))
-
-/* Constants And Defines */
-
-//TODO
-
-/* Types */
-
-//TODO
-
-/* Global Variables */
-
-//TODO
-
-/* Function/Class Declarations */
-
-//TODO
 
 #endif//COMMON_H

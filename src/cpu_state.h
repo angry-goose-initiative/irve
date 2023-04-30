@@ -1,7 +1,8 @@
-/* NAME//TODO
- * By: John Jekel & Nick Chan
+/* cpu_state.h
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Holds a RISC-V hart's state including registers, PC, and CSRs
  *
 */
 
@@ -40,14 +41,13 @@ public:
     void set_r(uint8_t reg_num, int32_t new_val);
 
     reg_t get_CSR(uint16_t CSR_num) const;
+    // TODO add a version of set_CSR for reg_t
     void set_CSR(uint16_t CSR_num, uint32_t new_val);
-    // TODO add a verstion of set for signed?
+    // TODO add a verstion of set_CSR for signed
 
     void log(uint8_t indent) const;
 
     //TODO stuff for setting interrupts
-    //TODO CSRs
-
 private:
     uint64_t m_inst_count;
     uint32_t m_pc;
@@ -56,7 +56,7 @@ private:
     reg_t m_CSR[4096];
     privilege_mode_t m_privilege_mode;
 
-    //TODO registers, interrupts, CSRs, etc
+    //TODO interrupts
 };
 
 #endif//CPU_STATE_H

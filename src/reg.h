@@ -1,5 +1,6 @@
 /* reg.h
- * By Nick Chan
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  * 
  * A simple data structure that reduces need for type casting
  * 

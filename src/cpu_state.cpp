@@ -1,7 +1,8 @@
-/* NAME//TODO
- * By: John Jekel & Nick Chan
+/* cpu_state.cpp
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Holds a RISC-V hart's state including registers, PC, and CSRs
  *
 */
 
@@ -16,18 +17,6 @@
 
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
-
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
 
 /* Function Implementations */
 
@@ -119,7 +108,3 @@ void cpu_state_t::set_CSR(uint16_t CSR_num, uint32_t new_val) {
 
     m_CSR[CSR_num].u = new_val;
 }
-
-/* Static Function Implementations */
-
-//TODO
