@@ -219,8 +219,74 @@ void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     //Perform the ALU operation
     reg_t result;
     if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
-        assert(false && "TODO implement M extension instructions");
-    } else {//Others
+        switch (decoded_inst.get_funct3()) {
+            case 0b000://MUL
+                irvelog(3, "Mnemonic: MUL");
+                result.u = rs1.u * rs2.u;
+                irvelog(3, "0x%08X * 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b001://MULH
+                irvelog(3, "Mnemonic: MULH");
+                //TODO ensure casting to int64_t actually performs sign extension
+                result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.s)) >> 32);
+                irvelog(3, "0x%08X signed * 0x%08X signed upper half = 0x%08X", rs1.s, rs2.s, result);
+                break;
+            case 0b010://MULHSU
+                irvelog(3, "Mnemonic: MULHSU");
+                //TODO ensure casting to int64_t actually performs sign extension ONLY WHEN CASTING rs1.s since it is signed
+                result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.u)) >> 32);
+                irvelog(3, "0x%08X signed * 0x%08X unsigned upper half = 0x%08X", rs1.s, rs2.u, result);
+                break;
+            case 0b011://MULHU
+                irvelog(3, "Mnemonic: MULHU");
+                result.u = (uint32_t)((((uint64_t)rs1.u) * ((uint64_t)rs2.u)) >> 32);
+                irvelog(3, "0x%08X unsigned * 0x%08X unsigned upper half = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b100://DIV
+                irvelog(3, "Mnemonic: DIV");
+                if (!rs2.u) {//Division by zero
+                    result.u = 0xFFFFFFFF;
+                } else if ((rs1.s == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
+                    result.u = 0x80000000;
+                } else {
+                    result.u = rs1.s / rs2.s;
+                }
+                irvelog(3, "0x%08X signed / 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
+                break;
+            case 0b101://DIVU
+                irvelog(3, "Mnemonic: DIVU");
+                if (!rs2.u) {//Division by zero
+                    result.u = 0xFFFFFFFF;
+                } else {
+                    result.u = rs1.u / rs2.u;
+                }
+                irvelog(3, "0x%08X unsigned / 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            case 0b110://REM
+                irvelog(3, "Mnemonic: REM");
+                if (!rs2.u) {//Division by zero
+                    result.u = rs1.u;
+                } else if ((rs1.s == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
+                    result.u = 0;
+                } else {
+                    result.u = rs1.s % rs2.s;
+                }
+                irvelog(3, "0x%08X signed %% 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
+                break;
+            case 0b111://REMU
+                irvelog(3, "Mnemonic: REMU");
+                if (!rs2.u) {//Division by zero
+                    result.u = rs1.u;
+                } else {
+                    result.u = rs1.u % rs2.u;
+                }
+                irvelog(3, "0x%08X unsigned %% 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
+                break;
+            default:
+                assert(false && "We should never get here");
+                break;
+        }
+    } else {//Others (base spec)
         switch (decoded_inst.get_funct3()) {
             case 0b000://ADD or SUB
                 if (decoded_inst.get_funct7() == 0b0000000) {//ADD
@@ -375,7 +441,6 @@ void execute::system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state,
 
 /* Static Function Implementations */
 
-//TODO
 static void goto_next_sequential_pc(cpu_state_t &cpu_state) {
     cpu_state.set_pc(cpu_state.get_pc() + 4);
     irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
