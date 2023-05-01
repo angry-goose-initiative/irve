@@ -356,11 +356,19 @@ void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
 }
 
 void execute::lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
-    assert(false && "TODO implement execute_lui()");
+    irvelog(2, "Executing LUI instruction");
+
+    assert((decoded_inst.get_opcode() == LUI) && "lui instruction must have opcode LUI");
+    assert((decoded_inst.get_format() == U_TYPE) && "lui instruction must be U_TYPE");
+
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
+    cpu_state.set_r(decoded_inst.get_rd(), decoded_inst.get_imm());
+
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
-    irvelog(2, "Executing branch instruction");
+    irvelog(2, "Executing BRANCH instruction");
 
     assert((decoded_inst.get_opcode() == BRANCH) && "branch instruction must have opcode BRANCH");
     assert((decoded_inst.get_format() == B_TYPE) && "branch instruction must be B_TYPE");

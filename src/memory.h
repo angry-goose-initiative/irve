@@ -48,7 +48,4 @@ public:
     //TODO functions to deal with virtual memory and also to disable it when the emulated cpu is in Machine mode
 };
 
-
-//TODO create a new class for memory_t to access in place of m_pmem
-
 #endif
