@@ -17,17 +17,19 @@
 
 /* Function/Class Declarations */
 
-void execute_load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
-void execute_misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
-void execute_op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
-void execute_amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
-void execute_op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
-void execute_system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+namespace execute {
+    void load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+    void misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+    void op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+    void amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+    void op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state);
+    void system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory);
+}
 
 #endif//EXECUTE_H

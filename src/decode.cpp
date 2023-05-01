@@ -45,6 +45,7 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
         case OP_IMM:
         case JALR:
         case SYSTEM:
+        case MISC_MEM:
             this->m_format = I_TYPE;
             this->m_imm = SIGN_EXTEND_TO_32(instruction >> 20, 12);
             this->m_rs1 = (instruction >> 15) & 0b11111;
@@ -198,6 +199,12 @@ uint32_t decoded_inst_t::get_imm() const {
     assert((this->get_format() != INVALID) && "Attempt to get imm of invalid instruction!");
     assert((this->get_format() != R_TYPE) && "Attempt to get imm of R-type instruction!");
     return this->m_imm;
+}
+
+uint32_t decoded_inst_t::get_uimm() const {
+    assert((this->get_format() != INVALID) && "Attempt to get rs1 of invalid instruction!");
+    assert((this->get_format() == I_TYPE) && "Attempt to get uimm of non-I-type instruction!");
+    return ((uint32_t)this->m_rs1);
 }
 
 std::string decoded_inst_t::disassemble() const {

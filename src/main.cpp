@@ -8,6 +8,10 @@
  *
 */
 
+/* Constants and Defines */
+
+#define TESTFILES_DIR "testfiles/"
+
 /* Includes */
 
 #include <cassert>
@@ -53,7 +57,7 @@ static void load_memory_image(emulator_t &emulator, const char *filename) {
     irvelog(0, "Loading memory image from file \"%s\"", filename);
 
     std::string mem_file{filename};
-    std::fstream fin("testfiles/" + mem_file);
+    std::fstream fin(TESTFILES_DIR + mem_file);
     assert(fin && "Failed to open memory image file");
     std::string in;
     uint32_t addr{};
