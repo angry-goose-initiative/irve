@@ -23,11 +23,11 @@
 
 /* Static Function Declarations */
 
-static void goto_next_sequential_pc(cpu_state_t &cpu_state);
+static void goto_next_sequential_pc(cpu_state_t& cpu_state);
 
 /* Function Implementations */
 
-void execute::load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     irvelog(2, "Executing LOAD instruction");
 
     assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
@@ -74,7 +74,7 @@ void execute::load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
     irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
 
-void execute::misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     irvelog(2, "Executing MISC-MEM instruction");
     irvelog(3, "Mnemonic: TODO");
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
@@ -83,7 +83,7 @@ void execute::misc_mem(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_stat
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute::op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert((decoded_inst.get_opcode() == OP_IMM) && "op_imm instruction must have opcode OP_IMM");
@@ -157,11 +157,11 @@ void execute::op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state)
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute::auipc(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     assert(false && "TODO implement execute_auipc()");
 }
 
-void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     irvelog(2, "Executing store instruction");
 
     assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
@@ -202,11 +202,11 @@ void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, 
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute::amo(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     assert(false && "TODO implement execute_amo()");
 }
 
-void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing OP instruction"); 
 
     assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
@@ -355,7 +355,7 @@ void execute::op(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute::lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing LUI instruction");
 
     assert((decoded_inst.get_opcode() == LUI) && "lui instruction must have opcode LUI");
@@ -367,7 +367,7 @@ void execute::lui(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
     goto_next_sequential_pc(cpu_state);
 }
 
-void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert((decoded_inst.get_opcode() == BRANCH) && "branch instruction must have opcode BRANCH");
@@ -435,22 +435,22 @@ void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state)
     }
 }
 
-void execute::jalr(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     assert(false && "TODO implement execute_jalr()");
 }
 
-void execute::jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
+void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     assert(false && "TODO implement execute_jal()");
 }
 
-void execute::system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
+void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     assert(false && "TODO implement execute_system()");
     //TODO xCALL, xBREAK, and CSR instructions here
 }
 
 /* Static Function Implementations */
 
-static void goto_next_sequential_pc(cpu_state_t &cpu_state) {
+static void goto_next_sequential_pc(cpu_state_t& cpu_state) {
     cpu_state.set_pc(cpu_state.get_pc() + 4);
     irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }
