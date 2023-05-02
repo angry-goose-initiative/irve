@@ -115,9 +115,9 @@ static void load_memory_image(emulator_t& emulator, const char* filename) {
 
                 //Turn it into a numeric value
                 uint32_t hex = 0;
-                if(c > 47 && c < 58) {
+                if ((c > 47) && (c < 58)) {
                     hex = c - 48;
-                } else if(c > 64 && c < 71) {
+                } else if ((c > 64) && (c < 71)) {
                     hex = c - 55;
                 } else {
                     assert(0 && "Invalid character in memory image file");

@@ -14,9 +14,9 @@ Then later on we plan to continue XRVE which will be a much more extensible and 
 
 ## How to cross compile
 
-### Assembly
-
 Step 0: Install a cross compiler for RISC-V (it is easiest if you make it default to RV32IMA with `--with-arch=rv32ima` and `--with-abi=ilp32`
+
+### Assembly
 
 Step 1: Assemble the file like this: `riscv32-unknown-elf-as -march=rv32ima -mabi=ilp32 path/to/your/assembly_file.s`
 
