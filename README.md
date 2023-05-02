@@ -34,6 +34,11 @@ See the LICENSE file for more info
 
 ## Other code
 
+### xrve
+
+Developed alongside/before/after xrve
+Licensed in the same way
+
 ### rv32esim
 
 Based in part on JZJ's old rv32esim
