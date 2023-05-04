@@ -23,7 +23,9 @@
 /* Function Implementations */
 
 decoded_inst_t::decoded_inst_t(uint32_t instruction) {
-    if (!instruction || (instruction == 0xFFFFFFFF)) {
+    //These are defined invalid RISC-V instructions
+    //In addition, we don't support compressed instructions
+    if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
         this->m_format = INVALID;
         return;
     }

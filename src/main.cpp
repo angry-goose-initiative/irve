@@ -17,6 +17,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "emulator.h"
 
@@ -57,10 +58,16 @@ int main(int argc, char** argv) {
 static void load_memory_image(emulator_t& emulator, const char* filename) {
     irvelog(0, "Loading memory image from file \"%s\"", filename);
 
-    std::string mem_file{filename};
-    std::fstream fin(TESTFILES_DIR + mem_file);
+    //Locate and open the image file 
+    std::string mem_file = filename;
+    //A testfile name rather than a path, so prepend the testfiles directory
+    if (mem_file.find(TESTFILES_DIR) == std::string::npos) {
+        mem_file = TESTFILES_DIR + mem_file;
+    }
+    std::fstream fin = std::fstream(mem_file);
     assert(fin && "Failed to open memory image file");
 
+    //Read the file token by token
     uint32_t addr = 0;
     std::string token;
     while (fin >> token) {
