@@ -1,0 +1,23 @@
+/* cmake_config.h.in
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ *
+ * Holds the CMake variables so they can be accessed in C++ code
+ *
+ * Based on code from rv32esim
+*/
+
+#ifndef CMAKE_CONFIG_H
+#define CMAKE_CONFIG_H
+
+/* Constants And Defines */
+
+#define VERSION_MAJOR @irve_VERSION_MAJOR@
+#define VERSION_MINOR @irve_VERSION_MINOR@
+#define VERSION_STRING "irve v@irve_VERSION_MAJOR@.@irve_VERSION_MINOR@"
+//#define LITTLE_ENDIAN @IS_LITTLE_ENDIAN@
+//#define DISABLE_LOGGING @RV32ESIM_DISABLE_LOGGING@
+//#define UNSAFE_MODE @RV32ESIM_UNSAFE@
+//#define EXTENSION_C @RV32ESIM_C@
+
+#endif//CMAKE_CONFIG_H
