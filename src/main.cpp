@@ -76,7 +76,7 @@ static void load_memory_image(emulator_t& emulator, const char* filename) {
             std::string new_addr_str = token.substr(1);
             assert((new_addr_str.length() == 8) && "Memory image file is not formatted correctly (bad address)");
             addr = std::stoul(new_addr_str, nullptr, 16);
-            assert(((addr % 4) == 0) && "Memory image file is not formatted correctly (address not word aligned)");
+            assert(((addr % 4) == 0) && "Memory image file is not formatted correctly (address not word aligned)");//TODO as it turns out, this is not a requirement
         } else {//New data word (32-bit, could be an instruction or data)
             assert((token.length() == 8) && "Memory image file is not formatted correctly");
             
