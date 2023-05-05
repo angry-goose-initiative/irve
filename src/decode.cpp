@@ -171,7 +171,11 @@ uint8_t decoded_inst_t::get_funct3() const {
 
 uint8_t decoded_inst_t::get_funct7() const {
     assert((this->get_format() != INVALID) && "Attempt to get funct7 of invalid instruction!");
-    assert((this->get_format() == R_TYPE) && "Attempt to get funct7 of non-R-type instruction!");
+    assert((this->get_format() != S_TYPE) && "Attempt to get funct7 of S-type instruction!");
+    assert((this->get_format() != B_TYPE) && "Attempt to get funct7 of B-type instruction!");
+    assert((this->get_format() != U_TYPE) && "Attempt to get funct7 of U-type instruction!");
+    assert((this->get_format() != J_TYPE) && "Attempt to get funct7 of J-type instruction!");
+    //We allow I-type in addition to R-type because it is useful for the immediate shift instructions
     return this->m_funct7;
 }
 

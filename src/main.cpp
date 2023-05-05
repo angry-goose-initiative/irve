@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
         load_memory_image(emulator, argv[1]);
     }
 
-    //TESTING do an infinite loop instead
-    for (uint32_t i = 0; i < 1000; ++i) {
+    //TESTING do differently perhaps?
+    while (true) {
         emulator.tick();
     }
 

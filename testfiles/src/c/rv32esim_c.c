@@ -16,7 +16,7 @@
 
 /* Static Function Declarations */
 
-extern void print_string(const char* str);
+static void print_string(const char* str);
 static void print_uint(uint64_t uint);
 static void print_uint_bin(uint32_t uint);
 //static void rvsim_printf(const char* str, ...);
