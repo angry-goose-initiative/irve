@@ -14,14 +14,6 @@ const char* const HELLO_WORLD = "Hello World!";
 
 #include "irve.h"
 
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
 /* Static Function Declarations */
 
 void my_puts(const char* str);
@@ -36,7 +28,6 @@ int main(void)
 
 /* Static Function Implementations */
 
-//TODO
 void my_puts(const char* str) {
     const char* char_ptr = str;
     for (const char* char_ptr = HELLO_WORLD; *char_ptr != '\0'; ++char_ptr) {

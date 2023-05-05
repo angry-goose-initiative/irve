@@ -11,6 +11,6 @@
 
 /* Constants And Defines */
 
-#define IRVE_DEBUG_ADDR (*(volatile char*)(0xFFFFFFE0))
+#define IRVE_DEBUG_ADDR (*(volatile char*)(0xFFFFFFFF))
 
 #endif//IRVE_H
