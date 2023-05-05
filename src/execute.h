@@ -19,7 +19,7 @@
 
 namespace execute {
     void load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
-    void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
+    void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);

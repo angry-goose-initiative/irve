@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     }
 
     //TESTING do an infinite loop instead
-    for (uint32_t i = 0; i < 10; ++i) {
+    for (uint32_t i = 0; i < 100; ++i) {
         emulator.tick();
     }
 

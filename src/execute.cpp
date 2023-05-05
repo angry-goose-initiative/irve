@@ -35,7 +35,6 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t rd = cpu_state.get_r(decoded_inst.get_rd());
     reg_t imm;
     imm.u = decoded_inst.get_imm();
     uint8_t func3 = decoded_inst.get_funct3();
@@ -70,13 +69,20 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     }
 
     //Increment PC
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+    goto_next_sequential_pc(cpu_state);
 }
 
-void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing MISC-MEM instruction");
-    irvelog(3, "Mnemonic: TODO");
+
+    if (decoded_inst.get_funct3() == 0b000) {//FENCE
+        irvelog(3, "Mnemonic: FENCE");
+    } else if (decoded_inst.get_funct3() == 0b001) {//FENCE.I
+        irvelog(3, "Mnemonic: FENCE.I");
+    } else {
+        assert(false && "TODO handle invalid instruction");
+    }
+
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
 
     //Increment PC
@@ -158,11 +164,21 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
 }
 
 void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
-    assert(false && "TODO implement execute_auipc()");
+    irvelog(2, "Executing AUIPC instruction");
+
+    assert((decoded_inst.get_opcode() == AUIPC) && "auipc instruction must have opcode AUIPC");
+    assert((decoded_inst.get_format() == U_TYPE) && "auipc instruction must be U_TYPE");
+
+    reg_t result = { .u = cpu_state.get_pc() + decoded_inst.get_imm() };
+
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
+    cpu_state.set_r(decoded_inst.get_rd(), result);
+
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
-    irvelog(2, "Executing store instruction");
+    irvelog(2, "Executing STORE instruction");
 
     assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
     assert((decoded_inst.get_format() == S_TYPE) && "store instruction must be S_TYPE");
@@ -246,7 +262,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 irvelog(3, "Mnemonic: DIV");
                 if (!rs2.u) {//Division by zero
                     result.u = 0xFFFFFFFF;
-                } else if ((rs1.s == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
+                } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
                     result.u = 0x80000000;
                 } else {
                     result.u = rs1.s / rs2.s;
@@ -266,7 +282,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 irvelog(3, "Mnemonic: REM");
                 if (!rs2.u) {//Division by zero
                     result.u = rs1.u;
-                } else if ((rs1.s == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
+                } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
                     result.u = 0;
                 } else {
                     result.u = rs1.s % rs2.s;
@@ -430,17 +446,38 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
         }
     }
     else {
-        cpu_state.set_pc(cpu_state.get_pc() + 4);
-        irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
+        goto_next_sequential_pc(cpu_state);
     }
 }
 
 void execute::jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
-    assert(false && "TODO implement execute_jalr()");
+    irvelog(2, "Executing JALR instruction");
+
+    assert((decoded_inst.get_opcode() == JALR) && "jalr instruction must have opcode JALR");
+    assert((decoded_inst.get_format() == I_TYPE) && "jalr instruction must be I_TYPE");
+
+    //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
+
+    //The "link" part of jump and link
+    cpu_state.set_r(decoded_inst.get_rd(), cpu_state.get_pc() + 4);
+
+    //Jump to the address in rs1 plus the immediate
+    cpu_state.set_pc(cpu_state.get_r(decoded_inst.get_rs1()).u + decoded_inst.get_imm());
 }
 
 void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
-    assert(false && "TODO implement execute_jal()");
+    irvelog(2, "Executing JAL instruction");
+
+    assert((decoded_inst.get_opcode() == JAL) && "jal instruction must have opcode JAL");
+    assert((decoded_inst.get_format() == J_TYPE) && "jal instruction must be J_TYPE");
+
+    //TODO ensure that the immediate is aligned on a 4 byte boundary
+
+    //The "link" part of jump and link
+    cpu_state.set_r(decoded_inst.get_rd(), cpu_state.get_pc() + 4);
+
+    //Jump relative to the current PC
+    cpu_state.set_pc(cpu_state.get_pc() + decoded_inst.get_imm());
 }
 
 void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
