@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cstdint>
 
+#include "common.h"
 #include "decode.h"
 #include "execute.h"
 
@@ -29,7 +30,7 @@ void emulator_t::tick() {
     this->m_cpu_state.increment_inst_count();
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
-    uint32_t inst = this->fetch();
+    word_t inst = this->fetch();
 
     irvelog(1, "Decoding instruction 0x%08X", inst);
     decoded_inst_t decoded_inst(inst);
@@ -54,9 +55,9 @@ void emulator_t::mem_write(uint32_t addr, uint8_t size, int32_t data) {
     this->m_memory.w(addr, size, data);
 }
 
-uint32_t emulator_t::fetch() const {
+word_t emulator_t::fetch() const {
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
-    uint32_t inst = (uint32_t) this->m_memory.r(this->m_cpu_state.get_pc(), 0b010);
+    word_t inst = this->m_memory.r(this->m_cpu_state.get_pc(), 0b010);
 
     //Log what we fetched and return it
     irvelog(1, "Fetched 0x%08x from 0x%08x", inst, this->m_cpu_state.get_pc());

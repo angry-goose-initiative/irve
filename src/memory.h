@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#include "common.h"
+
 /* Function/Class Declarations */
 
 class pmemory_t {//Physical memory
@@ -27,8 +29,8 @@ public:
     pmemory_t();
     ~pmemory_t();
 
-    uint8_t r(uint32_t addr) const;//TODO this can't be const because we need to handle read side effects
-    void w(uint32_t addr, uint8_t data);
+    uint8_t r(word_t addr) const;//TODO this can't be const because we need to handle read side effects
+    void w(word_t addr, uint8_t data);
 private:
     uint8_t* m_ram;
     std::string m_debugstr;

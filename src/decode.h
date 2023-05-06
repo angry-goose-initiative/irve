@@ -38,7 +38,7 @@ typedef enum {
 //NOTE: We are NOT supporting compressed instructions
 class decoded_inst_t {
 public:
-    decoded_inst_t(uint32_t instruction);
+    decoded_inst_t(word_t instruction);
 
     void log(uint8_t indent, uint64_t inst_count) const;
 

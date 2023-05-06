@@ -14,10 +14,6 @@
 
 #include <cstdint>
 
-/* Macros */
-
-#define SIGN_EXTEND_TO_32(data, num_bits) (((uint32_t)(((int32_t)((((uint32_t)data) << (32 - num_bits)) & (1ull << 31))) >> (31 - num_bits))) | ((uint32_t)data))
-
 /* Types */
 
 typedef union word_t {
@@ -29,6 +25,7 @@ public:
     /*
     operator uint32_t() const;
     operator int32_t() const;
+    operator bool() const;//This is fine though
     */
 
     //Operator overloads for where the operation is the same for both signed and unsigned
@@ -36,6 +33,7 @@ public:
     //NOTE: * is okay since the bottom 32 bits are the same for both signed and unsigned and we only return the bottom 32 bits
     //Right shift is NOT okay since we don't know if it is arithmetic or logical
     //Division is NOT okay since we don't know if it is signed or unsigned
+    //For comparison, really only == and != are safe
 
     //Arithmetic
     word_t signed_negate() const;
@@ -52,6 +50,10 @@ public:
     word_t operator<<(const word_t& other) const;
     word_t srl(const word_t& other) const;//Have to manually specify
     word_t sra(const word_t& other) const;//Have to manually specify
+    
+    //Comparison
+    bool operator==(const word_t& other) const;
+    //TODO others
 
     uint32_t u;
     int32_t s;

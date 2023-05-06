@@ -29,7 +29,7 @@ public:
     void mem_write(uint32_t addr, uint8_t size, int32_t data);
 
 private:
-    uint32_t fetch() const;
+    word_t fetch() const;
     void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
 
     memory_t m_memory;
