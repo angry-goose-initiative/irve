@@ -19,10 +19,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 #Compilers to use
-#TODO need to probably add these to the path in the future
-set(CMAKE_C_COMPILER /opt/riscv/bin/riscv32-unknown-elf-gcc)
-set(CMAKE_ASM_COMPILER /opt/riscv/bin/riscv32-unknown-elf-gcc)
-set(OBJCOPY /opt/riscv/bin/riscv32-unknown-elf-objcopy)
+set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)
+set(CMAKE_ASM_COMPILER riscv32-unknown-elf-gcc)
+set(OBJCOPY riscv32-unknown-elf-objcopy)
 
 #Compile options
 #TODO DON'T USE -ffreestanding for files that use Newlib or the special case hello_newlib.c

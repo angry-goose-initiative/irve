@@ -12,7 +12,37 @@ Once we do, we can move on to a hardware implementation in SystemVerilog!
 
 Then later on we plan to continue XRVE which will be a much more extensible and powerful emulator written in Rust.
 
-## How to cross compile
+## Compiling
+
+### Using CMake
+
+Step 0: Make a build directory in the root of the project with `mkdir build` (use the name "build" since the gitignore will ignore it then)
+
+Step 1: Goto the build directory with `cd build`
+
+Step 2: Do `cmake ..` to setup CMake
+
+Step 3: Perform the compile with `make`. For speed, you should probably do `make -j` instead to use all of your host's threads
+
+#### Additional Notes
+
+NOTE: If you just want to compile `irve` (ex. if you don't have a cross compiler), do `make irve` or `make -j irve` instead.
+
+You can also use similar commands if you just want to compile a particular test.
+
+Do `make clean` to clean your build directory.
+
+For a debug build (both irve and testcases), in step 2, do `cmake -DCMAKE_BUILD_TYPE=Debug ..` instead.
+
+Be sure to have the `riscv32-unknown-elf-gcc` and `riscv32-unknown-elf-objcopy` binaries in your PATH for testcases to be compiled properly.
+
+### Using make
+
+Step 0: Run `make` in the root of the repo. Does not compile testfiles, only `irve.bin` itself
+
+Likely this method will be removed soon in favour of `cmake`
+
+## How to cross compile manually
 
 Step 0: Install a cross compiler for RISC-V (it is easiest if you make it default to RV32IMA with `--with-arch=rv32ima` and `--with-abi=ilp32`
 
