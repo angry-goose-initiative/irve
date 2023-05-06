@@ -16,6 +16,8 @@
 #include <cstdint>
 #include <string>
 
+#include "reg.h"
+
 /* Types */
 
 ///opcode_t is an enum of RISC-V opcodes
@@ -51,21 +53,24 @@ public:
     uint8_t get_rd() const;
     uint8_t get_rs1() const;
     uint8_t get_rs2() const;
-    uint32_t get_imm() const;
-    uint32_t get_uimm() const;
+    reg_t get_imm() const;
 
 private:
     std::string disassemble() const;
-
-    inst_format_t m_format;
     opcode_t m_opcode;//Bits [6:2]
 
-    uint8_t m_funct3;
-    uint8_t m_funct7;
-    uint8_t m_rd;
-    uint8_t m_rs1;
-    uint8_t m_rs2;
-    uint32_t m_imm;
+    const uint8_t m_funct3;
+    const uint8_t m_funct7;
+    const uint8_t m_rd;
+    const uint8_t m_rs1;
+    const uint8_t m_rs2;
+    const reg_t m_imm_I;
+    const reg_t m_imm_S;
+    const reg_t m_imm_B;
+    const reg_t m_imm_U;
+    const reg_t m_imm_J;
+
+    inst_format_t m_format;
 };
 
 #endif//DECODE_H

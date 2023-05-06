@@ -32,6 +32,14 @@ memory_t::memory_t(): m_mem() {
 // Read from memory
 int32_t memory_t::r(const uint32_t addr, const int8_t func3) const {
 
+
+    // inaccessable address exceptions:
+    //  - vacant addresses are never accessible
+
+    // should memory accesses be word-aligned? (if misaligned is allowed caching will be harder)
+
+    // refuse to run RVTSO binaries?
+
     assert((func3 >= 0b000) && (func3 <= 0b111) && "Invalid func3");
     //TODO from now on exceptions for invalid physical memory accesses will be thrown by pmemory_t instead
     //TODO we will have to handle page faults here though

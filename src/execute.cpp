@@ -36,11 +36,10 @@ void execute::load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t rd = cpu_state.get_r(decoded_inst.get_rd());
-    reg_t imm;
-    imm.u = decoded_inst.get_imm();
-    uint8_t func3 = decoded_inst.get_funct3();
+    reg_t imm = decoded_inst.get_imm();
+    uint8_t funct3 = decoded_inst.get_funct3();
 
-    switch(func3) {
+    switch(funct3) {
         case 0b000://LB
             irvelog(3, "Mnemonic: LB");
             break;
@@ -61,7 +60,7 @@ void execute::load(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, m
             break;
     }
     try {
-        int32_t loaded = memory.r(r1.u + imm.u, func3);
+        int32_t loaded = memory.r(r1.u + imm.u, funct3);
         irvelog(3, "Loaded 0x%08X from 0x%08X", loaded, r1.u + imm.u);
         cpu_state.set_r(decoded_inst.get_rd(), loaded);
     }
@@ -91,8 +90,7 @@ void execute::op_imm(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state)
 
     //Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t imm;
-    imm.u = decoded_inst.get_imm();
+    reg_t imm = decoded_inst.get_imm();
 
     //Perform the ALU operation
     reg_t result;
@@ -170,11 +168,10 @@ void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    reg_t imm;
-    imm.u = decoded_inst.get_imm();
-    uint8_t func3 = decoded_inst.get_funct3();
+    reg_t imm = decoded_inst.get_imm();
+    uint8_t funct3 = decoded_inst.get_funct3();
 
-    switch(func3) {
+    switch(funct3) {
         case 0b000://SB
             irvelog(3, "Mnemonic: SB");
             break;
@@ -191,7 +188,7 @@ void execute::store(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, 
     
     try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
-        memory.w(r1.u + imm.u, func3, r2.s);
+        memory.w(r1.u + imm.u, funct3, r2.s);
         irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
     }
     catch(...) {
@@ -376,12 +373,11 @@ void execute::branch(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state)
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    reg_t imm;
-    imm.u = decoded_inst.get_imm();
-    uint8_t func3 = decoded_inst.get_funct3();
+    reg_t imm = decoded_inst.get_imm();
+    uint8_t funct3 = decoded_inst.get_funct3();
 
     bool branch{};
-    switch(func3) {
+    switch(funct3) {
         case 0b000://BEQ
             irvelog(3, "Mnemonic: BEQ");
             branch = (r1.s == r2.s);
@@ -444,8 +440,58 @@ void execute::jal(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state) {
 }
 
 void execute::system(const decoded_inst_t &decoded_inst, cpu_state_t &cpu_state, memory_t &memory) {
-    assert(false && "TODO implement execute_system()");
-    //TODO xCALL, xBREAK, and CSR instructions here
+    irvelog(2, "Executing SYSTEM instruction");
+
+    assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
+    assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE");
+
+    // Get operands
+    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    uint8_t funct7 = decoded_inst.get_funct7();
+    reg_t imm = decoded_inst.get_imm();
+    privilege_mode_t privilege_mode = cpu_state.m_privilege_mode;
+
+    switch(decoded_inst.get_funct3()){
+    case 0b000://ECALL or EBREAK
+        if(imm.u == 0b000000000000) {//ECALL
+            irvelog(3, "Mnemonic: ECALL");
+            assert(false && "TODO implement ECALL");
+        }
+        else if(imm.u == 0b00000000001) {//EBREAK
+            irvelog(3, "Mnemonic: EBREAK");
+            assert(false && "TODO implement EBREAK");
+        }
+        break;
+    case 0b001://CSRRW
+        irvelog(3, "Mnemonic: CSRRW");
+        assert(false && "TODO implement CSRRW");
+        break;
+    case 0b010://CSRRS
+        irvelog(3, "Mnemonic: CSRRS");
+        assert(false && "TODO implement CSRRS");
+        break;
+    case 0b011://CSRRC
+        irvelog(3, "Mnemonic: CSRRC");
+        assert(false && "TODO implement CSRRC");
+        break;
+    case 0b101://CSRRWI
+        irvelog(3, "Mnemonic: CSRRWI");
+        assert(false && "TODO implement CSRRWI");
+        break;
+    case 0b110://CSRRSI
+        irvelog(3, "Mnemonic: CSRRSI");
+        assert(false && "TODO implement CSRRSI");
+        break;
+    case 0b111://CSRRCI
+        irvelog(3, "Mnemonic: CSRRCI");
+        assert(false && "TODO implement CSRRCI");
+        break;
+    default:
+        assert(false && "We should never get here");
+        break;
+    }
+
 }
 
 /* Static Function Implementations */

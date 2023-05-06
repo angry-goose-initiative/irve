@@ -21,11 +21,11 @@
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t() :
+    m_privilege_mode(MACHINE_MODE),
+    m_CSR(),
     m_inst_count(0), 
     m_pc(0),
-    m_regs(),
-    m_CSR(),
-    m_privilege_mode(MACHINE_MODE)
+    m_regs()
 {
     irvelog(1, "Created new cpu_state instance");
     this->log(2);
@@ -88,23 +88,4 @@ void cpu_state_t::log(uint8_t indent) const {
             assert(false && "Invalid privilege mode");
             break;
     }
-}
-
-reg_t cpu_state_t::get_CSR(uint16_t CSR_num) const {
-    if((CSR_num & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
-        // if not readable, throw exception to be caught?
-    }
-    return this->m_CSR[CSR_num];
-}
-
-void cpu_state_t::set_CSR(uint16_t CSR_num, uint32_t new_val) {
-    if((CSR_num >> 10) == 0b11 || (CSR_num & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
-        // if not writeable, throw exception to be caught?
-    }
-
-    //TODO some CSRs are read only, some are write only, some are read/write
-    //Sometimes only PARTS of a CSR are writable or affect other bits
-    //We need to check for that and deal with it here
-
-    m_CSR[CSR_num].u = new_val;
 }
