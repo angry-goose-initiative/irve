@@ -33,8 +33,8 @@ set(CMAKE_ASM_FLAGS "${COMMON_FLAGS}")
 #Static library targets for C runtime setup and other IRVE features
 set(LIBIRVE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve_newlib.c)
 set(LIBIRVE_NO_NEWLIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0_no_newlib.s)
-add_library(irve STATIC ${LIBIRVE_SOURCES})
-add_library(irve_no_newlib STATIC ${LIBIRVE_NO_NEWLIB_SOURCES})
+add_library(irvec STATIC ${LIBIRVE_SOURCES})
+add_library(irvec_no_newlib STATIC ${LIBIRVE_NO_NEWLIB_SOURCES})
 
 #Macro for outputing Verilog hex files
 macro(add_hex_target BINARY_NAME)
@@ -106,30 +106,30 @@ add_jzjcoresoftware_asm_target(xoritoggle)
 #Without newlib
 add_executable(hello_world src/c/without_c_stdlib/hello_world.c)
 add_hex_target(hello_world)
-target_link_libraries(hello_world irve_no_newlib)
+target_link_libraries(hello_world irvec_no_newlib)
 add_executable(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
 add_hex_target(rv32im_sanity)
-target_link_libraries(rv32im_sanity irve_no_newlib)
+target_link_libraries(rv32im_sanity irvec_no_newlib)
 add_executable(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
 add_hex_target(software_floating_point_fun)
-target_link_libraries(software_floating_point_fun irve_no_newlib)
+target_link_libraries(software_floating_point_fun irvec_no_newlib)
 
 #Special case (implement newlib syscalls themselves)
 add_executable(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
 add_hex_target(hello_newlib)
-target_link_libraries(hello_newlib irve_no_newlib)
+target_link_libraries(hello_newlib irvec_no_newlib)
 
 #With newlib
 #TODO fix warnings that Newlib cant find the necessary syscalls?
 add_executable(stress_test src/c/with_c_stdlib/stress_test.c)
 add_hex_target(stress_test)
-target_link_libraries(stress_test irve)
+target_link_libraries(stress_test irvec)
 #TODO
 
 #C test files from rv32esim (All without newlib)
 add_executable(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)
 add_hex_target(rv32esim_c)
-target_link_libraries(rv32esim_c irve_no_newlib)
+target_link_libraries(rv32esim_c irvec_no_newlib)
 
 #C test files from jzjcoresoftware (All without newlib)
 #TODO

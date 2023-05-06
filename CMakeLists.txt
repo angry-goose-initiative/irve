@@ -12,6 +12,7 @@ cmake_minimum_required(VERSION 3.21)
 project(irve VERSION 0.1)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_subdirectory(testfiles)
 
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
 if(NOT CMAKE_BUILD_TYPE)
@@ -28,7 +29,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 #set(RV32ESIM_DISABLE_LOGGING 0)#Speed boost (avoid checking if enabled, allows compiler to optimize some things more, etc)
 #set(RV32ESIM_C 1)#Support compressed extension
 
-#set(IRVE_SOURCES src/
+set(IRVE_SOURCES
+    src/cmake_config.h src/common.h src/cpu_state.cpp src/cpu_state.h
+    src/decode.cpp src/decode.h src/emulator.cpp src/emulator.h
+    src/execute.cpp src/execute.h src/logging.cpp src/logging.h
+    src/main.cpp src/memory.cpp src/memory.h src/reg_file.cpp
+    src/reg_file.h src/reg.h
+)
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
     set(IS_LITTLE_ENDIAN 1)
@@ -36,19 +43,6 @@ else()
     set(IS_LITTLE_ENDIAN 0)
 endif()
 
-configure_file(src/rv32esim/cmake_config.h.in src/rv32esim/cmake_config.h)
+configure_file(src/cmake_config.h.in src/cmake_config.h)
 
 add_executable(irve.bin ${IRVE_SOURCES})
-
-#add_library(rv32esim_shared SHARED ${RV32ESIM_SOURCES})
-#add_library(rv32esim_static STATIC ${RV32ESIM_SOURCES})
-#target_include_directories(rv32esim_shared PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/rv32esim/)
-#target_include_directories(rv32esim_static PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/rv32esim/)
-#set_property(TARGET rv32esim_shared PROPERTY OUTPUT_NAME rv32esim)
-#set_property(TARGET rv32esim_static PROPERTY OUTPUT_NAME rv32esim)
-
-#rv32esim Test Code
-#set(TEST_SOURCES src/main.c include/rv32esim.h)
-#add_executable(rv32esim ${TEST_SOURCES})
-#target_include_directories(rv32esim PRIVATE include)
-#target_link_libraries(rv32esim rv32esim_shared)
