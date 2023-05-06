@@ -25,9 +25,16 @@ set(CMAKE_ASM_COMPILER /opt/riscv/bin/riscv32-unknown-elf-gcc)
 set(OBJCOPY /opt/riscv/bin/riscv32-unknown-elf-objcopy)
 
 #Compile options
-set(COMMON_FLAGS "-Wall -Wextra -march=rv32ima -mabi=ilp32 -nostartfiles -static -static-libgcc --specs=nosys.specs -lc -lgcc -mstrict-align -T ${CMAKE_CURRENT_SOURCE_DIR}/src/irve.ld")
+#TODO DON'T USE -ffreestanding for files that use Newlib or the special case hello_newlib.c
+set(COMMON_FLAGS "-Wall -Wextra -march=rv32ima -mabi=ilp32 -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -lc -lgcc -mstrict-align -T ${CMAKE_CURRENT_SOURCE_DIR}/src/irve.ld")
+set(COMMON_FLAGS_DEBUG "-O0 -g3")
+set(COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${COMMON_FLAGS}")
+set(CMAKE_C_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
+set(CMAKE_ASM_FLAGS_DEBUG "${COMMON_FLAGS_DEBUG}")
+set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
+set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #set(OBJCOPY_FLAGS "-O verilog --verilog-data-width=4")#TODO this dosn't work for some reason
 
 #Static library targets for C runtime setup and other IRVE features

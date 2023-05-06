@@ -45,4 +45,4 @@ endif()
 
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
-add_executable(irve.bin ${IRVE_SOURCES})
+add_executable(irve ${IRVE_SOURCES})
