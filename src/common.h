@@ -52,7 +52,9 @@ public:
     word_t sra(const word_t& other) const;//Have to manually specify
     
     //Comparison
+    bool operator!() const;
     bool operator==(const word_t& other) const;
+    bool operator!=(const word_t& other) const;
     //TODO others
 
     uint32_t u;

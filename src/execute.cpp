@@ -101,44 +101,44 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
 
     //Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t imm = decoded_inst.get_imm();
+    word_t imm = decoded_inst.get_imm();
 
     //Perform the ALU operation
     word_t result;
     switch (decoded_inst.get_funct3()) {
         case 0b000://ADDI
             irvelog(3, "Mnemonic: ADDI");
-            result.s = rs1.s + imm.s;
+            result = rs1 + imm;
             irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b001://SLLI
             irvelog(3, "Mnemonic: SLLI");
-            result.u = rs1.u << (imm.u & 0b11111);
+            result = rs1 << (imm & 0b11111);
             irvelog(3, "0x%08X << 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b010://SLTI
             irvelog(3, "Mnemonic: SLTI");
-            result.u = (rs1.s < imm.s) ? 1 : 0;
+            result = (rs1.s < imm.s) ? 1 : 0;
             irvelog(3, "(0x%08X signed < 0x%08X signed) ? 1 : 0 = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b011://SLTIU
             irvelog(3, "Mnemonic: SLTIU");
-            result.u = (rs1.u < imm.u) ? 1 : 0;
+            result = (rs1.u < imm.u) ? 1 : 0;
             irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) ? 1 : 0 = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b100://XORI
             irvelog(3, "Mnemonic: XORI");
-            result.u = rs1.u ^ imm.u;
+            result = rs1 ^ imm;
             irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b101://SRLI or SRAI
             if (decoded_inst.get_funct7() == 0b0000000) {//SRLI
                 irvelog(3, "Mnemonic: SRLI");
-                result.u = rs1.u >> (imm.u & 0b11111);
+                result = rs1.srl(imm & 0b11111);
                 irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, imm.u, result.u);
             } else if (decoded_inst.get_funct7() == 0b0100000) {//SRAI
                 irvelog(3, "Mnemonic: SRAI");
-                result.s = rs1.s >> (imm.s & 0b11111);
+                result = rs1.sra(imm & 0b11111);
                 irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, imm.u, result.u);
             } else {
                 throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
@@ -146,12 +146,12 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
             break;
         case 0b110://ORI
             irvelog(3, "Mnemonic: ORI");
-            result.u = rs1.u | imm.u;
+            result = rs1 | imm;
             irvelog(3, "0x%08X | 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b111://ANDI
             irvelog(3, "Mnemonic: ANDI");
-            result.u = rs1.u & imm.u;
+            result = rs1 & imm;
             irvelog(3, "0x%08X & 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         default:
@@ -242,7 +242,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b000://MUL
                 irvelog(3, "Mnemonic: MUL");
 
-                result.u = rs1.u * rs2.u;
+                result = rs1 * rs2;
                 irvelog(3, "0x%08X * 0x%08X = 0x%08X", rs1.u, rs2.u, result);
 
                 break;
@@ -250,7 +250,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 irvelog(3, "Mnemonic: MULH");
 
                 //TODO ensure casting to int64_t actually performs sign extension
-                result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.s)) >> 32);
+                result = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.s)) >> 32);
 
                 irvelog(3, "0x%08X signed * 0x%08X signed upper half = 0x%08X", rs1.s, rs2.s, result);
                 break;
@@ -258,26 +258,26 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 irvelog(3, "Mnemonic: MULHSU");
 
                 //TODO ensure casting to int64_t actually performs sign extension ONLY WHEN CASTING rs1.s since it is signed
-                result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.u)) >> 32);
+                result = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.u)) >> 32);
 
                 irvelog(3, "0x%08X signed * 0x%08X unsigned upper half = 0x%08X", rs1.s, rs2.u, result);
                 break;
             case 0b011://MULHU
                 irvelog(3, "Mnemonic: MULHU");
 
-                result.u = (uint32_t)((((uint64_t)rs1.u) * ((uint64_t)rs2.u)) >> 32);
+                result = (uint32_t)((((uint64_t)rs1.u) * ((uint64_t)rs2.u)) >> 32);
 
                 irvelog(3, "0x%08X unsigned * 0x%08X unsigned upper half = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b100://DIV
                 irvelog(3, "Mnemonic: DIV");
 
-                if (!rs2.u) {//Division by zero
-                    result.u = 0xFFFFFFFF;
-                } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
-                    result.u = 0x80000000;
+                if (!rs2) {//Division by zero
+                    result = 0xFFFFFFFF;
+                } else if ((rs1 == 0x80000000) && (rs2 == -1)) {//Overflow (division of the most negative number by -1)
+                    result = 0x80000000;
                 } else {
-                    result.u = rs1.s / rs2.s;
+                    result = rs1.s / rs2.s;
                 }
 
                 irvelog(3, "0x%08X signed / 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
@@ -285,10 +285,10 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b101://DIVU
                 irvelog(3, "Mnemonic: DIVU");
 
-                if (!rs2.u) {//Division by zero
-                    result.u = 0xFFFFFFFF;
+                if (!rs2) {//Division by zero
+                    result = 0xFFFFFFFF;
                 } else {
-                    result.u = rs1.u / rs2.u;
+                    result = rs1.u / rs2.u;
                 }
 
                 irvelog(3, "0x%08X unsigned / 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
@@ -296,12 +296,12 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b110://REM
                 irvelog(3, "Mnemonic: REM");
 
-                if (!rs2.u) {//Division by zero
-                    result.u = rs1.u;
-                } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
-                    result.u = 0;
+                if (!rs2) {//Division by zero
+                    result = rs1;
+                } else if ((rs1 == 0x80000000) && (rs2 == -1)) {//Overflow (division of the most negative number by -1)
+                    result = 0;
                 } else {
-                    result.u = rs1.s % rs2.s;
+                    result = rs1.s % rs2.s;
                 }
 
                 irvelog(3, "0x%08X signed %% 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
@@ -309,10 +309,10 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b111://REMU
                 irvelog(3, "Mnemonic: REMU");
 
-                if (!rs2.u) {//Division by zero
-                    result.u = rs1.u;
+                if (!rs2) {//Division by zero
+                    result = rs1;
                 } else {
-                    result.u = rs1.u % rs2.u;
+                    result = rs1.u % rs2.u;
                 }
 
                 irvelog(3, "0x%08X unsigned %% 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
@@ -326,11 +326,11 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b000://ADD or SUB
                 if (decoded_inst.get_funct7() == 0b0000000) {//ADD
                     irvelog(3, "Mnemonic: ADD");
-                    result.u = rs1.u + rs2.u;
+                    result = rs1 + rs2;
                     irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 } else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
                     irvelog(3, "Mnemonic: SUB");
-                    result.u = rs1.u - rs2.u;
+                    result = rs1 - rs2;
                     irvelog(3, "0x%08X - 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 } else {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
@@ -343,7 +343,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.u = rs1.u << (rs2.u & 0b11111);
+                result = rs1 << (rs2 & 0b11111);
 
                 irvelog(3, "0x%08X << 0x%08X logical = 0x%08X", rs1.u, rs2.u, result);
                 break;
@@ -354,42 +354,40 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.s = rs1.s < rs2.s;
+                result = (rs1.s < rs2.s) ? 1 : 0;
 
                 irvelog(3, "(0x%08X signed < 0x%08X signed) = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b011://SLTU
-                //TODO verify funct7 and throw exception if not 0b0000000
                 irvelog(3, "Mnemonic: SLTU");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.u = rs1.u < rs2.u;
+                result = (rs1.u < rs2.u) ? 1 : 0;
 
                 irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) = 0x%08X", rs1.u, rs2, result);
                 break;
             case 0b100://XOR
-                //TODO verify funct7 and throw exception if not 0b0000000
                 irvelog(3, "Mnemonic: XOR");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.u = rs1.u ^ rs2.u;
+                result = rs1 ^ rs2;
 
                 irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b101://SRL or SRA
                 if (decoded_inst.get_funct7() == 0b0000000) {//SRL
                     irvelog(3, "Mnemonic: SRL");
-                    result.u = rs1.u >> (rs2.u & 0b11111);
+                    result = rs1.srl(rs2 & 0b11111);
                     irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, rs2.u, result.u);
                 } else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
                     irvelog(3, "Mnemonic: SRA");
-                    result.s = rs1.s >> (rs2.s & 0b11111);
+                    result = rs1.sra(rs2 & 0b11111);
                     irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, rs2.u, result.u);
                 } else {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
@@ -402,7 +400,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.u = rs1.u | rs2.u;
+                result = rs1 | rs2;
 
                 irvelog(3, "0x%08X | 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
@@ -413,7 +411,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result.u = rs1.u & rs2.u;
+                result = rs1 & rs2;
 
                 irvelog(3, "0x%08X & 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
@@ -456,12 +454,12 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     switch(funct3) {
         case 0b000://BEQ
             irvelog(3, "Mnemonic: BEQ");
-            branch = (r1.s == r2.s);
+            branch = (r1 == r2);
             irvelog(3, "0x%08X == 0x%08X results in %X", r1.u, r2.u, branch);
             break;
         case 0b001://BNE
             irvelog(3, "Mnemonic: BNE");
-            branch = (r1.s != r2.s);
+            branch = (r1 != r2);
             irvelog(3, "0x%08X != 0x%08X results in %X", r1.u, r2.u, branch);
             break;
         case 0b100://BLT
@@ -551,11 +549,11 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
 
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL or EBREAK
-            if(imm.u == 0b000000000000) {//ECALL
+            if(imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
                 assert(false && "TODO implement ECALL");
             }
-            else if(imm.u == 0b00000000001) {//EBREAK
+            else if(imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
                 assert(false && "TODO implement EBREAK");
                 //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit

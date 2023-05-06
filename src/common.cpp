@@ -80,8 +80,16 @@ word_t word_t::sra(const word_t& other) const {
     return word_t(this->s >> other.s);
 }
 
+bool word_t::operator!() const {
+    return this->u != 0;
+}
+
 bool word_t::operator==(const word_t& other) const {
     return this->u == other.u;
+}
+
+bool word_t::operator!=(const word_t& other) const {
+    return !(*this == other);
 }
 
 /* Static Function Implementations */
