@@ -43,6 +43,8 @@ public:
 
     privilege_mode_t m_privilege_mode;
 
+    //TODO this will be a private member of cpu_state_t but have all public methods internally
+    //Then we will provide a get_csr and set_csr set of methods to access it/bypass it to update other things
     CSR_t m_CSR;
 
     void log(uint8_t indent) const;
@@ -52,6 +54,8 @@ private:
     uint64_t m_inst_count;
     uint32_t m_pc;
     reg_file_t m_regs;
+
+    //TODO add a reference to memory here (we will need to access it on certain CSR accesses in order to tell it that we are in machine mode/not so it knows when to use virtual addresses)
 
     //TODO interrupts
 };

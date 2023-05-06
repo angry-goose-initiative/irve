@@ -15,7 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 #Compilers to use

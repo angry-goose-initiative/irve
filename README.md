@@ -32,7 +32,7 @@ You can also use similar commands if you just want to compile a particular test.
 
 Do `make clean` to clean your build directory.
 
-For a debug build (both irve and testcases), in step 2, do `cmake -DCMAKE_BUILD_TYPE=Debug ..` instead.
+For a release build (both irve and testcases), in step 2, do `cmake -DCMAKE_BUILD_TYPE=Release..` instead.
 
 Be sure to have the `riscv32-unknown-elf-gcc` and `riscv32-unknown-elf-objcopy` binaries in your PATH for testcases to be compiled properly.
 
