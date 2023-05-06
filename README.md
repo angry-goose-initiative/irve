@@ -33,11 +33,17 @@ NOTE: The C standard library will be available, BUT since we are using --specs=n
 
 If we used --specs=nano.specs or others, more would be implemented for us, but Newlib (the c standard library implementation for embedded systems) dosn't know how to use IRVE_DEBUG_ADDR
 
+**I have already done this however! So just include irve_newlib.c in the list of files you are compiling and you'll get these syscalls for free!**
+
 Note: To implement these functions, this may come in handy: https://interrupt.memfault.com/blog/boostrapping-libc-with-newlib#implementing-newlib
 
 #### How I was compile C code before I thought of the possiblity of having a C library as a possiblity:
 
 `riscv32-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -ffreestanding -nostartfiles -static-libgcc -lgcc -mstrict-align -T path/to/irve.ld path/to/crt0.s path/to/your/remaining/c/files/here`
+
+#### Special case: How I compiled hello_newlib.c
+
+Same command as the regular C code section, but I DIDN'T USE irve_newlib.c
 
 ### End of both
 

@@ -40,5 +40,13 @@ SECTIONS
     } > ram
     .data : { *(.data*) } > ram
     .bss : { *(.bss*) } > ram
-    __global_pointer$ = __SDATA_BEGIN__; /* The global pointer points to the beginning of the SDATA section */
+
+    /* TODO I basically guessed this, is this correct? */
+    .heap : { 
+        __heap_start__ = .;
+        end = __heap_start__;
+        *(.heap*)
+    } > ram
+
+    __global_pointer$ = .; /* The global pointer points to the beginning of the SDATA section */
 }
