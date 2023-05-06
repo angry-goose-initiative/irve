@@ -81,7 +81,7 @@ word_t word_t::sra(const word_t& other) const {
 }
 
 bool word_t::operator!() const {
-    return this->u != 0;
+    return this->u == 0;
 }
 
 bool word_t::operator==(const word_t& other) const {
