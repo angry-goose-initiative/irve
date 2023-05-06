@@ -32,7 +32,7 @@ set(IRVE_SOURCES
     src/cpu_state.h src/CSR.cpp src/CSR.h src/decode.cpp src/decode.h
     src/emulator.cpp src/emulator.h src/execute.cpp src/execute.h
     src/logging.cpp src/logging.h src/main.cpp src/memory.cpp src/memory.h
-    src/reg_file.cpp src/reg_file.h
+    src/reg_file.cpp src/reg_file.h src/rvexception.cpp src/rvexception.h
 )
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)

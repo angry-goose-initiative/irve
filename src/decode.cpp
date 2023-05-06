@@ -7,6 +7,8 @@
  * Based on code from rv32esim
 */
 
+//TODO transition to using word_t and reg_t
+
 /* Includes */
 
 #include "decode.h"
@@ -228,5 +230,5 @@ word_t decoded_inst_t::get_imm() const {
 std::string decoded_inst_t::disassemble() const {
     assert((this->get_format() != INVALID) && "Attempt to disassemble invalid instruction!");
 
-    return std::string("TODO disassembly of instruction here");//TODO
+    return std::string("TODO disassembly of instruction here (Save this for XRVE actually)");//TODO
 }

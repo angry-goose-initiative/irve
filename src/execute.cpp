@@ -8,6 +8,8 @@
  *
 */
 
+//TODO transition to using word_t and reg_t
+
 /* Includes */
 
 #include "execute.h"
