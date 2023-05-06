@@ -77,7 +77,7 @@ word_t word_t::srl(const word_t& other) const {
 
 word_t word_t::sra(const word_t& other) const {
     //TODO ensure this is arithmetic shift
-    return word_t(this->s >> other.u);
+    return word_t(this->s >> other.s);
 }
 
 bool word_t::operator==(const word_t& other) const {

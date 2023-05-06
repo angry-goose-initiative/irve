@@ -29,7 +29,7 @@ typedef enum {
 } opcode_t;
 
 typedef enum {
-    R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE, INVALID
+    R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE
 } inst_format_t;
 
 /* Function/Class Declarations */
@@ -44,7 +44,6 @@ public:
 
     //Check this before using the other getters
     //The getters will assert that the fields actually exist in the format of the instruction
-    bool is_valid() const;
     inst_format_t get_format() const;
 
     opcode_t get_opcode() const;

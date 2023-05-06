@@ -19,6 +19,7 @@
 
 #include "cpu_state.h"
 #include "decode.h"
+#include "rvexception.h"
 
 #define INST_COUNT cpu_state.get_inst_count()
 #include "logging.h"
@@ -57,7 +58,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
             irvelog(3, "Mnemonic: LHU");
             break;
         default:
-            assert(false && "We should never get here");
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
     try {
@@ -67,6 +68,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     }
     catch(...) {
         // TODO what happens when we access invalid memory?
+        //Actually we probably shouldn't catch here, but rather pass this up to the emulator
     }
 
     //Increment PC
@@ -81,7 +83,7 @@ void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     } else if (decoded_inst.get_funct3() == 0b001) {//FENCE.I
         irvelog(3, "Mnemonic: FENCE.I");
     } else {
-        assert(false && "TODO handle invalid instruction");
+        throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
@@ -139,7 +141,7 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
                 result.s = rs1.s >> (imm.s & 0b11111);
                 irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, imm.u, result.u);
             } else {
-                assert(false && "Invalid funct7 for SRLI or SRAI");//TODO handle this
+                throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             }
             break;
         case 0b110://ORI
@@ -200,7 +202,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
             irvelog(3, "Mnemonic: SW");
             break;
         default:
-            assert(false && "We should never get here");
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
     
@@ -211,6 +213,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     }
     catch(...) {
         assert(false && "TODO");// TODO what happens when we access invalid memory?
+        //Actually we probably shouldn't catch here, but rather pass this up to the emulator
     }
 
     //Increment PC
@@ -237,28 +240,37 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
         switch (decoded_inst.get_funct3()) {
             case 0b000://MUL
                 irvelog(3, "Mnemonic: MUL");
+
                 result.u = rs1.u * rs2.u;
                 irvelog(3, "0x%08X * 0x%08X = 0x%08X", rs1.u, rs2.u, result);
+
                 break;
             case 0b001://MULH
                 irvelog(3, "Mnemonic: MULH");
+
                 //TODO ensure casting to int64_t actually performs sign extension
                 result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.s)) >> 32);
+
                 irvelog(3, "0x%08X signed * 0x%08X signed upper half = 0x%08X", rs1.s, rs2.s, result);
                 break;
             case 0b010://MULHSU
                 irvelog(3, "Mnemonic: MULHSU");
+
                 //TODO ensure casting to int64_t actually performs sign extension ONLY WHEN CASTING rs1.s since it is signed
                 result.u = (uint32_t)((((int64_t)rs1.s) * ((int64_t)rs2.u)) >> 32);
+
                 irvelog(3, "0x%08X signed * 0x%08X unsigned upper half = 0x%08X", rs1.s, rs2.u, result);
                 break;
             case 0b011://MULHU
                 irvelog(3, "Mnemonic: MULHU");
+
                 result.u = (uint32_t)((((uint64_t)rs1.u) * ((uint64_t)rs2.u)) >> 32);
+
                 irvelog(3, "0x%08X unsigned * 0x%08X unsigned upper half = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b100://DIV
                 irvelog(3, "Mnemonic: DIV");
+
                 if (!rs2.u) {//Division by zero
                     result.u = 0xFFFFFFFF;
                 } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
@@ -266,19 +278,23 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 } else {
                     result.u = rs1.s / rs2.s;
                 }
+
                 irvelog(3, "0x%08X signed / 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
                 break;
             case 0b101://DIVU
                 irvelog(3, "Mnemonic: DIVU");
+
                 if (!rs2.u) {//Division by zero
                     result.u = 0xFFFFFFFF;
                 } else {
                     result.u = rs1.u / rs2.u;
                 }
+
                 irvelog(3, "0x%08X unsigned / 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b110://REM
                 irvelog(3, "Mnemonic: REM");
+
                 if (!rs2.u) {//Division by zero
                     result.u = rs1.u;
                 } else if ((rs1.u == 0x80000000) && (rs2.s == -1)) {//Overflow (division of the most negative number by -1)
@@ -286,15 +302,18 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 } else {
                     result.u = rs1.s % rs2.s;
                 }
+
                 irvelog(3, "0x%08X signed %% 0x%08X signed = 0x%08X", rs1.s, rs2.s, result);
                 break;
             case 0b111://REMU
                 irvelog(3, "Mnemonic: REMU");
+
                 if (!rs2.u) {//Division by zero
                     result.u = rs1.u;
                 } else {
                     result.u = rs1.u % rs2.u;
                 }
+
                 irvelog(3, "0x%08X unsigned %% 0x%08X unsigned = 0x%08X", rs1.u, rs2.u, result);
                 break;
             default:
@@ -427,7 +446,7 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
             irvelog(3, "0x%08X >= 0x%08X (unsigned) results in %X", r1.u, r2.u, branch);
             break;
         default:
-            assert(false && "We should never get here");
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 
@@ -528,7 +547,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             assert(false && "TODO implement CSRRCI");
             break;
         default:
-            assert(false && "We should never get here");
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 }

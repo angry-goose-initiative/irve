@@ -19,6 +19,8 @@
 
 #include "common.h"
 
+#include "rvexception.h"
+
 #define INST_COUNT inst_count
 #include "logging.h"
 
@@ -46,8 +48,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
     if (!instruction.u || (instruction.u == 0xFFFFFFFF) || ((instruction.u & 0b11) != 0b11)) {
-        this->m_format = INVALID;
-        return;
+        throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     switch (this->m_opcode) {
@@ -81,7 +82,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
             this->m_format = J_TYPE;
             break;
         default:
-            this->m_format = INVALID;
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 }
@@ -139,14 +140,10 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rd     = x%u", this->get_rd());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
-        case INVALID:
-            irvelog(indent, "Invalid Instruction!");
+        default:
+            assert(false && "We should never get here");
             break;
     }
-}
-
-bool decoded_inst_t::is_valid() const {
-    return (this->get_format() != INVALID);
 }
 
 inst_format_t decoded_inst_t::get_format() const {
@@ -154,19 +151,16 @@ inst_format_t decoded_inst_t::get_format() const {
 }
 
 opcode_t decoded_inst_t::get_opcode() const {
-    assert((this->get_format() != INVALID) && "Attempt to get opcode of invalid instruction!");
     return this->m_opcode;
 }
 
 uint8_t decoded_inst_t::get_funct3() const {
-    assert((this->get_format() != INVALID) && "Attempt to get funct3 of invalid instruction!");
     assert((this->get_format() != U_TYPE) && "Attempt to get funct3 of U-type instruction!");
     assert((this->get_format() != J_TYPE) && "Attempt to get funct3 of J-type instruction!");
     return this->m_funct3;
 }
 
 uint8_t decoded_inst_t::get_funct7() const {
-    assert((this->get_format() != INVALID) && "Attempt to get funct7 of invalid instruction!");
     assert((this->get_format() != S_TYPE) && "Attempt to get funct7 of S-type instruction!");
     assert((this->get_format() != B_TYPE) && "Attempt to get funct7 of B-type instruction!");
     assert((this->get_format() != U_TYPE) && "Attempt to get funct7 of U-type instruction!");
@@ -176,21 +170,18 @@ uint8_t decoded_inst_t::get_funct7() const {
 }
 
 uint8_t decoded_inst_t::get_rd() const {
-    assert((this->get_format() != INVALID) && "Attempt to get rd of invalid instruction!");
     assert((this->get_format() != S_TYPE) && "Attempt to get rd of S-type instruction!");
     assert((this->get_format() != B_TYPE) && "Attempt to get rd of B-type instruction!");
     return this->m_rd;
 }
 
 uint8_t decoded_inst_t::get_rs1() const {
-    assert((this->get_format() != INVALID) && "Attempt to get rs1 of invalid instruction!");
     assert((this->get_format() != U_TYPE) && "Attempt to get rs1 of U-type instruction!");
     assert((this->get_format() != J_TYPE) && "Attempt to get rs1 of J-type instruction!");
     return this->m_rs1;
 }
 
 uint8_t decoded_inst_t::get_rs2() const {
-    assert((this->get_format() != INVALID) && "Attempt to get rs2 of invalid instruction!");
     assert((this->get_format() != I_TYPE) && "Attempt to get rs2 of I-type instruction!");
     assert((this->get_format() != U_TYPE) && "Attempt to get rs2 of U-type instruction!");
     assert((this->get_format() != J_TYPE) && "Attempt to get rs2 of J-type instruction!");
@@ -199,9 +190,6 @@ uint8_t decoded_inst_t::get_rs2() const {
 
 word_t decoded_inst_t::get_imm() const {
     switch (this->get_format()) {
-        case INVALID:
-            assert(false && "Attempt to get imm of invalid instruction!");
-            break;
         case R_TYPE:
             assert(false && "Attempt to get imm of R-type instruction!");
             break;
@@ -228,7 +216,5 @@ word_t decoded_inst_t::get_imm() const {
 }
 
 std::string decoded_inst_t::disassemble() const {
-    assert((this->get_format() != INVALID) && "Attempt to disassemble invalid instruction!");
-
     return std::string("TODO disassembly of instruction here (Save this for XRVE actually)");//TODO
 }

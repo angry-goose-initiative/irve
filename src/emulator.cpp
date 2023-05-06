@@ -27,6 +27,8 @@ emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
 }
 
 void emulator_t::tick() {
+    //TODO we need to catch and handle exceptions at this level somewhere
+
     this->m_cpu_state.increment_inst_count();
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
@@ -56,7 +58,10 @@ void emulator_t::mem_write(uint32_t addr, uint8_t size, int32_t data) {
 }
 
 word_t emulator_t::fetch() const {
+    //TODO we need to throw an address misaligned exception if the PC is not aligned
+
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
+    //NOTE: It may throw an exception for various reasons
     word_t inst = this->m_memory.r(this->m_cpu_state.get_pc(), 0b010);
 
     //Log what we fetched and return it
@@ -67,8 +72,6 @@ word_t emulator_t::fetch() const {
 //TODO move this to a separate file
 void emulator_t::execute(const decoded_inst_t &decoded_inst) {
     irvelog(1, "Executing instruction");
-
-    assert(decoded_inst.is_valid() && "TODO handle invalid instructions");
 
     //We can assume the opcode exists since the instruction is valid
     switch (decoded_inst.get_opcode()) {
