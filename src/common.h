@@ -20,9 +20,43 @@
 
 /* Types */
 
-typedef union { //TODO rename this to word_t and typedef reg_t to word_t
+typedef union word_t {
+public:
+    word_t();
+    word_t(uint32_t data);
+    word_t(int32_t data);
+    //NOTE: NOT providing these transparent type conversion functions to make things more explicit
+    /*
+    operator uint32_t() const;
+    operator int32_t() const;
+    */
+
+    //Operator overloads for where the operation is the same for both signed and unsigned
+    //Unary - is NOT okay since it is signed only
+    //NOTE: * is okay since the bottom 32 bits are the same for both signed and unsigned and we only return the bottom 32 bits
+    //Right shift is NOT okay since we don't know if it is arithmetic or logical
+    //Division is NOT okay since we don't know if it is signed or unsigned
+
+    //Arithmetic
+    word_t signed_negate() const;
+    word_t operator+(const word_t& other) const;
+    word_t operator-(const word_t& other) const;
+    word_t operator*(const word_t& other) const;
+    //TODO different division types
+    
+    //Logical
+    word_t operator~() const;
+    word_t operator|(const word_t& other) const;
+    word_t operator&(const word_t& other) const;
+    word_t operator^(const word_t& other) const;
+    word_t operator<<(const word_t& other) const;
+    word_t srl(const word_t& other) const;//Have to manually specify
+    word_t sra(const word_t& other) const;//Have to manually specify
+
     uint32_t u;
     int32_t s;
-} reg_t;
+} word_t;
+
+typedef word_t reg_t;
 
 #endif//COMMON_H

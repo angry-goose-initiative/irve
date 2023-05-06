@@ -46,9 +46,10 @@ public:
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
-    privilege_mode_t m_privilege_mode;//TODO make this private?
-
     void log(uint8_t indent) const;
+
+    void set_privilege_mode(privilege_mode_t new_privilege_mode);
+    privilege_mode_t get_privilege_mode() const;
 
     //TODO stuff for setting interrupts
 private:
@@ -56,6 +57,7 @@ private:
     uint64_t m_inst_count;
     uint32_t m_pc;
     reg_file_t m_regs;
+    privilege_mode_t m_privilege_mode;
     memory_t& m_memory_ref;//Used for managing if virtual memory is enabled or not, the page table location, etc
 
     //TODO interrupts

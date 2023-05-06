@@ -99,7 +99,7 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     reg_t imm = decoded_inst.get_imm();
 
     //Perform the ALU operation
-    reg_t result;
+    word_t result;
     switch (decoded_inst.get_funct3()) {
         case 0b000://ADDI
             irvelog(3, "Mnemonic: ADDI");
@@ -167,7 +167,7 @@ void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) 
     assert((decoded_inst.get_opcode() == AUIPC) && "auipc instruction must have opcode AUIPC");
     assert((decoded_inst.get_format() == U_TYPE) && "auipc instruction must be U_TYPE");
 
-    reg_t result = { .u = cpu_state.get_pc() + decoded_inst.get_imm().u };
+    word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
 
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
     cpu_state.set_r(decoded_inst.get_rd(), result);
@@ -184,7 +184,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    reg_t imm = decoded_inst.get_imm();
+    word_t imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     switch(funct3) {
@@ -230,7 +230,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
 
     //Perform the ALU operation
-    reg_t result;
+    word_t result;
     if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
         switch (decoded_inst.get_funct3()) {
             case 0b000://MUL
@@ -389,7 +389,7 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    reg_t imm = decoded_inst.get_imm();
+    word_t imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     bool branch{};
@@ -477,7 +477,7 @@ void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
 }
 
 void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
-    irvelog(2, "Executing SYSTEM instruction");//FIXME also CSRs
+    irvelog(2, "Executing SYSTEM instruction");
 
     assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
     // assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
@@ -486,8 +486,8 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
-    reg_t imm = decoded_inst.get_imm();
-    privilege_mode_t privilege_mode = cpu_state.m_privilege_mode;
+    word_t imm = decoded_inst.get_imm();
+    privilege_mode_t privilege_mode = cpu_state.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL or EBREAK

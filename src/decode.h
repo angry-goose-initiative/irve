@@ -53,7 +53,7 @@ public:
     uint8_t get_rd() const;
     uint8_t get_rs1() const;
     uint8_t get_rs2() const;
-    reg_t get_imm() const;
+    word_t get_imm() const;
 
 private:
     std::string disassemble() const;
@@ -64,11 +64,11 @@ private:
     const uint8_t m_rd;
     const uint8_t m_rs1;
     const uint8_t m_rs2;
-    const reg_t m_imm_I;
-    const reg_t m_imm_S;
-    const reg_t m_imm_B;
-    const reg_t m_imm_U;
-    const reg_t m_imm_J;
+    const word_t m_imm_I;
+    const word_t m_imm_S;
+    const word_t m_imm_B;
+    const word_t m_imm_U;
+    const word_t m_imm_J;
 
     inst_format_t m_format;
 };

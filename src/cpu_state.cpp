@@ -34,7 +34,7 @@ cpu_state_t::cpu_state_t(memory_t& memory_ref) :
 
 reg_t cpu_state_t::get_CSR(reg_t csr) const {
     // TODO check if CSR can be read from
-    if((csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
+    if((csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
         // if not readable, throw exception to be caught?
     }
     return reg_t();
@@ -42,7 +42,7 @@ reg_t cpu_state_t::get_CSR(reg_t csr) const {
 
 void cpu_state_t::set_CSR(reg_t csr, reg_t data) {
     // TODO check if CSR can be written to
-    if((csr.u >> 10) == 0b11 || (csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
+    if((csr.u >> 10) == 0b11 || (csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
         // if not writeable, throw exception to be caught?
     }
     //TODO some CSRs are read only, some are write only, some are read/write
@@ -107,4 +107,13 @@ void cpu_state_t::log(uint8_t indent) const {
             assert(false && "Invalid privilege mode");
             break;
     }
+}
+
+void cpu_state_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
+    //TODO sanity check this is a valid mode
+    this->m_privilege_mode = new_privilege_mode;
+}
+
+privilege_mode_t cpu_state_t::get_privilege_mode() const {
+    return this->m_privilege_mode;
 }

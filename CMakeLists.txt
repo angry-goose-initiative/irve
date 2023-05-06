@@ -28,11 +28,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 #set(RV32ESIM_C 1)#Support compressed extension
 
 set(IRVE_SOURCES
-    src/cmake_config.h src/common.h src/cpu_state.cpp src/cpu_state.h
-    src/CSR.cpp src/CSR.h src/decode.cpp src/decode.h src/emulator.cpp
-    src/emulator.h src/execute.cpp src/execute.h src/logging.cpp
-    src/logging.h src/main.cpp src/memory.cpp src/memory.h src/reg_file.cpp
-    src/reg_file.h src/reg.h
+    src/cmake_config.h src/common.cpp src/common.h src/cpu_state.cpp
+    src/cpu_state.h src/CSR.cpp src/CSR.h src/decode.cpp src/decode.h
+    src/emulator.cpp src/emulator.h src/execute.cpp src/execute.h
+    src/logging.cpp src/logging.h src/main.cpp src/memory.cpp src/memory.h
+    src/reg_file.cpp src/reg_file.h
 )
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
