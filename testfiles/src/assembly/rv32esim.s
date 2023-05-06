@@ -1,3 +1,11 @@
+# rv32esim.s
+# Copyright (C) 2023 John Jekel and Nick Chan
+# See the LICENSE file at the root of the project for licensing info.
+#
+# IRVE test code (assembly)
+#
+# Based on code from rv32esim
+
 .global _start
 _start:
 .local string

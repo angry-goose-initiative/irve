@@ -1,0 +1,1 @@
+Since some hex files were created by hand (without an assembler even)

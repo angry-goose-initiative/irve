@@ -22,7 +22,7 @@
 
 /* Function Implementations */
 
-decoded_inst_t::decoded_inst_t(uint32_t instruction):
+decoded_inst_t::decoded_inst_t(uint32_t instruction) :
     m_opcode((opcode_t) ((instruction >> 2) & 0b11111)),
     m_funct3((instruction >> 12) & 0b111),
     m_funct7((instruction >> 25) & 0b1111111),
@@ -35,7 +35,9 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction):
     m_imm_U({instruction & 0b11111111111111111111000000000000}),
     m_imm_J({SIGN_EXTEND_TO_32(((instruction >> 11) & 0b100000000000000000000) | (instruction & 0b11111111000000000000) | ((instruction >> 9) & 0b100000000000) | ((instruction >> 20) & 0b11111111110), 21)})
 {
-    if (!instruction || (instruction == 0xFFFFFFFF)) {
+    //These are defined invalid RISC-V instructions
+    //In addition, we don't support compressed instructions
+    if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
         this->m_format = INVALID;
         return;
     }
@@ -157,7 +159,11 @@ uint8_t decoded_inst_t::get_funct3() const {
 
 uint8_t decoded_inst_t::get_funct7() const {
     assert((this->get_format() != INVALID) && "Attempt to get funct7 of invalid instruction!");
-    assert((this->get_format() == R_TYPE) && "Attempt to get funct7 of non-R-type instruction!");
+    assert((this->get_format() != S_TYPE) && "Attempt to get funct7 of S-type instruction!");
+    assert((this->get_format() != B_TYPE) && "Attempt to get funct7 of B-type instruction!");
+    assert((this->get_format() != U_TYPE) && "Attempt to get funct7 of U-type instruction!");
+    assert((this->get_format() != J_TYPE) && "Attempt to get funct7 of J-type instruction!");
+    //We allow I-type in addition to R-type because it is useful for the immediate shift instructions
     return this->m_funct7;
 }
 

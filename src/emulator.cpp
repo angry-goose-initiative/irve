@@ -77,7 +77,7 @@ void emulator_t::execute(const decoded_inst_t &decoded_inst) {
             break;
         case MISC_MEM:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
-            execute::misc_mem(decoded_inst, this->m_cpu_state, this->m_memory);
+            execute::misc_mem(decoded_inst, this->m_cpu_state);
             break;
         case OP_IMM:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");

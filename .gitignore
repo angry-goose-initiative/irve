@@ -1,3 +1,8 @@
 irve.bin
 .vscode/
 Info.plist
+a.out
+testfiles/build/
+build/
+testfiles/.cache/
+.cache/
