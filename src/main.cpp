@@ -10,7 +10,7 @@
 
 /* Constants and Defines */
 
-#define TESTFILES_DIR "testfiles/precompiled/"
+#define TESTFILES_DIR "testfiles/compiled/"
 
 /* Includes */
 

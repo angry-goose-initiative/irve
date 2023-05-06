@@ -24,7 +24,6 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
-#rv32esim Library Targets
 #set(RV32ESIM_UNSAFE 0)#Speed boost; may cause out of bounds/etc problems if programs executing on the simulator go out-of-bounds/etc
 #set(RV32ESIM_DISABLE_LOGGING 0)#Speed boost (avoid checking if enabled, allows compiler to optimize some things more, etc)
 #set(RV32ESIM_C 1)#Support compressed extension
