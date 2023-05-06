@@ -19,7 +19,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-#-I is not needed to compile but is needed for clangd to find the include directory
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
