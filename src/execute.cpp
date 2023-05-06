@@ -480,7 +480,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     irvelog(2, "Executing SYSTEM instruction");//FIXME also CSRs
 
     assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
-    assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE");
+    // assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());

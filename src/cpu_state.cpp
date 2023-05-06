@@ -32,6 +32,24 @@ cpu_state_t::cpu_state_t(memory_t& memory_ref) :
     this->log(2);
 }
 
+reg_t cpu_state_t::get_CSR(reg_t csr) const {
+    // TODO check if CSR can be read from
+    if((csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
+        // if not readable, throw exception to be caught?
+    }
+    return reg_t();
+}
+
+void cpu_state_t::set_CSR(reg_t csr, reg_t data) {
+    // TODO check if CSR can be written to
+    if((csr.u >> 10) == 0b11 || (csr.u & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {
+        // if not writeable, throw exception to be caught?
+    }
+    //TODO some CSRs are read only, some are write only, some are read/write
+    //Sometimes only PARTS of a CSR are writable or affect other bits
+    //We need to check for that and deal with it here
+}
+
 void cpu_state_t::increment_inst_count() {
     ++this->m_inst_count;
 }

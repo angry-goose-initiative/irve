@@ -20,13 +20,9 @@ typedef enum {
 } privilege_mode_t;
 
 class CSR_t {
-private:
-    reg_t m_CSR[4096];
 public:
     CSR_t();
-    reg_t r(reg_t csr, privilege_mode_t privilege_mode) const;
-    void w(reg_t csr, privilege_mode_t privilege_mode, reg_t data);
-    CSR_t& operator=(CSR_t &c) = delete;
+    //TODO add CSRs HERE
 };
 
 #endif
