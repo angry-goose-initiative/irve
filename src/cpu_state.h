@@ -14,14 +14,15 @@
 #include <cstdint>
 
 #include "reg_file.h"
+#include "CSR.h"
 
 /* Types */
 
-typedef enum {
-    USER_MODE = 0b00,
-    SUPERVISOR_MODE = 0b01,
-    MACHINE_MODE = 0b11
-} privilege_mode_t;
+// typedef enum {
+//     USER_MODE = 0b00,
+//     SUPERVISOR_MODE = 0b01,
+//     MACHINE_MODE = 0b11
+// } privilege_mode_t;
 
 /* Function/Class Declarations */
 
@@ -40,10 +41,9 @@ public:
     void set_r(uint8_t reg_num, uint32_t new_val);
     void set_r(uint8_t reg_num, int32_t new_val);
 
-    reg_t get_CSR(uint16_t CSR_num) const;
-    // TODO add a version of set_CSR for reg_t
-    void set_CSR(uint16_t CSR_num, uint32_t new_val);
-    // TODO add a verstion of set_CSR for signed
+    privilege_mode_t m_privilege_mode;
+
+    CSR_t m_CSR;
 
     void log(uint8_t indent) const;
 
@@ -52,9 +52,6 @@ private:
     uint64_t m_inst_count;
     uint32_t m_pc;
     reg_file_t m_regs;
-
-    reg_t m_CSR[4096];
-    privilege_mode_t m_privilege_mode;
 
     //TODO interrupts
 };

@@ -22,7 +22,19 @@
 
 /* Function Implementations */
 
-decoded_inst_t::decoded_inst_t(uint32_t instruction) {
+decoded_inst_t::decoded_inst_t(uint32_t instruction) :
+    m_opcode((opcode_t) ((instruction >> 2) & 0b11111)),
+    m_funct3((instruction >> 12) & 0b111),
+    m_funct7((instruction >> 25) & 0b1111111),
+    m_rd((instruction >> 7) & 0b11111),
+    m_rs1((instruction >> 15) & 0b11111),
+    m_rs2((instruction >> 20) & 0b11111),
+    m_imm_I({SIGN_EXTEND_TO_32(instruction >> 20, 12)}),
+    m_imm_S({SIGN_EXTEND_TO_32(((instruction >> 20) & 0b111111100000) | ((instruction >> 7) & 0b11111), 12)}),
+    m_imm_B({SIGN_EXTEND_TO_32(((instruction >> 19) & 0b1000000000000) | ((instruction << 4) & 0b100000000000) | ((instruction >> 20) & 0b11111100000) | ((instruction >> 7) & 0b11110), 13)}),
+    m_imm_U({instruction & 0b11111111111111111111000000000000}),
+    m_imm_J({SIGN_EXTEND_TO_32(((instruction >> 11) & 0b100000000000000000000) | (instruction & 0b11111111000000000000) | ((instruction >> 9) & 0b100000000000) | ((instruction >> 20) & 0b11111111110), 21)})
+{
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
     if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
@@ -30,17 +42,10 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
         return;
     }
 
-    this->m_opcode = (opcode_t) ((instruction >> 2) & 0b11111);
-
     switch (this->m_opcode) {
         //R-type
         case OP:
             this->m_format = R_TYPE;
-            this->m_funct7 = (instruction >> 25) & 0b1111111;
-            this->m_rs2 = (instruction >> 20) & 0b11111;
-            this->m_rs1 = (instruction >> 15) & 0b11111;
-            this->m_funct3 = (instruction >> 12) & 0b111;
-            this->m_rd = (instruction >> 7) & 0b11111;
             break;
         //I-type
         case LOAD:
@@ -49,40 +54,23 @@ decoded_inst_t::decoded_inst_t(uint32_t instruction) {
         case SYSTEM:
         case MISC_MEM:
             this->m_format = I_TYPE;
-            this->m_imm = SIGN_EXTEND_TO_32(instruction >> 20, 12);
-            this->m_rs1 = (instruction >> 15) & 0b11111;
-            this->m_funct3 = (instruction >> 12) & 0b111;
-            this->m_rd = (instruction >> 7) & 0b11111;
-            this->m_funct7 = instruction >> 25;
             break;
         //S-type
         case STORE:
             this->m_format = S_TYPE;
-            this->m_imm = SIGN_EXTEND_TO_32(((instruction >> 20) & 0b111111100000) | ((instruction >> 7) & 0b11111), 12);
-            this->m_rs2 = (instruction >> 20) & 0b11111;
-            this->m_rs1 = (instruction >> 15) & 0b11111;
-            this->m_funct3 = (instruction >> 12) & 0b111;
             break;
         //B-type
         case BRANCH:
             this->m_format = B_TYPE;
-            this->m_imm = SIGN_EXTEND_TO_32(((instruction >> 19) & 0b1000000000000) | ((instruction << 4) & 0b100000000000) | ((instruction >> 20) & 0b11111100000) | ((instruction >> 7) & 0b11110), 13);
-            this->m_rs2 = (instruction >> 20) & 0b11111;
-            this->m_rs1 = (instruction >> 15) & 0b11111;
-            this->m_funct3 = (instruction >> 12) & 0b111;
             break;
         //U-type
         case LUI:
         case AUIPC:
             this->m_format = U_TYPE;
-            this->m_imm = instruction & 0b11111111111111111111000000000000;
-            this->m_rd = (instruction >> 7) & 0b11111;
             break;
         //J-type
         case JAL:
             this->m_format = J_TYPE;
-            this->m_imm = SIGN_EXTEND_TO_32(((instruction >> 11) & 0b100000000000000000000) | (instruction & 0b11111111000000000000) | ((instruction >> 9) & 0b100000000000) | ((instruction >> 20) & 0b11111111110), 21);
-            this->m_rd = (instruction >> 7) & 0b11111;
             break;
         default:
             this->m_format = INVALID;
@@ -201,16 +189,34 @@ uint8_t decoded_inst_t::get_rs2() const {
     return this->m_rs2;
 }
 
-uint32_t decoded_inst_t::get_imm() const {
-    assert((this->get_format() != INVALID) && "Attempt to get imm of invalid instruction!");
-    assert((this->get_format() != R_TYPE) && "Attempt to get imm of R-type instruction!");
-    return this->m_imm;
-}
-
-uint32_t decoded_inst_t::get_uimm() const {
-    assert((this->get_format() != INVALID) && "Attempt to get rs1 of invalid instruction!");
-    assert((this->get_format() == I_TYPE) && "Attempt to get uimm of non-I-type instruction!");
-    return ((uint32_t)this->m_rs1);
+reg_t decoded_inst_t::get_imm() const {
+    switch (this->get_format()) {
+        case INVALID:
+            assert(false && "Attempt to get imm of invalid instruction!");
+            break;
+        case R_TYPE:
+            assert(false && "Attempt to get imm of R-type instruction!");
+            break;
+        case I_TYPE:
+            return this->m_imm_I;
+            break;
+        case S_TYPE:
+            return this->m_imm_S;
+            break;
+        case B_TYPE:
+            return this->m_imm_B;
+            break;
+        case U_TYPE:
+            return this->m_imm_U;
+            break;
+        case J_TYPE:
+            return this->m_imm_J;
+            break;
+        default:
+            assert(false && "We should never get here");
+            break;
+    }
+    return this->m_imm_I;
 }
 
 std::string decoded_inst_t::disassemble() const {

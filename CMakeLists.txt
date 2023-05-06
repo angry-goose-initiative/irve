@@ -29,9 +29,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(IRVE_SOURCES
     src/cmake_config.h src/common.h src/cpu_state.cpp src/cpu_state.h
-    src/decode.cpp src/decode.h src/emulator.cpp src/emulator.h
-    src/execute.cpp src/execute.h src/logging.cpp src/logging.h
-    src/main.cpp src/memory.cpp src/memory.h src/reg_file.cpp
+    src/CSR.cpp src/CSR.h src/decode.cpp src/decode.h src/emulator.cpp
+    src/emulator.h src/execute.cpp src/execute.h src/logging.cpp
+    src/logging.h src/main.cpp src/memory.cpp src/memory.h src/reg_file.cpp
     src/reg_file.h src/reg.h
 )
 
