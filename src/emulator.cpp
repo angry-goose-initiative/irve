@@ -14,8 +14,11 @@
 #include <cstdint>
 
 #include "common.h"
+#include "cpu_state.h"
 #include "decode.h"
 #include "execute.h"
+#include "memory.h"
+#include "rvexception.h"
 
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
@@ -58,7 +61,11 @@ void emulator_t::mem_write(uint32_t addr, uint8_t size, int32_t data) {
 }
 
 word_t emulator_t::fetch() const {
-    //TODO we need to throw an address misaligned exception if the PC is not aligned
+    //Throw an exception if the PC is not aligned to a word boundary
+    //TODO priority of this exception vs. others?
+    if ((this->m_cpu_state.get_pc() % 4) != 0) {
+        throw rvexception_t(false, INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
+    }
 
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
     //NOTE: It may throw an exception for various reasons
@@ -124,7 +131,7 @@ void emulator_t::execute(const decoded_inst_t &decoded_inst) {
             execute::system(decoded_inst, this->m_cpu_state, this->m_memory);
             break;
         default:
-            assert(false && "Unimplemented opcode or not handled (maybe it should be?)");//TODO
+            assert(false && "Instruction with either invalid opcode, or that is implemented in decode but not in execute yet!");
             break;
     }
 }

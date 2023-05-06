@@ -69,6 +69,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     catch(...) {
         // TODO what happens when we access invalid memory?
         //Actually we probably shouldn't catch here, but rather pass this up to the emulator
+        //TODO priority of this exception vs. the illegal instruction exception?
     }
 
     //Increment PC
@@ -131,7 +132,6 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
             irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b101://SRLI or SRAI
-            //FIXME we can't access the funct7 field of an I_TYPE instruction; need to fix that in either decode.cpp or here
             if (decoded_inst.get_funct7() == 0b0000000) {//SRLI
                 irvelog(3, "Mnemonic: SRLI");
                 result.u = rs1.u >> (imm.u & 0b11111);
@@ -214,6 +214,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     catch(...) {
         assert(false && "TODO");// TODO what happens when we access invalid memory?
         //Actually we probably shouldn't catch here, but rather pass this up to the emulator
+        //TODO priority of this exception vs. the illegal instruction exception?
     }
 
     //Increment PC
@@ -332,27 +333,53 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     result.u = rs1.u - rs2.u;
                     irvelog(3, "0x%08X - 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 } else {
-                    assert(false && "Invalid funct7 for ADD or SUB");//TODO handle this
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
                 break;
             case 0b001://SLL
                 irvelog(3, "Mnemonic: SLL");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.u = rs1.u << (rs2.u & 0b11111);
+
                 irvelog(3, "0x%08X << 0x%08X logical = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b010://SLT
                 irvelog(3, "Mnemonic: SLT");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.s = rs1.s < rs2.s;
+
                 irvelog(3, "(0x%08X signed < 0x%08X signed) = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b011://SLTU
+                //TODO verify funct7 and throw exception if not 0b0000000
                 irvelog(3, "Mnemonic: SLTU");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.u = rs1.u < rs2.u;
+
                 irvelog(3, "(0x%08X unsigned < 0x%08X unsigned) = 0x%08X", rs1.u, rs2, result);
                 break;
             case 0b100://XOR
+                //TODO verify funct7 and throw exception if not 0b0000000
                 irvelog(3, "Mnemonic: XOR");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.u = rs1.u ^ rs2.u;
+
                 irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b101://SRL or SRA
@@ -365,17 +392,29 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     result.s = rs1.s >> (rs2.s & 0b11111);
                     irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, rs2.u, result.u);
                 } else {
-                    assert(false && "Invalid funct7 for SRL or SRA");//TODO handle this
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
                 break;
             case 0b110://OR
                 irvelog(3, "Mnemonic: OR");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.u = rs1.u | rs2.u;
+
                 irvelog(3, "0x%08X | 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
             case 0b111://AND
                 irvelog(3, "Mnemonic: AND");
+
+                if (decoded_inst.get_funct7() != 0b0000000) {
+                    throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+                }
+
                 result.u = rs1.u & rs2.u;
+
                 irvelog(3, "0x%08X & 0x%08X = 0x%08X", rs1.u, rs2.u, result);
                 break;
             default:
