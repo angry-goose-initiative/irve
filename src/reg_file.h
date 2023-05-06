@@ -12,7 +12,7 @@
 
 #include <cstdint>
 #include <cassert>
-#include "reg.h"
+#include "common.h"
 
 class reg_file_t {
 private:

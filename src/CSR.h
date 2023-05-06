@@ -11,14 +11,6 @@
 
 #include <cstdint>
 
-#include "reg.h"
-
-typedef enum {
-    USER_MODE = 0b00,
-    SUPERVISOR_MODE = 0b01,
-    MACHINE_MODE = 0b11
-} privilege_mode_t;
-
 class CSR_t {
 public:
     CSR_t();

@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <string>
 
-#include "reg.h"
+#include "common.h"
 
 /* Types */
 

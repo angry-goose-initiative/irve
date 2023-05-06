@@ -19,12 +19,11 @@
 
 /* Types */
 
-//TODO is this best as being in CSR.h or here?
-// typedef enum {
-//     USER_MODE = 0b00,
-//     SUPERVISOR_MODE = 0b01,
-//     MACHINE_MODE = 0b11
-// } privilege_mode_t;
+typedef enum {
+    USER_MODE = 0b00,
+    SUPERVISOR_MODE = 0b01,
+    MACHINE_MODE = 0b11
+} privilege_mode_t;
 
 /* Function/Class Declarations */
 
