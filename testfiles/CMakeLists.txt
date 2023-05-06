@@ -36,46 +36,100 @@ set(LIBIRVE_NO_NEWLIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0_no_newlib.s
 add_library(irve STATIC ${LIBIRVE_SOURCES})
 add_library(irve_no_newlib STATIC ${LIBIRVE_NO_NEWLIB_SOURCES})
 
-#Macro for outputing Verilog hex file
+#Macro for outputing Verilog hex files
 macro(add_hex_target BINARY_NAME)
-    #TODO use OBJCOPY_FLAGS instead of hardcoding
-    #add_custom_command(TARGET ${BINARY_NAME} POST_BUILD COMMAND ${OBJCOPY} ARGS ${OBJCOPY_FLAGS} ${BINARY_NAME} ${BINARY_NAME}.hex)
-    add_custom_command(TARGET ${BINARY_NAME} POST_BUILD COMMAND ${OBJCOPY} ARGS -O verilog --verilog-data-width=4 ${BINARY_NAME} ${BINARY_NAME}.hex)
+    add_custom_command(
+        TARGET ${BINARY_NAME} 
+        POST_BUILD
+        COMMAND ${OBJCOPY} 
+        #TODO use OBJCOPY_FLAGS instead of hardcoding
+        #ARGS ${OBJCOPY_FLAGS}
+        ARGS -O verilog --verilog-data-width=4 ${BINARY_NAME} ${BINARY_NAME}.hex
+    )
+    set_property(
+        TARGET ${BINARY_NAME}
+        APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${BINARY_NAME}.hex
+    )
 endmacro()
 
-#Test executables
+###############################################################################
+# Test executables
+###############################################################################
 
-#Assembly files
+############
+# Assembly #
+############
+
+#IRVE assembly test files
+#TODO
+
+#Assembly test files from rv32esim
 add_executable(rv32esim src/assembly/rv32esim.s)
 add_hex_target(rv32esim)
-add_executable(adding2 src/assembly/jzjcoresoftware/adding2.mem.s)
-add_hex_target(adding2)
 
-#-I is not needed to compile but is needed for clangd to find the include directory
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-#set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+#Assembly test files from jzjcoresoftware
+macro(add_jzjcoresoftware_asm_target NAME)
+    add_executable(${NAME} src/assembly/jzjcoresoftware/${NAME}.mem.s)
+    add_hex_target(${NAME})
+endmacro()
+add_jzjcoresoftware_asm_target(adding2)
+add_jzjcoresoftware_asm_target(auipctest)
+add_jzjcoresoftware_asm_target(bneandsubtest)
+add_jzjcoresoftware_asm_target(callrettest)
+add_jzjcoresoftware_asm_target(fenceecalltest)
+add_jzjcoresoftware_asm_target(fibbonaccijal)
+add_jzjcoresoftware_asm_target(fibbonaccijalr)
+add_jzjcoresoftware_asm_target(lbutest)
+add_jzjcoresoftware_asm_target(lhtest)
+add_jzjcoresoftware_asm_target(lhutest)
+add_jzjcoresoftware_asm_target(loadbytetest)
+add_jzjcoresoftware_asm_target(luitest)
+add_jzjcoresoftware_asm_target(memoryreadtest)
+add_jzjcoresoftware_asm_target(memorywritetest)
+add_jzjcoresoftware_asm_target(nop)
+add_jzjcoresoftware_asm_target(sbtest)
+add_jzjcoresoftware_asm_target(sbtest2)
+add_jzjcoresoftware_asm_target(shtest)
+add_jzjcoresoftware_asm_target(sllisrliblttest)
+add_jzjcoresoftware_asm_target(sllsrlblttest)
+add_jzjcoresoftware_asm_target(testingfunctions)
+add_jzjcoresoftware_asm_target(uncondjumptest)
+add_jzjcoresoftware_asm_target(uncondjumptest2)
+add_jzjcoresoftware_asm_target(xoritoggle)
 
-#rv32esim Library Targets
-#set(RV32ESIM_UNSAFE 0)#Speed boost; may cause out of bounds/etc problems if programs executing on the simulator go out-of-bounds/etc
-#set(RV32ESIM_DISABLE_LOGGING 0)#Speed boost (avoid checking if enabled, allows compiler to optimize some things more, etc)
-#set(RV32ESIM_C 1)#Support compressed extension
+############
+#     C    #
+############
 
-#set(IRVE_SOURCES src/
+#IRVE C test files
 
-#configure_file(src/rv32esim/cmake_config.h.in src/rv32esim/cmake_config.h)
+#Without newlib
+add_executable(hello_world src/c/without_c_stdlib/hello_world.c)
+add_hex_target(hello_world)
+target_link_libraries(hello_world irve_no_newlib)
+add_executable(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
+add_hex_target(rv32im_sanity)
+target_link_libraries(rv32im_sanity irve_no_newlib)
+add_executable(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
+add_hex_target(software_floating_point_fun)
+target_link_libraries(software_floating_point_fun irve_no_newlib)
 
-#add_executable(irve.bin ${IRVE_SOURCES})
+#Special case (implement newlib syscalls themselves)
+add_executable(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
+add_hex_target(hello_newlib)
+target_link_libraries(hello_newlib irve_no_newlib)
 
-#add_library(rv32esim_shared SHARED ${RV32ESIM_SOURCES})
-#add_library(rv32esim_static STATIC ${RV32ESIM_SOURCES})
-#target_include_directories(rv32esim_shared PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/rv32esim/)
-#target_include_directories(rv32esim_static PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/rv32esim/)
-#set_property(TARGET rv32esim_shared PROPERTY OUTPUT_NAME rv32esim)
-#set_property(TARGET rv32esim_static PROPERTY OUTPUT_NAME rv32esim)
+#With newlib
+#TODO fix warnings that Newlib cant find the necessary syscalls?
+add_executable(stress_test src/c/with_c_stdlib/stress_test.c)
+add_hex_target(stress_test)
+target_link_libraries(stress_test irve)
+#TODO
 
-#rv32esim Test Code
-#set(TEST_SOURCES src/main.c include/rv32esim.h)
-#add_executable(rv32esim ${TEST_SOURCES})
-#target_include_directories(rv32esim PRIVATE include)
-#target_link_libraries(rv32esim rv32esim_shared)
+#C test files from rv32esim (All without newlib)
+add_executable(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)
+add_hex_target(rv32esim_c)
+target_link_libraries(rv32esim_c irve_no_newlib)
+
+#C test files from jzjcoresoftware (All without newlib)
+#TODO
