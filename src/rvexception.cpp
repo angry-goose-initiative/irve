@@ -9,32 +9,33 @@
  *
 */
 
-/* Constants And Defines */
-
-//TODO
-
 /* Includes */
 
-#include <exception>
+#include <stdexcept>
+#include <string>
 
 #include "rvexception.h"
 
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
-
 /* Function Implementations */
 
-//TODO
+rvexception_t::rvexception_t(bool is_interrupt, cause_t cause) :
+    std::runtime_error(std::string("Uncaught RISC-V exception, you should never see this.")),
+    m_is_interrupt(is_interrupt),
+    m_cause(cause)
+{}
 
-/* Static Function Implementations */
+bool rvexception_t::is_interrupt() const {
+    return this->m_is_interrupt;
+}
 
-//TODO
+cause_t rvexception_t::cause() const {
+    return this->m_cause;
+}
+
+word_t rvexception_t::raw_cause() const {
+    if (this->m_is_interrupt) {
+        return this->m_cause | 0x80000000;
+    } else {
+        return this->m_cause;
+    }
+}
