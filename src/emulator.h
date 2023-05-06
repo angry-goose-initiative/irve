@@ -11,6 +11,7 @@
 
 /* Includes */
 
+#include "common.h"
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
@@ -25,8 +26,8 @@ public:
 
     uint64_t get_inst_count() const;
 
-    int8_t mem_read_byte(uint32_t addr) const;
-    void mem_write(uint32_t addr, uint8_t size, int32_t data);
+    int8_t mem_read_byte(word_t addr) const;
+    void mem_write(word_t addr, uint8_t size, word_t data);
 
 private:
     word_t fetch() const;

@@ -56,7 +56,7 @@ public:
 
 private:
     std::string disassemble() const;
-    opcode_t m_opcode;//Bits [6:2]
+    const opcode_t m_opcode;//Bits [6:2]
 
     const uint8_t m_funct3;
     const uint8_t m_funct7;

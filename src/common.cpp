@@ -42,13 +42,33 @@ word_t word_t::operator+(const word_t& other) const {
     return word_t(this->u + other.u);
 }
 
+word_t& word_t::operator+=(const word_t& other) {
+    return *this = *this + other;
+}
+
+word_t& word_t::operator++() {
+    return *this += 1;
+}
+
 word_t word_t::operator-(const word_t& other) const {
     //TODO ensure this is the same for signed
     return word_t(this->u - other.u);
 }
 
+word_t& word_t::operator-=(const word_t& other) {
+    return *this = *this - other;
+}
+
+word_t& word_t::operator--() {
+    return *this -= 1;
+}
+
 word_t word_t::operator*(const word_t& other) const {
     return word_t(this->u * other.u);
+}
+
+word_t& word_t::operator*=(const word_t& other) {
+    return *this = *this * other;
 }
 
 word_t word_t::operator~() const {
@@ -59,16 +79,32 @@ word_t word_t::operator|(const word_t& other) const {
     return word_t(this->u | other.u);
 }
 
+word_t& word_t::operator|=(const word_t& other) {
+    return *this = *this | other;
+}
+
 word_t word_t::operator&(const word_t& other) const {
     return word_t(this->u & other.u);
+}
+
+word_t& word_t::operator&=(const word_t& other) {
+    return *this = *this & other;
 }
 
 word_t word_t::operator^(const word_t& other) const {
     return word_t(this->u ^ other.u);
 }
 
+word_t& word_t::operator^=(const word_t& other) {
+    return *this = *this ^ other;
+}
+
 word_t word_t::operator<<(const word_t& other) const {
     return word_t(this->u << other.u);
+}
+
+word_t& word_t::operator<<=(const word_t& other) {
+    return *this = *this << other;
 }
 
 word_t word_t::srl(const word_t& other) const {

@@ -32,7 +32,7 @@ memory_t::memory_t(): m_mem() {
 }
 
 // Read from memory
-int32_t memory_t::r(const uint32_t addr, const int8_t func3) const {
+int32_t memory_t::r(word_t addr, int8_t func3) const {
 
 
     // inaccessable address exceptions:
@@ -69,7 +69,7 @@ int32_t memory_t::r(const uint32_t addr, const int8_t func3) const {
 }
 
 // Write to memory
-void memory_t::w(const uint32_t addr, const int8_t func3, const int32_t data) {
+void memory_t::w(word_t addr, int8_t func3, word_t data) {
 
     assert((func3 >= 0b000) && (func3 <= 0b010) && "Invalid func3");
     //TODO from now on exceptions for invalid physical memory accesses will be thrown by pmemory_t instead
@@ -81,7 +81,7 @@ void memory_t::w(const uint32_t addr, const int8_t func3, const int32_t data) {
     int byte{static_cast<int>(pow(2, func3%4))};
 
     for(int i{}; i<byte; ++i) {
-        m_mem.w(addr + i, static_cast<int8_t>(data >> 8*i));
+        m_mem.w(addr + i, static_cast<int8_t>((data.srl(8 * i) & 0xFF).u));
     }
 }
 

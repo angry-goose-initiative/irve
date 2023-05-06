@@ -43,8 +43,8 @@ private:
     //int8_t m_mem[PMEMSIZE];
 public:
     memory_t();
-    int32_t r(const uint32_t addr, const int8_t func3) const;
-    void w(const uint32_t addr, const int8_t func3, const int32_t data);
+    int32_t r(word_t addr, int8_t func3) const;
+    void w(word_t addr, int8_t func3, word_t data);
     void p(const uint32_t addr) const;
 
     //TODO functions to deal with virtual memory and also to disable it when the emulated cpu is in Machine mode

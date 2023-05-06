@@ -38,16 +38,25 @@ public:
     //Arithmetic
     word_t signed_negate() const;
     word_t operator+(const word_t& other) const;
+    word_t& operator+=(const word_t& other);
+    word_t& operator++();
     word_t operator-(const word_t& other) const;
+    word_t& operator-=(const word_t& other);
+    word_t& operator--();
     word_t operator*(const word_t& other) const;
+    word_t& operator*=(const word_t& other);
     //TODO different division types
     
     //Logical
     word_t operator~() const;
     word_t operator|(const word_t& other) const;
+    word_t& operator|=(const word_t& other);
     word_t operator&(const word_t& other) const;
+    word_t& operator&=(const word_t& other);
     word_t operator^(const word_t& other) const;
+    word_t& operator^=(const word_t& other);
     word_t operator<<(const word_t& other) const;
+    word_t& operator<<=(const word_t& other);
     word_t srl(const word_t& other) const;//Have to manually specify
     word_t sra(const word_t& other) const;//Have to manually specify
     
