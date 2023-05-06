@@ -20,12 +20,13 @@
 
 /* Function Implementations */
 
-cpu_state_t::cpu_state_t() :
+cpu_state_t::cpu_state_t(memory_t& memory_ref) :
     m_privilege_mode(MACHINE_MODE),
     m_CSR(),
     m_inst_count(0), 
     m_pc(0),
-    m_regs()
+    m_regs(),
+    m_memory_ref(memory_ref)
 {
     irvelog(1, "Created new cpu_state instance");
     this->log(2);

@@ -15,9 +15,11 @@
 
 #include "reg_file.h"
 #include "CSR.h"
+#include "memory.h"
 
 /* Types */
 
+//TODO is this best as being in CSR.h or here?
 // typedef enum {
 //     USER_MODE = 0b00,
 //     SUPERVISOR_MODE = 0b01,
@@ -28,7 +30,8 @@
 
 class cpu_state_t {
 public:
-    cpu_state_t();
+    //We need a reference to memory so we can access the page table and virtual memory settings of the class
+    cpu_state_t(memory_t& memory_ref);
 
     void increment_inst_count();
     uint64_t get_inst_count() const;
@@ -55,7 +58,7 @@ private:
     uint32_t m_pc;
     reg_file_t m_regs;
 
-    //TODO add a reference to memory here (we will need to access it on certain CSR accesses in order to tell it that we are in machine mode/not so it knows when to use virtual addresses)
+    memory_t& m_memory_ref;//Used for managing if virtual memory is enabled or not, the page table location, etc
 
     //TODO interrupts
 };

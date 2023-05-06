@@ -32,8 +32,8 @@ private:
     uint32_t fetch() const;
     void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
 
-    cpu_state_t m_cpu_state;
     memory_t m_memory;
+    cpu_state_t m_cpu_state;
 
     //TODO other things
 };
