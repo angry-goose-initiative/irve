@@ -30,10 +30,6 @@ _start:
     
     #Setup stack pointer based on linker script symbol
     la sp, __stack_top
-
-    #Call Newlib's init
-    #TODO is this the proper way to do this?
-    jal x1, __libc_init_array
     
     #Jump to main
     jal x1, main

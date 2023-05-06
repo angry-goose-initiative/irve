@@ -483,6 +483,8 @@ void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
 void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
     assert(false && "TODO implement execute_system()");
     //TODO xCALL, xBREAK, and CSR instructions here
+    //
+    //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit
 }
 
 /* Static Function Implementations */

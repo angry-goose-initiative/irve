@@ -57,7 +57,8 @@ void __assert_func(const char* file, int line, const char* function, const char*
     print_string(" | ");
     print_string(expr);
     print_string("\n");
-    __asm__ volatile ("ecall");
+    __asm__ volatile ("ebreak");
+    while (true);
 }
 
 /* Static Function Implementations */

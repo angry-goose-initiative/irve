@@ -38,19 +38,6 @@ int main() {
     puts("Hello World printed with puts from Newlib!\n");
 }
 
-//Called if an assertion fails
-/*void __assert_func(const char* file, int line, const char* function, const char* expr) {
-    print_string("Assertion failed: ");
-    print_string(file);
-    print_string(" | ");
-    print_string(function);
-    print_string(" | ");
-    print_string(expr);
-    print_string("\n");
-    __asm__ volatile ("ecall");
-    while (true);
-}*/
-
 //The following functions implementations are partly original
 //They may be partially based on:
 //https://www.embecosm.com/appnotes/ean9/ean9-howto-newlib-1.0.html#sec_syscalls

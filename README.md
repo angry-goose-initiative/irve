@@ -39,7 +39,9 @@ Note: To implement these functions, this may come in handy: https://interrupt.me
 
 #### How I was compile C code before I thought of the possiblity of having a C library as a possiblity:
 
-`riscv32-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -ffreestanding -nostartfiles -static-libgcc -lgcc -mstrict-align -T path/to/irve.ld path/to/crt0.s path/to/your/remaining/c/files/here`
+NOTICE the use of crt0_no_newlib.s
+
+`riscv32-unknown-elf-gcc -march=rv32ima -mabi=ilp32 -ffreestanding -nostartfiles -static-libgcc -lgcc -mstrict-align -T path/to/irve.ld path/to/crt0_no_newlib.s path/to/your/remaining/c/files/here`
 
 #### Special case: How I compiled hello_newlib.c
 
