@@ -15,6 +15,7 @@
 
 /* Includes */
 
+#include <iostream>
 #include <cassert>
 #include <string>
 #include <unordered_map>
@@ -41,5 +42,6 @@ int main(int argc, char** argv) {
     //Lookup the test to run and run it
     auto test = TEST_MAP.find(argv[1]);
     assert((test != TEST_MAP.end()) && "Test not found. Check the spelling and that it is in TESTS");
+    std::cout << "Running test: \"" << argv[1] << "\"" << std::endl;
     return test->second();
 }
