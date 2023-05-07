@@ -32,7 +32,7 @@ memory_t::memory_t(): m_mem() {
 }
 
 // Read from memory
-int32_t memory_t::r(word_t addr, int8_t func3) const {
+word_t memory_t::r(word_t addr, int8_t func3) const {
 
 
     // inaccessable address exceptions:
@@ -87,7 +87,7 @@ void memory_t::w(word_t addr, int8_t func3, word_t data) {
 
 // TODO integrate with logging or delete
 // Prints the 8 bytes at and following the specified address in hex
-void memory_t::p(const uint32_t addr) const {
+void memory_t::p(word_t addr) const {
 
     for(int byte{}; byte<8; ++byte) {
         // top 4 bits

@@ -62,8 +62,8 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
             break;
     }
     try {
-        int32_t loaded = memory.r(r1.u + imm.u, funct3);
-        irvelog(3, "Loaded 0x%08X from 0x%08X", loaded, r1.u + imm.u);
+        word_t loaded = memory.r(r1 + imm, funct3);
+        irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
         cpu_state.set_r(decoded_inst.get_rd(), loaded);
     }
     catch(...) {
@@ -113,7 +113,7 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
             break;
         case 0b001://SLLI
             irvelog(3, "Mnemonic: SLLI");
-            result = rs1 << (imm & 0b11111);
+            result = rs1 << imm.bits(4, 0);
             irvelog(3, "0x%08X << 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b010://SLTI
@@ -134,11 +134,11 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
         case 0b101://SRLI or SRAI
             if (decoded_inst.get_funct7() == 0b0000000) {//SRLI
                 irvelog(3, "Mnemonic: SRLI");
-                result = rs1.srl(imm & 0b11111);
+                result = rs1.srl(imm.bits(4, 0));
                 irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, imm.u, result.u);
             } else if (decoded_inst.get_funct7() == 0b0100000) {//SRAI
                 irvelog(3, "Mnemonic: SRAI");
-                result = rs1.sra(imm & 0b11111);
+                result = rs1.sra(imm.bits(4, 0));
                 irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, imm.u, result.u);
             } else {
                 throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
@@ -343,7 +343,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
-                result = rs1 << (rs2 & 0b11111);
+                result = rs1 << rs2.bits(4, 0);
 
                 irvelog(3, "0x%08X << 0x%08X logical = 0x%08X", rs1.u, rs2.u, result);
                 break;
@@ -383,11 +383,11 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             case 0b101://SRL or SRA
                 if (decoded_inst.get_funct7() == 0b0000000) {//SRL
                     irvelog(3, "Mnemonic: SRL");
-                    result = rs1.srl(rs2 & 0b11111);
+                    result = rs1.srl(rs2.bits(4, 0));
                     irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, rs2.u, result.u);
                 } else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
                     irvelog(3, "Mnemonic: SRA");
-                    result = rs1.sra(rs2 & 0b11111);
+                    result = rs1.sra(rs2.bits(4, 0));
                     irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, rs2.u, result.u);
                 } else {
                     throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);

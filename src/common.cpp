@@ -115,6 +115,10 @@ bool word_t::operator!=(const word_t& other) const {
     return !(*this == other);
 }
 
+word_t word_t::bit(uint8_t bit) const {
+    return this->bits(bit, bit);
+}
+
 word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
     assert((top_bit >= bottom_bit) && "Bad arguments to bits()");
     assert((top_bit < 32) && "Bad arguments to bits()");
@@ -124,9 +128,22 @@ word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
     word_t intermediate = this->srl(bottom_bit);
     
     //Generate the mask
-    uint8_t size = top_bit - bottom_bit + 1;
-    word_t mask = (1 << size) - 1;
+    uint8_t num_bits = top_bit - bottom_bit + 1;
+    word_t mask = (1 << num_bits) - 1;
 
     //Apply the mask and return
     return intermediate & mask;
+}
+
+word_t word_t::sign_extend_upward_from_bit(uint8_t bit) const {//Sign extend from a bit upward 
+    assert((bit < 32) && "Bad argument to sign_extend_from()");
+
+    uint8_t shift_amount = 31 - bit;
+
+    //Shift the topmost bit to be extended to the top of the word
+    word_t intermediate = *this << shift_amount;
+
+    //ARITHMETIC shift things back down to perform sign extension and return
+    return intermediate.sra(shift_amount);
+
 }

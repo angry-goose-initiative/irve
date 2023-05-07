@@ -53,7 +53,7 @@ uint64_t emulator_t::get_inst_count() const {
 }
 
 int8_t emulator_t::mem_read_byte(word_t addr) const {
-    return (int8_t)this->m_memory.r(addr, 0b000);
+    return (int8_t)this->m_memory.r(addr, 0b000).u;
 }
 
 void emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {

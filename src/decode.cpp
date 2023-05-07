@@ -24,26 +24,44 @@
 #define INST_COUNT inst_count
 #include "logging.h"
 
-/* Macros */
-
-//TODO do this more cleanly (the word_t way)
-#define SIGN_EXTEND_TO_32(data, num_bits) (((uint32_t)(((int32_t)((((uint32_t)data) << (32 - num_bits)) & (1ull << 31))) >> (31 - num_bits))) | ((uint32_t)data))
-
 /* Function Implementations */
 
 decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
     m_funct3(instruction.bits(14, 12).u),
     m_funct7(instruction.bits(31, 25).u),
-    m_rd    (instruction.bits(11, 7).u),
+    m_rd    (instruction.bits(11, 7) .u),
     m_rs1   (instruction.bits(19, 15).u),
     m_rs2   (instruction.bits(24, 20).u),
-    //TODO do this more cleanly (the word_t way)
-    m_imm_I (SIGN_EXTEND_TO_32(instruction.u >> 20, 12)),
-    m_imm_S (SIGN_EXTEND_TO_32(((instruction.u >> 20) & 0b111111100000) | ((instruction.u >> 7) & 0b11111), 12)),
-    m_imm_B (SIGN_EXTEND_TO_32(((instruction.u >> 19) & 0b1000000000000) | ((instruction.u << 4) & 0b100000000000) | ((instruction.u >> 20) & 0b11111100000) | ((instruction.u >> 7) & 0b11110), 13)),
-    m_imm_U (instruction.u & 0b11111111111111111111000000000000),
-    m_imm_J (SIGN_EXTEND_TO_32(((instruction.u >> 11) & 0b100000000000000000000) | (instruction.u & 0b11111111000000000000) | ((instruction.u >> 9) & 0b100000000000) | ((instruction.u >> 20) & 0b11111111110), 21))
+    m_imm_I (instruction.bits(31, 20).sign_extend_upward_from_bit(11).u),
+    m_imm_S (
+        (
+            (instruction.bits(31, 25) << 5) | 
+            instruction.bits (11, 7)
+        )
+        .sign_extend_upward_from_bit(11).u
+    ),
+    m_imm_B (
+        (
+            (instruction.bit (31)       << 12)    | 
+            (instruction.bit (7)        << 11)    | 
+            (instruction.bits(30, 25)   << 5)     | 
+            (instruction.bits(11, 8)    << 1)     |
+            0b0
+        )
+        .sign_extend_upward_from_bit(12).u
+    ),
+    m_imm_U (instruction & 0b11111111111111111111000000000000),//Just zero out the lower 12 bits (keep the upper 20)
+    m_imm_J (
+        (
+            (instruction.bit (31)       << 20)  | 
+            (instruction.bits(19, 12)   << 12)  | 
+            (instruction.bit (20)       << 11)  | 
+            (instruction.bits(30, 21)   << 1)   |
+            0b0
+        )
+        .sign_extend_upward_from_bit(20).u
+    )
 {
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions

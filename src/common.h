@@ -67,7 +67,9 @@ public:
     //TODO others
     
     //Bonus!
+    word_t bit(uint8_t bit) const;//Get a single bit
     word_t bits(uint8_t top_bit, uint8_t bottom_bit) const;//Get a range of bits (inclusive)
+    word_t sign_extend_upward_from_bit(uint8_t bit) const;//Sign extend from a bit upward 
 
     uint32_t u;
     int32_t s;
