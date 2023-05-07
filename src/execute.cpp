@@ -548,15 +548,21 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     privilege_mode_t privilege_mode = cpu_state.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
-        case 0b000://ECALL or EBREAK
+        case 0b000://ECALL, EBREAK, or WFI
+            //TODO also check register values here to ensure the instruction is valid, and throw an illegal instruction exception if not
             if(imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
                 assert(false && "TODO implement ECALL");
-            }
-            else if(imm == 0b00000000001) {//EBREAK
+            } else if(imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
                 assert(false && "TODO implement EBREAK");
                 //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit
+                //TODO actually does this conflict with the spec?
+            } else if(imm == 0b000100000010) {//WFI
+                irvelog(3, "Mnemonic: WFI");
+                irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
+            } else {
+                throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             }
             break;
         case 0b001://CSRRW

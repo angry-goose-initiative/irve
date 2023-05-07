@@ -6,25 +6,9 @@
  *
 */
 
-/* Constants And Defines */
-
-//TODO
-
 /* Includes */
 
 #include "common.h"
-
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
 
 /* Function Implementations */
 
@@ -127,7 +111,3 @@ bool word_t::operator==(const word_t& other) const {
 bool word_t::operator!=(const word_t& other) const {
     return !(*this == other);
 }
-
-/* Static Function Implementations */
-
-//TODO
