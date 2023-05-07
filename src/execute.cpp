@@ -659,12 +659,28 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
 
             if(imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
-                assert(false && "TODO implement ECALL");
+                switch (cpu_state.get_privilege_mode()) {
+                    case MACHINE_MODE:
+                        irvelog(4, "Executing ECALL from Machine Mode");
+                        throw rvexception_t(false, MMODE_ECALL_EXCEPTION);
+                        break;
+                    case SUPERVISOR_MODE:
+                        irvelog(4, "Privilege Mode: Supervisor Mode");
+                        throw rvexception_t(false, SMODE_ECALL_EXCEPTION);
+                        break;
+                    case USER_MODE:
+                        irvelog(4, "Privilege Mode: User Mode");
+                        throw rvexception_t(false, UMODE_ECALL_EXCEPTION);
+                        break;
+                    default:
+                        assert(false && "Currently in invalid privilege mode, this should never happen");
+                        break;
+                }
             } else if(imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
-                assert(false && "TODO implement EBREAK");
                 //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit
                 //TODO actually does this conflict with the spec?
+                throw rvexception_t(false, BREAKPOINT_EXCEPTION);
             } else if(imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
