@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <cassert>
 
+#include <stdexcept>
+
 /* Function Implementations */
 
 word_t::word_t() {}
@@ -161,9 +163,19 @@ uint32_t upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
 
 int32_t spow(int32_t base, int32_t exponent) {//Signed integer power
     if (exponent < 0) {
-        return 1 / spow(base, -exponent);
+        int32_t denominator = spow(base, -exponent);
+        if (!denominator) {
+            throw std::runtime_error("Exponentiation by negative number resulted in division by zero");
+        } else {
+            return 1 / denominator;
+        }
     } else if (base < 0) {
-        assert(false && "Not implemented");//Simply make base positive, then decide if it should have been positive or negative after calling upow
+        int32_t abs_result = upow(-base, exponent);
+        if (exponent & 0b1) {//If exponent is odd
+            return -abs_result;
+        } else {
+            return abs_result;
+        }
     } else {//Both positive
         return (int32_t)upow(base, exponent);
     }

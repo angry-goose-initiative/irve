@@ -8,8 +8,12 @@
 
 /* Includes */
 
+#include <cmath>
 #include <cassert>
+#include <cstdint>
 #include "common.h"
+
+#include <stdexcept>
 
 /* Function Implementations */
 
@@ -26,11 +30,38 @@ int test_word_t() {
 }
 
 int test_integer_pow() {
-    assert(upow(2, 0) == 1);
-    assert(upow(2, 1) == 2);
-    assert(upow(2, 2) == 4);
-    assert(upow(2, 3) == 8);
+    for (uint32_t i = 0; i <= 10000000; ++i) {
+        for (uint32_t j = 0; j <= 10000; ++j) {
+            double expected = std::pow(i, j);
+            if (expected <= UINT32_MAX) {//So we don't test cases that overflow a uint32_t
+                assert(upow(i, j) == (uint32_t)expected);
+            } else {
+                break;
+            }
+        }
+    }
 
-    //TODO add more
+    assert(spow(1, 9999) == (int32_t)std::pow(1, 9999));
+
+    for (int32_t i = -1000000; i <= 1000000; i += 13) {//For speed, count by a prime number
+        for (int32_t j = -100; j <= 100; j += 13) {//To get through cases a bit faster (much of the positive cases are already tested above anyways)
+            if ((i == 0) && (j < 0)) {
+                j = 0;
+                continue;
+            }
+
+            double expected = std::pow(i, j);
+            if ((expected <= INT32_MAX) && (expected >= INT32_MIN)) {//So we don't test cases that overflow an int32_t
+                try {
+                    assert(spow(i, j) == (int32_t)expected);
+                } catch (const std::runtime_error&) {
+                    //If we get an exception, it's probably because we overflowed and the denominator became 0
+                    //In this case it's okay
+                    assert(upow(i, j) == 0);
+                }
+            }
+        }
+    }
+
     return 0;
 }
