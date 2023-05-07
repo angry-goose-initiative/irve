@@ -1,7 +1,7 @@
     sh x0, 16(x0)
     lhu x31, 16(x0)
     lhu x31, 18(x0)
-    ecall
+    .insn r CUSTOM_0, 0, 0, x0, x0, x0#Exit
 
     .word 0x89abcdef
     #The assembler will write the above data into memory as 0xefcdab89 starting at address 0x16

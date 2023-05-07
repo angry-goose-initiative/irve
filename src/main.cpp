@@ -25,7 +25,8 @@
 #if __has_include("cmake_config.h")
 #include "cmake_config.h"
 #else
-#define VERSION_STRING "IRVE"
+#define VERSION_STRING "IRVE (Version Unknown)"
+#define DISABLE_LOGGING 0
 #endif
 
 #define INST_COUNT 0
@@ -38,6 +39,15 @@ static void load_memory_image(emulator_t& emulator, const char* filename);
 /* Function Implementations */
 
 int main(int argc, char** argv) {
+#if DISABLE_LOGGING
+    //Only print this
+    std::cerr << "Starting " << VERSION_STRING << std::endl;
+    std::cerr << "Copyright (C) 2023 John Jekel and Nick Chan" << std::endl;
+    std::cerr << "See the LICENSE file at the root of the project for licensing info." << std::endl;
+    irvelog(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and \x1b[92mNick Chan\x1b[0m");
+    irvelog(0, "\x1b[90mSee the LICENSE file at the root of the project for licensing info.\x1b[0m");
+#endif
+
     irvelog(0, "\x1b[1mStarting \x1b[94m" VERSION_STRING "\x1b[0m");
     irvelog(0, "\x1b[1m\x1b[94m ___ ______     _______ \x1b[0m");
     irvelog(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____|\x1b[0m");
@@ -46,12 +56,13 @@ int main(int argc, char** argv) {
     irvelog(0, "\x1b[1m\x1b[94m|___|_| \\_\\ \\_/  |_____|\x1b[0m");
     irvelog(0, "");
     irvelog(0, "\x1b[1mThe Inextensible RISC-V Emulator\x1b[0m");
-    irvelog(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and Nick Chan\x1b[0m");
+    irvelog(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and \x1b[92mNick Chan\x1b[0m");
     irvelog(0, "\x1b[90mSee the LICENSE file at the root of the project for licensing info.\x1b[0m");
-    irvelog(0, "--------------------------------");
+    irvelog(0, "------------------------------------------------------------------------");
     irvelog(0, "");
     irvelog(0, "");
-
+   
+    irvelog(0, "Initializing emulator...");
 #undef INST_COUNT
 #define INST_COUNT emulator.get_inst_count()
     emulator_t emulator;
@@ -63,7 +74,7 @@ int main(int argc, char** argv) {
         load_memory_image(emulator, argv[1]);
     }
 
-    while (emulator.tick());
+    while (emulator.tick());//Tick the emulator until we get an exit request
 
     irvelog(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     return 0;

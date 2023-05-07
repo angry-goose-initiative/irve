@@ -45,8 +45,7 @@ int _close(int) {
 }
 
 void _exit(int) {
-    asm volatile ("ebreak");//Request to terminate the program
-    while (true);
+    irve_exit();
 }
 
 int _fstat(int, struct stat* the_stats) {

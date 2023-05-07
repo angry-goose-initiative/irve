@@ -86,10 +86,10 @@ void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
         irvelog(3, "Mnemonic: IRVE.EXIT");
         if (cpu_state.get_privilege_mode() == MACHINE_MODE) {
-            irvelog(3, "In machine mode, so IRVE.EXIT instruction is valid");
+            irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
             throw rvexception_t(false, IRVE_EXIT_REQUEST_EXCEPTION);
         } else {
-            irvelog(3, "IRVE.EXIT instruction only valid in machine mode");
+            irvelog(3, "The IRVE.EXIT instruction is only valid in machine mode; treating as an illegal instruction");
             throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
         }
     } else {//Otherwise we don't implement any others for now

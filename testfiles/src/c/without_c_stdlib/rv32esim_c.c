@@ -57,7 +57,7 @@ void __assert_func(const char* file, int line, const char* function, const char*
     print_string(" | ");
     print_string(expr);
     print_string("\n");
-    __asm__ volatile ("ebreak");
+    __asm__ volatile (".insn r CUSTOM_0, 0, 0, x0, x0, x0");//Exit
     while (true);
 }
 

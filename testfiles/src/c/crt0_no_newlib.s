@@ -34,9 +34,9 @@ _start:
     #Jump to main
     jal x1, main
     
-    #Halt cpu if we ever return from main (using ebreak instead of ecall like JZJCores did)
+    #Halt cpu if we ever return from main (using a custom instruction)
     #TODO we should be calling "destructors" (the c atexit() function) before we halt
-    ebreak
+    .insn r CUSTOM_0, 0, 0, x0, x0, x0
     
     #Hint to the assembler about the end of the function
     .cfi_endproc

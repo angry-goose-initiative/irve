@@ -30,7 +30,7 @@ loop:
     addi x7, x7, 1
     j loop
 end:
-    ecall
+    .insn r CUSTOM_0, 0, 0, x0, x0, x0#Exit
 
 .text
 string:
