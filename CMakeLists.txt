@@ -8,7 +8,7 @@
 #
 
 #Common options
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16.3)
 project(irve VERSION 0.1.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -71,4 +71,4 @@ set_property(TARGET libirve_static PROPERTY OUTPUT_NAME irve)
 set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 
 add_executable(irve ${IRVE_SOURCES})
-target_link_libraries(irve PRIVATE libirve_shared)#TODO or should we make this static?
+target_link_libraries(irve PRIVATE libirve_static)#TODO or should we make this shared?

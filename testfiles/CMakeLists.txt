@@ -8,7 +8,7 @@
 #
 
 #Common options
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16.3)
 project(irve_tesfiles VERSION 0.1.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

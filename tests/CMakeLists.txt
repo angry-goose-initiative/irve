@@ -8,11 +8,12 @@
 #
 
 #Common options
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16.3)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
 
+#To get access to libirve headers
 include_directories(${PROJECT_SOURCE_DIR}/src ${CMAKE_BINARY_DIR}/src)
 
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
@@ -24,8 +25,6 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
-set(IRVE_DISABLE_LOGGING 0)
-
 set(UNIT_TESTER_SOURCES unit/common.cpp unit/unit_tester.cpp)
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
@@ -35,7 +34,7 @@ else()
 endif()
 
 add_executable(unit_tester ${UNIT_TESTER_SOURCES})
-target_link_libraries(unit_tester PRIVATE libirve_shared)#TODO or should we make this static?
+target_link_libraries(unit_tester PRIVATE libirve_static)#TODO or should we make this shared?
 
 #########################################################################################
 # Unit tests

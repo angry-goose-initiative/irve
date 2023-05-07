@@ -1,4 +1,4 @@
-name: CMake
+name: IRVE CMake/CTest Unit Tests (Release)
 
 on:
   push:
