@@ -29,23 +29,41 @@ emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
     irvelog(0, "Created new emulator instance");
 }
 
-void emulator_t::tick() {
-    //TODO we need to catch and handle exceptions at this level somewhere
+bool emulator_t::tick() {
+    try {
+        //TODO we need to catch and handle other exceptions at this level somewhere
 
-    this->m_cpu_state.increment_inst_count();
-    irvelog(0, "Tick %lu begins", this->get_inst_count());
+        this->m_cpu_state.increment_inst_count();
+        irvelog(0, "Tick %lu begins", this->get_inst_count());
 
-    word_t inst = this->fetch();
+        word_t inst = this->fetch();
 
-    irvelog(1, "Decoding instruction 0x%08X", inst);
-    decoded_inst_t decoded_inst(inst);
-    decoded_inst.log(2, this->get_inst_count());
+        irvelog(1, "Decoding instruction 0x%08X", inst);
+        decoded_inst_t decoded_inst(inst);
+        decoded_inst.log(2, this->get_inst_count());
 
-    this->execute(decoded_inst);
+        this->execute(decoded_inst);
 
-    irvelog(1, "TODO handle interrupts");
+        irvelog(1, "TODO handle interrupts");
 
-    irvelog(0, "Tick %lu ends", this->get_inst_count());
+        irvelog(0, "Tick %lu ends", this->get_inst_count());
+    } catch (const rvexception_t& e) {
+        if (e.is_interrupt()) {
+            assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+        } else {
+            switch (e.cause()) {
+                case IRVE_EXIT_REQUEST_EXCEPTION:
+                    irvelog(0, "Recieved exit request from emulated guest");
+                    return false;
+                    break;
+                default:
+                    assert(false && "TODO exception not yet handled");//TODO handle exceptions
+                    break;
+            }
+        }
+    }
+
+    return true;
 }
 
 uint64_t emulator_t::get_inst_count() const {
@@ -76,7 +94,7 @@ word_t emulator_t::fetch() const {
     return inst;
 }
 
-//TODO move this to a separate file
+//TODO move this to a separate file maybe?
 void emulator_t::execute(const decoded_inst_t &decoded_inst) {
     irvelog(1, "Executing instruction");
 
@@ -85,6 +103,10 @@ void emulator_t::execute(const decoded_inst_t &decoded_inst) {
         case LOAD:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
             execute::load(decoded_inst, this->m_cpu_state, this->m_memory);
+            break;
+        case CUSTOM_0:
+            assert((decoded_inst.get_format() == R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
+            execute::custom_0(decoded_inst, this->m_cpu_state, this->m_memory);
             break;
         case MISC_MEM:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");

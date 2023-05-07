@@ -77,4 +77,5 @@ set_property(TARGET libirve_static PROPERTY OUTPUT_NAME irve)
 set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 
 add_executable(irve ${IRVE_SOURCES})
+target_include_directories(irve PRIVATE ${CMAKE_BINARY_DIR}/src/)#TODO we should really embed the version info into the library instead of this...
 target_link_libraries(irve PRIVATE libirve_static)#TODO or should we make this shared?

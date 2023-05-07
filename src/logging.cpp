@@ -20,10 +20,9 @@
 
 void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, ...) {
     if (inst_num) {
-        //fprintf(stderr, "@Inst=%lu>\t", inst_num);
-        fprintf(stderr, "\x1b[32m@i=\x1b[95m%lu\x1b[1;34m>\x1b[0m\t\t", inst_num);
+        fprintf(stderr, "\x1b[94m%-lu\x1b[1;90m>\x1b[0m ", inst_num);
     } else {
-        fprintf(stderr, "\x1b[32m@init\x1b[1;34m>\x1b[0m\t\t");
+        fprintf(stderr, "\x1b[94mStartup\x1b[1;90m>\x1b[0m ");
     }
 
     while (indent--) {

@@ -22,7 +22,7 @@ class emulator_t {
 public:
     emulator_t();
 
-    void tick();
+    bool tick();//Returns true as long as the emulator should continue running
 
     uint64_t get_inst_count() const;
 

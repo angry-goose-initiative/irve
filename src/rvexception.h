@@ -42,7 +42,8 @@ typedef enum {
     MMODE_ECALL_EXCEPTION                       = 11,
     INSTRUCTION_PAGE_FAULT_EXCEPTION            = 12,
     LOAD_PAGE_FAULT_EXCEPTION                   = 13,
-    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15
+    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15,
+    IRVE_EXIT_REQUEST_EXCEPTION                 = 24//Custom
 } cause_t;
 
 /* Function/Class Declarations */

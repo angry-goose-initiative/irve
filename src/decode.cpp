@@ -73,6 +73,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     switch (this->m_opcode) {
         //R-type
         case OP:
+        case CUSTOM_0://We implement this opcode with some custom instructions!
         case AMO:
             this->m_format = R_TYPE;
             break;
@@ -101,6 +102,10 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
         case JAL:
             this->m_format = J_TYPE;
             break;
+        //If the lower 7 bits of the instruction are set, interpret this as a custom instruction meaning "request for exit"
+        //In assembly, this would be .insn i
+            //throw rvexception_t(false, IRVE_EXIT_REQUEST_EXCEPTION);
+            //break;
         default:
             throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
             break;

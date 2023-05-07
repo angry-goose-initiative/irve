@@ -28,7 +28,7 @@
 #define VERSION_STRING "IRVE"
 #endif
 
-#define INST_COUNT emulator.get_inst_count()
+#define INST_COUNT 0
 #include "logging.h"
 
 /* Static Function Declarations */
@@ -38,10 +38,23 @@ static void load_memory_image(emulator_t& emulator, const char* filename);
 /* Function Implementations */
 
 int main(int argc, char** argv) {
+    irvelog(0, "\x1b[1mStarting \x1b[94m" VERSION_STRING "\x1b[0m");
+    irvelog(0, "\x1b[1m\x1b[94m ___ ______     _______ \x1b[0m");
+    irvelog(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____|\x1b[0m");
+    irvelog(0, "\x1b[1m\x1b[94m | || |_) \\ \\ / /|  _|  \x1b[0m"); 
+    irvelog(0, "\x1b[1m\x1b[94m | ||  _ < \\ V / | |___ \x1b[0m");
+    irvelog(0, "\x1b[1m\x1b[94m|___|_| \\_\\ \\_/  |_____|\x1b[0m");
+    irvelog(0, "");
+    irvelog(0, "\x1b[1mThe Inextensible RISC-V Emulator\x1b[0m");
+    irvelog(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and Nick Chan\x1b[0m");
+    irvelog(0, "\x1b[90mSee the LICENSE file at the root of the project for licensing info.\x1b[0m");
+    irvelog(0, "--------------------------------");
+    irvelog(0, "");
+    irvelog(0, "");
 
+#undef INST_COUNT
+#define INST_COUNT emulator.get_inst_count()
     emulator_t emulator;
-    irvelog(0, "Starting " VERSION_STRING);
-    irvelog(1, "The Inextensible RISC-V Emulator");
 
     if (argc < 2) {
         irvelog(0, "No memory image file specified. Starting with empty memory.");
@@ -50,12 +63,9 @@ int main(int argc, char** argv) {
         load_memory_image(emulator, argv[1]);
     }
 
-    //TESTING do differently perhaps?
-    while (true) {
-        emulator.tick();
-    }
+    while (emulator.tick());
 
-    irvelog(0, "IRVE is shutting down. Bye bye!");
+    irvelog(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     return 0;
 }
 

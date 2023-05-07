@@ -76,6 +76,27 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     goto_next_sequential_pc(cpu_state);
 }
 
+void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+    irvelog(2, "Executing custom-0 instruction");
+
+    assert((decoded_inst.get_opcode() == CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
+    assert((decoded_inst.get_format() == R_TYPE) && "custom-0 instruction must be R_TYPE");
+
+    //All other fields being zero means emulator exit request
+    if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
+        irvelog(3, "Mnemonic: IRVE.EXIT");
+        if (cpu_state.get_privilege_mode() == MACHINE_MODE) {
+            irvelog(3, "In machine mode, so IRVE.EXIT instruction is valid");
+            throw rvexception_t(false, IRVE_EXIT_REQUEST_EXCEPTION);
+        } else {
+            irvelog(3, "IRVE.EXIT instruction only valid in machine mode");
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+        }
+    } else {//Otherwise we don't implement any others for now
+        throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+    }
+}
+
 void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     irvelog(2, "Executing MISC-MEM instruction");
 
@@ -678,8 +699,6 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 }
             } else if(imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
-                //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit
-                //TODO actually does this conflict with the spec?
                 throw rvexception_t(false, BREAKPOINT_EXCEPTION);
             } else if(imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
