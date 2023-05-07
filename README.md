@@ -1,5 +1,7 @@
 # irve
 
+[![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
+
 The Inextensible RISC-V Emulator
 
 "Working our way up to stuff!"
