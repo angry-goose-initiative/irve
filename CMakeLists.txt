@@ -9,7 +9,7 @@
 
 #Common options
 cmake_minimum_required(VERSION 3.21)
-project(irve VERSION 0.1)
+project(irve VERSION 0.1.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(testfiles)

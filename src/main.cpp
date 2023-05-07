@@ -22,6 +22,12 @@
 #include "emulator.h"
 #include "common.h"
 
+#if __has_include("cmake_config.h")
+#include "cmake_config.h"
+#else
+#define VERSION_STRING "IRVE"
+#endif
+
 #define INST_COUNT emulator.get_inst_count()
 #include "logging.h"
 
@@ -34,7 +40,7 @@ static void load_memory_image(emulator_t& emulator, const char* filename);
 int main(int argc, char** argv) {
 
     emulator_t emulator;
-    irvelog(0, "Starting IRVE");
+    irvelog(0, "Starting " VERSION_STRING);
     irvelog(1, "The Inextensible RISC-V Emulator");
 
     if (argc < 2) {
