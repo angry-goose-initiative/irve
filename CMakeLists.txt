@@ -23,9 +23,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
-#set(RV32ESIM_UNSAFE 0)#Speed boost; may cause out of bounds/etc problems if programs executing on the simulator go out-of-bounds/etc
-#set(RV32ESIM_DISABLE_LOGGING 0)#Speed boost (avoid checking if enabled, allows compiler to optimize some things more, etc)
-#set(RV32ESIM_C 1)#Support compressed extension
+set(IRVE_DISABLE_LOGGING 0)
 
 set(IRVE_SOURCES
     src/cmake_config.h src/common.cpp src/common.h src/cpu_state.cpp
@@ -44,3 +42,4 @@ endif()
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
 add_executable(irve ${IRVE_SOURCES})
+target_include_directories(irve PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/)

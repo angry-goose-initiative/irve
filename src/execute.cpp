@@ -488,10 +488,10 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     }
 
     if(branch) {
-        uint32_t target_addr{cpu_state.get_pc() + imm.u};
+        word_t target_addr = cpu_state.get_pc() + imm;
         // Target address on branches taken must be aligned on 4 byte boundary
         // (2 byte boundary if supporting compressed instructions)
-        if(target_addr%4) {
+        if (target_addr.u % 4) {
             assert(0 && "TODO implement instruction-address-misaligned exception");
         }
         else {
@@ -539,6 +539,8 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
 
     assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
     // assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
+    
+    //TODO also handle supervisor mode instructions
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -549,7 +551,11 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
 
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL, EBREAK, or WFI
-            //TODO also check register values here to ensure the instruction is valid, and throw an illegal instruction exception if not
+            //For all three of these, the register fields must be zero
+            if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
+                throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+            }
+
             if(imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
                 assert(false && "TODO implement ECALL");
@@ -558,7 +564,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 assert(false && "TODO implement EBREAK");
                 //TODO if we are in Machine Mode and we encounter an EBREAK instruction, this means the program is requesting to exit
                 //TODO actually does this conflict with the spec?
-            } else if(imm == 0b000100000010) {//WFI
+            } else if(imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
             } else {

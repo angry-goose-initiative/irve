@@ -63,7 +63,7 @@ void emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {
 word_t emulator_t::fetch() const {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
-    if ((this->m_cpu_state.get_pc() % 4) != 0) {
+    if ((this->m_cpu_state.get_pc().u % 4) != 0) {
         throw rvexception_t(false, INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
     }
 

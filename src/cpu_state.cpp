@@ -58,11 +58,11 @@ uint64_t cpu_state_t::get_inst_count() const {
     return this->m_inst_count;
 }
 
-uint32_t cpu_state_t::get_pc() const {
+word_t cpu_state_t::get_pc() const {
     return this->m_pc;
 }
 
-void cpu_state_t::set_pc(uint32_t new_pc) {
+void cpu_state_t::set_pc(word_t new_pc) {
     this->m_pc = new_pc;
 }
 
@@ -72,14 +72,6 @@ reg_t cpu_state_t::get_r(uint8_t reg_num) const {
 
 void cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
     this->m_regs[reg_num] = new_val;
-}
-
-void cpu_state_t::set_r(uint8_t reg_num, uint32_t new_val) {
-    this->m_regs[reg_num].u = new_val;
-}
-
-void cpu_state_t::set_r(uint8_t reg_num, int32_t new_val) {
-    this->m_regs[reg_num].s = new_val;
 }
 
 void cpu_state_t::log(uint8_t indent) const {

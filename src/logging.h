@@ -14,14 +14,21 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+#if __has_include("cmake_config.h")
+#include "cmake_config.h"
+#else
+#define DISABLE_LOGGING 0
+#endif
+
 /* Constants And Defines */
+
+#ifndef INST_COUNT
+#error "INST_COUNT must be defined before including logging.h"
+#endif
 
 #if DISABLE_LOGGING
 #define irvelog(...) ((void)0)
 #else
-#ifndef INST_COUNT
-#error "INST_COUNT must be defined before including logging.h"
-#endif
 #define irvelog(indent, ...) \
     do { \
         irve_log_internal_function_dont_use_this_directly(INST_COUNT, indent, __VA_ARGS__); \

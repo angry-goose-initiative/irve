@@ -2,7 +2,7 @@
 # Copyright (C) 2023 John Jekel and Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 
-SOURCES = Makefile src/*
+SOURCES = Makefile src/*.cpp src/*.h
 
 MAKEFLAGS += -j
 
