@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-
 jobs:
   debug:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
