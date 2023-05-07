@@ -31,7 +31,12 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
-set(UNIT_TESTER_SOURCES unit/common.cpp unit/unit_tester.cpp)
+set(UNIT_TESTER_SOURCES
+    unit/unit_tester.cpp
+    unit/common.cpp
+    unit/reg_file.cpp
+    unit/memory.cpp
+)
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
     set(IS_LITTLE_ENDIAN 1)
@@ -51,3 +56,6 @@ endmacro()
 
 add_unit_test(test_word_t)
 add_unit_test(test_integer_pow)
+add_unit_test(test_reg_file_t)
+add_unit_test(test_memory_t)
+add_unit_test(test_pmemory_t)

@@ -12,7 +12,10 @@
 
 #define TEST_LIST \
     X(test_word_t) \
-    X(test_integer_pow)
+    X(test_integer_pow) \
+    X(test_reg_file_t) \
+    X(test_memory_t) \
+    X(test_pmemory_t)
     //TODO add more
 
 /* Includes */

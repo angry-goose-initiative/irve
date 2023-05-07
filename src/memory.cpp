@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "common.h"
+#include "rvexception.h"
 
 #define INST_COUNT 0//We only log at init
 #include "logging.h"
@@ -108,13 +109,18 @@ pmemory_t::~pmemory_t() {
 }
 
 uint8_t pmemory_t::r(word_t addr) const {
-    assert((addr.u < RAMSIZE) && "Invalid memory address");//TODO make this some sort of bus fault exception
+    if (addr.u >= RAMSIZE) {
+        throw rvexception_t(false, LOAD_ACCESS_FAULT_EXCEPTION);
+    }
+
     //TODO add MMIO devices that provide data as things progress
+    
     return this->m_ram[addr.u];
 }
 
 void pmemory_t::w(word_t addr, uint8_t data) {
     //TODO other MMIO devices
+    
     if (addr == DEBUGADDR) {//Debug output
         //End of line; print the debug string
         if (data == '\n') {
@@ -124,9 +130,13 @@ void pmemory_t::w(word_t addr, uint8_t data) {
         } else {
             this->m_debugstr.push_back(data);
         }
+
         return;
     } else {//RAM
-        assert((addr.u < RAMSIZE) && "Invalid memory address");//TODO make this some sort of bus fault exception
+        if (addr.u >= RAMSIZE) {
+            throw rvexception_t(false, STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+        }
+
         this->m_ram[addr.u] = data;
     }
 }
