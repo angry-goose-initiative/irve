@@ -34,6 +34,8 @@ public:
     //Right shift is NOT okay since we don't know if it is arithmetic or logical
     //Division is NOT okay since we don't know if it is signed or unsigned
     //For comparison, really only == and != are safe
+    
+    //TODO make all of these constexpr and inline
 
     //Arithmetic
     word_t signed_negate() const;
@@ -67,14 +69,21 @@ public:
     //TODO others
     
     //Bonus!
-    word_t bit(uint8_t bit) const;//Get a single bit
-    word_t bits(uint8_t top_bit, uint8_t bottom_bit) const;//Get a range of bits (inclusive)
-    word_t sign_extend_upward_from_bit(uint8_t bit) const;//Sign extend from a bit upward 
+    word_t pow(const word_t& other) const;//Integer power
+    word_t bit(uint8_t bit) const;//Get a single bit//TODO should we overload operator()
+    word_t bits(uint8_t top_bit, uint8_t bottom_bit) const;//Get a range of bits (inclusive)//TODO should we overload operator()
+    word_t sign_extend_upward_from_bit(uint8_t bit) const;//Sign extend from a bit upward
 
     uint32_t u;
     int32_t s;
 } word_t;
 
 typedef word_t reg_t;
+
+/* Function/Class Declarations */
+
+//TODO make these constexpr too
+uint32_t upow(uint32_t base, uint32_t exp);//Unsigned integer power
+int32_t spow(int32_t base, int32_t exp);//Signed integer power
 
 #endif//COMMON_H

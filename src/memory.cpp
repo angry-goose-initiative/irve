@@ -14,7 +14,6 @@
 #include "memory.h"
 
 #include <cassert>
-#include <cmath>
 #include <iostream>
 
 #include "common.h"
@@ -49,20 +48,19 @@ word_t memory_t::r(word_t addr, int8_t func3) const {
     //assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
     // MSB of func3 determines signed/unsigned
-    const int isUnsigned{func3 >> 2};
+    bool isUnsigned = func3 >> 2;
     // 2^(func3[1:0]) is the number of bytes
-    int byte{static_cast<int>(pow(2, func3%4)) - 1};
+    int8_t byte = (int8_t)(spow(2, func3 % 4) - 1);
 
-    int32_t data{};
-    data = static_cast<int32_t>(m_mem.r(addr + byte)) << (8*byte);
+    word_t data = m_mem.r(addr + byte) << (byte * 8);
 
     // The casting above sign extends so if the number is unsigned then we need
     // to remove the sign extention
-    if(isUnsigned) data &= (0xFF << (8*byte));
+    if (isUnsigned) data &= (0xFF << (byte * 8));
     --byte;
     
     for(; byte > -1; --byte) {
-        data |= (static_cast<int32_t>(m_mem.r(addr + byte)) & 0xFF) << (8*byte);
+        data |= (m_mem.r(addr + byte) & 0xFF) << (byte * 8);
     }
 
     return data;
@@ -78,10 +76,10 @@ void memory_t::w(word_t addr, int8_t func3, word_t data) {
     //assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
     // 2^(func3[1:0]) is the number of bytes
-    int byte{static_cast<int>(pow(2, func3%4))};
+    int8_t byte = (int8_t)spow(2, func3 % 4);
 
     for(int i{}; i<byte; ++i) {
-        m_mem.w(addr + i, static_cast<int8_t>((data.srl(8 * i) & 0xFF).u));
+        m_mem.w(addr + i, (data.srl(8 * i) & 0xFF).u);
     }
 }
 

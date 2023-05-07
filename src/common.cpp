@@ -115,11 +115,11 @@ bool word_t::operator!=(const word_t& other) const {
     return !(*this == other);
 }
 
-word_t word_t::bit(uint8_t bit) const {
+word_t word_t::bit(uint8_t bit) const {//TODO should we overload operator()
     return this->bits(bit, bit);
 }
 
-word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
+word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we overload operator()
     assert((top_bit >= bottom_bit) && "Bad arguments to bits()");
     assert((top_bit < 32) && "Bad arguments to bits()");
     assert((bottom_bit < 32) && "Bad arguments to bits()");
@@ -145,5 +145,26 @@ word_t word_t::sign_extend_upward_from_bit(uint8_t bit) const {//Sign extend fro
 
     //ARITHMETIC shift things back down to perform sign extension and return
     return intermediate.sra(shift_amount);
+}
 
+uint32_t upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
+    uint32_t result = 1;
+    while (exponent) {
+        if (exponent & 0b1) {
+            result *= base;
+        }
+        base *= base;
+        exponent >>= 1;
+    }
+    return result;
+}
+
+int32_t spow(int32_t base, int32_t exponent) {//Signed integer power
+    if (exponent < 0) {
+        return 1 / spow(base, -exponent);
+    } else if (base < 0) {
+        assert(false && "Not implemented");//Simply make base positive, then decide if it should have been positive or negative after calling upow
+    } else {//Both positive
+        return (int32_t)upow(base, exponent);
+    }
 }
