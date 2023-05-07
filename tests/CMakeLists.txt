@@ -45,3 +45,4 @@ endmacro()
 
 add_unit_test(test_word_t)
 add_unit_test(test_integer_pow)
+add_unit_test(test_intentionally_fail)
