@@ -37,10 +37,19 @@ set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #set(OBJCOPY_FLAGS "-O verilog --verilog-data-width=4")#TODO this dosn't work for some reason
 
 #Static library targets for C runtime setup and other IRVE features
-set(LIBIRVE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve_newlib.c)
-set(LIBIRVE_NO_NEWLIB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0_no_newlib.s)
+set(LIBIRVE_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve_newlib.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
+)
+set(LIBIRVE_NO_NEWLIB_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0_no_newlib.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
+)
 add_library(irvec STATIC ${LIBIRVE_SOURCES})
 add_library(irvec_no_newlib STATIC ${LIBIRVE_NO_NEWLIB_SOURCES})
+target_include_directories(irvec PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
+target_include_directories(irvec_no_newlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
 
 #Macro for outputing Verilog hex files
 macro(add_hex_target BINARY_NAME)

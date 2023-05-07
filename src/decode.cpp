@@ -32,22 +32,22 @@
 /* Function Implementations */
 
 decoded_inst_t::decoded_inst_t(word_t instruction) :
+    m_opcode((opcode_t)instruction.bits(6, 2).u),
+    m_funct3(instruction.bits(14, 12).u),
+    m_funct7(instruction.bits(31, 25).u),
+    m_rd    (instruction.bits(11, 7).u),
+    m_rs1   (instruction.bits(19, 15).u),
+    m_rs2   (instruction.bits(24, 20).u),
     //TODO do this more cleanly (the word_t way)
-    m_opcode((opcode_t) ((instruction.u >> 2) & 0b11111)),
-    m_funct3((instruction.u >> 12) & 0b111),
-    m_funct7((instruction.u >> 25) & 0b1111111),
-    m_rd((instruction.u >> 7) & 0b11111),
-    m_rs1((instruction.u >> 15) & 0b11111),
-    m_rs2((instruction.u >> 20) & 0b11111),
-    m_imm_I(SIGN_EXTEND_TO_32(instruction.u >> 20, 12)),
-    m_imm_S(SIGN_EXTEND_TO_32(((instruction.u >> 20) & 0b111111100000) | ((instruction.u >> 7) & 0b11111), 12)),
-    m_imm_B(SIGN_EXTEND_TO_32(((instruction.u >> 19) & 0b1000000000000) | ((instruction.u << 4) & 0b100000000000) | ((instruction.u >> 20) & 0b11111100000) | ((instruction.u >> 7) & 0b11110), 13)),
-    m_imm_U(instruction.u & 0b11111111111111111111000000000000),
-    m_imm_J(SIGN_EXTEND_TO_32(((instruction.u >> 11) & 0b100000000000000000000) | (instruction.u & 0b11111111000000000000) | ((instruction.u >> 9) & 0b100000000000) | ((instruction.u >> 20) & 0b11111111110), 21))
+    m_imm_I (SIGN_EXTEND_TO_32(instruction.u >> 20, 12)),
+    m_imm_S (SIGN_EXTEND_TO_32(((instruction.u >> 20) & 0b111111100000) | ((instruction.u >> 7) & 0b11111), 12)),
+    m_imm_B (SIGN_EXTEND_TO_32(((instruction.u >> 19) & 0b1000000000000) | ((instruction.u << 4) & 0b100000000000) | ((instruction.u >> 20) & 0b11111100000) | ((instruction.u >> 7) & 0b11110), 13)),
+    m_imm_U (instruction.u & 0b11111111111111111111000000000000),
+    m_imm_J (SIGN_EXTEND_TO_32(((instruction.u >> 11) & 0b100000000000000000000) | (instruction.u & 0b11111111000000000000) | ((instruction.u >> 9) & 0b100000000000) | ((instruction.u >> 20) & 0b11111111110), 21))
 {
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
-    if (!instruction.u || (instruction.u == 0xFFFFFFFF) || ((instruction.u & 0b11) != 0b11)) {
+    if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
         throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 

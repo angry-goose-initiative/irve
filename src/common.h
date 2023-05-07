@@ -65,6 +65,9 @@ public:
     bool operator==(const word_t& other) const;
     bool operator!=(const word_t& other) const;
     //TODO others
+    
+    //Bonus!
+    word_t bits(uint8_t top_bit, uint8_t bottom_bit) const;//Get a range of bits (inclusive)
 
     uint32_t u;
     int32_t s;

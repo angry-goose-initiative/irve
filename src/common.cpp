@@ -10,6 +10,9 @@
 
 #include "common.h"
 
+#include <cstdint>
+#include <cassert>
+
 /* Function Implementations */
 
 word_t::word_t() {}
@@ -110,4 +113,20 @@ bool word_t::operator==(const word_t& other) const {
 
 bool word_t::operator!=(const word_t& other) const {
     return !(*this == other);
+}
+
+word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
+    assert((top_bit >= bottom_bit) && "Bad arguments to bits()");
+    assert((top_bit < 32) && "Bad arguments to bits()");
+    assert((bottom_bit < 32) && "Bad arguments to bits()");
+
+    //Move the lowest bit desired to the bit 0 position
+    word_t intermediate = this->srl(bottom_bit);
+    
+    //Generate the mask
+    uint8_t size = top_bit - bottom_bit + 1;
+    word_t mask = (1 << size) - 1;
+
+    //Apply the mask and return
+    return intermediate & mask;
 }
