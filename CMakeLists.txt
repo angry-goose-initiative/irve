@@ -12,7 +12,11 @@ cmake_minimum_required(VERSION 3.21)
 project(irve VERSION 0.1.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+include(CTest)
+add_subdirectory(tests)
 add_subdirectory(testfiles)
+
+#TODO perhaps move the stuff below to a CMakeLists.txt in src?
 
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
 if(NOT CMAKE_BUILD_TYPE)
@@ -42,4 +46,4 @@ endif()
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
 add_executable(irve ${IRVE_SOURCES})
-target_include_directories(irve PRIVATE include ${CMAKE_CURRENT_BINARY_DIR}/src/)
+target_include_directories(irve PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src/)

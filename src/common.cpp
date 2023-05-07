@@ -154,7 +154,7 @@ uint32_t upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
             result *= base;
         }
         base *= base;
-        exponent >>= 1;
+        exponent >>= 1;//IMPORTANT: This is a LOGICAL shift
     }
     return result;
 }
