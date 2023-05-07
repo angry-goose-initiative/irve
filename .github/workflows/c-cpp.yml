@@ -1,0 +1,49 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test_release:
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests for a Release build
+        uses: HorstBaerbel/action-ctest@1.1
+        # These are optional (defaults displayed)
+        with:
+          sourcedir: '.'
+          builddir: 'build'
+          cmakeoptions: '--config Release'
+          ctestoptions: ''
+  test_debug:
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+      - name: Run unit tests for a Debug build
+        uses: HorstBaerbel/action-ctest@1.1
+        # These are optional (defaults displayed)
+        with:
+          sourcedir: '.'
+          builddir: 'build'
+          cmakeoptions: '--config Debug'
+          ctestoptions: ''
+  #build:
+
+    #runs-on: ubuntu-latest
+
+    #steps:
+    #- uses: actions/checkout@v3
+    #- name: configure
+    #  run: ./configure
+    #- name: make
+    #  run: make
+    #- name: make check
+    #  run: make check
+    #- name: make distcheck
+    #  run: make distcheck
