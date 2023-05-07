@@ -14,8 +14,10 @@
     X(test_word_t) \
     X(test_integer_pow) \
     X(test_reg_file_t) \
-    X(test_memory_t) \
-    X(test_pmemory_t)
+    X(test_memory_t_valid) \
+    X(test_memory_t_invalid) \
+    X(test_pmemory_t_valid) \
+    X(test_pmemory_t_invalid)
     //TODO add more
 
 /* Includes */

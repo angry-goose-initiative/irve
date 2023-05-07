@@ -14,12 +14,11 @@
 
 /* Function Implementations */
 
-int test_memory_t() {
+int test_memory_t_valid() {//None of these should throw an exception
     memory_t memory;
 
     //TODO also test when it is in virtual memory mode
 
-    //None of these should throw an exception
     memory.w(DEBUGADDR, 0b000, 'I');
     memory.w(DEBUGADDR, 0b000, 'R');
     memory.w(DEBUGADDR, 0b000, 'V');
@@ -58,7 +57,11 @@ int test_memory_t() {
         //TODO test load signed here too
     }
 
-    //These should throw exceptions
+    return 0;
+}
+
+int test_memory_t_invalid() {//These should throw exceptions
+    memory_t memory;
 
     //Invalid accesses at the debug address (some are also misaligned)
     try {
@@ -143,10 +146,9 @@ int test_memory_t() {
     return 0;
 }
 
-int test_pmemory_t() {
+int test_pmemory_t_valid() {//None of these should throw an exception
     pmemory_t pmemory;
 
-    //None of these should throw an exception
     pmemory.w(DEBUGADDR, 'I');
     pmemory.w(DEBUGADDR, 'R');
     pmemory.w(DEBUGADDR, 'V');
@@ -161,7 +163,11 @@ int test_pmemory_t() {
         assert(pmemory.r(i) == (uint8_t)(i * 123));
     }
 
-    //These should throw exceptions
+    return 0;
+}
+
+int test_pmemory_t_invalid() {//These should throw exceptions
+    pmemory_t pmemory;
 
     try {
         pmemory.r(DEBUGADDR);

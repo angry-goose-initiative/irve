@@ -28,7 +28,8 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C Debug --verbose
+        #run: ctest -C Debug --verbose
+      run: ctest -C Debug --verbose -j
 
   release:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
@@ -51,4 +52,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C Release --verbose
+        #run: ctest -C Release --verbose
+      run: ctest -C Release --verbose -j
