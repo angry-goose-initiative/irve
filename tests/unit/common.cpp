@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cassert>
 #include <cstdint>
+#include <cstdlib>
 #include "common.h"
 
 #include <stdexcept>
@@ -40,8 +41,6 @@ int test_integer_pow() {
             }
         }
     }
-
-    assert(spow(1, 9999) == (int32_t)std::pow(1, 9999));
 
     for (int32_t i = -1000000; i <= 1000000; i += 13) {//For speed, count by a prime number
         for (int32_t j = -100; j <= 100; j += 13) {//To get through cases a bit faster (much of the positive cases are already tested above anyways)

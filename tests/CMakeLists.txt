@@ -34,8 +34,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 set(UNIT_TESTER_SOURCES
     unit/unit_tester.cpp
     unit/common.cpp
-    unit/reg_file.cpp
+    unit/cpu_state.cpp
+    unit/decode.cpp
     unit/memory.cpp
+    unit/reg_file.cpp
 )
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
@@ -56,6 +58,9 @@ endmacro()
 
 add_unit_test(test_word_t)
 add_unit_test(test_integer_pow)
+add_unit_test(test_cpu_state_t)
+add_unit_test(test_decoded_inst_t)
+add_unit_test(test_decoded_inst_t_invalid)
 add_unit_test(test_reg_file_t)
 add_unit_test(test_memory_t_valid)
 add_unit_test(test_memory_t_invalid)

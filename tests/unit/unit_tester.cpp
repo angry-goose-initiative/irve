@@ -13,6 +13,9 @@
 #define TEST_LIST \
     X(test_word_t) \
     X(test_integer_pow) \
+    X(test_cpu_state_t) \
+    X(test_decoded_inst_t) \
+    X(test_decoded_inst_t_invalid) \
     X(test_reg_file_t) \
     X(test_memory_t_valid) \
     X(test_memory_t_invalid) \
