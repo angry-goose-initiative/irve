@@ -29,12 +29,30 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(IRVE_DISABLE_LOGGING 0)
 
-set(IRVE_SOURCES
-    src/cmake_config.h src/common.cpp src/common.h src/cpu_state.cpp
-    src/cpu_state.h src/CSR.cpp src/CSR.h src/decode.cpp src/decode.h
-    src/emulator.cpp src/emulator.h src/execute.cpp src/execute.h
-    src/logging.cpp src/logging.h src/main.cpp src/memory.cpp src/memory.h
-    src/reg_file.cpp src/reg_file.h src/rvexception.cpp src/rvexception.h
+set(IRVE_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
+
+set(LIBIRVE_SOURCES
+    ${CMAKE_BINARY_DIR}/src/cmake_config.h
+    ${PROJECT_SOURCE_DIR}/src/common.cpp
+    ${PROJECT_SOURCE_DIR}/src/common.h
+    ${PROJECT_SOURCE_DIR}/src/cpu_state.cpp
+    ${PROJECT_SOURCE_DIR}/src/cpu_state.h
+    ${PROJECT_SOURCE_DIR}/src/CSR.cpp
+    ${PROJECT_SOURCE_DIR}/src/CSR.h
+    ${PROJECT_SOURCE_DIR}/src/decode.cpp
+    ${PROJECT_SOURCE_DIR}/src/decode.h
+    ${PROJECT_SOURCE_DIR}/src/emulator.cpp
+    ${PROJECT_SOURCE_DIR}/src/emulator.h
+    ${PROJECT_SOURCE_DIR}/src/execute.cpp
+    ${PROJECT_SOURCE_DIR}/src/execute.h
+    ${PROJECT_SOURCE_DIR}/src/logging.cpp
+    ${PROJECT_SOURCE_DIR}/src/logging.h
+    ${PROJECT_SOURCE_DIR}/src/memory.cpp
+    ${PROJECT_SOURCE_DIR}/src/memory.h
+    ${PROJECT_SOURCE_DIR}/src/reg_file.cpp
+    ${PROJECT_SOURCE_DIR}/src/reg_file.h
+    ${PROJECT_SOURCE_DIR}/src/rvexception.cpp
+    ${PROJECT_SOURCE_DIR}/src/rvexception.h
 )
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
@@ -45,5 +63,12 @@ endif()
 
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
+add_library(libirve_static STATIC ${LIBIRVE_SOURCES})
+add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})
+target_include_directories(libirve_static PRIVATE ${CMAKE_BINARY_DIR}/src/)
+target_include_directories(libirve_shared PRIVATE ${CMAKE_BINARY_DIR}/src/)
+set_property(TARGET libirve_static PROPERTY OUTPUT_NAME irve)
+set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
+
 add_executable(irve ${IRVE_SOURCES})
-target_include_directories(irve PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src/)
+target_link_libraries(irve PRIVATE libirve_shared)#TODO or should we make this static?
