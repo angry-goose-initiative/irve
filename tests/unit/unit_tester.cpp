@@ -6,6 +6,8 @@
  *
 */
 
+//FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
+
 /* Test List */
 
 #define TEST_LIST \
