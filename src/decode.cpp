@@ -29,6 +29,7 @@
 decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
     m_funct3(instruction.bits(14, 12).u),
+    m_funct5(instruction.bits(31, 27).u),
     m_funct7(instruction.bits(31, 25).u),
     m_rd    (instruction.bits(11, 7) .u),
     m_rs1   (instruction.bits(19, 15).u),
@@ -43,10 +44,10 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     ),
     m_imm_B (
         (
-            (instruction.bit (31)       << 12)    | 
-            (instruction.bit (7)        << 11)    | 
-            (instruction.bits(30, 25)   << 5)     | 
-            (instruction.bits(11, 8)    << 1)     |
+            (instruction.bit (31)       << 12)  |
+            (instruction.bit (7)        << 11)  | 
+            (instruction.bits(30, 25)   << 5)   | 
+            (instruction.bits(11, 8)    << 1)   |
             0b0
         )
         .sign_extend_upward_from_bit(12).u
@@ -72,6 +73,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     switch (this->m_opcode) {
         //R-type
         case OP:
+        case AMO:
             this->m_format = R_TYPE;
             break;
         //I-type
@@ -176,6 +178,11 @@ uint8_t decoded_inst_t::get_funct3() const {
     assert((this->get_format() != U_TYPE) && "Attempt to get funct3 of U-type instruction!");
     assert((this->get_format() != J_TYPE) && "Attempt to get funct3 of J-type instruction!");
     return this->m_funct3;
+}
+
+uint8_t decoded_inst_t::get_funct5() const {
+    assert((this->get_format() == R_TYPE) && "Attempt to get funct5 of non-R-type instruction!");
+    return this->m_funct5;
 }
 
 uint8_t decoded_inst_t::get_funct7() const {

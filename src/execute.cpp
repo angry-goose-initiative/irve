@@ -222,7 +222,108 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
 }
 
 void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
-    assert(false && "TODO implement execute_amo()");
+    irvelog(2, "Executing AMO instruction");
+
+    //Sanity checks
+    assert((decoded_inst.get_opcode() == AMO) && "amo instruction must have opcode AMO");
+    assert((decoded_inst.get_format() == R_TYPE) && "amo instruction must be R_TYPE");
+    if (decoded_inst.get_funct3() != 0b010) {
+        throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+    }
+    //NOTE: All possible aq and rl values are valid, so we don't need to check them
+
+    //Get operands
+    reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
+
+    //Check that the address is word-aligned
+    if ((rs1.u % 4) != 0) {
+        //NOTE: This exception has priority over access faults but not over the illegal instruction exception
+        throw rvexception_t(false, STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+    }
+
+    word_t loaded_word;
+    switch (decoded_inst.get_funct5()) {
+        case 0b00010://LR.W
+            irvelog(3, "Mnemonic: LR.W");
+            //TODO what if the CPU is interrupted between the load and the store?
+            assert(false && "TODO");
+            break;
+        case 0b00011://SC.W
+            irvelog(3, "Mnemonic: SC.W");
+            //TODO what if the CPU is interrupted between the load and the store?
+            assert(false && "TODO");
+            break;
+        case 0b00001://AMOSWAP.W
+            irvelog(3, "Mnemonic: AMOSWAP.W");
+
+            //Read the word at the address in rs1
+            try {
+                loaded_word = memory.r(rs1, 0b010);
+            } catch (const rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+                assert(!e.is_interrupt() && "Got interrupt rvexception_t when reading from memory, this should never happen");
+                switch (e.cause()) {//TODO ensure this is correct
+                    case LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                        assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                        break;
+                    case LOAD_ACCESS_FAULT_EXCEPTION:
+                        throw rvexception_t(false, STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+                        break;
+                    case LOAD_PAGE_FAULT_EXCEPTION:
+                        throw rvexception_t(false, STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
+                        break;
+                    default:
+                        assert(false && "Unexpected exception when reading from memory");
+                        break;
+                }
+            }
+
+            //Save it into rd
+            cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
+
+            //Swap, so now write rs2 into the address in rs1
+            memory.w(rs1, 0b010, rs2.s);
+
+            assert(false && "TODO");
+            break;
+        case 0b00000://AMOADD.W
+            irvelog(3, "Mnemonic: AMOADD.W");
+            assert(false && "TODO");
+            break;
+        case 0b00100://AMOXOR.W
+            irvelog(3, "Mnemonic: AMOXOR.W");
+            assert(false && "TODO");
+            break;
+        case 0b01100://AMOAND.W
+            irvelog(3, "Mnemonic: AMOAND.W");
+            assert(false && "TODO");
+            break;
+        case 0b01000://AMOOR.W
+            irvelog(3, "Mnemonic: AMOOR.W");
+            assert(false && "TODO");
+            break;
+        case 0b10000://AMOMIN.W
+            irvelog(3, "Mnemonic: AMOMIN.W");
+            assert(false && "TODO");
+            break;
+        case 0b10100://AMOMAX.W
+            irvelog(3, "Mnemonic: AMOMAX.W");
+            assert(false && "TODO");
+            break;
+        case 0b11000://AMOMINU.W
+            irvelog(3, "Mnemonic: AMOMINU.W");
+            assert(false && "TODO");
+            break;
+        case 0b11100://AMOMAXU.W
+            irvelog(3, "Mnemonic: AMOMAXU.W");
+            assert(false && "TODO");
+            break;
+        default:
+            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+            break;
+    }
+
+    goto_next_sequential_pc(cpu_state);
 }
 
 void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {

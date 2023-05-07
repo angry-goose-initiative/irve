@@ -48,6 +48,7 @@ public:
 
     opcode_t get_opcode() const;
     uint8_t get_funct3() const;
+    uint8_t get_funct5() const;
     uint8_t get_funct7() const;
     uint8_t get_rd() const;
     uint8_t get_rs1() const;
@@ -59,6 +60,7 @@ private:
     const opcode_t m_opcode;//Bits [6:2]
 
     const uint8_t m_funct3;
+    const uint8_t m_funct5;
     const uint8_t m_funct7;
     const uint8_t m_rd;
     const uint8_t m_rs1;
