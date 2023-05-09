@@ -9,4 +9,4 @@
 #include "CSR.h"
 
 // TODO what should CSRs be initialized to?
-CSR_t::CSR_t() {}
+CSR_t::CSR_t() : medeleg(false), mideleg(false) {}

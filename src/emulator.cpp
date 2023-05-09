@@ -44,7 +44,7 @@ bool emulator_t::tick() {
 
         this->execute(decoded_inst);
     } catch (const rvexception_t& e) {
-        if (e.cause() == cause_t::IRVE_EXIT_REQUEST_EXCEPTION) {//We don't handle this like a normal exception
+        if (e.cause() == cause_t::IRVE_EXIT_REQUEST) {//This isn't really an exception
             irvelog(0, "Recieved exit request from emulated guest");
             return false;
         } else {
@@ -163,9 +163,19 @@ void emulator_t::handle_interrupt(cause_t cause) {
 }
 
 void emulator_t::handle_exception(cause_t cause) {
+    assert((cause != cause_t::IRVE_EXIT_REQUEST) && "IRVE_EXIT_REQUEST is not an exception!");
+
+    uint32_t raw_cause = (uint32_t)cause;
+    assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
+
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    //TODO
-
-
-    assert(false && "TODO exceptions not yet handled");//TODO handle exceptions
+    /* if (this->m_cpu_state.m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception
+        //TODO handle this case
+        assert(false && "TODO handle this case");
+    } else {//Machine mode should handle the exception
+        //TODO handle this case
+        assert(false && "TODO handle this case");
+    }
+    */
+    assert(false && "TODO");
 }

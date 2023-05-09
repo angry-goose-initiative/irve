@@ -39,8 +39,8 @@ public:
 
     //TODO mstatus here or somewhere else?//Address 0x300
     //misa is NOT here//Address 0x301
-    //TODO medeleg here or somewhere else?//Address 0x302
-    //TODO mideleg here or somewhere else?//Address 0x303
+    bool medeleg[32];//Address 0x302
+    bool mideleg[32];//Address 0x303
     //TODO mie here or somewhere else?//Address 0x304
     //TODO mtvec here or somewhere else?//Address 0x305
     //TODO mcounteren here or somewhere else?//Address 0x306

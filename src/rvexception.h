@@ -43,7 +43,8 @@ enum class cause_t : uint32_t {
     INSTRUCTION_PAGE_FAULT_EXCEPTION            = 12,
     LOAD_PAGE_FAULT_EXCEPTION                   = 13,
     STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15,
-    IRVE_EXIT_REQUEST_EXCEPTION                 = 24//Custom
+    //Not technically an exception, but using a custom entry of the exception space
+    IRVE_EXIT_REQUEST                           = 24
 };
 
 /* Function/Class Declarations */
@@ -70,7 +71,7 @@ public:
 /* Macros */
 
 //So you don't have to fully qualify it each time
-#define rvinterrupt_t(cause) rvinterrupt_t(cause_t::cause)
-#define rvexception_t(cause) rvexception_t(cause_t::cause)
+#define rvinterrupt_t(the_cause) rvinterrupt_t(cause_t::the_cause)
+#define rvexception_t(the_cause) rvexception_t(cause_t::the_cause)
 
 #endif//RVEXCEPTION_H
