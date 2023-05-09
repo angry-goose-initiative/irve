@@ -35,7 +35,6 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0x00000000);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(!e.is_interrupt());
         assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
@@ -44,7 +43,6 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0xFFFFFFFF);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(!e.is_interrupt());
         assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
@@ -53,7 +51,6 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0x00000001);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(!e.is_interrupt());
         assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 

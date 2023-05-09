@@ -11,31 +11,26 @@
 
 /* Includes */
 
+#include <cassert>
 #include <stdexcept>
-#include <string>
 
 #include "rvexception.h"
 
 /* Function Implementations */
 
-rvexception_t::rvexception_t(bool is_interrupt, cause_t cause) :
-    std::runtime_error(std::string("Uncaught RISC-V exception, you should never see this.")),
-    m_is_interrupt(is_interrupt),
+rv_base_cpp_exception_t::rv_base_cpp_exception_t(cause_t cause) :
+    std::runtime_error("Uncaught RISC-V interrupt/exception, you should never see this."),
     m_cause(cause)
 {}
 
-bool rvexception_t::is_interrupt() const {
-    return this->m_is_interrupt;
-}
-
-cause_t rvexception_t::cause() const {
+cause_t rv_base_cpp_exception_t::cause() const {
     return this->m_cause;
 }
 
-word_t rvexception_t::raw_cause() const {
-    if (this->m_is_interrupt) {
-        return this->m_cause | 0x80000000;
-    } else {
-        return this->m_cause;
-    }
+rvinterrupt_t::rvinterrupt_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
+    assert((((uint32_t)cause) >= 0x80000000) && "Attempt to create rvinterrupt_t with exception cause");
+}
+
+rvexception_t::rvexception_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
+    assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
 }

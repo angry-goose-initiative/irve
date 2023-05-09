@@ -110,7 +110,7 @@ pmemory_t::~pmemory_t() {
 
 uint8_t pmemory_t::r(word_t addr) const {
     if (addr.u >= RAMSIZE) {
-        throw rvexception_t(false, LOAD_ACCESS_FAULT_EXCEPTION);
+        throw rvexception_t(LOAD_ACCESS_FAULT_EXCEPTION);
     }
 
     //TODO add MMIO devices that provide data as things progress
@@ -134,7 +134,7 @@ void pmemory_t::w(word_t addr, uint8_t data) {
         return;
     } else {//RAM
         if (addr.u >= RAMSIZE) {
-            throw rvexception_t(false, STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+            throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
         }
 
         this->m_ram[addr.u] = data;

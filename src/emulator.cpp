@@ -44,8 +44,6 @@ bool emulator_t::tick() {
 
         this->execute(decoded_inst);
     } catch (const rvexception_t& e) {
-        assert(!e.is_interrupt() && "Should not have caught an interrupt here");
-
         if (e.cause() == IRVE_EXIT_REQUEST_EXCEPTION) {//We don't handle this like a normal exception
             irvelog(0, "Recieved exit request from emulated guest");
             return false;
@@ -59,8 +57,7 @@ bool emulator_t::tick() {
     //while still ensuring all are ticked this major tick
     try {
         irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
-    } catch (const rvexception_t& e) {
-        assert(e.is_interrupt() && "Should not have caught an exception here");
+    } catch (const rvinterrupt_t& e) {
         this->handle_interrupt(e.cause());
     }
     //TODO One try-catch block per peripheral here...
@@ -85,7 +82,7 @@ word_t emulator_t::fetch() const {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {
-        throw rvexception_t(false, INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
+        throw rvexception_t(INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)

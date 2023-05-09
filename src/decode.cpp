@@ -67,7 +67,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
     if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
-        throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+        throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     switch (this->m_opcode) {
@@ -102,12 +102,8 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
         case JAL:
             this->m_format = J_TYPE;
             break;
-        //If the lower 7 bits of the instruction are set, interpret this as a custom instruction meaning "request for exit"
-        //In assembly, this would be .insn i
-            //throw rvexception_t(false, IRVE_EXIT_REQUEST_EXCEPTION);
-            //break;
         default:
-            throw rvexception_t(false, ILLEGAL_INSTRUCTION_EXCEPTION);
+            throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 }

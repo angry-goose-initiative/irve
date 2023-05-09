@@ -22,12 +22,12 @@
 
 typedef enum {
     //Interrupts
-    SUPERVISOR_SOFTWARE_INTERRUPT               = 1,
-    MACHINE_SOFTWARE_INTERRUPT                  = 3,
-    SUPERVISOR_TIMER_INTERRUPT                  = 5,
-    MACHINE_TIMER_INTERRUPT                     = 7,
-    SUPERVISOR_EXTERNAL_INTERRUPT               = 9,
-    MACHINE_EXTERNAL_INTERRUPT                  = 11,
+    SUPERVISOR_SOFTWARE_INTERRUPT               = 1     | 0x80000000,
+    MACHINE_SOFTWARE_INTERRUPT                  = 3     | 0x80000000,
+    SUPERVISOR_TIMER_INTERRUPT                  = 5     | 0x80000000,
+    MACHINE_TIMER_INTERRUPT                     = 7     | 0x80000000,
+    SUPERVISOR_EXTERNAL_INTERRUPT               = 9     | 0x80000000,
+    MACHINE_EXTERNAL_INTERRUPT                  = 11    | 0x80000000,
     //Exceptions
     INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION    = 0,
     INSTRUCTION_ACCESS_FAULT_EXCEPTION          = 1,
@@ -48,16 +48,23 @@ typedef enum {
 
 /* Function/Class Declarations */
 
-class rvexception_t : public std::runtime_error {
+class rv_base_cpp_exception_t : public std::runtime_error {
 public:
-    rvexception_t(bool is_interrupt, cause_t cause);
+    rv_base_cpp_exception_t(cause_t cause);
     
-    bool is_interrupt() const;
     cause_t cause() const;
-    word_t raw_cause() const;
 private:
-    bool m_is_interrupt;
     cause_t m_cause;
+};
+
+class rvinterrupt_t : public rv_base_cpp_exception_t {
+public:
+    rvinterrupt_t(cause_t cause);
+};
+
+class rvexception_t : public rv_base_cpp_exception_t {
+public:
+    rvexception_t(cause_t cause);
 };
 
 #endif//RVEXCEPTION_H
