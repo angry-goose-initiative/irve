@@ -18,6 +18,8 @@
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
 
+#include "rvexception.h"
+
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t(memory_t& memory_ref) :
@@ -107,4 +109,25 @@ void cpu_state_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
 
 privilege_mode_t cpu_state_t::get_privilege_mode() const {
     return this->m_privilege_mode;
+}
+
+void cpu_state_t::handle_interrupt(cause_t cause) {
+    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+}
+
+void cpu_state_t::handle_exception(cause_t cause) {
+    assert((cause != cause_t::IRVE_EXIT_REQUEST) && "IRVE_EXIT_REQUEST is not an exception!");
+
+    uint32_t raw_cause = (uint32_t)cause;
+    assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
+
+    //Decide which privilege mode should handle the exception (and thus which one we should switch to)
+    if (this->m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception
+        //TODO handle this case
+        assert(false && "TODO handle this case");
+    } else {//Machine mode should handle the exception
+        //TODO handle this case
+        assert(false && "TODO handle this case");
+    }
+    assert(false && "TODO");
 }

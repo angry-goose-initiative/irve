@@ -17,6 +17,8 @@
 #include "CSR.h"
 #include "memory.h"
 
+#include "rvexception.h"
+
 /* Types */
 
 enum class privilege_mode_t : uint8_t {
@@ -49,7 +51,8 @@ public:
     void set_privilege_mode(privilege_mode_t new_privilege_mode);
     privilege_mode_t get_privilege_mode() const;
 
-    //TODO stuff for setting interrupts
+    void handle_interrupt(cause_t cause);
+    void handle_exception(cause_t cause);
 private:
     CSR_t m_CSR;
     uint64_t m_inst_count;

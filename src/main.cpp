@@ -44,8 +44,6 @@ int main(int argc, char** argv) {
     std::cerr << "Starting " << VERSION_STRING << std::endl;
     std::cerr << "Copyright (C) 2023 John Jekel and Nick Chan" << std::endl;
     std::cerr << "See the LICENSE file at the root of the project for licensing info." << std::endl;
-    irvelog(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and \x1b[92mNick Chan\x1b[0m");
-    irvelog(0, "\x1b[90mSee the LICENSE file at the root of the project for licensing info.\x1b[0m");
 #endif
 
     irvelog(0, "\x1b[1mStarting \x1b[94m" VERSION_STRING "\x1b[0m");
