@@ -85,7 +85,7 @@ void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     //All other fields being zero means emulator exit request
     if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
         irvelog(3, "Mnemonic: IRVE.EXIT");
-        if (cpu_state.get_privilege_mode() == MACHINE_MODE) {
+        if (cpu_state.get_privilege_mode() == privilege_mode_t::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
             throw rvexception_t(IRVE_EXIT_REQUEST_EXCEPTION);
         } else {
@@ -283,13 +283,13 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
                 loaded_word = memory.r(rs1, 0b010);
             } catch (const rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
-                    case LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                    case cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
                         assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
                         break;
-                    case LOAD_ACCESS_FAULT_EXCEPTION:
+                    case cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
                         throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
                         break;
-                    case LOAD_PAGE_FAULT_EXCEPTION:
+                    case cause_t::LOAD_PAGE_FAULT_EXCEPTION:
                         throw rvexception_t(STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
                         break;
                     default:
@@ -680,15 +680,15 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             if(imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
                 switch (cpu_state.get_privilege_mode()) {
-                    case MACHINE_MODE:
+                    case privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
                         throw rvexception_t(MMODE_ECALL_EXCEPTION);
                         break;
-                    case SUPERVISOR_MODE:
+                    case privilege_mode_t::SUPERVISOR_MODE:
                         irvelog(4, "Privilege Mode: Supervisor Mode");
                         throw rvexception_t(SMODE_ECALL_EXCEPTION);
                         break;
-                    case USER_MODE:
+                    case privilege_mode_t::USER_MODE:
                         irvelog(4, "Privilege Mode: User Mode");
                         throw rvexception_t(UMODE_ECALL_EXCEPTION);
                         break;

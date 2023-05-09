@@ -35,7 +35,7 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0x00000000);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
+        assert(e.cause() == cause_t::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     //All 1s is an invalid instruction
@@ -43,7 +43,7 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0xFFFFFFFF);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
+        assert(e.cause() == cause_t::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     //We don't support compressed instructions
@@ -51,7 +51,7 @@ int test_decoded_inst_t_invalid() {
         decoded_inst_t invalid(0x00000001);
         assert(false);
     } catch (const rvexception_t& e) {
-        assert(e.cause() == ILLEGAL_INSTRUCTION_EXCEPTION);
+        assert(e.cause() == cause_t::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     //TODO more tests

@@ -21,7 +21,7 @@
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t(memory_t& memory_ref) :
-    m_privilege_mode(MACHINE_MODE),
+    m_privilege_mode(privilege_mode_t::MACHINE_MODE),
     m_CSR(),
     m_inst_count(0), 
     m_pc(0),
@@ -75,7 +75,6 @@ void cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
 }
 
 void cpu_state_t::log(uint8_t indent) const {
-
     irvelog(indent, "Inst Count: %lu", this->get_inst_count());
     irvelog(indent, "PC:\t\t0x%08x", this->get_pc());
     irvelog(indent, "Registers:");
@@ -86,13 +85,13 @@ void cpu_state_t::log(uint8_t indent) const {
     irvelog(indent, "TODO print CSRs here");
 
     switch (this->m_privilege_mode) {
-        case USER_MODE:
+        case privilege_mode_t::USER_MODE:
             irvelog(indent, "Privilege Mode: User");
             break;
-        case SUPERVISOR_MODE:
+        case privilege_mode_t::SUPERVISOR_MODE:
             irvelog(indent, "Privilege Mode: Supervisor");
             break;
-        case MACHINE_MODE:
+        case privilege_mode_t::MACHINE_MODE:
             irvelog(indent, "Privilege Mode: Machine");
             break;
         default:

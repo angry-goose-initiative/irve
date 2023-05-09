@@ -15,6 +15,8 @@
 #include <stdexcept>
 
 #include "rvexception.h"
+#undef rvinterrupt_t
+#undef rvexception_t
 
 /* Function Implementations */
 

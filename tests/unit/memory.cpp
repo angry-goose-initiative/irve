@@ -69,7 +69,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         assert(false);
     } catch (const rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -77,7 +77,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         assert(false);
     } catch (const rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -87,7 +87,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -97,7 +97,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -107,7 +107,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -117,7 +117,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
@@ -127,7 +127,7 @@ int test_memory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     //Misaligned accesses in the middle of the RAM
@@ -167,7 +167,7 @@ int test_pmemory_t_invalid() {//These should throw exceptions
         assert(false);
     } catch (const rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
@@ -176,7 +176,7 @@ int test_pmemory_t_invalid() {//These should throw exceptions
             assert(false);
         } catch (const rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == LOAD_ACCESS_FAULT_EXCEPTION); 
+            assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
         }
     }
 
@@ -186,7 +186,7 @@ int test_pmemory_t_invalid() {//These should throw exceptions
             assert(false);
         } catch (const rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+            assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
         }
     }
 

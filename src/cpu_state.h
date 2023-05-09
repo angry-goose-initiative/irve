@@ -19,11 +19,11 @@
 
 /* Types */
 
-typedef enum {
+enum class privilege_mode_t : uint8_t {
     USER_MODE = 0b00,
     SUPERVISOR_MODE = 0b01,
     MACHINE_MODE = 0b11
-} privilege_mode_t;
+};
 
 /* Function/Class Declarations */
 

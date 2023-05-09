@@ -20,7 +20,7 @@
 
 /* Types */
 
-typedef enum {
+enum class cause_t : uint32_t {
     //Interrupts
     SUPERVISOR_SOFTWARE_INTERRUPT               = 1     | 0x80000000,
     MACHINE_SOFTWARE_INTERRUPT                  = 3     | 0x80000000,
@@ -44,7 +44,7 @@ typedef enum {
     LOAD_PAGE_FAULT_EXCEPTION                   = 13,
     STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15,
     IRVE_EXIT_REQUEST_EXCEPTION                 = 24//Custom
-} cause_t;
+};
 
 /* Function/Class Declarations */
 
@@ -66,5 +66,11 @@ class rvexception_t : public rv_base_cpp_exception_t {
 public:
     rvexception_t(cause_t cause);
 };
+
+/* Macros */
+
+//So you don't have to fully qualify it each time
+#define rvinterrupt_t(cause) rvinterrupt_t(cause_t::cause)
+#define rvexception_t(cause) rvexception_t(cause_t::cause)
 
 #endif//RVEXCEPTION_H
