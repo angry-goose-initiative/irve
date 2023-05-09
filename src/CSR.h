@@ -21,6 +21,9 @@
 //TODO fill in the x's with supported extensions
 #define MISA 0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx
 
+//TODO we can hardcode MTVEC, so we should, but to where?
+#define MTVEC 0xE0000000
+
 /* Function/Class Declarations */
 
 class CSR_t {

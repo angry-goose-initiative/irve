@@ -16,6 +16,8 @@
 #include "memory.h"
 #include "decode.h"
 
+#include "rvexception.h"
+
 /* Types */
 
 class emulator_t {
@@ -32,6 +34,8 @@ public:
 private:
     word_t fetch() const;
     void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
+    void handle_interrupt(cause_t cause);
+    void handle_exception(cause_t cause);
 
     memory_t m_memory;
     cpu_state_t m_cpu_state;

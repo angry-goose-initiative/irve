@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "cpu_state.h"
+#include "CSR.h"
 #include "decode.h"
 #include "execute.h"
 #include "memory.h"
@@ -30,12 +31,11 @@ emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
 }
 
 bool emulator_t::tick() {
+    this->m_cpu_state.increment_inst_count();
+    irvelog(0, "Tick %lu begins", this->get_inst_count());
+
+    //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
     try {
-        //TODO we need to catch and handle other exceptions at this level somewhere
-
-        this->m_cpu_state.increment_inst_count();
-        irvelog(0, "Tick %lu begins", this->get_inst_count());
-
         word_t inst = this->fetch();
 
         irvelog(1, "Decoding instruction 0x%08X", inst);
@@ -43,26 +43,29 @@ bool emulator_t::tick() {
         decoded_inst.log(2, this->get_inst_count());
 
         this->execute(decoded_inst);
-
-        irvelog(1, "TODO handle interrupts");
-
-        irvelog(0, "Tick %lu ends", this->get_inst_count());
     } catch (const rvexception_t& e) {
-        if (e.is_interrupt()) {
-            assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+        assert(!e.is_interrupt() && "Should not have caught an interrupt here");
+
+        if (e.cause() == IRVE_EXIT_REQUEST_EXCEPTION) {//We don't handle this like a normal exception
+            irvelog(0, "Recieved exit request from emulated guest");
+            return false;
         } else {
-            switch (e.cause()) {
-                case IRVE_EXIT_REQUEST_EXCEPTION:
-                    irvelog(0, "Recieved exit request from emulated guest");
-                    return false;
-                    break;
-                default:
-                    assert(false && "TODO exception not yet handled");//TODO handle exceptions
-                    break;
-            }
+            this->handle_exception(e.cause());
         }
     }
 
+    //TODO Each peripheral's tick() function should be called here
+    //Each must be wrapped ITS OWN UNIQUE try-catch block to catch any interrupts they throw
+    //while still ensuring all are ticked this major tick
+    try {
+        irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
+    } catch (const rvexception_t& e) {
+        assert(e.is_interrupt() && "Should not have caught an exception here");
+        this->handle_interrupt(e.cause());
+    }
+    //TODO One try-catch block per peripheral here...
+
+    irvelog(0, "Tick %lu ends", this->get_inst_count());
     return true;
 }
 
@@ -156,4 +159,16 @@ void emulator_t::execute(const decoded_inst_t &decoded_inst) {
             assert(false && "Instruction with either invalid opcode, or that is implemented in decode but not in execute yet!");
             break;
     }
+}
+
+void emulator_t::handle_interrupt(cause_t cause) {
+    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+}
+
+void emulator_t::handle_exception(cause_t cause) {
+    //Decide which privilege mode should handle the exception (and thus which one we should switch to)
+    //TODO
+
+
+    assert(false && "TODO exceptions not yet handled");//TODO handle exceptions
 }
