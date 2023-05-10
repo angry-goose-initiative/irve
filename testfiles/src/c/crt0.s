@@ -16,8 +16,8 @@
 
 #Practically identical to https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html
 .section .init, "ax"
-.global _start#NOTE: This is both the reset entry point, and also the hardcoded MTVEC address
-_start:
+.weak _start
+_start:#NOTE: This is both the reset entry point, and also the hardcoded MTVEC address
     #Hint to assembler about start of function
     .cfi_startproc
     .cfi_undefined ra
@@ -40,21 +40,23 @@ _start:
     #Setup stack pointer based on linker script symbol
     la sp, __stack_top
 
-    #Call Newlib's init
-    #TODO is this the proper way to do this?
-    jal t0, __libc_init_array
+    #Allow code to (ex. setup Newlib or anything else) to run before main
+    jal ra, __pre_main
+.weak __pre_main#By default, do nothing, and just jump to the next instruction
+__pre_main:
     
     #Jump to main
-    jal t0, main
-    
-    #Halt cpu if we ever return from main (using a custom instruction)
-    #TODO we should be calling "destructors" (the c atexit() function) before we halt
+    jal ra, main
+
+    #Allow code to (ex. teardown Newlib or anything else) to run after main
+    jal ra, __post_main
+.weak __post_main#By default, do nothing, and just jump to the next instruction
+__post_main:
+
+    #Halt cpu if we ever return from main (using a custom instruction and falling through the next function symbol to save 4 bytes of memory)
+.weak __interrupt_and_trap_handler#By default, if there is no interrupt handler, halt the cpu
+__interrupt_and_trap_handler:#Called when a trap or interrupt occurs EXCEPT for reset
     .insn r CUSTOM_0, 0, 0, zero, zero, zero
     
     #Hint to the assembler about the end of the function
     .cfi_endproc
-    
-.weak __interrupt_and_trap_handler
-__interrupt_and_trap_handler:#Called when a trap or interrupt occurs EXCEPT for reset
-    #By default, halt the cpu
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero

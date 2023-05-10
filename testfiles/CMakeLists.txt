@@ -36,25 +36,31 @@ set(CMAKE_C_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #set(OBJCOPY_FLAGS "-O verilog --verilog-data-width=4")#TODO this dosn't work for some reason
 
-#Static library targets for RISC-V C runtime setup and other abstractions over
+#Static library target for RISC-V C runtime setup and other abstractions over
 #other IRVE features available to guest RISC-V programs
 #RVC means "RISC-V C", so libirvervc is the "RISC-V C" guest runtime library for IRVE
+#NOTE: NOT needed for assembly programs
 set(LIBIRVERVC_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
+)
+
+#Static library target for Newlib initialization, syscalls, etc. using libirvervc
+#Depends on libirvervc
+#Optional if you don't want to use Newlib
+set(LIBIRVENEWLIB_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve_newlib.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
 )
-set(LIBIRVERVC_NO_NEWLIB_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0_no_newlib.s
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
-)
-add_library(irvervc STATIC ${LIBIRVERVC_SOURCES})
-add_library(irvervc_no_newlib STATIC ${LIBIRVERVC_NO_NEWLIB_SOURCES})
-#TODO use OBJECT libraries instead of static libraries to avoid linking errors perhaps?
-#add_library(irvervc OBJECT ${LIBIRVERVC_SOURCES})
-#add_library(irvervc_no_newlib OBJECT ${LIBIRVERVC_NO_NEWLIB_SOURCES})
+
+#NOTE: Using OBJECT libraries instead of STATIC libraries because of linker problems with static libraries and weak symbols
+#Basically implementing Newlib syscalls overrides some weak symbols, but this dosn't work with static libraries for some reason
+#(without --whole-archive, that is, which is a pain in CMake). So just use OBJECT libraries instead.
+add_library(irvervc OBJECT ${LIBIRVERVC_SOURCES})
+add_library(irvenewlib OBJECT ${LIBIRVENEWLIB_SOURCES})
 target_include_directories(irvervc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
-target_include_directories(irvervc_no_newlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
+target_include_directories(irvenewlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
+target_link_libraries(irvenewlib irvervc)
 
 ###############################################################################
 # Test executables
@@ -75,21 +81,28 @@ macro(add_hex_target BINARY_NAME)
     )
 endmacro()
 
+#Macro for adding targets
+macro(add_target NAME)
+    add_executable(${NAME} ${ARGN})
+    add_hex_target(${NAME})
+endmacro()
+
 ############
 # Assembly #
 ############
+macro(add_asm_target NAME)
+    add_target(${NAME} ${ARGN})
+endmacro()
 
 #IRVE assembly test files
 #TODO
 
 #Assembly test files from rv32esim
-add_executable(rv32esim src/assembly/rv32esim.s)
-add_hex_target(rv32esim)
+add_asm_target(rv32esim src/assembly/rv32esim.s)
 
 #Assembly test files from jzjcoresoftware
 macro(add_jzjcoresoftware_asm_target NAME)
-    add_executable(${NAME} src/assembly/jzjcoresoftware/${NAME}.mem.s)
-    add_hex_target(${NAME})
+    add_asm_target(${NAME} src/assembly/jzjcoresoftware/${NAME}.mem.s)
 endmacro()
 add_jzjcoresoftware_asm_target(adding2)
 add_jzjcoresoftware_asm_target(auipctest)
@@ -119,39 +132,31 @@ add_jzjcoresoftware_asm_target(xoritoggle)
 ############
 #     C    #
 ############
+macro(add_c_target NAME)
+    add_target(${NAME} ${ARGN})
+    target_link_libraries(${NAME} irvervc)
+endmacro()
+macro(add_c_target_with_newlib NAME)
+    add_c_target(${NAME} ${ARGN})
+    target_link_libraries(${NAME} irvenewlib)
+endmacro()
 
 #IRVE C test files
 
 #Without newlib
-add_executable(hello_world src/c/without_c_stdlib/hello_world.c)
-add_hex_target(hello_world)
-target_link_libraries(hello_world irvervc_no_newlib)
-add_executable(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
-add_hex_target(rv32im_sanity)
-target_link_libraries(rv32im_sanity irvervc_no_newlib)
-add_executable(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
-add_hex_target(software_floating_point_fun)
-target_link_libraries(software_floating_point_fun irvervc_no_newlib)
-add_executable(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
-add_hex_target(hello_exceptions)
-target_link_libraries(hello_exceptions irvervc_no_newlib)
+add_c_target(hello_world src/c/without_c_stdlib/hello_world.c)
+add_c_target(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
+add_c_target(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
+add_c_target(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
 
 #Special case (implement newlib syscalls themselves)
-add_executable(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
-add_hex_target(hello_newlib)
-target_link_libraries(hello_newlib irvervc_no_newlib)
+add_c_target(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
 
 #With newlib
-#TODO fix warnings that Newlib cant find the necessary syscalls?
-add_executable(stress_test src/c/with_c_stdlib/stress_test.c)
-add_hex_target(stress_test)
-target_link_libraries(stress_test irvervc)
-#TODO
+add_c_target_with_newlib(stress_test src/c/with_c_stdlib/stress_test.c)
 
 #C test files from rv32esim (All without newlib)
-add_executable(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)
-add_hex_target(rv32esim_c)
-target_link_libraries(rv32esim_c irvervc_no_newlib)
+add_c_target(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)
 
 #C test files from jzjcoresoftware (All without newlib)
-#TODO
+#TODO bring them in from that project

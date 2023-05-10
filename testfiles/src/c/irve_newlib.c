@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Implementation of Newlib syscalls for IRVE Machine Mode programs
+ * Implementation of Newlib syscalls and setup/teardown for IRVE Machine Mode programs
  *
  * Useful resources (partially based on):
  * https://www.embecosm.com/appnotes/ean9/ean9-howto-newlib-1.0.html#sec_syscalls
@@ -25,6 +25,11 @@ extern int errno;
 
 /* Function Declarations */
 
+extern void __libc_init_array(void);
+
+void __pre_main(void);
+void __post_main(void);
+
 int _close(int file);
 void _exit(int return_code);
 int _fstat(int file, struct stat* the_stats);
@@ -36,6 +41,18 @@ int _read(int file, char* str, int len);
 int _write(int file, char* str, int len);
 
 /* Function Implementations */
+
+void __pre_main(void) {
+    //Initialize the C library
+    __libc_init_array();
+
+    //TODO must we do anything else here?
+}
+
+void __post_main(void) {
+    //TODO must we do anything here?
+    //TODO we should be calling "destructors" (the c atexit() function) before we halt?
+}
 
 //TODO implement others eventually
 
