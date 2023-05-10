@@ -36,3 +36,9 @@ rvinterrupt_t::rvinterrupt_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
 rvexception_t::rvexception_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
     assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
 }
+
+irve_exit_request_t::irve_exit_request_t() {}
+
+const char* irve_exit_request_t::what() const noexcept {
+    return "Uncaught IRVE exit request, you should never see this.";
+}

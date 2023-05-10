@@ -116,8 +116,6 @@ void cpu_state_t::handle_interrupt(cause_t cause) {
 }
 
 void cpu_state_t::handle_exception(cause_t cause) {
-    assert((cause != cause_t::IRVE_EXIT_REQUEST) && "IRVE_EXIT_REQUEST is not an exception!");
-
     uint32_t raw_cause = (uint32_t)cause;
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
 

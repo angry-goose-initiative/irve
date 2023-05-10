@@ -31,7 +31,7 @@ emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
 }
 
 bool emulator_t::tick() {
-    this->m_cpu_state.increment_inst_count();
+    this->m_cpu_state.increment_inst_count();//FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
@@ -44,12 +44,10 @@ bool emulator_t::tick() {
 
         this->execute(decoded_inst);
     } catch (const rvexception_t& e) {
-        if (e.cause() == cause_t::IRVE_EXIT_REQUEST) {//This isn't really an exception
-            irvelog(0, "Recieved exit request from emulated guest");
-            return false;
-        } else {
-            this->m_cpu_state.handle_exception(e.cause());
-        }
+        this->m_cpu_state.handle_exception(e.cause());
+    } catch (const irve_exit_request_t& e) {
+        irvelog(0, "Recieved exit request from emulated guest");
+        return false;
     }
 
     //TODO Each peripheral's tick() function should be called here

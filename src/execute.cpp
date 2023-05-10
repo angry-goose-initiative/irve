@@ -87,7 +87,7 @@ void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
         irvelog(3, "Mnemonic: IRVE.EXIT");
         if (cpu_state.get_privilege_mode() == privilege_mode_t::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
-            throw rvexception_t(IRVE_EXIT_REQUEST);
+            throw irve_exit_request_t();
         } else {
             irvelog(3, "The IRVE.EXIT instruction is only valid in machine mode; treating as an illegal instruction");
             throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);

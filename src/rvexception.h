@@ -42,9 +42,7 @@ enum class cause_t : uint32_t {
     MMODE_ECALL_EXCEPTION                       = 11,
     INSTRUCTION_PAGE_FAULT_EXCEPTION            = 12,
     LOAD_PAGE_FAULT_EXCEPTION                   = 13,
-    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15,
-    //Not technically an exception, but using a custom entry of the exception space
-    IRVE_EXIT_REQUEST                           = 24
+    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15
 };
 
 /* Function/Class Declarations */
@@ -66,6 +64,13 @@ public:
 class rvexception_t : public rv_base_cpp_exception_t {
 public:
     rvexception_t(cause_t cause);
+};
+
+class irve_exit_request_t : public std::exception {
+public:
+    irve_exit_request_t();
+
+    const char* what() const noexcept override;
 };
 
 /* Macros */
