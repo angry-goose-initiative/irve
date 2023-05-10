@@ -71,12 +71,20 @@ endif()
 
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
-#TODO use a common object library between the two to avoid recompiling everything twice
-add_library(libirve_static STATIC ${LIBIRVE_SOURCES})
-add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})
-target_include_directories(libirve_static PRIVATE ${CMAKE_BINARY_DIR}/src/)
-target_include_directories(libirve_shared PRIVATE ${CMAKE_BINARY_DIR}/src/)
+#Attempt to avoid needing to double compile everything:
+#Foiled by the fact that we don't need PIC for static libraries, but we do for shared libraries
+#https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
+#Otherwise we could have reused libirve_object for both
+#We could make libirve_object position independent, but that would hurt libirve_static's performance unnecessarily
+add_library(libirve_object OBJECT ${LIBIRVE_SOURCES})
+target_include_directories(libirve_object PRIVATE ${CMAKE_BINARY_DIR}/src/)
+
+add_library(libirve_static STATIC $<TARGET_OBJECTS:libirve_object>)
 set_property(TARGET libirve_static PROPERTY OUTPUT_NAME irve)
+
+#add_library(libirve_shared SHARED $<TARGET_OBJECTS:libirve_object>)#Foiled!
+add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})#The old way
+target_include_directories(libirve_shared PRIVATE ${CMAKE_BINARY_DIR}/src/)#Also part of the old way
 set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 
 add_executable(irve ${IRVE_SOURCES})
