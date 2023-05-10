@@ -129,7 +129,7 @@ void cpu_state_t::handle_interrupt(cause_t cause) {
 void cpu_state_t::handle_exception(cause_t cause) {
     uint32_t raw_cause = (uint32_t)cause;
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
-    irvelog(1, "Handling exception: Cause: %u\n", raw_cause);
+    irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
     if (this->m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception

@@ -16,7 +16,7 @@
 //The while(true) convinces the compiler that this is a dead end,
 //but the custom instruction is what actually stops the program
 #define irve_exit() do { \
-    __asm__ volatile (".insn r CUSTOM_0, 0, 0, x0, x0, x0"); \
+    __asm__ volatile (".insn r CUSTOM_0, 0, 0, zero, zero, zero"); \
     while (true); \
 } while (0)
 

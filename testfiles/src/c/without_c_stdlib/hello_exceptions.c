@@ -1,15 +1,16 @@
-/* rv32esim_c.c
+/* hello_exceptions.c
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * IRVE test code 
+ * Early experiments with RISC-V exception handling
  *
  * Based on code from rv32esim
 */
 
 /* Includes */
 
-#include <stdio.h>
+#include "irve.h"
+
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -19,54 +20,43 @@
 static void print_string(const char* str);
 static void print_uint(uint64_t uint);
 static void print_uint_bin(uint32_t uint);
-//static void rvsim_printf(const char* str, ...);
 void test_iterations(uint32_t cycles);
 
 /* Function Implementations */
 
 int main() {
-    //test_iterations(10000000);
-    //return 0;
+    print_string("Playing with RISC-V exceptions!\n");
 
-    //printf("Testing");
-    print_string("Hello world! C running on RISC-V!\n");
-    //print_string("\xAA\xBB\xCC\xDD\xEE\xFF");
-    volatile uint32_t a = 1;
-    volatile uint32_t b = 2;
+    __asm__ volatile("ecall");
 
-    assert((a + b) == 3);
-    assert((a - b) == 0xFFFFFFFF);
-    assert((a << b) == 4);
-    assert((a >> b) == 0);
-    assert(a < b);
-    volatile int32_t ai = 0x80000000;
-    volatile uint32_t bi = 3;
-    print_uint_bin(ai >> bi);
-    print_string("\n");
-    assert((uint32_t)(ai >> bi) == 0xF0000000);
-
-    assert((b * bi) == 6);
-    assert(false && "Sanity check assert works");
+    assert(false && "TESTING");
 }
 
+void __interrupt_and_trap_handler() {
+    print_string("Hey would you look at that, an exception!\n");
+    irve_exit();
+}
+
+//Called if an assertion fails
 void __assert_func(const char* file, int line, const char* function, const char* expr) {
-    print_string("!!!Assertion failed: ");
+    print_string("Assertion failed: ");
     print_string(file);
     print_string(" | ");
     print_string(function);
     print_string(" | ");
     print_string(expr);
     print_string("\n");
-    __asm__ volatile (".insn r CUSTOM_0, 0, 0, zero, zero, zero");//Exit
-    while (true);
+    irve_exit();
 }
 
 /* Static Function Implementations */
 
 static void print_string(const char* str) {
     volatile char test = *str;
-    while (*str)
-        *((volatile uint8_t*)-1) = *(str++);
+    while (*str) {
+        IRVE_DEBUG_ADDR = *str;
+        ++str;
+    }
 }
 
 static void print_uint(uint64_t uint) {//TODO do this more efficiently
@@ -84,24 +74,26 @@ static void print_uint(uint64_t uint) {//TODO do this more efficiently
 }
 
 static void print_uint_bin(uint32_t uint) {
-    *((volatile uint8_t*)-1) = '0';
-    *((volatile uint8_t*)-1) = 'b';
+    IRVE_DEBUG_ADDR = '0';
+    IRVE_DEBUG_ADDR = 'b';
 
     uint32_t mask = 1ull << 31;
     bool first_one_encountered = false;
     while (mask) {
 
         if (uint & mask) {
-            *((volatile uint8_t*)-1) = '1';
+            IRVE_DEBUG_ADDR = '1';
             first_one_encountered = true;
-        } else if (first_one_encountered)
-            *((volatile uint8_t*)-1) = '0';
+        } else if (first_one_encountered) {
+            IRVE_DEBUG_ADDR = '0';
+        }
 
         mask >>= 1;
     }
 
-    if (!first_one_encountered)
-            *((volatile uint8_t*)-1) = '0';
+    if (!first_one_encountered) {
+        IRVE_DEBUG_ADDR = '0';
+    }
 }
 
 void test_iterations(uint32_t iterations) {

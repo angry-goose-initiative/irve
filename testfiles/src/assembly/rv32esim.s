@@ -30,7 +30,7 @@ loop:
     addi x7, x7, 1
     j loop
 end:
-    .insn r CUSTOM_0, 0, 0, x0, x0, x0#Exit
+    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
 
 .text
 string:

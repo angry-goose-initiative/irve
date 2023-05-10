@@ -1,6 +1,6 @@
     sb x0, 12(x0)
     lw x31, 12(x0)
-    .insn r CUSTOM_0, 0, 0, x0, x0, x0#Exit
+    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
 
     .word 0x89abcdef
     #The assembler will write the above data into memory as 0xefcdab89 starting at address 0x12

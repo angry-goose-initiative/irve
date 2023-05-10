@@ -54,7 +54,7 @@ _start:
     #Hint to the assembler about the end of the function
     .cfi_endproc
     
-.weak __trap_handler
+.weak __interrupt_and_trap_handler
 __interrupt_and_trap_handler:#Called when a trap or interrupt occurs EXCEPT for reset
     #By default, halt the cpu
     .insn r CUSTOM_0, 0, 0, zero, zero, zero

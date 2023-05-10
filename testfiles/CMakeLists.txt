@@ -50,6 +50,8 @@ set(LIBIRVERVC_NO_NEWLIB_SOURCES
 )
 add_library(irvervc STATIC ${LIBIRVERVC_SOURCES})
 add_library(irvervc_no_newlib STATIC ${LIBIRVERVC_NO_NEWLIB_SOURCES})
+#add_library(irvervc OBJECT ${LIBIRVERVC_SOURCES})
+#add_library(irvervc_no_newlib OBJECT ${LIBIRVERVC_NO_NEWLIB_SOURCES})
 target_include_directories(irvervc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
 target_include_directories(irvervc_no_newlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
 
@@ -129,6 +131,9 @@ target_link_libraries(rv32im_sanity irvervc_no_newlib)
 add_executable(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
 add_hex_target(software_floating_point_fun)
 target_link_libraries(software_floating_point_fun irvervc_no_newlib)
+add_executable(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
+add_hex_target(hello_exceptions)
+target_link_libraries(hello_exceptions irvervc_no_newlib)
 
 #Special case (implement newlib syscalls themselves)
 add_executable(hello_newlib src/c/with_c_stdlib/hello_newlib.c)

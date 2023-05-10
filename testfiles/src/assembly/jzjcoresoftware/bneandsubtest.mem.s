@@ -11,4 +11,4 @@
     #bne x31, x30, -4
     #assembler is changing bne to a beq and a jal so I'm just going to hand assemble this (same as above instruction)
     .word 0xffef9ee3
-    .insn r CUSTOM_0, 0, 0, x0, x0, x0#Exit
+    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
