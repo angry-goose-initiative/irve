@@ -8,22 +8,9 @@
 
 //FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
 
-/* Test List */
-
-#define TEST_LIST \
-    X(test_word_t) \
-    X(test_integer_pow) \
-    X(test_cpu_state_t) \
-    X(test_decoded_inst_t) \
-    X(test_decoded_inst_t_invalid) \
-    X(test_reg_file_t) \
-    X(test_memory_t_valid) \
-    X(test_memory_t_invalid) \
-    X(test_pmemory_t_valid) \
-    X(test_pmemory_t_invalid)
-    //TODO add more
-
 /* Includes */
+
+#include "unit_tests.h"
 
 #include <iostream>
 #include <cassert>
@@ -32,15 +19,9 @@
 #include <string>
 #include <unordered_map>
 
-/* External Function Declarations */
-
-#define X(test_name) extern int test_name();
-TEST_LIST
-#undef X
-
 /* Constants And Defines */
 
-#define X(test_name) {#test_name, test_name},
+#define X(test_name) {#test_name, test_##test_name},
 const std::unordered_map<std::string, int (*)()> TEST_MAP = {
     TEST_LIST
 };
