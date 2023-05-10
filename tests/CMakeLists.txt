@@ -80,7 +80,7 @@ add_unit_test(pmemory_t_invalid)
 # Integration tests
 #########################################################################################
 macro(add_integration_test TEST_NAME)
-    add_test(NAME unit_${TEST_NAME} COMMAND unit_tester ${TEST_NAME})
+    add_test(NAME integration_${TEST_NAME} COMMAND integration_tester test_${TEST_NAME})
 endmacro()
 
 #TODO the integration tester will test for assertions both in IRVE and RISC-V code

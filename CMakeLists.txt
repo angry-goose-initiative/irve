@@ -51,6 +51,8 @@ set(LIBIRVE_SOURCES
     ${PROJECT_SOURCE_DIR}/src/emulator.h
     ${PROJECT_SOURCE_DIR}/src/execute.cpp
     ${PROJECT_SOURCE_DIR}/src/execute.h
+    ${PROJECT_SOURCE_DIR}/src/loader.cpp
+    ${PROJECT_SOURCE_DIR}/src/loader.h
     ${PROJECT_SOURCE_DIR}/src/logging.cpp
     ${PROJECT_SOURCE_DIR}/src/logging.h
     ${PROJECT_SOURCE_DIR}/src/memory.cpp
@@ -69,6 +71,7 @@ endif()
 
 configure_file(src/cmake_config.h.in src/cmake_config.h)
 
+#TODO use a common object library between the two to avoid recompiling everything twice
 add_library(libirve_static STATIC ${LIBIRVE_SOURCES})
 add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})
 target_include_directories(libirve_static PRIVATE ${CMAKE_BINARY_DIR}/src/)
