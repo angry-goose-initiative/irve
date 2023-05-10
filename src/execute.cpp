@@ -664,8 +664,8 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     //TODO also handle supervisor mode instructions
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
     word_t imm = decoded_inst.get_imm();
     privilege_mode_t privilege_mode = cpu_state.get_privilege_mode();
@@ -712,7 +712,14 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             break;
         case 0b010://CSRRS
             irvelog(3, "Mnemonic: CSRRS");
-            assert(false && "TODO implement CSRRS");
+            {//TODO better code reuse w/ the other CSR instructions
+             //TODO better logging
+                reg_t csr = cpu_state.get_CSR(imm.u);
+                cpu_state.set_r(decoded_inst.get_rd(), csr);
+                csr |= rs1;
+                cpu_state.set_CSR(imm.u, csr);
+                goto_next_sequential_pc(cpu_state);
+            }
             break;
         case 0b011://CSRRC
             irvelog(3, "Mnemonic: CSRRC");

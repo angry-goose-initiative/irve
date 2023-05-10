@@ -45,7 +45,7 @@ bool emulator_t::tick() {
         this->execute(decoded_inst);
     } catch (const rvexception_t& e) {
         this->m_cpu_state.handle_exception(e.cause());
-    } catch (const irve_exit_request_t& e) {
+    } catch (const irve_exit_request_t&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
     }

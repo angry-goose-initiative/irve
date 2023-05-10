@@ -19,10 +19,10 @@
 /* Constants and Defines */
 
 //TODO fill in the x's with supported extensions
-#define MISA 0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx
+#define MISA word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
 
 //TODO we can hardcode MTVEC, so we should, but to where?
-#define MTVEC 0xE0000000
+#define MTVEC word_t(0x00000000)//Reset vector hard-coded to start of memory (also not vectored)
 
 /* Function/Class Declarations */
 
@@ -47,6 +47,8 @@ public:
     //TODO menvcfg here or somewhere else?//Address 0x30A
     //TODO mstatush here or somewhere else?//Address 0x310
 
+    reg_t mepc;//Address 0x341
+    cause_t mcause;//Address 0x342
 
     //TODO add CSRs HERE
 };

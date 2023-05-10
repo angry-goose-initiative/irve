@@ -34,8 +34,8 @@ public:
     //We need a reference to memory so we can access the page table and virtual memory settings of the class
     cpu_state_t(memory_t& memory_ref);
 
-    reg_t get_CSR(reg_t csr) const;
-    void set_CSR(reg_t csr, reg_t data);
+    reg_t get_CSR(uint16_t csr) const;
+    void set_CSR(uint16_t csr, word_t data);
 
     void increment_inst_count();
     uint64_t get_inst_count() const;

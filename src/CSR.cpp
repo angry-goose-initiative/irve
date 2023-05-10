@@ -8,5 +8,7 @@
 
 #include "CSR.h"
 
+#include "rvexception.h"
+
 // TODO what should CSRs be initialized to?
-CSR_t::CSR_t() : medeleg(false), mideleg(false) {}
+CSR_t::CSR_t() : medeleg(false), mideleg(false), mcause(cause_t::IRVE_COLD_RESET_EXCEPTION) {}
