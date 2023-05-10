@@ -9,7 +9,7 @@
 
 #Common options
 cmake_minimum_required(VERSION 3.16.3)
-project(irve_testfiles VERSION 0.1.0 LANGUAGES C ASM)
+project(irve_testfiles VERSION 0.2.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -50,6 +50,7 @@ set(LIBIRVERVC_NO_NEWLIB_SOURCES
 )
 add_library(irvervc STATIC ${LIBIRVERVC_SOURCES})
 add_library(irvervc_no_newlib STATIC ${LIBIRVERVC_NO_NEWLIB_SOURCES})
+#TODO use OBJECT libraries instead of static libraries to avoid linking errors perhaps?
 #add_library(irvervc OBJECT ${LIBIRVERVC_SOURCES})
 #add_library(irvervc_no_newlib OBJECT ${LIBIRVERVC_NO_NEWLIB_SOURCES})
 target_include_directories(irvervc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)

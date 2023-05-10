@@ -20,7 +20,7 @@
 
 /* Types */
 
-class emulator_t {
+class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
 public:
     emulator_t();
 
