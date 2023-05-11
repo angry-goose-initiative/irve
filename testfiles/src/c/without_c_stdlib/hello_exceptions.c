@@ -29,7 +29,7 @@ int main() {
 
 //Adding this attribute makes the compiler emit a different return instruction
 //It will also save all registers to the stack to avoid clobbering them
-__attribute__ ((interrupt ("machine"))) void __default_interrupt_and_trap_handler() {
+__attribute__ ((interrupt ("machine"))) void __riscv_synchronous_exception_and_user_mode_swi_handler(void) {
     puts("Hey would you look at that, an exception!\n");
     return;//This should be different than a normal return when emitted by the compiler
 }

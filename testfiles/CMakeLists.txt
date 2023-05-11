@@ -13,6 +13,8 @@ project(irve_testfiles VERSION 0.2.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+#TODO recompile everything if irve.ld changes
+
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -41,7 +43,7 @@ set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #RVC means "RISC-V C", so libirvervc is the "RISC-V C" guest runtime library for IRVE
 #NOTE: NOT needed for assembly programs
 set(LIBIRVERVC_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/vectors.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/vector_table.s
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
 )

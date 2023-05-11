@@ -21,9 +21,8 @@
 //TODO fill in the x's with supported extensions
 #define MISA word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
 
-//TODO we can hardcode MTVEC, so we should, but to where?
-//Reset vector hard-coded to start of memory (also not vectored)//TODO actually vector it in the future
-#define MTVEC word_t((0x00000004 << 2) | 0b00)
+//MTVEC hardcoded to start at 0x00000004 and be vectored
+#define MTVEC word_t((0x00000004 << 2) | 0b01)
 
 /* Function/Class Declarations */
 
