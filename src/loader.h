@@ -11,7 +11,7 @@
 
 /* Includes */
 
-//TODO
+#include "emulator.h"
 
 /* Constants And Defines */
 
@@ -27,6 +27,10 @@
 
 /* Function/Class Declarations */
 
-//TODO
+namespace irve {
+    namespace loader {
+        void load_verilog_32(emulator_t& emulator, const char* filename);
+    }
+}
 
 #endif//LOADER_H

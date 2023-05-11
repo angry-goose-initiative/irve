@@ -1,0 +1,2 @@
+//TODO move cmake_config.h.in to here
+//Use the irve::about:: namespace for this

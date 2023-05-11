@@ -1,4 +1,4 @@
-/* unit_tester.cpp
+/* unit_tester.cpp.in
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
@@ -10,8 +10,6 @@
 
 /* Includes */
 
-#include "unit_tests.h"
-
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
@@ -19,7 +17,18 @@
 #include <string>
 #include <unordered_map>
 
-/* Constants And Defines */
+/* Defines */
+
+//CMake will populate this
+#define TEST_LIST @UNIT_TEST_LIST@
+
+/* External Function Declarations */
+
+#define X(test_name) extern int test_##test_name();
+TEST_LIST
+#undef X
+
+/* Constants */
 
 #define X(test_name) {#test_name, test_##test_name},
 const std::unordered_map<std::string, int (*)()> TEST_MAP = {

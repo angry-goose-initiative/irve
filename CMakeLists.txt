@@ -38,7 +38,7 @@ set(IRVE_DISABLE_LOGGING 0)
 set(IRVE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
 set(LIBIRVE_SOURCES
-    ${CMAKE_BINARY_DIR}/src/cmake_config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/src/cmake_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu_state.cpp
@@ -76,7 +76,7 @@ endif()
 #Otherwise we could have reused libirve_object for both
 #We could make libirve_object position independent, but that would hurt libirve_static's performance unnecessarily
 add_library(libirve_object OBJECT ${LIBIRVE_SOURCES})
-target_include_directories(libirve_object PRIVATE ${CMAKE_BINARY_DIR}/src/)#To get the generated cmake_config.h
+target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src/)#To get the generated cmake_config.h
 
 #Honestly comment these out and just use object libraries (we're really the only consumer of libirve anyway)
 #[[
@@ -90,6 +90,6 @@ set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 ]]
 
 add_executable(irve ${IRVE_SOURCES})
-target_include_directories(irve PRIVATE ${CMAKE_BINARY_DIR}/src/)#TODO we should really embed the version info into the library instead of this...
+target_include_directories(irve PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/src/)#TODO we should really embed the version info into the library instead of this...
 target_link_libraries(irve PRIVATE libirve_object)#TODO or should we make this static or shared instead?
-configure_file(src/cmake_config.h.in ${CMAKE_BINARY_DIR}/src/cmake_config.h)
+configure_file(src/cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/cmake_config.h)

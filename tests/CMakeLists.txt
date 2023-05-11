@@ -34,8 +34,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(UNIT_TESTER_SOURCES
-    ${CMAKE_BINARY_DIR}/unit/unit_tests.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/unit/unit_tester.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/cpu_state.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/decode.cpp
@@ -44,8 +43,7 @@ set(UNIT_TESTER_SOURCES
 )
 
 set(INTEGRATION_TESTER_SOURCES
-    ${CMAKE_BINARY_DIR}/integration/integration_tests.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/integration/integration_tester.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp
 )
 
 if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
@@ -55,7 +53,7 @@ else()
 endif()
 
 add_executable(unit_tester ${UNIT_TESTER_SOURCES})
-target_include_directories(unit_tester PRIVATE ${CMAKE_BINARY_DIR}/unit/)#To get the generated unit_tests.h
+target_include_directories(unit_tester PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/unit/)#To get the generated unit_tests.h
 target_link_libraries(unit_tester PRIVATE libirve_object)#TODO or should we make this static or shared instead?
 set(UNIT_TEST_LIST "")
 macro(add_unit_test TEST_NAME)
@@ -64,7 +62,7 @@ macro(add_unit_test TEST_NAME)
 endmacro()
 
 add_executable(integration_tester ${INTEGRATION_TESTER_SOURCES})
-target_include_directories(integration_tester PRIVATE ${CMAKE_BINARY_DIR}/integration/)#To get the generated integration_tests.h
+target_include_directories(integration_tester PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/integration/)#To get the generated integration_tests.h
 target_link_libraries(integration_tester PRIVATE libirve_object)#TODO or should we make this static or shared instead?
 set(INTEGRATION_TEST_LIST "")
 macro(add_integration_test TEST_NAME)
@@ -87,8 +85,8 @@ add_unit_test(memory_t_invalid)
 add_unit_test(pmemory_t_valid)
 add_unit_test(pmemory_t_invalid)
 
-#Put the list of unit tests in the header file (THIS MUST BE LAST)
-configure_file(unit/unit_tests.h.in ${CMAKE_BINARY_DIR}/unit/unit_tests.h)
+#Put the list of unit tests in the unit tester file (THIS MUST BE LAST)
+configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp @ONLY)
 
 #########################################################################################
 # Integration Test List
@@ -100,4 +98,4 @@ configure_file(unit/unit_tests.h.in ${CMAKE_BINARY_DIR}/unit/unit_tests.h)
 #were as expected
 
 #Put the list of integration tests in the header file (THIS MUST BE LAST)
-configure_file(integration/integration_tests.h.in ${CMAKE_BINARY_DIR}/integration/integration_tests.h)
+configure_file(integration/integration_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp @ONLY)
