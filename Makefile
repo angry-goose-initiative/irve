@@ -10,7 +10,7 @@ all: irve.bin
 
 .PHONY: irve.bin
 irve.bin:
-	g++ -fsanitize=address -std=c++20 -O0 -g -Wall -Wextra -o irve.bin -I src -I lib -I include ${CPP_SOURCES}
+	g++ -DIRVE_RAW_MAKEFILE_BUILDSYSTEM -fsanitize=address -std=c++20 -O0 -g -Wall -Wextra -o irve.bin -I src -I lib -I include ${CPP_SOURCES}
 
 clean:
 	rm -f irve.bin

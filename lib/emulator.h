@@ -20,25 +20,27 @@
 
 /* Types */
 
-class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
-public:
-    emulator_t();
+namespace irve::internal::emulator {
+    class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
+    public:
+        emulator_t();
 
-    bool tick();//Returns true as long as the emulator should continue running
+        bool tick();//Returns true as long as the emulator should continue running
 
-    uint64_t get_inst_count() const;
+        uint64_t get_inst_count() const;
 
-    int8_t mem_read_byte(word_t addr) const;
-    void mem_write(word_t addr, uint8_t size, word_t data);
+        int8_t mem_read_byte(word_t addr) const;
+        void mem_write(word_t addr, uint8_t size, word_t data);
 
-private:
-    word_t fetch() const;
-    void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
-    
-    memory_t m_memory;
-    cpu_state_t m_cpu_state;
+    private:
+        word_t fetch() const;
+        void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
+        
+        memory_t m_memory;
+        cpu_state_t m_cpu_state;
 
-    //TODO other things
-};
+        //TODO other things
+    };
+}
 
 #endif//EMULATOR_H

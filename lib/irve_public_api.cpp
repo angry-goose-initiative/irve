@@ -15,6 +15,7 @@
 
 #include "config.h"
 #include "emulator.h"
+#include "loader.h"
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -23,11 +24,38 @@
 
 /* Function Implementations */
 
-//TODO expose emulator_t
+//Namepace: irve::emulator
 
-/*void irve::loader::load_verilog_32(irve::emulator_t& emulator, const char* filename) {
-    irve::internal::loader::load_verilog_32(emulator, filename);
-}*/
+irve::emulator::emulator_t::emulator_t() : m_emulator_ptr(new irve::internal::emulator::emulator_t()) {}
+
+irve::emulator::emulator_t::~emulator_t() {
+    delete this->m_emulator_ptr;
+    this->m_emulator_ptr = nullptr;
+}
+
+bool irve::emulator::emulator_t::tick() {
+    return this->m_emulator_ptr->tick();
+}
+
+uint64_t irve::emulator::emulator_t::get_inst_count() const {
+    return this->m_emulator_ptr->get_inst_count();
+}
+
+uint8_t irve::emulator::emulator_t::mem_read_byte(uint32_t addr) const {
+    return (uint8_t)this->m_emulator_ptr->mem_read_byte(addr);
+}
+
+void irve::emulator::emulator_t::mem_write_byte(uint32_t addr, uint8_t data) {
+    this->m_emulator_ptr->mem_write(addr, 0b000, (uint32_t)data);//FIXME why isn't this orthogonal in the internal API?
+}
+
+//Namepace: irve::loader
+
+void irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const char* filename) {
+    irve::internal::loader::load_verilog_32(*(emulator.m_emulator_ptr), filename);
+}
+
+//Namepace: irve::logging
 
 void irve::logging::log(uint8_t indent, const char* str, ...) {
 #if not(IRVE_INTERNAL_CONFIG_DISABLE_LOGGING)
@@ -41,6 +69,8 @@ void irve::logging::log(uint8_t indent, const char* str, ...) {
 bool irve::logging::logging_disabled() {
     return IRVE_INTERNAL_CONFIG_DISABLE_LOGGING;
 }
+
+//Namepace: irve::about
 
 std::size_t irve::about::get_version_major() {
     return IRVE_INTERNAL_CONFIG_VERSION_MAJOR;
@@ -64,5 +94,9 @@ const char* irve::about::get_build_time_string() {
 
 const char* irve::about::get_build_date_string() {
     return IRVE_INTERNAL_CONFIG_BUILD_DATE_STRING;
+}
+
+const char* irve::about::get_build_system_string() {
+    return IRVE_INTERNAL_CONFIG_BUILD_SYSTEM_STRING;
 }
 

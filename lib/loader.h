@@ -28,7 +28,7 @@
 /* Function/Class Declarations */
 
 namespace irve::internal::loader {
-    void load_verilog_32(emulator_t& emulator, const char* filename);
+    void load_verilog_32(irve::internal::emulator::emulator_t& emulator, const char* filename);
 }
 
 #endif//LOADER_H

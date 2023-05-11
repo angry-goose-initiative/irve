@@ -28,11 +28,11 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
+emulator::emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
     irvelog(0, "Created new emulator instance");
 }
 
-bool emulator_t::tick() {
+bool emulator::emulator_t::tick() {
     this->m_cpu_state.increment_inst_count();//FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
@@ -66,19 +66,19 @@ bool emulator_t::tick() {
     return true;
 }
 
-uint64_t emulator_t::get_inst_count() const {
+uint64_t emulator::emulator_t::get_inst_count() const {
     return this->m_cpu_state.get_inst_count();
 }
 
-int8_t emulator_t::mem_read_byte(word_t addr) const {
+int8_t emulator::emulator_t::mem_read_byte(word_t addr) const {
     return (int8_t)this->m_memory.r(addr, 0b000).u;
 }
 
-void emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {
+void emulator::emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {
     this->m_memory.w(addr, size, data);
 }
 
-word_t emulator_t::fetch() const {
+word_t emulator::emulator_t::fetch() const {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {
@@ -95,7 +95,7 @@ word_t emulator_t::fetch() const {
 }
 
 //TODO move this to a separate file maybe?
-void emulator_t::execute(const decoded_inst_t &decoded_inst) {
+void emulator::emulator_t::execute(const decoded_inst_t &decoded_inst) {
     irvelog(1, "Executing instruction");
 
     //We can assume the opcode exists since the instruction is valid

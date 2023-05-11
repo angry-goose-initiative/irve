@@ -27,14 +27,12 @@
 //Or, if using static linking, to avoid the need to rebuild integration tests and the irve executable when ex. the logging is disabled or the version changes
 
 namespace irve {//NOT irve::internal
-    namespace emulator {
-        //TODO
-        //TODO do this for emulator_t: https://en.cppreference.com/w/cpp/language/pimpl
-    }
+    namespace emulator { class emulator_t; }
 
     namespace loader {
-        //void load_verilog_32(emulator::emulator_t& emulator, const char* filename);
+        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);
     }
+
 
     namespace logging {
         void log(uint8_t indent, const char* str, ...);
@@ -48,6 +46,31 @@ namespace irve {//NOT irve::internal
         const char* get_version_string();
         const char* get_build_time_string();
         const char* get_build_date_string();
+        const char* get_build_system_string();
+    }
+
+    //Things that depend on previous declarations
+
+    //We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
+    namespace internal::emulator { class emulator_t; }//Forward declaration of the internal class
+
+    namespace emulator {
+        //We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
+        class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
+        public:
+            emulator_t();
+            ~emulator_t();
+
+            bool tick();//Returns true as long as the emulator should continue running
+
+            uint64_t get_inst_count() const;
+
+            uint8_t mem_read_byte(uint32_t addr) const;
+            void mem_write_byte(uint32_t addr, uint8_t data);
+        private:
+            friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
+            irve::internal::emulator::emulator_t* m_emulator_ptr;
+        };
     }
 }
 

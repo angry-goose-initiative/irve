@@ -36,7 +36,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 //Verilog Hex format (32-bit words) + Backwards compatibility w/ previous file format
-void loader::load_verilog_32(emulator_t& emulator, const char* filename) {
+void loader::load_verilog_32(emulator::emulator_t& emulator, const char* filename) {
     //Open the image file
     std::fstream fin = std::fstream(filename);
     assert(fin && "Failed to open memory image file");
