@@ -671,8 +671,8 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     privilege_mode_t privilege_mode = cpu_state.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
-        case 0b000://ECALL, EBREAK, or WFI
-            //For all three of these, the register fields must be zero
+        case 0b000://ECALL, EBREAK, WFI, MRET, or SRET
+            //For all of these, the register fields rd and rs1 must be zero
             if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
                 throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             }
@@ -696,12 +696,18 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                         assert(false && "Currently in invalid privilege mode, this should never happen");
                         break;
                 }
-            } else if(imm == 0b00000000001) {//EBREAK
+            } else if (imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
                 throw rvexception_t(BREAKPOINT_EXCEPTION);
-            } else if(imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
+            } else if (imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
+            } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
+                irvelog(3, "Mnemonic: MRET");
+                assert(false && "TODO implement MRET");
+            } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
+                irvelog(3, "Mnemonic: SRET");
+                assert(false && "TODO implement SRET");
             } else {
                 throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             }
