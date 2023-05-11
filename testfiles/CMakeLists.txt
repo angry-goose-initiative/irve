@@ -15,6 +15,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #TODO recompile everything if irve.ld changes
 
+#TODO make the normal assembly target use the vector table but not crt0.s
+#Then make a "legacy" type of assembly target for the old stuff
+
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
