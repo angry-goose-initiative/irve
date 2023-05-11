@@ -9,20 +9,23 @@
 /* Includes */
 
 #include "irve_public_api.h"
-#include "cmake_config.h"
 
 #include <cstddef>
 #include <cstdint>
 
+#include "config.h"
+
 #define INST_COUNT 0
 #include "logging.h"
+
+using namespace irve;
 
 /* Function Implementations */
 
 //TODO expose emulator_t
 
 void irve::log(uint8_t indent, const char* str, ...) {
-#if not(CMAKE_IRVE_DISABLE_LOGGING)
+#if not(IRVE_CONFIG_DISABLE_LOGGING)
     va_list list;
     va_start(list, str);
 
@@ -30,22 +33,22 @@ void irve::log(uint8_t indent, const char* str, ...) {
 #endif
 }
 
-std::size_t irve::about::get_version_major() {
-    return CMAKE_IRVE_VERSION_MAJOR;
+std::size_t about::get_version_major() {
+    return IRVE_CONFIG_VERSION_MAJOR;
 }
 
-std::size_t irve::about::get_version_minor() {
-    return CMAKE_IRVE_VERSION_MINOR;
+std::size_t about::get_version_minor() {
+    return IRVE_CONFIG_VERSION_MINOR;
 }
 
-std::size_t irve::about::get_version_patch() {
-    return CMAKE_IRVE_VERSION_PATCH;
+std::size_t about::get_version_patch() {
+    return IRVE_CONFIG_VERSION_PATCH;
 }
 
-const char* irve::about::get_version_string() {
-    return CMAKE_IRVE_VERSION_STRING;
+const char* about::get_version_string() {
+    return IRVE_CONFIG_VERSION_STRING;
 }
 
-bool irve::about::logging_disabled() {
-    return CMAKE_IRVE_DISABLE_LOGGING;
+bool about::logging_disabled() {
+    return IRVE_CONFIG_DISABLE_LOGGING;
 }

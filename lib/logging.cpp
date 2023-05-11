@@ -16,15 +16,17 @@
 #include <cstdarg>
 #include <cstdio>
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
-void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, ...) {
+void logging::irvelog_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, ...) {
     va_list list;
     va_start(list, str);
-    irve_log_internal_function_dont_use_this_directly(inst_num, indent, str, list);
+    irvelog_internal_function_dont_use_this_directly(inst_num, indent, str, list);
 }
 
-void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, va_list list) {
+void logging::irvelog_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, va_list list) {
     assert(str && "irvelog called with null format string");
 
     if (inst_num) {
