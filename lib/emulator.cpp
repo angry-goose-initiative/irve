@@ -24,6 +24,8 @@
 #define INST_COUNT this->get_inst_count()
 #include "logging.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {

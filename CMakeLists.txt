@@ -19,6 +19,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+set(GIT_EXECUTABLE git)
+
 set(CMAKE_CXX_FLAGS "-Wall -std=c++20")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -31,11 +33,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(IRVE_DISABLE_LOGGING 0)
 
-if (CMAKE_C_BYTE_ORDER STREQUAL LITTLE_ENDIAN)
-    set(IS_LITTLE_ENDIAN 1)
-else()
-    set(IS_LITTLE_ENDIAN 0)
-endif()
+#https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
+execute_process(
+    COMMAND                             "${GIT_EXECUTABLE}" describe --match=NeVeRmAtCh --always --abbrev=40 --dirty
+    WORKING_DIRECTORY                   "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE                     IRVE_GIT_CHECKSUM
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 #So these all get the variables set here, put them at the end
 add_subdirectory(tests)

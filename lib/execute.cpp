@@ -24,6 +24,8 @@
 #define INST_COUNT cpu_state.get_inst_count()
 #include "logging.h"
 
+using namespace irve::internal;
+
 /* Static Function Declarations */
 
 static void goto_next_sequential_pc(cpu_state_t& cpu_state);

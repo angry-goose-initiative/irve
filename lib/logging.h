@@ -22,7 +22,7 @@
 #error "INST_COUNT must be defined before including logging.h"
 #endif
 
-#if IRVE_CONFIG_DISABLE_LOGGING
+#if IRVE_INTERNAL_CONFIG_DISABLE_LOGGING
 #define irvelog(...) ((void)0)
 #else
 #define irvelog(indent, ...) \

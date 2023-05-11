@@ -17,7 +17,7 @@
 
 /* Function/Class Declarations */
 
-namespace execute {
+namespace irve::internal::execute {
     void load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
     void custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
     void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
