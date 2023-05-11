@@ -17,5 +17,5 @@ set(IRVE_SOURCES
 
 add_executable(irve ${IRVE_SOURCES})
 target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/lib ${CMAKE_BINARY_DIR}/lib)#TODO remove this eventually (we want to just be using the public headers)
-target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/include)#Just using the public API
 target_link_libraries(irve PRIVATE libirve_object)#TODO or should we make this static or shared instead?

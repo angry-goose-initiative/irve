@@ -19,6 +19,14 @@
 /* Function Implementations */
 
 void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, ...) {
+    va_list list;
+    va_start(list, str);
+    irve_log_internal_function_dont_use_this_directly(inst_num, indent, str, list);
+}
+
+void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, va_list list) {
+    assert(str && "irvelog called with null format string");
+
     if (inst_num) {
         fprintf(stderr, "\x1b[94m%-lu\x1b[1;90m>\x1b[0m ", inst_num);
     } else {
@@ -29,10 +37,6 @@ void irve_log_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_
         fprintf(stderr, "  ");
     }
 
-    va_list list;
-    assert(str);
-    va_start(list, str);
     vfprintf(stderr, str, list);
-    va_end(list);
     putc('\n', stderr);
 }

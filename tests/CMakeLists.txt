@@ -13,6 +13,9 @@
 cmake_minimum_required(VERSION 3.16.3)
 include(CTest)
 
+#TODO have a unit test list in a seperate file that is included here (and similarly for integration tests)
+#TODO move the options related to unit test source files to a CMakeLists.txt in the unit directory (and similarly for integration tests)
+
 set(UNIT_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/common.cpp

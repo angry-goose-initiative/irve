@@ -11,14 +11,23 @@
 
 /* Includes */
 
+//CANNOT contain any private headers
+
 #include <cstddef>
+#include <cstdint>
 
 /* Types */
 
 /* Function/Class Declarations */
 
+//Note: Everything must refer to a symbol in the irve library, not be a #define constant!
+//This is to support dynamic linking with different libirve.so versions
+//Or, if using static linking, to avoid the need to rebuild integration tests and the irve executable when ex. the logging is disabled or the version changes
+
 namespace irve {
-    //TODO do this for execute_t: https://en.cppreference.com/w/cpp/language/pimpl
+    //TODO do this for emulator_t: https://en.cppreference.com/w/cpp/language/pimpl
+
+    void log(uint8_t indent, const char* str, ...);
 
     namespace about {
         std::size_t get_version_major();
