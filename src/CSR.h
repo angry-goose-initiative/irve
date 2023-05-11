@@ -18,6 +18,8 @@
 
 /* Constants and Defines */
 
+#define MEPC_ADDRESS 0x341
+
 //TODO fill in the x's with supported extensions
 #define MISA word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
 

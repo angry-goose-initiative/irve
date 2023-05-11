@@ -677,11 +677,13 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             }
 
-            if(imm == 0b000000000000) {//ECALL
+            if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
+                //TODO write any CSRs that need to be written
                 switch (cpu_state.get_privilege_mode()) {
                     case privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
+                        cpu_state.set_CSR(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC
                         throw rvexception_t(MMODE_ECALL_EXCEPTION);
                         break;
                     case privilege_mode_t::SUPERVISOR_MODE:
@@ -704,7 +706,10 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
             } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
                 irvelog(3, "Mnemonic: MRET");
-                assert(false && "TODO implement MRET");
+                //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
+                //TODO better logging
+                cpu_state.set_pc(cpu_state.get_CSR(MEPC_ADDRESS) & 0xFFFFFFFC);
+                goto_next_sequential_pc(cpu_state);//TODO is this correct?
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 assert(false && "TODO implement SRET");

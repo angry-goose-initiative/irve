@@ -37,6 +37,9 @@ cpu_state_t::cpu_state_t(memory_t& memory_ref) :
 reg_t cpu_state_t::get_CSR(uint16_t csr) const {
     //TODO do this properly
     // TODO check if CSR can be read from
+    if (csr == 0x341) {
+        return this->m_CSR.mepc;
+    }
     if (csr == 0x342) {
         return (uint32_t)this->m_CSR.mcause;
     }
@@ -49,6 +52,10 @@ reg_t cpu_state_t::get_CSR(uint16_t csr) const {
 void cpu_state_t::set_CSR(uint16_t csr, word_t data) {
     //TODO do this properly
     // TODO check if CSR can be written to
+    if (csr == 0x341) {
+        this->m_CSR.mepc = data & 0xFFFFFFFC;
+        return;
+    }
     if (csr == 0x342) {
         this->m_CSR.mcause = (cause_t)data.u;
         return;
