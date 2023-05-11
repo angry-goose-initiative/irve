@@ -44,6 +44,22 @@ Step 0: Run `make` in the root of the repo. Does not compile testfiles, only `ir
 
 Likely this method will be removed soon in favour of `cmake`
 
+## Info About the IRVE RISC-V Environment
+
+### Memory Map
+
+Lower 64MiB of memory is RAM.
+
+Address 0xFFFFFFFF can be used for outputting text (write bytes, then flush to the screen as a new line when \n is written)
+
+### Reset and Interrupts
+
+The entry point is hardcoded to be 0x00000000. It will stay like this for backwards compatibility with assembly (plus it makes writing assembly more intuitive).
+
+MTVEC is fixed and pointing to 0x00000004. It is currently not vectored but may become so in the future.
+
+In effect, this starting part of memory "acts" like a RISC-V vector table, but it also includes a pseudo reset vector as the first entry!
+
 ## How to cross compile manually
 
 Step 0: Install a cross compiler for RISC-V (it is easiest if you make it default to RV32IMA with `--with-arch=rv32ima` and `--with-abi=ilp32`

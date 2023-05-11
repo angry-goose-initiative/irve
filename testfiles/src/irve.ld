@@ -29,7 +29,8 @@ SECTIONS
 {
     PROVIDE (__executable_start = ORIGIN(ram));
     PROVIDE(__stack_top = ORIGIN(ram) + LENGTH(ram));
-
+    
+    .vectors : { *(.vectors*) } > ram
     .init : { *(.init*) } > ram
     .text : { *(.text*) } > ram
     .rodata : { *(.rodata*) } > ram

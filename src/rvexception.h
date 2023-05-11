@@ -42,12 +42,7 @@ enum class cause_t : uint32_t {
     MMODE_ECALL_EXCEPTION                       = 11,
     INSTRUCTION_PAGE_FAULT_EXCEPTION            = 12,
     LOAD_PAGE_FAULT_EXCEPTION                   = 13,
-    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15,
-    //Custom (Since the reset vector is 0x00000000, but so is our emulator entry point,
-    //we have to allow software to know why the PC is at that address)
-    //This is a clean solution because older assembly we've written that just assumes
-    //the program starts at 0x00000000 will still work!
-    IRVE_COLD_RESET_EXCEPTION                      = 24
+    STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15
 };
 
 /* Function/Class Declarations */

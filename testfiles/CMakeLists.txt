@@ -41,6 +41,7 @@ set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #RVC means "RISC-V C", so libirvervc is the "RISC-V C" guest runtime library for IRVE
 #NOTE: NOT needed for assembly programs
 set(LIBIRVERVC_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/vectors.s
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s
     ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
 )
@@ -147,12 +148,12 @@ endmacro()
 add_c_target(hello_world src/c/without_c_stdlib/hello_world.c)
 add_c_target(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
 add_c_target(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
-add_c_target(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
 
 #Special case (implement newlib syscalls themselves)
 add_c_target(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
 
 #With newlib
+add_c_target_with_newlib(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
 add_c_target_with_newlib(stress_test src/c/with_c_stdlib/stress_test.c)
 
 #C test files from rv32esim (All without newlib)

@@ -13,24 +13,15 @@
 # https://www.reddit.com/r/RISCV/comments/enmqdz/linker_script_fault/
 # https://github.com/deadsy/rvemu/blob/master/test/test1/emu.ld
 # https://stackoverflow.com/questions/57021029/how-to-link-math-library-when-building-bare-metal-application-with-custom-linker
+# Practically identical to https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html
 
-#Practically identical to https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html
 .section .init, "ax"
-.weak _start
-_start:#NOTE: This is both the reset entry point, and also the hardcoded MTVEC address
+.weak __crt0#C Runtime Initialization (0th stage)
+__crt0:
     #Hint to assembler about start of function
     .cfi_startproc
     .cfi_undefined ra
 
-    #Check mepc for exception reason (don't modify it)
-    csrrs t0, mcause, zero
-
-    #If it was for any reason other than reset, jump to the interrupt handler
-    li t1, 24
-    bne t0, t1, __interrupt_and_trap_handler
-
-    #If we got here, we are booting up for the first time
-    
     #Setup global pointer
     .option push
     .option norelax
@@ -53,10 +44,11 @@ __pre_main:
 .weak __post_main#By default, do nothing, and just jump to the next instruction
 __post_main:
 
-    #Halt cpu if we ever return from main (using a custom instruction and falling through the next function symbol to save 4 bytes of memory)
-.weak __interrupt_and_trap_handler#By default, if there is no interrupt handler, halt the cpu
-__interrupt_and_trap_handler:#Called when a trap or interrupt occurs EXCEPT for reset
+    #Halt cpu if we ever return from main
     .insn r CUSTOM_0, 0, 0, zero, zero, zero
     
     #Hint to the assembler about the end of the function
     .cfi_endproc
+
+    #Hint to assembler about end of file
+    .end
