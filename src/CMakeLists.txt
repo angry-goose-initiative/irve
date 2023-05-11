@@ -1,0 +1,21 @@
+# CMakeLists.txt
+# Copyright (C) 2023 John Jekel and Nick Chan
+# See the LICENSE file at the root of the project for licensing info.
+#
+# CMake configuration file for irve executable
+#
+# Based on CMakeLists.txt from rv32esim
+#
+
+#Common options
+cmake_minimum_required(VERSION 3.16.3)
+
+set(IRVE_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
+)
+
+add_executable(irve ${IRVE_SOURCES})
+target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/lib ${CMAKE_BINARY_DIR}/lib)#TODO remove this eventually (we want to just be using the public headers)
+target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(irve PRIVATE libirve_object)#TODO or should we make this static or shared instead?
