@@ -26,6 +26,10 @@ namespace irve::internal::emulator {
         emulator_t();
 
         bool tick();//Returns true as long as the emulator should continue running
+         
+        //Runs the emulator until the given instruction count is reached or an exit request is made
+        //For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+        void run_until(uint64_t inst_count);
 
         uint64_t get_inst_count() const;
 

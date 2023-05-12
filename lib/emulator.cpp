@@ -66,6 +66,16 @@ bool emulator::emulator_t::tick() {
     return true;
 }
 
+void emulator::emulator_t::run_until(uint64_t inst_count) {
+    if (inst_count) {
+        //Run until the given instruction count is reached or an exit request is made
+        while ((this->get_inst_count() < inst_count) && this->tick());
+    } else {
+        //The only exit criteria is an exit request
+        while (this->tick());
+    }
+}
+
 uint64_t emulator::emulator_t::get_inst_count() const {
     return this->m_cpu_state.get_inst_count();
 }

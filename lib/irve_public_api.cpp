@@ -37,6 +37,10 @@ bool irve::emulator::emulator_t::tick() {
     return this->m_emulator_ptr->tick();
 }
 
+void irve::emulator::emulator_t::run_until(uint64_t inst_count) {
+    this->m_emulator_ptr->run_until(inst_count);
+}
+
 uint64_t irve::emulator::emulator_t::get_inst_count() const {
     return this->m_emulator_ptr->get_inst_count();
 }

@@ -18,3 +18,4 @@
     
     #invalid code will be displayed if we reach here because jal failed
     addi x31, x0, 4
+    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit

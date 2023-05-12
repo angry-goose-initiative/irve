@@ -36,25 +36,17 @@ const std::unordered_map<std::string, int (*)()> TEST_MAP = {
 };
 #undef X
 
-/*
-#include <string>
-#include <unordered_map>
-*/
-
 /* Function Implementations */
 
 int main(int argc, char** argv) {
-    //assert(argc == 2 && "Incorrect number of arguments. Usage: unit_tester test_to_run");
+    assert(argc == 2 && "Incorrect number of arguments. Usage: integration_tester test_to_run");
 
     //Initialize random number generator for tests that use it
     srand(time(NULL));
     
     //Lookup the test to run and run it
-    /*
     auto test = TEST_MAP.find(argv[1]);
     assert((test != TEST_MAP.end()) && "Test not found. Check the spelling and that it is in TEST_LIST");
-    std::cout << "Running test: \"" << argv[1] << "\"" << std::endl;
-    */
-    //return test->second();
-    return 0;
+    std::cout << "Running integration test: \"" << argv[1] << "\"" << std::endl;
+    return test->second();
 }

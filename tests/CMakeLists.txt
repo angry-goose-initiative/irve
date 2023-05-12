@@ -27,6 +27,9 @@ set(UNIT_TESTER_SOURCES
 
 set(INTEGRATION_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/integration/basics.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/integration/init.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/integration/jzjcoresoftware.cpp
 )
 
 add_executable(unit_tester ${UNIT_TESTER_SOURCES})
@@ -77,6 +80,11 @@ configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tes
 #It will have an internal list of tests to run which will include the path to
 #the testfile, and a function to verify that the CPU state, memory, and output
 #were as expected
+
+#add_integration_test(logging)
+add_integration_test(basics)
+add_integration_test(emulator_t_init)
+add_integration_test(emulator_t_sanity)
 
 #Put the list of integration tests in the header file (THIS MUST BE LAST)
 configure_file(integration/integration_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp @ONLY)

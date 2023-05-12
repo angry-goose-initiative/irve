@@ -55,7 +55,6 @@ int main(int argc, char** argv) {
     irvelog(0, "\x1b[90mBuild System: %s\x1b[0m", irve::about::get_build_system_string());
     irvelog(0, "\x1b[90mBuilt from %s for %s\x1b[0m", irve::about::get_build_host_string(), irve::about::get_compile_target_string());
     irvelog(0, "\x1b[90mCompiler: %s\x1b[0m", irve::about::get_compiler_string());
-    //TODO more info here
     irvelog(0, "------------------------------------------------------------------------");
     irvelog(0, "");
     irvelog(0, "");
@@ -81,8 +80,8 @@ int main(int argc, char** argv) {
         irve::loader::load_verilog_32(emulator, mem_file.c_str());
     }
 
-    while (emulator.tick());//Tick the emulator until we get an exit request
+    emulator.run_until(0);//Run the emulator until we get an exit request
 
-    irvelog(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
+    std::cerr << "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m" << std::endl;
     return 0;
 }

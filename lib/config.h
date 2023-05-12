@@ -69,7 +69,7 @@
 
 #endif
 
-//Defaults if not know from build system
+//Defaults if not known from build system
 
 #ifndef IRVE_INTERNAL_CONFIG_VERSION_MAJOR
 #define IRVE_INTERNAL_CONFIG_VERSION_MAJOR          0

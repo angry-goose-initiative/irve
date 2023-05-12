@@ -4094,3 +4094,4 @@
     nop
     nop
     nop
+    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit

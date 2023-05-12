@@ -66,10 +66,16 @@ namespace irve {//NOT irve::internal
 
             bool tick();//Returns true as long as the emulator should continue running
 
+            //Runs the emulator until the given instruction count is reached or an exit request is made
+            //For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+            void run_until(uint64_t inst_count);
+
             uint64_t get_inst_count() const;
 
             uint8_t mem_read_byte(uint32_t addr) const;
             void mem_write_byte(uint32_t addr, uint8_t data);
+
+            //TODO how to best expose CPU state to the user for them to modify/read? (particularly for integration testing)
         private:
             friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
             irve::internal::emulator::emulator_t* m_emulator_ptr;

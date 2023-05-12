@@ -1,4 +1,4 @@
-name: IRVE Unit Tests
+name: IRVE Integration Tests
 
 on:
   push:
@@ -24,12 +24,12 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Debug --target unit_tester
+      run: cmake --build ${{github.workspace}}/build --config Debug --target integration_tester
 
     - name: Test
       working-directory: ${{github.workspace}}/build
         #run: ctest -C Debug --verbose
-      run: ctest -C Debug --verbose -j --tests-regex unit_
+      run: ctest -C Debug --verbose -j --tests-regex integration_
 
   release:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
@@ -48,9 +48,9 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Release --target unit_tester
+      run: cmake --build ${{github.workspace}}/build --config Release --target integration_tester 
 
     - name: Test
       working-directory: ${{github.workspace}}/build
         #run: ctest -C Release --verbose
-      run: ctest -C Release --verbose -j --tests-regex unit_
+      run: ctest -C Release --verbose -j --tests-regex integration_
