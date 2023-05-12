@@ -83,10 +83,10 @@ configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tes
 #the testfile, and a function to verify that the CPU state, memory, and output
 #were as expected
 
-#add_integration_test(logging)
-add_integration_test(basics)
-add_integration_test(emulator_t_init)
+add_integration_test(about)
+#add_integration_test(emulator_t_init)
 add_integration_test(emulator_t_sanity)
+add_integration_test(logging)
 
 #Put the list of integration tests in the header file (THIS MUST BE LAST)
 configure_file(integration/integration_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp @ONLY)
