@@ -14,16 +14,23 @@
 
 /* Function Implementations */
 
-int test_memory_t_valid() {//None of these should throw an exception
-    memory_t memory;
+//TODO also test when it is in virtual memory mode (MMU tests)
 
-    //TODO also test when it is in virtual memory mode
+int test_memory_memory_t_valid_debugaddr() {//None of these should throw an exception
+    memory_t memory;
 
     memory.w(DEBUGADDR, 0b000, 'I');
     memory.w(DEBUGADDR, 0b000, 'R');
     memory.w(DEBUGADDR, 0b000, 'V');
     memory.w(DEBUGADDR, 0b000, 'E');
     memory.w(DEBUGADDR, 0b000, '\n');
+
+    return 0;
+}
+
+//"Byte writes", but anything reads (byte, halfword, word) are tested
+int test_memory_memory_t_valid_ramaddrs_bytes() {//None of these should throw an exception
+    memory_t memory;
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
         memory.w(i, 0b000, (uint8_t)(i * 123));
@@ -35,6 +42,13 @@ int test_memory_t_valid() {//None of these should throw an exception
         //TODO test load signed here too
     }
 
+    return 0;
+}
+
+//"Halfword writes", but anything reads (byte, halfword, word) are tested
+int test_memory_memory_t_valid_ramaddrs_halfwords() {//None of these should throw an exception
+    memory_t memory;
+
     assert(RAMSIZE % 2 == 0);//RAMSIZE must be a multiple of 2
     for (uint32_t i = 0; i < (RAMSIZE / 2); i += 2 * 13) {//Way too slow to do every byte (choose a prime number)
         memory.w(i, 0b001, (uint16_t)(i * 12345));
@@ -45,6 +59,13 @@ int test_memory_t_valid() {//None of these should throw an exception
         //TODO test little endianness here (byte accesses, word accesses)
         //TODO test load signed here too
     }
+
+    return 0;
+}
+
+//"Word writes", but anything reads (byte, halfword, word) are tested
+int test_memory_memory_t_valid_ramaddrs_words() {//None of these should throw an exception
+    memory_t memory;
 
     assert(RAMSIZE % 4 == 0);//RAMSIZE must be a multiple of 4
     for (uint32_t i = 0; i < (RAMSIZE / 4); i += 4 * 13) {//Way too slow to do every byte (choose a prime number)
@@ -60,7 +81,7 @@ int test_memory_t_valid() {//None of these should throw an exception
     return 0;
 }
 
-int test_memory_t_invalid() {//These should throw exceptions
+int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     memory_t memory;
 
     //Invalid accesses at the debug address (some are also misaligned)
@@ -130,16 +151,29 @@ int test_memory_t_invalid() {//These should throw exceptions
         assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
-    //Misaligned accesses in the middle of the RAM
-    //TODO
-    
-    //Invalid accesses in unmapped memory (some are also misaligned)
-    //TODO
-    
     return 0;
 }
 
-int test_pmemory_t_valid() {//None of these should throw an exception
+int test_memory_memory_t_invalid_ramaddrs_misaligned() {
+    //Misaligned accesses in the middle of the RAM
+    //TODO
+    return 0;
+    
+}
+
+int test_memory_memory_t_invalid_unmappedaddrs() {
+    //Invalid accesses in unmapped memory (NOT misaligned)
+    //TODO
+    return 0;
+}
+
+int test_memory_memory_t_invalid_unmappedaddrs_misaligned() {
+    //Invalid accesses in unmapped memory (also misaligned)
+    //TODO
+    return 0;
+}
+
+int test_memory_pmemory_t_valid_debugaddr() {//None of these should throw an exception
     pmemory_t pmemory;
 
     pmemory.w(DEBUGADDR, 'I');
@@ -147,6 +181,12 @@ int test_pmemory_t_valid() {//None of these should throw an exception
     pmemory.w(DEBUGADDR, 'V');
     pmemory.w(DEBUGADDR, 'E');
     pmemory.w(DEBUGADDR, '\n');
+
+    return 0;
+}
+
+int test_memory_pmemory_t_valid_ramaddrs() {//None of these should throw an exception
+    pmemory_t pmemory;
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
         pmemory.w(i, (uint8_t)(i * 123));
@@ -159,7 +199,7 @@ int test_pmemory_t_valid() {//None of these should throw an exception
     return 0;
 }
 
-int test_pmemory_t_invalid() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
     pmemory_t pmemory;
 
     try {
@@ -169,6 +209,12 @@ int test_pmemory_t_invalid() {//These should throw exceptions
         //This should throw an exception of type rvexception_t
         assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
+
+    return 0;
+}
+
+int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
+    pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {
@@ -183,6 +229,12 @@ int test_pmemory_t_invalid() {//These should throw exceptions
             break;
         }
     }
+
+    return 0;
+}
+
+int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
+    pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {

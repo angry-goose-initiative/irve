@@ -58,16 +58,26 @@ endmacro()
 # Unit Test List
 #########################################################################################
 
-add_unit_test(word_t)
-add_unit_test(integer_pow)
-add_unit_test(cpu_state_t)
-add_unit_test(decoded_inst_t)
-add_unit_test(decoded_inst_t_invalid)
-add_unit_test(reg_file_t)
-add_unit_test(memory_t_valid)
-add_unit_test(memory_t_invalid)
-add_unit_test(pmemory_t_valid)
-add_unit_test(pmemory_t_invalid)
+add_unit_test(common_word_t)
+add_unit_test(common_upow)
+add_unit_test(common_ipow)
+add_unit_test(cpu_state_cpu_state_t)
+add_unit_test(decode_decoded_inst_t)
+add_unit_test(decode_decoded_inst_t_invalid)
+add_unit_test(memory_memory_t_valid_debugaddr)
+add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
+add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
+add_unit_test(memory_memory_t_valid_ramaddrs_words)
+add_unit_test(memory_memory_t_invalid_debugaddr)
+#add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_misaligned)#TODO Not written yet
+add_unit_test(memory_pmemory_t_valid_debugaddr)
+add_unit_test(memory_pmemory_t_valid_ramaddrs)
+add_unit_test(memory_pmemory_t_invalid_debugaddr)
+add_unit_test(memory_pmemory_t_invalid_ram_writes)
+add_unit_test(memory_pmemory_t_invalid_ram_reads)
+add_unit_test(reg_file_reg_file_t)
 
 #Put the list of unit tests in the unit tester file (THIS MUST BE LAST)
 configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp @ONLY)
