@@ -41,6 +41,7 @@ set(UNIT_TEST_LIST "")
 macro(add_unit_test TEST_NAME)
     add_test(NAME unit_${TEST_NAME} COMMAND unit_tester ${TEST_NAME})
     set(UNIT_TEST_LIST "${UNIT_TEST_LIST} X(${TEST_NAME})")
+    set_property(TEST unit_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:unit_tester>")
 endmacro()
 
 add_executable(integration_tester ${INTEGRATION_TESTER_SOURCES})
@@ -52,6 +53,7 @@ set(INTEGRATION_TEST_LIST "")
 macro(add_integration_test TEST_NAME)
     add_test(NAME integration_${TEST_NAME} COMMAND integration_tester ${TEST_NAME})
     set(INTEGRATION_TEST_LIST "${INTEGRATION_TEST_LIST} X(${TEST_NAME})")
+    set_property(TEST integration_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:integration_tester>")
 endmacro()
 
 #########################################################################################
