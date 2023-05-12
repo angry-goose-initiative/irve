@@ -18,7 +18,7 @@
 
 /* Function Implementations */
 
-int test_word_t() {
+int test_common_word_t() {
     assert(word_t(1) + word_t(1) == word_t(2));
     assert(word_t(1) - word_t(-1) == word_t(2));
     assert(word_t(-1) == word_t(0xFFFFFFFF));
@@ -30,7 +30,7 @@ int test_word_t() {
     return 0;
 }
 
-int test_integer_pow() {
+int test_common_upow() {
     for (uint32_t i = 0; i <= 10000000; ++i) {
         for (uint32_t j = 0; j <= 10000; ++j) {
             double expected = std::pow(i, j);
@@ -42,6 +42,10 @@ int test_integer_pow() {
         }
     }
 
+    return 0;
+}
+
+int test_common_ipow() {
     for (int32_t i = -1000000; i <= 1000000; i += 13) {//For speed, count by a prime number
         for (int32_t j = -100; j <= 100; j += 13) {//To get through cases a bit faster (much of the positive cases are already tested above anyways)
             if ((i == 0) && (j < 0)) {

@@ -16,7 +16,7 @@
 
 /* Function Implementations */
 
-int test_decoded_inst_t() {
+int test_decode_decoded_inst_t() {
     decoded_inst_t nop(0x00000013);
     assert(nop.get_opcode() == OP_IMM);
     assert(nop.get_rd() == 0);
@@ -29,7 +29,7 @@ int test_decoded_inst_t() {
     return 0;
 }
 
-int test_decoded_inst_t_invalid() {
+int test_decode_decoded_inst_t_invalid() {
     //All 0s is an invalid instruction
     try {
         decoded_inst_t invalid(0x00000000);

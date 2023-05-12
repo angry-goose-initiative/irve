@@ -18,7 +18,7 @@
 
 /* Function Implementations */
 
-int test_cpu_state_t() {
+int test_cpu_state_cpu_state_t() {
     memory_t memory;
     cpu_state_t cpu_state(memory);
 
