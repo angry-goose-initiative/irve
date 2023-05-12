@@ -100,3 +100,14 @@ const char* irve::about::get_build_system_string() {
     return IRVE_INTERNAL_CONFIG_BUILD_SYSTEM_STRING;
 }
 
+const char* irve::about::get_build_host_string() {
+    return IRVE_INTERNAL_CONFIG_BUILD_HOST_STRING;
+}
+
+const char* irve::about::get_compile_target_string() {
+    return IRVE_INTERNAL_CONFIG_COMPILE_TARGET_STRING;
+}
+
+const char* irve::about::get_compiler_string() {
+    return IRVE_INTERNAL_CONFIG_COMPILER_STRING;
+}

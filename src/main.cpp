@@ -33,7 +33,9 @@ int main(int argc, char** argv) {
         std::cerr << "libirve " << irve::about::get_version_string() << std::endl;
         std::cerr << "libirve built at " << irve::about::get_build_time_string() << " on " << irve::about::get_build_date_string() << std::endl;
         std::cerr << "irve executable built at " << __TIME__ << " on " << __DATE__ << std::endl;
-        std::cerr << "Build System: " << irve::about::get_build_system_string() << std::endl;
+        std::cerr << "Build system: " << irve::about::get_build_system_string() << std::endl;
+        std::cerr << "Build from " << irve::about::get_build_host_string() << " for " << irve::about::get_compile_target_string() << std::endl;
+        std::cerr << "Compiler: " << irve::about::get_compiler_string() << std::endl;
     }
 
     irvelog(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m");
@@ -51,6 +53,8 @@ int main(int argc, char** argv) {
     irvelog(0, "\x1b[90mlibirve built at %s on %s\x1b[0m", irve::about::get_build_time_string(), irve::about::get_build_date_string());
     irvelog(0, "\x1b[90mirve executable built at %s on %s\x1b[0m", __TIME__, __DATE__);
     irvelog(0, "\x1b[90mBuild System: %s\x1b[0m", irve::about::get_build_system_string());
+    irvelog(0, "\x1b[90mBuilt from %s for %s\x1b[0m", irve::about::get_build_host_string(), irve::about::get_compile_target_string());
+    irvelog(0, "\x1b[90mCompiler: %s\x1b[0m", irve::about::get_compiler_string());
     //TODO more info here
     irvelog(0, "------------------------------------------------------------------------");
     irvelog(0, "");

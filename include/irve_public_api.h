@@ -47,6 +47,9 @@ namespace irve {//NOT irve::internal
         const char* get_build_time_string();
         const char* get_build_date_string();
         const char* get_build_system_string();
+        const char* get_build_host_string();
+        const char* get_compile_target_string();
+        const char* get_compiler_string();
     }
 
     //Things that depend on previous declarations
