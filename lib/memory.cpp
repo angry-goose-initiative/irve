@@ -48,6 +48,14 @@ word_t memory_t::r(word_t addr, int8_t func3) const {
     //assert((addr < MEMSIZE) && "Invalid memory address");  // TODO throw exceptions to be caught?
     //assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
 
+    //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
+
+    if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
+        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+    } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
+        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+    }
+
     // MSB of func3 determines signed/unsigned
     bool isUnsigned = func3 >> 2;
     // 2^(func3[1:0]) is the number of bytes
@@ -69,6 +77,13 @@ word_t memory_t::r(word_t addr, int8_t func3) const {
 
 // Write to memory
 void memory_t::w(word_t addr, int8_t func3, word_t data) {
+    if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
+        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+    } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
+        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+    }
+
+    //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
 
     assert((func3 >= 0b000) && (func3 <= 0b010) && "Invalid func3");
     //TODO from now on exceptions for invalid physical memory accesses will be thrown by pmemory_t instead

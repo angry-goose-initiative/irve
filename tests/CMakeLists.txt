@@ -20,6 +20,7 @@ set(UNIT_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/cpu_state.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit/CSR.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/decode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/memory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/reg_file.cpp
@@ -60,16 +61,27 @@ endmacro()
 # Unit Test List
 #########################################################################################
 
-add_unit_test(word_t)
-add_unit_test(integer_pow)
-add_unit_test(cpu_state_t)
-add_unit_test(decoded_inst_t)
-add_unit_test(decoded_inst_t_invalid)
-add_unit_test(reg_file_t)
-add_unit_test(memory_t_valid)
-add_unit_test(memory_t_invalid)
-add_unit_test(pmemory_t_valid)
-add_unit_test(pmemory_t_invalid)
+add_unit_test(common_word_t)
+add_unit_test(common_upow)
+add_unit_test(common_ipow)
+add_unit_test(cpu_state_cpu_state_t)
+add_unit_test(CSR_CSR_t_init)
+add_unit_test(decode_decoded_inst_t)
+add_unit_test(decode_decoded_inst_t_invalid)
+add_unit_test(memory_memory_t_valid_debugaddr)
+add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
+add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
+add_unit_test(memory_memory_t_valid_ramaddrs_words)
+add_unit_test(memory_memory_t_invalid_debugaddr)
+#add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_misaligned)#TODO Not written yet
+add_unit_test(memory_pmemory_t_valid_debugaddr)
+add_unit_test(memory_pmemory_t_valid_ramaddrs)
+add_unit_test(memory_pmemory_t_invalid_debugaddr)
+add_unit_test(memory_pmemory_t_invalid_ram_writes)
+add_unit_test(memory_pmemory_t_invalid_ram_reads)
+add_unit_test(reg_file_reg_file_t)
 
 #Put the list of unit tests in the unit tester file (THIS MUST BE LAST)
 configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tester.cpp @ONLY)
@@ -83,10 +95,19 @@ configure_file(unit/unit_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/unit/unit_tes
 #the testfile, and a function to verify that the CPU state, memory, and output
 #were as expected
 
-#add_integration_test(logging)
-add_integration_test(basics)
-add_integration_test(emulator_t_init)
+#TODO actually there will be a third list of tests for the testcase_tester
+
+add_integration_test(about)
+#add_integration_test(emulator_t_init)
 add_integration_test(emulator_t_sanity)
+add_integration_test(logging)
 
 #Put the list of integration tests in the header file (THIS MUST BE LAST)
 configure_file(integration/integration_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp @ONLY)
+
+#########################################################################################
+# Testfiles Tester Test List
+#########################################################################################
+#NOTE: May or may not correspond to a particular testfile in the testfiles directory
+
+#TODO

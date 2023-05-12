@@ -13,7 +13,7 @@
 
 /* Function Implementations */
 
-int test_reg_file_t() {
+int test_reg_file_reg_file_t() {
     reg_file_t reg_file;
 
     assert(reg_file[0] == 0);
