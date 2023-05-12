@@ -154,11 +154,62 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     return 0;
 }
 
-int test_memory_memory_t_invalid_ramaddrs_misaligned() {
-    //Misaligned accesses in the middle of the RAM
-    //TODO
+int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned accesses in the middle of the RAM
+    memory_t memory;
+
+    for (uint32_t i = 0; i < RAMSIZE; i += 607) {//Way too slow to do every byte (choose a prime number)
+        uint32_t address = i | 0b1;//Misaligned intentionally
+        try {
+            memory.w(address, 0b001, (uint16_t)(i * 12345));
+            assert(false);
+        } catch (const rvexception_t& e) {
+            //This should throw an exception of type rvexception_t
+            assert(e.cause() == cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+        }
+        try {
+            memory.r(address, 0b101);
+            assert(false);
+        } catch (const rvexception_t& e) {
+            //This should throw an exception of type rvexception_t
+            assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        }
+        try {
+            memory.r(address, 0b001);
+            assert(false);
+        } catch (const rvexception_t& e) {
+            //This should throw an exception of type rvexception_t
+            assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        }
+    }
+
     return 0;
-    
+
+}
+
+int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {//Misaligned accesses in the middle of the RAM
+    memory_t memory;
+
+    for (uint32_t misalignment = 0b01; misalignment <= 0b11; ++misalignment) {
+        for (uint32_t i = 0; i < RAMSIZE; i += 607) {//Way too slow to do every byte (choose a prime number)
+            uint32_t address = (i & ~0b11) | misalignment;//Misaligned intentionally
+            try {
+                memory.w(address, 0b010, (uint32_t)(i * 12345));
+                assert(false);
+            } catch (const rvexception_t& e) {
+                //This should throw an exception of type rvexception_t
+                assert(e.cause() == cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+            }
+            try {
+                memory.r(address, 0b010);
+                assert(false);
+            } catch (const rvexception_t& e) {
+                //This should throw an exception of type rvexception_t
+                assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+            }
+        }
+    }
+
+    return 0;
 }
 
 int test_memory_memory_t_invalid_unmappedaddrs() {

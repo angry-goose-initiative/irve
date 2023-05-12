@@ -22,6 +22,7 @@ set(UNIT_TESTER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/cpu_state.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/CSR.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/decode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unit/logging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/memory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit/reg_file.cpp
 )
@@ -68,12 +69,14 @@ add_unit_test(cpu_state_cpu_state_t)
 add_unit_test(CSR_CSR_t_init)
 add_unit_test(decode_decoded_inst_t)
 add_unit_test(decode_decoded_inst_t_invalid)
+add_unit_test(logging_irvelog)
 add_unit_test(memory_memory_t_valid_debugaddr)
 add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
 add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
 add_unit_test(memory_memory_t_valid_ramaddrs_words)
 add_unit_test(memory_memory_t_invalid_debugaddr)
-#add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned)#TODO Not written yet
+add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_halfwords)
+add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_words)
 #add_unit_test(memory_memory_t_invalid_unmapped)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_misaligned)#TODO Not written yet
 add_unit_test(memory_pmemory_t_valid_debugaddr)
@@ -103,7 +106,11 @@ add_integration_test(emulator_t_sanity)
 add_integration_test(logging)
 
 #Put the list of integration tests in the header file (THIS MUST BE LAST)
-configure_file(integration/integration_tester.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp @ONLY)
+configure_file(
+    integration/integration_tester.cpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/integration/integration_tester.cpp
+    @ONLY
+)
 
 #########################################################################################
 # Testfiles Tester Test List
