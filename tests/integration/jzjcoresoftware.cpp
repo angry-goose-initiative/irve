@@ -15,6 +15,7 @@
 
 /* Function Implementations */
 
-int test_jzjcoresoftware_auipctest() {
+//TODO this will be moved to testfiles_tester instead
+//int test_jzjcoresoftware_auipctest() {
     //TODO load in the file, and check the registers/memory are as expected after each step
-}
+//}
