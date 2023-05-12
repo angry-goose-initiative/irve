@@ -7,7 +7,11 @@
 # Based on CMakeLists.txt from rv32esim
 #
 
-#Common options
+#Config options
+set(IRVE_DISABLE_LOGGING 0)
+
+#################################################################################################################################
+
 cmake_minimum_required(VERSION 3.16.3)
 project(irve VERSION 0.3.0)
 #Needed for clangd
@@ -30,8 +34,6 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -fsanitize=address")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
-
-set(IRVE_DISABLE_LOGGING 0)
 
 #https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
 execute_process(
