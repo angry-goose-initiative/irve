@@ -178,6 +178,10 @@ int test_pmemory_t_invalid() {//These should throw exceptions
             //This should throw an exception of type rvexception_t
             assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
         }
+
+        if ((i + 7919) < i) {//Overflow, thus end of test
+            break;
+        }
     }
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
@@ -187,6 +191,10 @@ int test_pmemory_t_invalid() {//These should throw exceptions
         } catch (const rvexception_t& e) {
             //This should throw an exception of type rvexception_t
             assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+        }
+
+        if ((i + 7919) < i) {//Overflow, thus end of test
+            break;
         }
     }
 
