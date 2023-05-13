@@ -18,6 +18,8 @@
 
 /* Function/Class Declarations */
 
+//TODO namespacing
+
 class reg_file_t {
 private:
     mutable irve::internal::reg_t regs[32];

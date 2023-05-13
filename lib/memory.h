@@ -24,6 +24,8 @@
 
 /* Function/Class Declarations */
 
+//TODO namespacing
+
 class pmemory_t {//Physical memory
 public:
     pmemory_t();
@@ -35,6 +37,8 @@ private:
     uint8_t* m_ram;
     std::string m_debugstr;
 };
+
+//TODO namespacing
 
 class memory_t {//Virtual memory (or passthru for physical memory if virtual memory is disabled)
 private:

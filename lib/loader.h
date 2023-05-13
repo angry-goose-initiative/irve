@@ -13,17 +13,7 @@
 
 #include "emulator.h"
 
-/* Constants And Defines */
-
-//TODO
-
-/* Types */
-
-//TODO
-
-/* Global Variables */
-
-//TODO
+//TODO namespacing
 
 /* Function/Class Declarations */
 

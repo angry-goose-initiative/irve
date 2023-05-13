@@ -21,6 +21,8 @@
 
 /* Types */
 
+//TODO namespacing
+
 enum class privilege_mode_t : uint8_t {
     USER_MODE = 0b00,
     SUPERVISOR_MODE = 0b01,
@@ -28,6 +30,8 @@ enum class privilege_mode_t : uint8_t {
 };
 
 /* Function/Class Declarations */
+
+//TODO namespacing
 
 class cpu_state_t {
 public:

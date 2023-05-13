@@ -20,6 +20,8 @@
 
 /* Types */
 
+//TODO namespacing
+
 enum class cause_t : uint32_t {
     //Interrupts
     SUPERVISOR_SOFTWARE_INTERRUPT               = 1     | 0x80000000,
@@ -46,6 +48,8 @@ enum class cause_t : uint32_t {
 };
 
 /* Function/Class Declarations */
+
+//TODO namespacing
 
 class rv_base_cpp_exception_t : public std::runtime_error {
 public:

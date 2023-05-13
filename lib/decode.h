@@ -20,6 +20,8 @@
 
 /* Types */
 
+//TODO namespacing
+
 //FIXME transition these to enum classes once decode.cpp and execute.cpp are fixed to use opcode_t:: and inst_format_t::
 
 ///opcode_t is an enum of RISC-V opcodes
@@ -32,6 +34,8 @@ typedef enum {
 //};
 } opcode_t;
 
+//TODO namespacing
+
 typedef enum {
 //enum class inst_format_t {
     R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE
@@ -39,6 +43,8 @@ typedef enum {
 } inst_format_t;
 
 /* Function/Class Declarations */
+
+//TODO namespacing
 
 ///decode_inst_t is a type holding the results from decoding a RISC-V instruction
 //NOTE: We are NOT supporting compressed instructions
