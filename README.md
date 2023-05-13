@@ -60,6 +60,18 @@ MTVEC is fixed and pointing to 0x00000004. It is currently not vectored but may 
 
 In effect, this starting part of memory "acts" like a RISC-V vector table, but it also includes a pseudo reset vector as the first entry!
 
+## Coding Style
+
+For convenience, we may use `using namespace irve::internal` in .cpp files. HOWEVER using `using` in any other way is disallowed (particularly in headers).
+
+The only place where `irve_public_api.h` should be included is by consumers of the public API, or by lib/irve_public_api.cpp. No exceptions.
+
+Internal classess/functions in internal headers go into the `irve::internal::FILE_NAME_BEFORE_EXTENSION" namespace, with the exception of `common.h`, which puts everything into `irve::internal`
+
+Public API classes/functions/etc go into the `irve::SUB_NAMESPACE` namespace. SUB_NAMESPACE should logically group the things contained within in some sense.
+
+lib/irve_public_api.cpp should not contain a `using` statement at all to prevent ambiguity since it is the bridge between the internal/public boundary.
+
 ## How to cross compile manually
 
 Step 0: Install a cross compiler for RISC-V (it is easiest if you make it default to RV32IMA with `--with-arch=rv32ima` and `--with-abi=ilp32`
