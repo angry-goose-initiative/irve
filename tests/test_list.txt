@@ -1,0 +1,67 @@
+# test_list.txt
+# Copyright (C) 2023 John Jekel and Nick Chan
+# See the LICENSE file at the root of the project for licensing info.
+#
+# List of all IRVE tests (read in by CMake)
+#
+# To run a test (from the project root dir):
+#   mkdir build
+#   cd build
+#   cmake ..
+#   make -j TESTER_NAME
+#       Where TESTER_NAME is one of the following: unit_tester, integration_tester, testfiles_tester
+#   ctest -j
+
+####################################################################################################
+# Unit Test List (unit_tester)
+####################################################################################################
+
+add_unit_test(common_word_t)
+add_unit_test(common_upow)
+add_unit_test(common_ipow)
+add_unit_test(cpu_state_cpu_state_t)
+add_unit_test(CSR_CSR_t_init)
+add_unit_test(decode_decoded_inst_t)
+add_unit_test(decode_decoded_inst_t_invalid)
+add_unit_test(logging_irvelog)
+add_unit_test(memory_memory_t_valid_debugaddr)
+add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
+add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
+add_unit_test(memory_memory_t_valid_ramaddrs_words)
+add_unit_test(memory_memory_t_invalid_debugaddr)
+add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_halfwords)
+add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_words)
+#add_unit_test(memory_memory_t_invalid_unmapped_bytes)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_halfwords)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_words)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
+#add_unit_test(memory_memory_t_invalid_unmapped_misaligned_words)#TODO Not written yet
+add_unit_test(memory_pmemory_t_valid_debugaddr)
+add_unit_test(memory_pmemory_t_valid_ramaddrs)
+add_unit_test(memory_pmemory_t_invalid_debugaddr)
+add_unit_test(memory_pmemory_t_invalid_ram_writes)
+add_unit_test(memory_pmemory_t_invalid_ram_reads)
+add_unit_test(reg_file_reg_file_t)
+
+####################################################################################################
+# Integration Test List (integration_tester)
+####################################################################################################
+
+#TODO the integration tester will test for assertions both in IRVE and RISC-V code
+#It will have an internal list of tests to run which will include the path to
+#the testfile, and a function to verify that the CPU state, memory, and output
+#were as expected
+
+#TODO actually there will be a third list of tests for the testcase_tester
+
+add_integration_test(about)
+#add_integration_test(emulator_t_init)
+add_integration_test(emulator_t_sanity)
+add_integration_test(logging)
+
+####################################################################################################
+# Testfiles Tester Test List (testfiles_tester)
+####################################################################################################
+#NOTE: May or may not correspond to a particular testfile in the testfiles directory
+
+#TODO

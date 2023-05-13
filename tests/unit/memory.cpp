@@ -212,13 +212,31 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {//Misaligned acces
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs() {
+int test_memory_memory_t_invalid_unmappedaddrs_bytes() {
     //Invalid accesses in unmapped memory (NOT misaligned)
     //TODO
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_misaligned() {
+int test_memory_memory_t_invalid_unmappedaddrs_halfwords() {
+    //Invalid accesses in unmapped memory (NOT misaligned)
+    //TODO
+    return 0;
+}
+
+int test_memory_memory_t_invalid_unmappedaddrs_words() {
+    //Invalid accesses in unmapped memory (NOT misaligned)
+    //TODO
+    return 0;
+}
+
+int test_memory_memory_t_invalid_unmappedaddrs_misaligned_halfwords() {
+    //Invalid accesses in unmapped memory (also misaligned)
+    //TODO
+    return 0;
+}
+
+int test_memory_memory_t_invalid_unmappedaddrs_misaligned_words() {
     //Invalid accesses in unmapped memory (also misaligned)
     //TODO
     return 0;
