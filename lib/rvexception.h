@@ -75,7 +75,7 @@ public:
 
 /* Macros */
 
-//So you don't have to fully qualify it each time
+//So you don't have to fully qualify it each time when it is used in the constructor
 #define rvinterrupt_t(the_cause) rvinterrupt_t(cause_t::the_cause)
 #define rvexception_t(the_cause) rvexception_t(cause_t::the_cause)
 

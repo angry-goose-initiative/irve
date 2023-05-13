@@ -16,8 +16,6 @@
 #include "common.h"
 #include "rvexception.h"
 
-using namespace irve::internal;
-
 /* Constants and Defines */
 
 #define MEPC_ADDRESS 0x341

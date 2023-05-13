@@ -22,8 +22,6 @@
 
 #include "common.h"
 
-using namespace irve::internal;
-
 /* Function/Class Declarations */
 
 class pmemory_t {//Physical memory
@@ -31,8 +29,8 @@ public:
     pmemory_t();
     ~pmemory_t();
 
-    uint8_t r(word_t addr) const;//TODO this can't be const because we need to handle read side effects
-    void w(word_t addr, uint8_t data);
+    uint8_t r(irve::internal::word_t addr) const;//TODO this can't be const because we need to handle read side effects
+    void w(irve::internal::word_t addr, uint8_t data);
 private:
     uint8_t* m_ram;
     std::string m_debugstr;
@@ -45,9 +43,9 @@ private:
     //int8_t m_mem[PMEMSIZE];
 public:
     memory_t();
-    word_t r(word_t addr, int8_t func3) const;
-    void w(word_t addr, int8_t func3, word_t data);
-    void p(word_t addr) const;
+    irve::internal::word_t r(irve::internal::word_t addr, int8_t func3) const;
+    void w(irve::internal::word_t addr, int8_t func3, irve::internal::word_t data);
+    void p(irve::internal::word_t addr) const;
 
     //TODO functions to deal with virtual memory and also to disable it when the emulated cpu is in Machine mode
 };

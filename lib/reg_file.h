@@ -16,17 +16,15 @@
 #include <cassert>
 #include "common.h"
 
-using namespace irve::internal;
-
 /* Function/Class Declarations */
 
 class reg_file_t {
 private:
-    mutable reg_t regs[32];
+    mutable irve::internal::reg_t regs[32];
 public:
     reg_file_t();
-    reg_t& operator[](uint8_t i);
-    const reg_t& operator[](uint8_t i) const;
+    irve::internal::reg_t& operator[](uint8_t i);
+    const irve::internal::reg_t& operator[](uint8_t i) const;
 };
 
 #endif

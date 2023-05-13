@@ -18,8 +18,6 @@
 
 #include "common.h"
 
-using namespace irve::internal;
-
 /* Types */
 
 //FIXME transition these to enum classes once decode.cpp and execute.cpp are fixed to use opcode_t:: and inst_format_t::
@@ -46,7 +44,7 @@ typedef enum {
 //NOTE: We are NOT supporting compressed instructions
 class decoded_inst_t {
 public:
-    decoded_inst_t(word_t instruction);
+    decoded_inst_t(irve::internal::word_t instruction);
 
     void log(uint8_t indent, uint64_t inst_count) const;
 
@@ -61,7 +59,7 @@ public:
     uint8_t get_rd() const;
     uint8_t get_rs1() const;
     uint8_t get_rs2() const;
-    word_t get_imm() const;
+    irve::internal::word_t get_imm() const;
 
 private:
     std::string disassemble() const;
@@ -73,11 +71,11 @@ private:
     const uint8_t m_rd;
     const uint8_t m_rs1;
     const uint8_t m_rs2;
-    const word_t m_imm_I;
-    const word_t m_imm_S;
-    const word_t m_imm_B;
-    const word_t m_imm_U;
-    const word_t m_imm_J;
+    const irve::internal::word_t m_imm_I;
+    const irve::internal::word_t m_imm_S;
+    const irve::internal::word_t m_imm_B;
+    const irve::internal::word_t m_imm_U;
+    const irve::internal::word_t m_imm_J;
 
     inst_format_t m_format;
 };

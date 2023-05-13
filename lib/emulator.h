@@ -18,8 +18,6 @@
 
 #include "rvexception.h"
 
-using namespace irve::internal;
-
 /* Types */
 
 namespace irve::internal::emulator {
@@ -35,11 +33,11 @@ namespace irve::internal::emulator {
 
         uint64_t get_inst_count() const;
 
-        int8_t mem_read_byte(word_t addr) const;
-        void mem_write(word_t addr, uint8_t size, word_t data);
+        int8_t mem_read_byte(irve::internal::word_t addr) const;
+        void mem_write(irve::internal::word_t addr, uint8_t size, irve::internal::word_t data);
 
     private:
-        word_t fetch() const;
+        irve::internal::word_t fetch() const;
         void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
         
         memory_t m_memory;
