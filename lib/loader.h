@@ -13,6 +13,8 @@
 
 #include "emulator.h"
 
+using namespace irve::internal;
+
 /* Constants And Defines */
 
 //TODO

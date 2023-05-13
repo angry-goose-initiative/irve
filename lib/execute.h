@@ -15,6 +15,8 @@
 #include "memory.h"
 #include "decode.h"
 
+using namespace irve::internal;
+
 /* Function/Class Declarations */
 
 namespace irve::internal::execute {

@@ -18,6 +18,8 @@
 
 #include "rvexception.h"
 
+using namespace irve::internal;
+
 /* Types */
 
 namespace irve::internal::emulator {

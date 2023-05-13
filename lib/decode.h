@@ -18,6 +18,8 @@
 
 #include "common.h"
 
+using namespace irve::internal;
+
 /* Types */
 
 //FIXME transition these to enum classes once decode.cpp and execute.cpp are fixed to use opcode_t:: and inst_format_t::

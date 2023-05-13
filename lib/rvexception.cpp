@@ -18,6 +18,8 @@
 #undef rvinterrupt_t
 #undef rvexception_t
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 rv_base_cpp_exception_t::rv_base_cpp_exception_t(cause_t cause) :

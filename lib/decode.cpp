@@ -24,6 +24,8 @@
 #define INST_COUNT inst_count
 #include "logging.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 decoded_inst_t::decoded_inst_t(word_t instruction) :

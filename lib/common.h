@@ -16,6 +16,8 @@
 
 /* Types */
 
+namespace irve::internal {//Exception: Not irve::internal::common since it is, after all, "common"
+
 typedef union word_t {
 public:
     word_t();
@@ -85,5 +87,7 @@ typedef word_t reg_t;
 //TODO make these constexpr too
 uint32_t upow(uint32_t base, uint32_t exp);//Unsigned integer power
 int32_t spow(int32_t base, int32_t exp);//Signed integer power
+
+}//namespace irve::internal
 
 #endif//COMMON_H

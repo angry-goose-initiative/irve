@@ -16,6 +16,8 @@
 
 #include <stdexcept>
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_common_word_t() {

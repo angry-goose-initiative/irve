@@ -20,6 +20,8 @@
 
 #include "rvexception.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t(memory_t& memory_ref) :

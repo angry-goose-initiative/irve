@@ -14,6 +14,8 @@
 
 #include "rvexception.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_decode_decoded_inst_t() {

@@ -22,6 +22,8 @@
 
 #include "common.h"
 
+using namespace irve::internal;
+
 /* Function/Class Declarations */
 
 class pmemory_t {//Physical memory

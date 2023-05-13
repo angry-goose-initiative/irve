@@ -13,10 +13,12 @@
 #include "common.h"
 #include "CSR.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_CSR_CSR_t_init() {
-    CSR_t csr;
+    CSR::CSR_t csr;
 
     for (std::size_t i = 0; i < 32; ++i) {
         assert(csr.medeleg[i] == false);

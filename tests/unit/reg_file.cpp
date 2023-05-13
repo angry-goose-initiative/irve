@@ -11,6 +11,8 @@
 #include <cassert>
 #include "reg_file.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_reg_file_reg_file_t() {

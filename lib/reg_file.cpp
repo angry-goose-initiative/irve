@@ -11,6 +11,8 @@
 
 #include "reg_file.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 reg_file_t::reg_file_t(): regs() {}

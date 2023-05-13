@@ -15,6 +15,9 @@
 
 #include <stdexcept>
 
+using namespace irve::internal;
+using irve::internal::word_t;
+
 /* Function Implementations */
 
 word_t::word_t() {}
@@ -149,7 +152,7 @@ word_t word_t::sign_extend_upward_from_bit(uint8_t bit) const {//Sign extend fro
     return intermediate.sra(shift_amount);
 }
 
-uint32_t upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
+uint32_t irve::internal::upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
     uint32_t result = 1;
     while (exponent) {
         if (exponent & 0b1) {
@@ -161,7 +164,7 @@ uint32_t upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
     return result;
 }
 
-int32_t spow(int32_t base, int32_t exponent) {//Signed integer power
+int32_t irve::internal::spow(int32_t base, int32_t exponent) {//Signed integer power
     if (exponent < 0) {
         int32_t denominator = spow(base, -exponent);
         if (!denominator) {

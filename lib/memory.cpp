@@ -22,6 +22,8 @@
 #define INST_COUNT 0//We only log at init
 #include "logging.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 //Virtual memory

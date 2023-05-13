@@ -12,6 +12,8 @@
 #include "memory.h"
 #include "rvexception.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 //TODO also test when it is in virtual memory mode (MMU tests)

@@ -10,9 +10,15 @@
 #ifndef REG_FILE_H
 #define REG_FILE_H
 
+/* Includes */
+
 #include <cstdint>
 #include <cassert>
 #include "common.h"
+
+using namespace irve::internal;
+
+/* Function/Class Declarations */
 
 class reg_file_t {
 private:

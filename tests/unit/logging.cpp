@@ -14,6 +14,8 @@
 #define INST_COUNT i * 12345
 #include "logging.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_logging_irvelog() {

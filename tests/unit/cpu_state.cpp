@@ -16,6 +16,8 @@
 
 #include "rvexception.h"
 
+using namespace irve::internal;
+
 /* Function Implementations */
 
 int test_cpu_state_cpu_state_t() {
