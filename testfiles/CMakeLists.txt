@@ -158,7 +158,7 @@ add_c_target(software_floating_point_fun src/c/without_c_stdlib/software_floatin
 add_c_target(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
 
 #With newlib
-add_c_target_with_newlib(hello_exceptions src/c/without_c_stdlib/hello_exceptions.c)
+add_c_target_with_newlib(hello_exceptions src/c/with_c_stdlib/hello_exceptions.c)
 add_c_target_with_newlib(stress_test src/c/with_c_stdlib/stress_test.c)
 
 #C test files from rv32esim (All without newlib)
