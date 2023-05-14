@@ -22,14 +22,22 @@
 #error "INST_COUNT must be defined before including logging.h"
 #endif
 
+//TODO avoid errors when INST_COUNT is not used when logging is disabled
+
 #if IRVE_INTERNAL_CONFIG_DISABLE_LOGGING
 #define irvelog(...) ((void)0)
 #else
-#define irvelog(indent, ...) \
-    do { \
-        irve::internal::logging::irvelog_internal_function_dont_use_this_directly(INST_COUNT, indent, __VA_ARGS__); \
-    } while (0)
+
+#define irvelog(indent, ...) do { \
+    irvelog_always(indent, __VA_ARGS__); \
+} while (0)
+
 #endif
+
+//USE THIS SPARINGLY
+#define irvelog_always(indent, ...) do { \
+    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(INST_COUNT, indent, __VA_ARGS__); \
+} while (0)
 
 /* Function/Class Declarations */
 

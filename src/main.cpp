@@ -21,10 +21,15 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <chrono>
 
 /* Function Implementations */
 
 int main(int argc, char** argv) {
+    auto irve_boot_time = std::chrono::steady_clock::now();
+
+    //TODO stop using cerr and use irvelog_always instead (will need to expose it in the public API)
+
     if (irve::logging::logging_disabled()) {
         //Only print this
         std::cerr << "Starting IRVE" << std::endl;
@@ -80,7 +85,16 @@ int main(int argc, char** argv) {
         irve::loader::load_verilog_32(emulator, mem_file.c_str());
     }
 
+    std::cerr << "\x1b[1mInitialized the emulator in " << std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count() << "us\x1b[0m" << std::endl;
+
+    auto execution_start_time = std::chrono::steady_clock::now();
     emulator.run_until(0);//Run the emulator until we get an exit request
+    
+    auto execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - execution_start_time).count();
+    std::cerr << "\x1b[1mFinished emulating instructions for " << execution_time_us << "us\x1b[0m" << std::endl;
+    std::cerr << "\x1b[1mDuring this time, " << emulator.get_inst_count() << " instructions were executed\x1b[0m" << std::endl;
+    auto averge_ips = (((double)emulator.get_inst_count()) / ((double)execution_time_us)) * 1000000.0;//TODO avoid divide by zero
+    std::cerr << "\x1b[1mThis is an average of " << averge_ips << " instructions per second (" << (averge_ips / 1000000) << "MHz)\x1b[0m" << std::endl;
 
     std::cerr << "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m" << std::endl;
     return 0;

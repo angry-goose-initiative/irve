@@ -13,6 +13,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* Includes */
 
@@ -24,7 +26,10 @@
 
 /* Variables */
 
-//TODO
+extern int __executable_start;
+extern int __stack_top;
+extern int __SDATA_BEGIN__;
+extern int __heap_start__;
 
 /* Static Function Declarations */
 
@@ -35,9 +40,26 @@
 int main() {
     printf("Hello %s!\n", "World");
     printf("Testing %d\n", 123);
-    printf("This is broken: %f\n", 123.456);
-    //assert(false && "TESTING");
+    printf("This is broken: %f\n", 123.456);//FIXME this may be a newlib bug?
     
+    printf("Address of __executable_start: %p\n", (char*) &__executable_start);
+    printf("Address of __stack_top: %p\n", (char*) &__stack_top);
+    printf("Address of __SDATA_BEGIN__: %p\n", (char*) &__SDATA_BEGIN__);
+    printf("Address of __heap_start__: %p\n", (char*) &__heap_start__);
+
+    for (int i = 0; i < 10; i++) {
+        int size = (i * 123) + 2;
+        char* test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes = (char*)malloc((i * 123) + 2);
+        assert(test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes != NULL);
+        printf("Address of dynamic memory: %p\n", test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes);
+        strncpy(test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes, "This is a test of dynamic memory", size);//FIXME or should this be size - 1 or + 1 instead?
+        test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes[size - 1] = '\0';
+        printf("Dynamic memory: %s\n", test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes);
+        free(test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes);
+
+        //TODO add another allocation to test how the heap allocations move around
+    }
+
     //TODO do more
     
     return 0;
