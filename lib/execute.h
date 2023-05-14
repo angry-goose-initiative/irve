@@ -19,13 +19,13 @@
 /* Function/Class Declarations */
 
 namespace irve::internal::execute {
-    void load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
-    void custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, CSR::CSR_t& CSR);
+    void load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR);
+    void custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, CSR::CSR_t& CSR);
     void misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
     void op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
     void auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
-    void store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
-    void amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
+    void store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR);
+    void amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR);
     void op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
     void lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
     void branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR);

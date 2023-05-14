@@ -30,7 +30,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
@@ -76,7 +76,7 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& /* memory */, CSR::CSR_t& CSR) {
+void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert((decoded_inst.get_opcode() == CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
@@ -202,7 +202,7 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
@@ -244,7 +244,7 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //Sanity checks
