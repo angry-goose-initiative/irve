@@ -44,8 +44,11 @@ namespace irve::internal::CSR {
         irve::internal::reg_t get(uint16_t csr) const;
         void set(uint16_t csr, irve::internal::word_t data);
 
-        void set_privilege_mode(privilege_mode_t new_privilege_mode);//TODO move this to execute
-        privilege_mode_t get_privilege_mode() const;//TODO move this to execute
+        void set_privilege_mode(privilege_mode_t new_privilege_mode);
+        privilege_mode_t get_privilege_mode() const;
+
+        void increment_inst_count();
+        uint64_t get_inst_count() const;
 
 
         //TODO make these private
@@ -74,6 +77,7 @@ namespace irve::internal::CSR {
 
     private:
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
+        uint64_t minstret;
     };
 }
 

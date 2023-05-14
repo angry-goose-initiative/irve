@@ -20,7 +20,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 // TODO what should CSRs be initialized to?
-CSR::CSR_t::CSR_t() : m_privilege_mode(privilege_mode_t::MACHINE_MODE) {
+CSR::CSR_t::CSR_t() : m_privilege_mode(privilege_mode_t::MACHINE_MODE), minstret(0) {
     for (std::size_t i = 0; i < 32; ++i) {
         this->medeleg[i] = false;
         this->mideleg[i] = false;
@@ -73,4 +73,12 @@ void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
 
 privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
     return this->m_privilege_mode;
+}
+
+void CSR::CSR_t::increment_inst_count() {
+    ++this->minstret;
+}
+
+uint64_t CSR::CSR_t::get_inst_count() const {
+    return this->minstret;
 }

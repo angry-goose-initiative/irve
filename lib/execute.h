@@ -19,18 +19,18 @@
 /* Function/Class Declarations */
 
 namespace irve::internal::execute {
-    void load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
+    void load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
     void custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, CSR::CSR_t& CSR);
-    void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
-    void amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
-    void op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
+    void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
+    void amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR);
+    void op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
+    void jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR);
     void system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, CSR::CSR_t& CSR);
 }
 

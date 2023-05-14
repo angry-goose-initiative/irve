@@ -23,14 +23,14 @@
 #include "decode.h"
 #include "rvexception.h"
 
-#define INST_COUNT cpu_state.get_inst_count()
+#define INST_COUNT CSR.get_inst_count()
 #include "logging.h"
 
 using namespace irve::internal;
 
 /* Function Implementations */
 
-void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
@@ -97,7 +97,7 @@ void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     }
 }
 
-void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -114,7 +114,7 @@ void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert((decoded_inst.get_opcode() == OP_IMM) && "op_imm instruction must have opcode OP_IMM");
@@ -187,7 +187,7 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert((decoded_inst.get_opcode() == AUIPC) && "auipc instruction must have opcode AUIPC");
@@ -202,7 +202,7 @@ void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) 
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
@@ -244,7 +244,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //Sanity checks
@@ -451,7 +451,7 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
@@ -653,7 +653,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert((decoded_inst.get_opcode() == LUI) && "lui instruction must have opcode LUI");
@@ -666,7 +666,7 @@ void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert((decoded_inst.get_opcode() == BRANCH) && "branch instruction must have opcode BRANCH");
@@ -732,7 +732,7 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     }
 }
 
-void execute::jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert((decoded_inst.get_opcode() == JALR) && "jalr instruction must have opcode JALR");
@@ -747,7 +747,7 @@ void execute::jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     cpu_state.set_pc(cpu_state.get_r(decoded_inst.get_rs1()).u + decoded_inst.get_imm().u);
 }
 
-void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
+void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert((decoded_inst.get_opcode() == JAL) && "jal instruction must have opcode JAL");

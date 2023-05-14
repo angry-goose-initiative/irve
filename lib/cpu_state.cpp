@@ -15,7 +15,7 @@
 #include <cassert>
 #include <cstdint>
 
-#define INST_COUNT this->get_inst_count()
+#define INST_COUNT this->m_CSR_ref.get_inst_count()
 #include "logging.h"
 
 #include "rvexception.h"
@@ -25,7 +25,6 @@ using namespace irve::internal;
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
-    m_inst_count(0), 
     m_pc(0),
     m_regs(),
     m_CSR_ref(CSR_ref),
@@ -33,14 +32,6 @@ cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
 {
     irvelog(1, "Created new cpu_state instance");
     this->log(2);
-}
-
-void cpu_state_t::increment_inst_count() {
-    ++this->m_inst_count;
-}
-
-uint64_t cpu_state_t::get_inst_count() const {
-    return this->m_inst_count;
 }
 
 word_t cpu_state_t::get_pc() const {
@@ -60,7 +51,7 @@ void cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
 }
 
 void cpu_state_t::log(uint8_t indent) const {
-    irvelog(indent, "Inst Count: %lu", this->get_inst_count());
+    //irvelog(indent, "Inst Count: %lu", this->get_inst_count());
     irvelog(indent, "PC:\t\t0x%08x", this->get_pc());
     irvelog(indent, "Registers:");
     for (uint8_t i = 0; i < 32; ++i) {

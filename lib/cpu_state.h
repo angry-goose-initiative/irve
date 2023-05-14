@@ -32,9 +32,6 @@ class cpu_state_t {
 public:
     cpu_state_t(irve::internal::CSR::CSR_t& CSR_ref);
 
-    void increment_inst_count();//TODO move to CSR
-    uint64_t get_inst_count() const;//TODO move to CSR
-
     irve::internal::reg_t get_pc() const;
     void set_pc(irve::internal::reg_t new_pc);
 
@@ -43,16 +40,12 @@ public:
 
     void log(uint8_t indent) const;
 
-    void handle_interrupt(cause_t cause);//TODO move to either emulator or execute or CSR
-    void handle_exception(cause_t cause);//TODO move to either emulator or execute or CSR
-
     void validate_reservation_set();
     void invalidate_reservation_set();
     bool reservation_set_valid() const;
 
     void goto_next_sequential_pc();
 private:
-    uint64_t m_inst_count;//TODO Moving to CSR
     irve::internal::reg_t m_pc;//Staying here
     reg_file_t m_regs;//Staying here
     irve::internal::CSR::CSR_t& m_CSR_ref;
