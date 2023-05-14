@@ -51,7 +51,7 @@ void CSR::CSR_t::set(uint16_t csr, word_t data) {
         return;
     }
     if (csr == 0x342) {
-        this->mcause = (cause_t)data.u;
+        this->mcause = (rvexception::cause_t)data.u;
         return;
     }
     /*
@@ -71,7 +71,7 @@ void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
     this->m_privilege_mode = new_privilege_mode;
 }
 
-privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
+CSR::privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
     return this->m_privilege_mode;
 }
 

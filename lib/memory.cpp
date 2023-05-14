@@ -55,9 +55,9 @@ word_t memory::memory_t::r(word_t addr, int8_t func3) const {
     //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
 
     if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
     } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     // MSB of func3 determines signed/unsigned
@@ -82,9 +82,9 @@ word_t memory::memory_t::r(word_t addr, int8_t func3) const {
 // Write to memory
 void memory::memory_t::w(word_t addr, int8_t func3, word_t data) {
     if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
@@ -129,7 +129,7 @@ memory::pmemory_t::~pmemory_t() {
 
 uint8_t memory::pmemory_t::r(word_t addr) const {
     if (addr.u >= RAMSIZE) {
-        throw rvexception_t(LOAD_ACCESS_FAULT_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ACCESS_FAULT_EXCEPTION);
     }
 
     //TODO add MMIO devices that provide data as things progress
@@ -153,7 +153,7 @@ void memory::pmemory_t::w(word_t addr, uint8_t data) {
         return;
     } else {//RAM
         if (addr.u >= RAMSIZE) {
-            throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+            invoke_rv_exception_with_cause(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
         }
 
         this->m_ram[addr.u] = data;

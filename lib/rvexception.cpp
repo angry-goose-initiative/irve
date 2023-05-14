@@ -22,25 +22,25 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-rv_base_cpp_exception_t::rv_base_cpp_exception_t(cause_t cause) :
+rvexception::rv_base_cpp_exception_t::rv_base_cpp_exception_t(rvexception::cause_t cause) :
     std::runtime_error("Uncaught RISC-V interrupt/exception, you should never see this."),
     m_cause(cause)
 {}
 
-cause_t rv_base_cpp_exception_t::cause() const {
+rvexception::cause_t rvexception::rv_base_cpp_exception_t::cause() const {
     return this->m_cause;
 }
 
-rvinterrupt_t::rvinterrupt_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
+rvexception::rvinterrupt_t::rvinterrupt_t(rvexception::cause_t cause) : rvexception::rv_base_cpp_exception_t(cause) {
     assert((((uint32_t)cause) >= 0x80000000) && "Attempt to create rvinterrupt_t with exception cause");
 }
 
-rvexception_t::rvexception_t(cause_t cause) : rv_base_cpp_exception_t(cause) {
+rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) : rvexception::rv_base_cpp_exception_t(cause) {
     assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
 }
 
-irve_exit_request_t::irve_exit_request_t() {}
+rvexception::irve_exit_request_t::irve_exit_request_t() {}
 
-const char* irve_exit_request_t::what() const noexcept {
+const char* rvexception::irve_exit_request_t::what() const noexcept {
     return "Uncaught IRVE exit request, you should never see this.";
 }

@@ -26,17 +26,18 @@
 //MTVEC hardcoded to start at 0x00000004 and be vectored
 #define MTVEC word_t((0x00000004 << 2) | 0b01)
 
-/* Types */
-
-enum class privilege_mode_t : uint8_t {//TODO move this to execute
-    USER_MODE = 0b00,
-    SUPERVISOR_MODE = 0b01,
-    MACHINE_MODE = 0b11
-};
-
-/* Function/Class Declarations */
-
 namespace irve::internal::CSR {
+
+    /* Types */
+
+    enum class privilege_mode_t : uint8_t {
+        USER_MODE = 0b00,
+        SUPERVISOR_MODE = 0b01,
+        MACHINE_MODE = 0b11
+    };
+
+    /* Function/Class Declarations */
+
     class CSR_t {
     public:
         CSR_t();
@@ -55,7 +56,7 @@ namespace irve::internal::CSR {
 
         reg_t sscratch;//Address 0x140
         reg_t sepc;//Address 0x141
-        cause_t scause;//Address 0x142
+        rvexception::cause_t scause;//Address 0x142//TODO do this as a union of cause_t and reg_t
         reg_t stval;//Address 0x143
         //TODO sip here or somewhere else?//Address 0x144
         //TODO satp here or somewhere else?//Address 0x180
@@ -71,7 +72,7 @@ namespace irve::internal::CSR {
         //TODO mstatush here or somewhere else?//Address 0x310
 
         reg_t mepc;//Address 0x341
-        cause_t mcause;//Address 0x342
+        rvexception::cause_t mcause;//Address 0x342//TODO do this as a union of cause_t and reg_t
 
         //TODO add CSRs HERE
 

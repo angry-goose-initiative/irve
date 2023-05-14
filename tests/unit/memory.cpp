@@ -96,67 +96,67 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     try {
         memory.r(DEBUGADDR, 0b000);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.r(DEBUGADDR, 0b100);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.r(DEBUGADDR, 0b001);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.w(DEBUGADDR, 0b001, 54321);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.r(DEBUGADDR, 0b101);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.r(DEBUGADDR, 0b010);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.w(DEBUGADDR, 0b010, 0xABCDEF01);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
         //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     return 0;
@@ -171,23 +171,23 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
         try {
             memory.w(address, 0b001, (uint16_t)(i * 12345));
             assert(false);
-        } catch (const rvexception_t& e) {
+        } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
         }
         try {
             memory.r(address, 0b101);
             assert(false);
-        } catch (const rvexception_t& e) {
+        } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+            assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
             memory.r(address, 0b001);
             assert(false);
-        } catch (const rvexception_t& e) {
+        } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+            assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
 
@@ -205,16 +205,16 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {//Misaligned acces
             try {
                 memory.w(address, 0b010, (uint32_t)(i * 12345));
                 assert(false);
-            } catch (const rvexception_t& e) {
+            } catch (const rvexception::rvexception_t& e) {
                 //This should throw an exception of type rvexception_t
-                assert(e.cause() == cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+                assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
             }
             try {
                 memory.r(address, 0b010);
                 assert(false);
-            } catch (const rvexception_t& e) {
+            } catch (const rvexception::rvexception_t& e) {
                 //This should throw an exception of type rvexception_t
-                assert(e.cause() == cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+                assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
             }
         }
     }
@@ -294,9 +294,9 @@ int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
     try {
         pmemory.r(DEBUGADDR);
         assert(false);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
-        assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     return 0;
@@ -309,9 +309,9 @@ int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
         try {
             pmemory.r(i);
             assert(false);
-        } catch (const rvexception_t& e) {
+        } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+            assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
         }
 
         if ((i + 7919) < i) {//Overflow, thus end of test
@@ -329,9 +329,9 @@ int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
         try {
             pmemory.w(i, 0xA5);
             assert(false);
-        } catch (const rvexception_t& e) {
+        } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            assert(e.cause() == cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
         }
 
         if ((i + 7919) < i) {//Overflow, thus end of test

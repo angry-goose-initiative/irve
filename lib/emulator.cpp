@@ -45,9 +45,9 @@ bool emulator::emulator_t::tick() {
         decoded_inst.log(2, this->get_inst_count());
 
         this->execute(decoded_inst);
-    } catch (const rvexception_t& e) {
+    } catch (const rvexception::rvexception_t& e) {
         this->handle_exception(e.cause());
-    } catch (const irve_exit_request_t&) {
+    } catch (const rvexception::irve_exit_request_t&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
     }
@@ -57,7 +57,7 @@ bool emulator::emulator_t::tick() {
     //while still ensuring all are ticked this major tick
     try {
         irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
-    } catch (const rvinterrupt_t& e) {
+    } catch (const rvexception::rvinterrupt_t& e) {
         this->handle_interrupt(e.cause());
     }
     //TODO One try-catch block per peripheral here...
@@ -92,7 +92,7 @@ word_t emulator::emulator_t::fetch() const {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {
-        throw rvexception_t(INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
@@ -168,12 +168,12 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     }
 }
 
-void emulator::emulator_t::handle_interrupt(cause_t cause) {
+void emulator::emulator_t::handle_interrupt(rvexception::cause_t cause) {
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
     assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
 }
 
-void emulator::emulator_t::handle_exception(cause_t cause) {
+void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
      
     uint32_t raw_cause = (uint32_t)cause;
@@ -186,7 +186,7 @@ void emulator::emulator_t::handle_exception(cause_t cause) {
         assert(false && "TODO handle this case");
     } else {//Machine mode should handle the exception
         //TODO manage the privilege stack in mstatus?
-        this->m_CSR.set_privilege_mode(privilege_mode_t::MACHINE_MODE);
+        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
 
         this->m_CSR.mcause = cause;
         this->m_CSR.mepc = this->m_cpu_state.get_pc();
