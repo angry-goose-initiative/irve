@@ -76,7 +76,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& /* memory */, CSR::CSR_t& /* CSR */) {
+void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert((decoded_inst.get_opcode() == CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
@@ -85,7 +85,7 @@ void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     //All other fields being zero means emulator exit request
     if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
         irvelog(3, "Mnemonic: IRVE.EXIT");
-        if (cpu_state.get_privilege_mode() == privilege_mode_t::MACHINE_MODE) {
+        if (CSR.get_privilege_mode() == privilege_mode_t::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
             throw irve_exit_request_t();
         } else {
@@ -775,7 +775,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
     reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
     word_t imm = decoded_inst.get_imm();
-    privilege_mode_t privilege_mode = cpu_state.get_privilege_mode();
+    privilege_mode_t privilege_mode = CSR.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL, EBREAK, WFI, MRET, or SRET
@@ -787,7 +787,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
                 //TODO write any CSRs that need to be written
-                switch (cpu_state.get_privilege_mode()) {
+                switch (privilege_mode) {
                     case privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
                         CSR.set(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC

@@ -20,7 +20,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 // TODO what should CSRs be initialized to?
-CSR::CSR_t::CSR_t() {
+CSR::CSR_t::CSR_t() : m_privilege_mode(privilege_mode_t::MACHINE_MODE) {
     for (std::size_t i = 0; i < 32; ++i) {
         this->medeleg[i] = false;
         this->mideleg[i] = false;
@@ -64,4 +64,13 @@ void CSR::CSR_t::set(uint16_t csr, word_t data) {
     //Sometimes only PARTS of a CSR are writable or affect other bits
     //We need to check for that and deal with it here
     assert(false && "TODO");
+}
+
+void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
+    //TODO sanity check this is a valid mode
+    this->m_privilege_mode = new_privilege_mode;
+}
+
+privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
+    return this->m_privilege_mode;
 }

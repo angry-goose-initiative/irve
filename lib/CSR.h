@@ -26,6 +26,14 @@
 //MTVEC hardcoded to start at 0x00000004 and be vectored
 #define MTVEC word_t((0x00000004 << 2) | 0b01)
 
+/* Types */
+
+enum class privilege_mode_t : uint8_t {//TODO move this to execute
+    USER_MODE = 0b00,
+    SUPERVISOR_MODE = 0b01,
+    MACHINE_MODE = 0b11
+};
+
 /* Function/Class Declarations */
 
 namespace irve::internal::CSR {
@@ -35,6 +43,9 @@ namespace irve::internal::CSR {
 
         irve::internal::reg_t get(uint16_t csr) const;
         void set(uint16_t csr, irve::internal::word_t data);
+
+        void set_privilege_mode(privilege_mode_t new_privilege_mode);//TODO move this to execute
+        privilege_mode_t get_privilege_mode() const;//TODO move this to execute
 
 
         //TODO make these private
@@ -60,6 +71,9 @@ namespace irve::internal::CSR {
         cause_t mcause;//Address 0x342
 
         //TODO add CSRs HERE
+
+    private:
+        privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };
 }
 

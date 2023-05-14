@@ -46,7 +46,7 @@ bool emulator::emulator_t::tick() {
 
         this->execute(decoded_inst);
     } catch (const rvexception_t& e) {
-        this->m_cpu_state.handle_exception(e.cause());
+        this->handle_exception(e.cause());
     } catch (const irve_exit_request_t&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
@@ -58,7 +58,7 @@ bool emulator::emulator_t::tick() {
     try {
         irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
     } catch (const rvinterrupt_t& e) {
-        this->m_cpu_state.handle_interrupt(e.cause());
+        this->handle_interrupt(e.cause());
     }
     //TODO One try-catch block per peripheral here...
 
@@ -165,5 +165,33 @@ void emulator::emulator_t::execute(const decoded_inst_t &decoded_inst) {
         default:
             assert(false && "Instruction with either invalid opcode, or that is implemented in decode but not in execute yet!");
             break;
+    }
+}
+
+void emulator::emulator_t::handle_interrupt(cause_t cause) {
+    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+}
+
+void emulator::emulator_t::handle_exception(cause_t cause) {
+    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+     
+    uint32_t raw_cause = (uint32_t)cause;
+    assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
+    irvelog(1, "Handling exception: Cause: %u", raw_cause);
+
+    //Decide which privilege mode should handle the exception (and thus which one we should switch to)
+    if (this->m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception
+        //TODO handle this case
+        assert(false && "TODO handle this case");
+    } else {//Machine mode should handle the exception
+        //TODO manage the privilege stack in mstatus?
+        this->m_CSR.set_privilege_mode(privilege_mode_t::MACHINE_MODE);
+
+        this->m_CSR.mcause = cause;
+        this->m_CSR.mepc = this->m_cpu_state.get_pc();
+        this->m_cpu_state.set_pc(MTVEC.srl(2));
+
+        //TODO what else should be done if anything?
     }
 }

@@ -25,7 +25,6 @@ using namespace irve::internal;
 /* Function Implementations */
 
 cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
-    m_privilege_mode(privilege_mode_t::MACHINE_MODE),
     m_inst_count(0), 
     m_pc(0),
     m_regs(),
@@ -70,6 +69,7 @@ void cpu_state_t::log(uint8_t indent) const {
 
     irvelog(indent, "TODO print CSRs here");
 
+    /*
     switch (this->m_privilege_mode) {
         case privilege_mode_t::USER_MODE:
             irvelog(indent, "Privilege Mode: User");
@@ -84,43 +84,7 @@ void cpu_state_t::log(uint8_t indent) const {
             assert(false && "Invalid privilege mode");
             break;
     }
-}
-
-void cpu_state_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
-    //TODO sanity check this is a valid mode
-    this->m_privilege_mode = new_privilege_mode;
-}
-
-privilege_mode_t cpu_state_t::get_privilege_mode() const {
-    return this->m_privilege_mode;
-}
-
-void cpu_state_t::handle_interrupt(cause_t cause) {
-    this->invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
-}
-
-void cpu_state_t::handle_exception(cause_t cause) {
-    this->invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-     
-    uint32_t raw_cause = (uint32_t)cause;
-    assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
-    irvelog(1, "Handling exception: Cause: %u", raw_cause);
-
-    //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    if (this->m_CSR_ref.medeleg[raw_cause]) {//Supervisor mode should handle the exception
-        //TODO handle this case
-        assert(false && "TODO handle this case");
-    } else {//Machine mode should handle the exception
-        //TODO manage the privilege stack in mstatus?
-        this->m_privilege_mode = privilege_mode_t::MACHINE_MODE;
-
-        this->m_CSR_ref.mcause = cause;
-        this->m_CSR_ref.mepc = this->m_pc;
-        this->set_pc(MTVEC.srl(2));
-
-        //TODO what else should be done if anything?
-    }
+    */
 }
 
 void cpu_state_t::validate_reservation_set() {
