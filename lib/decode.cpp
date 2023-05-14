@@ -28,7 +28,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-decoded_inst_t::decoded_inst_t(word_t instruction) :
+decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
     m_funct3(instruction.bits(14, 12).u),
     m_funct5(instruction.bits(31, 27).u),
@@ -110,7 +110,7 @@ decoded_inst_t::decoded_inst_t(word_t instruction) :
     }
 }
 
-void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
+void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     switch (this->get_format()) {
         case R_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
@@ -169,28 +169,28 @@ void decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     }
 }
 
-inst_format_t decoded_inst_t::get_format() const {
+inst_format_t decode::decoded_inst_t::get_format() const {
     return this->m_format;
 }
 
-opcode_t decoded_inst_t::get_opcode() const {
+opcode_t decode::decoded_inst_t::get_opcode() const {
     return this->m_opcode;
 }
 
 //FIXME all these assertions cause problems for the SYSTEM instructions
 
-uint8_t decoded_inst_t::get_funct3() const {
+uint8_t decode::decoded_inst_t::get_funct3() const {
     //assert((this->get_format() != U_TYPE) && "Attempt to get funct3 of U-type instruction!");
     //assert((this->get_format() != J_TYPE) && "Attempt to get funct3 of J-type instruction!");
     return this->m_funct3;
 }
 
-uint8_t decoded_inst_t::get_funct5() const {
+uint8_t decode::decoded_inst_t::get_funct5() const {
     //assert((this->get_format() == R_TYPE) && "Attempt to get funct5 of non-R-type instruction!");
     return this->m_funct5;
 }
 
-uint8_t decoded_inst_t::get_funct7() const {
+uint8_t decode::decoded_inst_t::get_funct7() const {
     //assert((this->get_format() != S_TYPE) && "Attempt to get funct7 of S-type instruction!");
     //assert((this->get_format() != B_TYPE) && "Attempt to get funct7 of B-type instruction!");
     //assert((this->get_format() != U_TYPE) && "Attempt to get funct7 of U-type instruction!");
@@ -199,26 +199,26 @@ uint8_t decoded_inst_t::get_funct7() const {
     return this->m_funct7;
 }
 
-uint8_t decoded_inst_t::get_rd() const {
+uint8_t decode::decoded_inst_t::get_rd() const {
     //assert((this->get_format() != S_TYPE) && "Attempt to get rd of S-type instruction!");
     //assert((this->get_format() != B_TYPE) && "Attempt to get rd of B-type instruction!");
     return this->m_rd;
 }
 
-uint8_t decoded_inst_t::get_rs1() const {
+uint8_t decode::decoded_inst_t::get_rs1() const {
     //assert((this->get_format() != U_TYPE) && "Attempt to get rs1 of U-type instruction!");
     //assert((this->get_format() != J_TYPE) && "Attempt to get rs1 of J-type instruction!");
     return this->m_rs1;
 }
 
-uint8_t decoded_inst_t::get_rs2() const {
+uint8_t decode::decoded_inst_t::get_rs2() const {
     //assert((this->get_format() != I_TYPE) && "Attempt to get rs2 of I-type instruction!");
     //assert((this->get_format() != U_TYPE) && "Attempt to get rs2 of U-type instruction!");
     //assert((this->get_format() != J_TYPE) && "Attempt to get rs2 of J-type instruction!");
     return this->m_rs2;
 }
 
-word_t decoded_inst_t::get_imm() const {
+word_t decode::decoded_inst_t::get_imm() const {
     switch (this->get_format()) {
         case R_TYPE:
             assert(false && "Attempt to get imm of R-type instruction!");
@@ -245,6 +245,6 @@ word_t decoded_inst_t::get_imm() const {
     return this->m_imm_I;
 }
 
-std::string decoded_inst_t::disassemble() const {
+std::string decode::decoded_inst_t::disassemble() const {
     return std::string("TODO disassembly of instruction here (Save this for XRVE actually)");//TODO
 }

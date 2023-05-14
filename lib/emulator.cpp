@@ -41,7 +41,7 @@ bool emulator::emulator_t::tick() {
         word_t inst = this->fetch();
 
         irvelog(1, "Decoding instruction 0x%08X", inst);
-        decoded_inst_t decoded_inst(inst);
+        decode::decoded_inst_t decoded_inst(inst);
         decoded_inst.log(2, this->get_inst_count());
 
         this->execute(decoded_inst);
@@ -105,7 +105,7 @@ word_t emulator::emulator_t::fetch() const {
 }
 
 //TODO move this to a separate file maybe?
-void emulator::emulator_t::execute(const decoded_inst_t &decoded_inst) {
+void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     irvelog(1, "Executing instruction");
 
     //We can assume the opcode exists since the instruction is valid

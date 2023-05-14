@@ -85,6 +85,7 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
     /* Function/Class Declarations */
 
     //TODO make these constexpr too
+    //TODO should these become part of word_t?
     uint32_t upow(uint32_t base, uint32_t exp);//Unsigned integer power
     int32_t spow(int32_t base, int32_t exp);//Signed integer power
 

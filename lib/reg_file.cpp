@@ -9,21 +9,24 @@
 
 /* Includes */
 
+#include <cstdint>
+#include <cassert>
+#include "common.h"
 #include "reg_file.h"
 
 using namespace irve::internal;
 
 /* Function Implementations */
 
-reg_file_t::reg_file_t(): regs() {}
+reg_file::reg_file_t::reg_file_t(): regs() {}
 
-reg_t& reg_file_t::operator[](uint8_t i) {
+reg_t& reg_file::reg_file_t::operator[](uint8_t i) {
     assert(i < 32 && "Attempted to access invalid register");
     regs[0].u = 0;
     return regs[i];
 }
 
-const reg_t& reg_file_t::operator[](uint8_t i) const {
+const reg_t& reg_file::reg_file_t::operator[](uint8_t i) const {
     assert(i < 32 && "Attempted to access invalid register");
     regs[0].u = 0;
     return regs[i];

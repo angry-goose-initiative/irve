@@ -44,46 +44,48 @@ typedef enum {
 
 /* Function/Class Declarations */
 
-//TODO namespacing
+namespace irve::internal::decode {
 
-///decode_inst_t is a type holding the results from decoding a RISC-V instruction
-//NOTE: We are NOT supporting compressed instructions
-class decoded_inst_t {
-public:
-    decoded_inst_t(irve::internal::word_t instruction);
+    ///decode_inst_t is a type holding the results from decoding a RISC-V instruction
+    //NOTE: We are NOT supporting compressed instructions
+    class decoded_inst_t {
+    public:
+        decoded_inst_t(word_t instruction);
 
-    void log(uint8_t indent, uint64_t inst_count) const;
+        void log(uint8_t indent, uint64_t inst_count) const;
 
-    //Check this before using the other getters
-    //The getters will assert that the fields actually exist in the format of the instruction
-    inst_format_t get_format() const;
+        //Check this before using the other getters
+        //The getters will assert that the fields actually exist in the format of the instruction
+        inst_format_t get_format() const;
 
-    opcode_t get_opcode() const;
-    uint8_t get_funct3() const;
-    uint8_t get_funct5() const;
-    uint8_t get_funct7() const;
-    uint8_t get_rd() const;
-    uint8_t get_rs1() const;
-    uint8_t get_rs2() const;
-    irve::internal::word_t get_imm() const;
+        opcode_t get_opcode() const;
+        uint8_t get_funct3() const;
+        uint8_t get_funct5() const;
+        uint8_t get_funct7() const;
+        uint8_t get_rd() const;
+        uint8_t get_rs1() const;
+        uint8_t get_rs2() const;
+        word_t get_imm() const;
 
-private:
-    std::string disassemble() const;
-    const opcode_t m_opcode;//Bits [6:2]
+    private:
+        std::string disassemble() const;
+        const opcode_t m_opcode;//Bits [6:2]
 
-    const uint8_t m_funct3;
-    const uint8_t m_funct5;
-    const uint8_t m_funct7;
-    const uint8_t m_rd;
-    const uint8_t m_rs1;
-    const uint8_t m_rs2;
-    const irve::internal::word_t m_imm_I;
-    const irve::internal::word_t m_imm_S;
-    const irve::internal::word_t m_imm_B;
-    const irve::internal::word_t m_imm_U;
-    const irve::internal::word_t m_imm_J;
+        const uint8_t m_funct3;
+        const uint8_t m_funct5;
+        const uint8_t m_funct7;
+        const uint8_t m_rd;
+        const uint8_t m_rs1;
+        const uint8_t m_rs2;
+        const word_t m_imm_I;
+        const word_t m_imm_S;
+        const word_t m_imm_B;
+        const word_t m_imm_U;
+        const word_t m_imm_J;
 
-    inst_format_t m_format;
-};
+        inst_format_t m_format;
+    };
+
+}
 
 #endif//DECODE_H

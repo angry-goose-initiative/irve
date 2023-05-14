@@ -16,7 +16,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 int test_reg_file_reg_file_t() {
-    reg_file_t reg_file;
+    reg_file::reg_file_t reg_file;
 
     assert(reg_file[0] == 0);
     reg_file[0] = 0x12345678;

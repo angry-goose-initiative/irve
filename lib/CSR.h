@@ -41,8 +41,8 @@ namespace irve::internal::CSR {
     public:
         CSR_t();
 
-        irve::internal::reg_t get(uint16_t csr) const;
-        void set(uint16_t csr, irve::internal::word_t data);
+        reg_t get(uint16_t csr) const;
+        void set(uint16_t csr, word_t data);
 
         void set_privilege_mode(privilege_mode_t new_privilege_mode);
         privilege_mode_t get_privilege_mode() const;

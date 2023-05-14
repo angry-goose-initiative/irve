@@ -24,7 +24,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
+cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     m_pc(0),
     m_regs(),
     m_CSR_ref(CSR_ref),
@@ -34,23 +34,23 @@ cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     this->log(2);
 }
 
-word_t cpu_state_t::get_pc() const {
+word_t cpu_state::cpu_state_t::get_pc() const {
     return this->m_pc;
 }
 
-void cpu_state_t::set_pc(word_t new_pc) {
+void cpu_state::cpu_state_t::set_pc(word_t new_pc) {
     this->m_pc = new_pc;
 }
 
-reg_t cpu_state_t::get_r(uint8_t reg_num) const {
+reg_t cpu_state::cpu_state_t::get_r(uint8_t reg_num) const {
     return this->m_regs[reg_num];
 }
 
-void cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
+void cpu_state::cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
     this->m_regs[reg_num] = new_val;
 }
 
-void cpu_state_t::log(uint8_t indent) const {
+void cpu_state::cpu_state_t::log(uint8_t indent) const {
     //irvelog(indent, "Inst Count: %lu", this->get_inst_count());
     irvelog(indent, "PC:\t\t0x%08x", this->get_pc());
     irvelog(indent, "Registers:");
@@ -78,19 +78,19 @@ void cpu_state_t::log(uint8_t indent) const {
     */
 }
 
-void cpu_state_t::validate_reservation_set() {
+void cpu_state::cpu_state_t::validate_reservation_set() {
     this->m_atomic_reservation_set_valid = true;
 }
 
-void cpu_state_t::invalidate_reservation_set() {
+void cpu_state::cpu_state_t::invalidate_reservation_set() {
     this->m_atomic_reservation_set_valid = false;
 }
 
-bool cpu_state_t::reservation_set_valid() const {
+bool cpu_state::cpu_state_t::reservation_set_valid() const {
     return this->m_atomic_reservation_set_valid;
 }
 
-void cpu_state_t::goto_next_sequential_pc() {
+void cpu_state::cpu_state_t::goto_next_sequential_pc() {
     this->m_pc += 4;
     irvelog(3, "Going to next sequential PC: 0x%08X", this->m_pc);
 }

@@ -33,20 +33,20 @@ namespace irve::internal::emulator {
 
         uint64_t get_inst_count() const;
 
-        int8_t mem_read_byte(irve::internal::word_t addr) const;
-        void mem_write(irve::internal::word_t addr, uint8_t size, irve::internal::word_t data);
+        int8_t mem_read_byte(word_t addr) const;
+        void mem_write(word_t addr, uint8_t size, word_t data);
 
     private:
 
-        irve::internal::word_t fetch() const;
-        void execute(const decoded_inst_t &decoded_inst);//TODO move this to a separate file
+        word_t fetch() const;
+        void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
 
         void handle_interrupt(cause_t cause);
         void handle_exception(cause_t cause);
         
         memory_t m_memory;
-        cpu_state_t m_cpu_state;
-        irve::internal::CSR::CSR_t m_CSR;
+        cpu_state::cpu_state_t m_cpu_state;
+        CSR::CSR_t m_CSR;
 
         //TODO other things
     };
