@@ -26,11 +26,6 @@
 
 using namespace irve::internal;
 
-/* Static Function Declarations */
-
-static void handle_amo(cpu_state_t& cpu_state);
-static void goto_next_sequential_pc(cpu_state_t& cpu_state);
-
 /* Function Implementations */
 
 void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -76,7 +71,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     }
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -114,7 +109,7 @@ void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -187,7 +182,7 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -202,7 +197,7 @@ void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) 
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
     cpu_state.set_r(decoded_inst.get_rd(), result);
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -244,7 +239,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     }
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -301,7 +296,7 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
             //It will stay valid until an exception occurs or a SC.W instruction is executed
             cpu_state.validate_reservation_set();
 
-            goto_next_sequential_pc(cpu_state);
+            cpu_state.goto_next_sequential_pc();
             return;
         case 0b00011://SC.W
             irvelog(3, "Mnemonic: SC.W");
@@ -318,7 +313,7 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
             if (!cpu_state.reservation_set_valid()) {
                 //If not, write a non-zero value to rd and go to the next instruction
                 cpu_state.set_r(decoded_inst.get_rd(), 1);
-                goto_next_sequential_pc(cpu_state);
+                cpu_state.goto_next_sequential_pc();
                 return;
             }
             
@@ -349,7 +344,7 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
             cpu_state.set_r(decoded_inst.get_rd(), 0);
 
             //And we're done!
-            goto_next_sequential_pc(cpu_state);
+            cpu_state.goto_next_sequential_pc();
             return;
         case 0b00001://AMOSWAP.W
             irvelog(3, "Mnemonic: AMOSWAP.W");
@@ -451,7 +446,7 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
     }
     memory.w(rs1, 0b010, word_to_write.s);
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -653,7 +648,7 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -666,7 +661,7 @@ void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
     cpu_state.set_r(decoded_inst.get_rd(), decoded_inst.get_imm());
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -731,7 +726,7 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
         }
     }
     else {
-        goto_next_sequential_pc(cpu_state);
+        cpu_state.goto_next_sequential_pc();
     }
 }
 
@@ -819,7 +814,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
                 cpu_state.set_pc(cpu_state.get_CSR(MEPC_ADDRESS) & 0xFFFFFFFC);
-                goto_next_sequential_pc(cpu_state);//TODO is this correct?
+                cpu_state.goto_next_sequential_pc();//TODO is this correct?
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 assert(false && "TODO implement SRET");
@@ -839,7 +834,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 cpu_state.set_r(decoded_inst.get_rd(), csr);
                 csr |= rs1;
                 cpu_state.set_CSR(imm.u, csr);
-                goto_next_sequential_pc(cpu_state);
+                cpu_state.goto_next_sequential_pc();
             }
             break;
         case 0b011://CSRRC
@@ -862,11 +857,4 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
-}
-
-/* Static Function Implementations */
-
-static void goto_next_sequential_pc(cpu_state_t& cpu_state) {
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }

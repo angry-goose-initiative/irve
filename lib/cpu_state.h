@@ -61,6 +61,8 @@ public:
     void validate_reservation_set();
     void invalidate_reservation_set();
     bool reservation_set_valid() const;
+
+    void goto_next_sequential_pc();
 private:
     irve::internal::CSR::CSR_t m_CSR;
     uint64_t m_inst_count;
