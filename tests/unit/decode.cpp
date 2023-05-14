@@ -20,7 +20,7 @@ using namespace irve::internal;
 
 int test_decode_decoded_inst_t() {
     decode::decoded_inst_t nop(0x00000013);
-    assert(nop.get_opcode() == OP_IMM);
+    assert(nop.get_opcode() == decode::opcode_t::OP_IMM);
     assert(nop.get_rd() == 0);
     assert(nop.get_funct3() == 0);
     assert(nop.get_rs1() == 0);

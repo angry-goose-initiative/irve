@@ -110,56 +110,56 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
 
     //We can assume the opcode exists since the instruction is valid
     switch (decoded_inst.get_opcode()) {
-        case LOAD:
-            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
+        case decode::opcode_t::LOAD:
+            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
             execute::load(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case CUSTOM_0:
-            assert((decoded_inst.get_format() == R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
+        case decode::opcode_t::CUSTOM_0:
+            assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
             execute::custom_0(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case MISC_MEM:
-            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
+        case decode::opcode_t::MISC_MEM:
+            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
             execute::misc_mem(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case OP_IMM:
-            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");
+        case decode::opcode_t::OP_IMM:
+            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");
             execute::op_imm(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case AUIPC:
-            assert((decoded_inst.get_format() == U_TYPE) && "Instruction with AUIPC opcode had a non-U format!");
+        case decode::opcode_t::AUIPC:
+            assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "Instruction with AUIPC opcode had a non-U format!");
             execute::auipc(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case STORE:
-            assert((decoded_inst.get_format() == S_TYPE) && "Instruction with STORE opcode had a non-S format!");
+        case decode::opcode_t::STORE:
+            assert((decoded_inst.get_format() == decode::inst_format_t::S_TYPE) && "Instruction with STORE opcode had a non-S format!");
             execute::store(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case AMO:
+        case decode::opcode_t::AMO:
             //TODO assertion
             execute::amo(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case OP:
-            assert((decoded_inst.get_format() == R_TYPE) && "Instruction with OP opcode had a non-R format!");
+        case decode::opcode_t::OP:
+            assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "Instruction with OP opcode had a non-R format!");
             execute::op(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case LUI:
-            assert((decoded_inst.get_format() == U_TYPE) && "Instruction with LUI opcode had a non-U format!");
+        case decode::opcode_t::LUI:
+            assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "Instruction with LUI opcode had a non-U format!");
             execute::lui(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case BRANCH:
-            assert((decoded_inst.get_format() == B_TYPE) && "Instruction with BRANCH opcode had a non-B format!");
+        case decode::opcode_t::BRANCH:
+            assert((decoded_inst.get_format() == decode::inst_format_t::B_TYPE) && "Instruction with BRANCH opcode had a non-B format!");
             execute::branch(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case JALR:
-            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with JALR opcode had a non-I format!");
+        case decode::opcode_t::JALR:
+            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with JALR opcode had a non-I format!");
             execute::jalr(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case JAL:
-            assert((decoded_inst.get_format() == J_TYPE) && "Instruction with JAL opcode had a non-J format!");
+        case decode::opcode_t::JAL:
+            assert((decoded_inst.get_format() == decode::inst_format_t::J_TYPE) && "Instruction with JAL opcode had a non-J format!");
             execute::jal(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case SYSTEM:
-            assert((decoded_inst.get_format() == I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
+        case decode::opcode_t::SYSTEM:
+            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
             execute::system(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
         default:

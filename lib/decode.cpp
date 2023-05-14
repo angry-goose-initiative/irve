@@ -74,35 +74,35 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
 
     switch (this->m_opcode) {
         //R-type
-        case OP:
-        case CUSTOM_0://We implement this opcode with some custom instructions!
-        case AMO:
-            this->m_format = R_TYPE;
+        case opcode_t::OP:
+        case opcode_t::CUSTOM_0://We implement this opcode with some custom instructions!
+        case opcode_t::AMO:
+            this->m_format = inst_format_t::R_TYPE;
             break;
         //I-type
-        case LOAD:
-        case OP_IMM:
-        case JALR:
-        case SYSTEM:
-        case MISC_MEM:
-            this->m_format = I_TYPE;
+        case opcode_t::LOAD:
+        case opcode_t::OP_IMM:
+        case opcode_t::JALR:
+        case opcode_t::SYSTEM:
+        case opcode_t::MISC_MEM:
+            this->m_format = inst_format_t::I_TYPE;
             break;
         //S-type
-        case STORE:
-            this->m_format = S_TYPE;
+        case opcode_t::STORE:
+            this->m_format = inst_format_t::S_TYPE;
             break;
         //B-type
-        case BRANCH:
-            this->m_format = B_TYPE;
+        case opcode_t::BRANCH:
+            this->m_format = inst_format_t::B_TYPE;
             break;
         //U-type
-        case LUI:
-        case AUIPC:
-            this->m_format = U_TYPE;
+        case opcode_t::LUI:
+        case opcode_t::AUIPC:
+            this->m_format = inst_format_t::U_TYPE;
             break;
         //J-type
-        case JAL:
-            this->m_format = J_TYPE;
+        case opcode_t::JAL:
+            this->m_format = inst_format_t::J_TYPE;
             break;
         default:
             invoke_rv_exception_with_cause(ILLEGAL_INSTRUCTION_EXCEPTION);
@@ -112,7 +112,7 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
 
 void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     switch (this->get_format()) {
-        case R_TYPE:
+        case inst_format_t::R_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = R");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
@@ -122,7 +122,7 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs1    = x%u", this->get_rs1());
             irvelog(indent, "rs2    = x%u", this->get_rs2());
             break;
-        case I_TYPE:
+        case inst_format_t::I_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = I");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
@@ -131,7 +131,7 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs1    = x%u", this->get_rs1());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
-        case S_TYPE:
+        case inst_format_t::S_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = S");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
@@ -140,7 +140,7 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs2    = x%u", this->get_rs2());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
-        case B_TYPE:
+        case inst_format_t::B_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = B");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
@@ -149,14 +149,14 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs2    = x%u", this->get_rs2());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
-        case U_TYPE:
+        case inst_format_t::U_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = U");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "rd     = x%u", this->get_rd());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
-        case J_TYPE:
+        case inst_format_t::J_TYPE:
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
             irvelog(indent, "type   = J");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
@@ -169,11 +169,11 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     }
 }
 
-inst_format_t decode::decoded_inst_t::get_format() const {
+decode::inst_format_t decode::decoded_inst_t::get_format() const {
     return this->m_format;
 }
 
-opcode_t decode::decoded_inst_t::get_opcode() const {
+decode::opcode_t decode::decoded_inst_t::get_opcode() const {
     return this->m_opcode;
 }
 
@@ -220,22 +220,22 @@ uint8_t decode::decoded_inst_t::get_rs2() const {
 
 word_t decode::decoded_inst_t::get_imm() const {
     switch (this->get_format()) {
-        case R_TYPE:
+        case inst_format_t::R_TYPE:
             assert(false && "Attempt to get imm of R-type instruction!");
             break;
-        case I_TYPE:
+        case inst_format_t::I_TYPE:
             return this->m_imm_I;
             break;
-        case S_TYPE:
+        case inst_format_t::S_TYPE:
             return this->m_imm_S;
             break;
-        case B_TYPE:
+        case inst_format_t::B_TYPE:
             return this->m_imm_B;
             break;
-        case U_TYPE:
+        case inst_format_t::U_TYPE:
             return this->m_imm_U;
             break;
-        case J_TYPE:
+        case inst_format_t::J_TYPE:
             return this->m_imm_J;
             break;
         default:

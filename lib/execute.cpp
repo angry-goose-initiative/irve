@@ -33,8 +33,8 @@ using namespace irve::internal;
 void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
-    assert((decoded_inst.get_opcode() == LOAD) && "load instruction must have opcode LOAD");
-    assert((decoded_inst.get_format() == I_TYPE) && "load instruction must be I_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::LOAD) && "load instruction must have opcode LOAD");
+    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "load instruction must be I_TYPE");
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -79,8 +79,8 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
-    assert((decoded_inst.get_opcode() == CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
-    assert((decoded_inst.get_format() == R_TYPE) && "custom-0 instruction must be R_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
+    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "custom-0 instruction must be R_TYPE");
 
     //All other fields being zero means emulator exit request
     if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
@@ -117,8 +117,8 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
 void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
-    assert((decoded_inst.get_opcode() == OP_IMM) && "op_imm instruction must have opcode OP_IMM");
-    assert((decoded_inst.get_format() == I_TYPE) && "op_imm instruction must be I_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) && "op_imm instruction must have opcode OP_IMM");
+    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "op_imm instruction must be I_TYPE");
 
     //Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -190,8 +190,8 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
-    assert((decoded_inst.get_opcode() == AUIPC) && "auipc instruction must have opcode AUIPC");
-    assert((decoded_inst.get_format() == U_TYPE) && "auipc instruction must be U_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::AUIPC) && "auipc instruction must have opcode AUIPC");
+    assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "auipc instruction must be U_TYPE");
 
     word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
 
@@ -205,8 +205,8 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
 void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
-    assert((decoded_inst.get_opcode() == STORE) && "store instruction must have opcode STORE");
-    assert((decoded_inst.get_format() == S_TYPE) && "store instruction must be S_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::STORE) && "store instruction must have opcode STORE");
+    assert((decoded_inst.get_format() == decode::inst_format_t::S_TYPE) && "store instruction must be S_TYPE");
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -248,8 +248,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     irvelog(2, "Executing AMO instruction");
 
     //Sanity checks
-    assert((decoded_inst.get_opcode() == AMO) && "amo instruction must have opcode AMO");
-    assert((decoded_inst.get_format() == R_TYPE) && "amo instruction must be R_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::AMO) && "amo instruction must have opcode AMO");
+    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "amo instruction must be R_TYPE");
     if (decoded_inst.get_funct3() != 0b010) {
         invoke_rv_exception_with_cause(ILLEGAL_INSTRUCTION_EXCEPTION);
     }
@@ -454,8 +454,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
-    assert((decoded_inst.get_opcode() == OP) && "op instruction must have opcode OP");
-    assert((decoded_inst.get_format() == R_TYPE) && "op instruction must be R_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::OP) && "op instruction must have opcode OP");
+    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "op instruction must be R_TYPE");
 
     //Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -656,8 +656,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
-    assert((decoded_inst.get_opcode() == LUI) && "lui instruction must have opcode LUI");
-    assert((decoded_inst.get_format() == U_TYPE) && "lui instruction must be U_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::LUI) && "lui instruction must have opcode LUI");
+    assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "lui instruction must be U_TYPE");
 
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
@@ -669,8 +669,8 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
-    assert((decoded_inst.get_opcode() == BRANCH) && "branch instruction must have opcode BRANCH");
-    assert((decoded_inst.get_format() == B_TYPE) && "branch instruction must be B_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::BRANCH) && "branch instruction must have opcode BRANCH");
+    assert((decoded_inst.get_format() == decode::inst_format_t::B_TYPE) && "branch instruction must be B_TYPE");
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -735,8 +735,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
-    assert((decoded_inst.get_opcode() == JALR) && "jalr instruction must have opcode JALR");
-    assert((decoded_inst.get_format() == I_TYPE) && "jalr instruction must be I_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::JALR) && "jalr instruction must have opcode JALR");
+    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "jalr instruction must be I_TYPE");
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
 
@@ -750,8 +750,8 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
-    assert((decoded_inst.get_opcode() == JAL) && "jal instruction must have opcode JAL");
-    assert((decoded_inst.get_format() == J_TYPE) && "jal instruction must be J_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::JAL) && "jal instruction must have opcode JAL");
+    assert((decoded_inst.get_format() == decode::inst_format_t::J_TYPE) && "jal instruction must be J_TYPE");
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary
 
@@ -765,8 +765,8 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, CSR::CSR_t& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
-    assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
-    // assert((decoded_inst.get_format() == I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
+    assert((decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) && "system instruction must have opcode SYSTEM");
+    // assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
     
     //TODO also handle supervisor mode instructions
 
