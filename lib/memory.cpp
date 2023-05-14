@@ -144,7 +144,7 @@ void memory::pmemory_t::w(word_t addr, uint8_t data) {
         //End of line; print the debug string
         if (data == '\n') {
             //NOTE: We print to std::cout instead of using logging because we want to see this even if logging is disabled
-            std::cout << "\x1b[1mRISC-V Says: \"" << this->m_debugstr << "\"\x1b[0m" << std::endl;
+            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
             this->m_debugstr.clear();
         } else {
             this->m_debugstr.push_back(data);

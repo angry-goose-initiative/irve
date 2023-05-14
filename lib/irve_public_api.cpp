@@ -62,12 +62,17 @@ void irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const c
 //Namepace: irve::logging
 
 void irve::logging::log(uint8_t indent, const char* str, ...) {
-#if not(IRVE_INTERNAL_CONFIG_DISABLE_LOGGING)
     va_list list;
     va_start(list, str);
 
     irvelog(indent, str, list);
-#endif
+}
+
+void irve::logging::log_always(uint8_t indent, const char* str, ...) {//USE THIS SPARINGLY
+    va_list list;
+    va_start(list, str);
+
+    irvelog_always(indent, str, list);
 }
 
 bool irve::logging::logging_disabled() {

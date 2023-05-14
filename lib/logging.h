@@ -13,6 +13,7 @@
 
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "config.h"
 
@@ -22,10 +23,14 @@
 #error "INST_COUNT must be defined before including logging.h"
 #endif
 
-//TODO avoid errors when INST_COUNT is not used when logging is disabled
-
 #if IRVE_INTERNAL_CONFIG_DISABLE_LOGGING
-#define irvelog(...) ((void)0)
+
+//Compiles down to nothing, but prevents warnings/errors if logging is disabled
+#define irvelog(indent, ...) do { \
+    ((void)(INST_COUNT)); \
+    ((void)(indent)); \
+} while (0)
+
 #else
 
 #define irvelog(indent, ...) do { \
@@ -36,14 +41,20 @@
 
 //USE THIS SPARINGLY
 #define irvelog_always(indent, ...) do { \
-    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(INST_COUNT, indent, __VA_ARGS__); \
+    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(stderr, INST_COUNT, indent, __VA_ARGS__); \
+} while (0)
+
+//SHOULD ONLY BE USED FOR RISC-V OUTPUT
+#define irvelog_always_stdout(indent, ...) do { \
+    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(stdout, INST_COUNT, indent, __VA_ARGS__); \
 } while (0)
 
 /* Function/Class Declarations */
 
 namespace irve::internal::logging {
-    void irvelog_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, ...);
-    void irvelog_internal_function_dont_use_this_directly(uint64_t inst_num, uint8_t indent, const char* str, va_list list);
+    //TODO have -1 mean end
+    void irvelog_internal_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...);
+    void irvelog_internal_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, va_list list);
 }
 
 #endif//LOGGING_H
