@@ -53,7 +53,7 @@ namespace irve::internal::decode {
         uint8_t get_funct5() const;
         uint8_t get_funct7() const;
         uint8_t get_rd() const;
-        uint8_t get_rs1() const;
+        uint8_t get_rs1() const;//Also uimm//TODO how should we expose uimm?
         uint8_t get_rs2() const;
         word_t get_imm() const;
 

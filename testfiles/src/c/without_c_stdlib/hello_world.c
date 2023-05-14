@@ -29,9 +29,8 @@ int main(void)
 /* Static Function Implementations */
 
 void my_puts(const char* str) {
-    const char* char_ptr = str;
-    for (const char* char_ptr = HELLO_WORLD; *char_ptr != '\0'; ++char_ptr) {
-        IRVE_DEBUG_ADDR = *char_ptr;
+    for (; *str != '\0'; ++str) {
+        IRVE_DEBUG_ADDR = *str;
     }
     IRVE_DEBUG_ADDR = '\n';
 }

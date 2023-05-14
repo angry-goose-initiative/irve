@@ -44,9 +44,9 @@ namespace irve::internal::emulator {
         void handle_interrupt(rvexception::cause_t cause);
         void handle_exception(rvexception::cause_t cause);
         
+        CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
-        CSR::CSR_t m_CSR;
 
         //TODO other things
     };

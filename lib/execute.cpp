@@ -67,6 +67,7 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
         cpu_state.set_r(decoded_inst.get_rd(), loaded);
     }
     catch(...) {
+        assert(false && "TODO");
         // TODO what happens when we access invalid memory?
         //Actually we probably shouldn't catch here, but rather pass this up to the emulator
         //TODO priority of this exception vs. the illegal instruction exception?
@@ -76,7 +77,7 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
+void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& /* cpu_state */, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert((decoded_inst.get_opcode() == decode::opcode_t::CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
@@ -117,12 +118,13 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
 void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) && "op_imm instruction must have opcode OP_IMM");
-    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "op_imm instruction must be I_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) && "op_imm() instruction must have opcode OP-IMM");
+    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "op_imm() instruction must be I_TYPE");
 
     //Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
     word_t imm = decoded_inst.get_imm();
+    uint8_t funct7 = imm.bits(11, 5).u;
 
     //Perform the ALU operation
     word_t result;
@@ -153,11 +155,11 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             irvelog(3, "0x%08X ^ 0x%08X = 0x%08X", rs1.u, imm.u, result.u);
             break;
         case 0b101://SRLI or SRAI
-            if (decoded_inst.get_funct7() == 0b0000000) {//SRLI
+            if (funct7 == 0b0000000) {//SRLI
                 irvelog(3, "Mnemonic: SRLI");
                 result = rs1.srl(imm.bits(4, 0));
                 irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", rs1.u, imm.u, result.u);
-            } else if (decoded_inst.get_funct7() == 0b0100000) {//SRAI
+            } else if (funct7 == 0b0100000) {//SRAI
                 irvelog(3, "Mnemonic: SRAI");
                 result = rs1.sra(imm.bits(4, 0));
                 irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", rs1.u, imm.u, result.u);
@@ -772,7 +774,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
     // Get operands
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
+    //reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
     word_t imm = decoded_inst.get_imm();
     CSR::privilege_mode_t privilege_mode = CSR.get_privilege_mode();

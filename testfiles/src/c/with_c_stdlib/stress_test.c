@@ -39,6 +39,8 @@ int main() {
     //assert(false && "TESTING");
     
     //TODO do more
+    
+    return 0;
 }
 
 /* Static Function Implementations */

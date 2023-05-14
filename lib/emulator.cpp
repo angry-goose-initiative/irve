@@ -28,7 +28,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t() : m_memory(m_CSR), m_cpu_state(m_CSR) {
+emulator::emulator_t::emulator_t() : m_CSR(), m_memory(m_CSR), m_cpu_state(m_CSR) {
     irvelog(0, "Created new emulator instance");
 }
 
@@ -168,7 +168,7 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     }
 }
 
-void emulator::emulator_t::handle_interrupt(rvexception::cause_t cause) {
+void emulator::emulator_t::handle_interrupt(rvexception::cause_t /* cause */) {
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
     assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
 }
