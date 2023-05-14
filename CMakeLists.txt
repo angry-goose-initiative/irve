@@ -8,13 +8,13 @@
 #
 
 #Config options
-set(IRVE_DISABLE_LOGGING 0)
+set(IRVE_DISABLE_LOGGING 0)#TODO make this enabled by default in release builds
 set(IRVE_SANITIZE 0)
 
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.3.0)
+project(irve VERSION 0.4.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
