@@ -26,10 +26,6 @@
 
 using namespace irve::internal;
 
-/* Static Function Declarations */
-
-static void goto_next_sequential_pc(cpu_state_t& cpu_state);
-
 /* Function Implementations */
 
 void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -75,7 +71,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     }
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -113,7 +109,7 @@ void execute::misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_stat
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -181,11 +177,12 @@ void execute::op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
             assert(false && "We should never get here");
             break;
     }
-    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
+            cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -196,10 +193,11 @@ void execute::auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) 
 
     word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
 
-    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
+            cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
     cpu_state.set_r(decoded_inst.get_rd(), result);
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -241,7 +239,7 @@ void execute::store(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, 
     }
 
     //Increment PC
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
@@ -259,28 +257,19 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
     reg_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
 
-    //Check that the address is word-aligned
-    if ((rs1.u % 4) != 0) {
-        //NOTE: This exception has priority over access faults but not over the illegal instruction exception
-        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
-    }
-
     word_t loaded_word;
     switch (decoded_inst.get_funct5()) {
         case 0b00010://LR.W
             irvelog(3, "Mnemonic: LR.W");
-            //TODO what if the CPU is interrupted between the load and the store?
-            assert(false && "TODO");
-            break;
-        case 0b00011://SC.W
-            irvelog(3, "Mnemonic: SC.W");
-            //TODO what if the CPU is interrupted between the load and the store?
-            assert(false && "TODO");
-            break;
-        case 0b00001://AMOSWAP.W
-            irvelog(3, "Mnemonic: AMOSWAP.W");
 
-            //Read the word at the address in rs1
+            //Check that the address is word-aligned
+            if ((rs1.u % 4) != 0) {
+                //NOTE: This exception has priority over access faults but not over the illegal instruction exception
+                //This is why we don't do this before the switch statement
+                throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+            }
+            
+            //Load the word from memory at the address in rs1
             try {
                 loaded_word = memory.r(rs1, 0b010);
             } catch (const rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
@@ -303,49 +292,161 @@ void execute::amo(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, me
             //Save it into rd
             cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
 
-            //Swap, so now write rs2 into the address in rs1
-            memory.w(rs1, 0b010, rs2.s);
+            //If we get here, the load was successful; the "reservation set" is valid
+            //It will stay valid until an exception occurs or a SC.W instruction is executed
+            cpu_state.validate_reservation_set();
 
-            assert(false && "TODO");
+            cpu_state.goto_next_sequential_pc();
+            return;
+        case 0b00011://SC.W
+            irvelog(3, "Mnemonic: SC.W");
+
+            //Check that the address is word-aligned
+            //TODO should we only check alignment if the reservation set is valid?
+            if ((rs1.u % 4) != 0) {
+                //NOTE: This exception has priority over access faults but not over the illegal instruction exception
+                //This is why we don't do this before the switch statement
+                throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+            }
+
+            //Check if the reservation set is valid
+            if (!cpu_state.reservation_set_valid()) {
+                //If not, write a non-zero value to rd and go to the next instruction
+                cpu_state.set_r(decoded_inst.get_rd(), 1);
+                cpu_state.goto_next_sequential_pc();
+                return;
+            }
+            
+            //If we get here, the reservation set is valid
+            cpu_state.invalidate_reservation_set();//We are now performing the store, so the reservation set is no longer valid
+
+            //Attempt to store the value in rs2 to the address in rs1
+            try {
+                memory.w(rs1, 0b010, rs2);
+            } catch (const rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+                switch (e.cause()) {//TODO ensure this is correct
+                    case cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                        assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                        break;
+                    case cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
+                        throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+                        break;
+                    case cause_t::LOAD_PAGE_FAULT_EXCEPTION:
+                        throw rvexception_t(STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
+                        break;
+                    default:
+                        assert(false && "Unexpected exception when reading from memory");
+                        break;
+                }
+            }
+
+            //If we get here, the store was successful; write 0 to rd
+            cpu_state.set_r(decoded_inst.get_rd(), 0);
+
+            //And we're done!
+            cpu_state.goto_next_sequential_pc();
+            return;
+        case 0b00001://AMOSWAP.W
+            irvelog(3, "Mnemonic: AMOSWAP.W");
             break;
         case 0b00000://AMOADD.W
             irvelog(3, "Mnemonic: AMOADD.W");
-            assert(false && "TODO");
             break;
         case 0b00100://AMOXOR.W
             irvelog(3, "Mnemonic: AMOXOR.W");
-            assert(false && "TODO");
             break;
         case 0b01100://AMOAND.W
             irvelog(3, "Mnemonic: AMOAND.W");
-            assert(false && "TODO");
             break;
         case 0b01000://AMOOR.W
             irvelog(3, "Mnemonic: AMOOR.W");
-            assert(false && "TODO");
             break;
         case 0b10000://AMOMIN.W
             irvelog(3, "Mnemonic: AMOMIN.W");
-            assert(false && "TODO");
             break;
         case 0b10100://AMOMAX.W
             irvelog(3, "Mnemonic: AMOMAX.W");
-            assert(false && "TODO");
             break;
         case 0b11000://AMOMINU.W
             irvelog(3, "Mnemonic: AMOMINU.W");
-            assert(false && "TODO");
             break;
         case 0b11100://AMOMAXU.W
             irvelog(3, "Mnemonic: AMOMAXU.W");
-            assert(false && "TODO");
             break;
         default:
             throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 
-    goto_next_sequential_pc(cpu_state);
+    //If we got here, this is a "proper" AMO instruction (i.e. not LR.W or SC.W)
+
+    //Check that the address is word-aligned
+    if ((rs1.u % 4) != 0) {
+        //NOTE: This exception has priority over access faults but not over the illegal instruction exception
+        //This is why we don't do this before the switch statement
+        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+    }
+
+    //Read the word at the address in rs1
+    try {
+        loaded_word = memory.r(rs1, 0b010);
+    } catch (const rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+        switch (e.cause()) {//TODO ensure this is correct
+            case cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                break;
+            case cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
+                throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+                break;
+            case cause_t::LOAD_PAGE_FAULT_EXCEPTION:
+                throw rvexception_t(STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
+                break;
+            default:
+                assert(false && "Unexpected exception when reading from memory");
+                break;
+        }
+    }
+
+    //Save it into rd
+    cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
+
+    //Perform the operation (instruction-specific)
+    word_t word_to_write;
+    switch (decoded_inst.get_funct5()) {
+        case 0b00001://AMOSWAP.W
+            word_to_write = rs2;
+            break;
+        case 0b00000://AMOADD.W
+            word_to_write = loaded_word + rs2;
+            break;
+        case 0b00100://AMOXOR.W
+            word_to_write = loaded_word ^ rs2;
+            break;
+        case 0b01100://AMOAND.W
+            word_to_write = loaded_word & rs2;
+            break;
+        case 0b01000://AMOOR.W
+            word_to_write = loaded_word | rs2;
+            break;
+        case 0b10000://AMOMIN.W
+            word_to_write = std::min(loaded_word.s, rs2.s);
+            break;
+        case 0b10100://AMOMAX.W
+            word_to_write = std::max(loaded_word.s, rs2.s);
+            break;
+        case 0b11000://AMOMINU.W
+            word_to_write = std::min(loaded_word.u, rs2.u);
+            break;
+        case 0b11100://AMOMAXU.W
+            word_to_write = std::max(loaded_word.u, rs2.u);
+            break;
+        default:
+            assert(false && "Invalid funct5 for AMO instruction, but we already checked this!");
+            break;
+    }
+    memory.w(rs1, 0b010, word_to_write.s);
+
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -543,10 +644,11 @@ void execute::op(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
                 break;
         }
     }
-    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
+            cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result);
     cpu_state.set_r(decoded_inst.get_rd(), result.u);
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -555,10 +657,11 @@ void execute::lui(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     assert((decoded_inst.get_opcode() == LUI) && "lui instruction must have opcode LUI");
     assert((decoded_inst.get_format() == U_TYPE) && "lui instruction must be U_TYPE");
 
-    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X", cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
+    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
+            cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
     cpu_state.set_r(decoded_inst.get_rd(), decoded_inst.get_imm());
 
-    goto_next_sequential_pc(cpu_state);
+    cpu_state.goto_next_sequential_pc();
 }
 
 void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
@@ -623,7 +726,7 @@ void execute::branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state)
         }
     }
     else {
-        goto_next_sequential_pc(cpu_state);
+        cpu_state.goto_next_sequential_pc();
     }
 }
 
@@ -711,7 +814,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
                 cpu_state.set_pc(cpu_state.get_CSR(MEPC_ADDRESS) & 0xFFFFFFFC);
-                goto_next_sequential_pc(cpu_state);//TODO is this correct?
+                cpu_state.goto_next_sequential_pc();//TODO is this correct?
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 assert(false && "TODO implement SRET");
@@ -731,7 +834,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 cpu_state.set_r(decoded_inst.get_rd(), csr);
                 csr |= rs1;
                 cpu_state.set_CSR(imm.u, csr);
-                goto_next_sequential_pc(cpu_state);
+                cpu_state.goto_next_sequential_pc();
             }
             break;
         case 0b011://CSRRC
@@ -754,11 +857,4 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             throw rvexception_t(ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
-}
-
-/* Static Function Implementations */
-
-static void goto_next_sequential_pc(cpu_state_t& cpu_state) {
-    cpu_state.set_pc(cpu_state.get_pc() + 4);
-    irvelog(3, "Going to next sequential PC: 0x%08X", cpu_state.get_pc()); 
 }

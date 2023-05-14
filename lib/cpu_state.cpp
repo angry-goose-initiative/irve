@@ -30,7 +30,8 @@ cpu_state_t::cpu_state_t(memory_t& memory_ref) :
     m_inst_count(0), 
     m_pc(0),
     m_regs(),
-    m_memory_ref(memory_ref)
+    m_memory_ref(memory_ref),
+    m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
     irvelog(1, "Created new cpu_state instance");
     this->log(2);
@@ -132,10 +133,13 @@ privilege_mode_t cpu_state_t::get_privilege_mode() const {
 }
 
 void cpu_state_t::handle_interrupt(cause_t cause) {
+    this->invalidate_reservation_set();//Could have interrupted an LR/SC sequence
     assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
 }
 
 void cpu_state_t::handle_exception(cause_t cause) {
+    this->invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+     
     uint32_t raw_cause = (uint32_t)cause;
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
@@ -154,4 +158,21 @@ void cpu_state_t::handle_exception(cause_t cause) {
 
         //TODO what else should be done if anything?
     }
+}
+
+void cpu_state_t::validate_reservation_set() {
+    this->m_atomic_reservation_set_valid = true;
+}
+
+void cpu_state_t::invalidate_reservation_set() {
+    this->m_atomic_reservation_set_valid = false;
+}
+
+bool cpu_state_t::reservation_set_valid() const {
+    return this->m_atomic_reservation_set_valid;
+}
+
+void cpu_state_t::goto_next_sequential_pc() {
+    this->m_pc += 4;
+    irvelog(3, "Going to next sequential PC: 0x%08X", this->m_pc);
 }

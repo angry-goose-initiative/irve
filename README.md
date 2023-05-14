@@ -1,6 +1,8 @@
 # irve
 
+[![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
 [![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
+[![IRVE Integration Tests](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml)
 
 The Inextensible RISC-V Emulator
 
@@ -13,6 +15,8 @@ The plan is to use it to better understand the RISC-V architecture (Volume 2 in 
 Once we do, we can move on to a hardware implementation in SystemVerilog!
 
 Then later on we plan to continue XRVE which will be a much more extensible and powerful emulator written in Rust.
+
+Our Journey: https://docs.google.com/document/d/1HeZ4l5OxooQuh2kdJ1o-uWJXWzGPsVntSPlf_ByFmWA/edit?usp=drivesdk 
 
 ## Compiling
 
