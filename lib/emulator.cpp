@@ -28,7 +28,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t() : m_memory(), m_cpu_state(m_memory) {
+emulator::emulator_t::emulator_t() : m_memory(m_CSR), m_cpu_state(m_CSR) {
     irvelog(0, "Created new emulator instance");
 }
 
@@ -116,7 +116,7 @@ void emulator::emulator_t::execute(const decoded_inst_t &decoded_inst) {
             break;
         case CUSTOM_0:
             assert((decoded_inst.get_format() == R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
-            execute::custom_0(decoded_inst, this->m_cpu_state, this->m_memory);
+            execute::custom_0(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
         case MISC_MEM:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
@@ -160,7 +160,7 @@ void emulator::emulator_t::execute(const decoded_inst_t &decoded_inst) {
             break;
         case SYSTEM:
             assert((decoded_inst.get_format() == I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
-            execute::system(decoded_inst, this->m_cpu_state, this->m_memory);
+            execute::system(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
         default:
             assert(false && "Instruction with either invalid opcode, or that is implemented in decode but not in execute yet!");

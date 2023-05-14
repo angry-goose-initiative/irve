@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include "common.h"
+#include "CSR.h"
 
 /* Function/Class Declarations */
 
@@ -44,9 +45,10 @@ class memory_t {//Virtual memory (or passthru for physical memory if virtual mem
 private:
     // The "physical" memory
     pmemory_t m_mem;
-    //int8_t m_mem[PMEMSIZE];
+
+    irve::internal::CSR::CSR_t& m_CSR_ref;
 public:
-    memory_t();
+    memory_t(irve::internal::CSR::CSR_t& CSR_ref);
     irve::internal::word_t r(irve::internal::word_t addr, int8_t func3) const;
     void w(irve::internal::word_t addr, int8_t func3, irve::internal::word_t data);
     void p(irve::internal::word_t addr) const;

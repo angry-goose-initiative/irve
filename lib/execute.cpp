@@ -17,6 +17,8 @@
 #include <cassert>
 #include <cstdint>
 
+#include "common.h"
+#include "CSR.h"
 #include "cpu_state.h"
 #include "decode.h"
 #include "rvexception.h"
@@ -74,7 +76,7 @@ void execute::load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, m
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& /* memory */, CSR::CSR_t& /* CSR */) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert((decoded_inst.get_opcode() == CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
@@ -760,7 +762,7 @@ void execute::jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state) {
     cpu_state.set_pc(cpu_state.get_pc() + decoded_inst.get_imm().u);
 }
 
-void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory) {
+void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, CSR::CSR_t& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
     assert((decoded_inst.get_opcode() == SYSTEM) && "system instruction must have opcode SYSTEM");
@@ -788,7 +790,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 switch (cpu_state.get_privilege_mode()) {
                     case privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
-                        cpu_state.set_CSR(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC
+                        CSR.set(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC
                         throw rvexception_t(MMODE_ECALL_EXCEPTION);
                         break;
                     case privilege_mode_t::SUPERVISOR_MODE:
@@ -813,7 +815,7 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
                 irvelog(3, "Mnemonic: MRET");
                 //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
-                cpu_state.set_pc(cpu_state.get_CSR(MEPC_ADDRESS) & 0xFFFFFFFC);
+                cpu_state.set_pc(CSR.get(MEPC_ADDRESS) & 0xFFFFFFFC);
                 cpu_state.goto_next_sequential_pc();//TODO is this correct?
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
@@ -830,10 +832,10 @@ void execute::system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state,
             irvelog(3, "Mnemonic: CSRRS");
             {//TODO better code reuse w/ the other CSR instructions
              //TODO better logging
-                reg_t csr = cpu_state.get_CSR(imm.u);
+                reg_t csr = CSR.get(imm.u);
                 cpu_state.set_r(decoded_inst.get_rd(), csr);
                 csr |= rs1;
-                cpu_state.set_CSR(imm.u, csr);
+                CSR.set(imm.u, csr);
                 cpu_state.goto_next_sequential_pc();
             }
             break;

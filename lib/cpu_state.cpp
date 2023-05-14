@@ -24,53 +24,16 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-cpu_state_t::cpu_state_t(memory_t& memory_ref) :
+cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     m_privilege_mode(privilege_mode_t::MACHINE_MODE),
-    m_CSR(),
     m_inst_count(0), 
     m_pc(0),
     m_regs(),
-    m_memory_ref(memory_ref),
+    m_CSR_ref(CSR_ref),
     m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
     irvelog(1, "Created new cpu_state instance");
     this->log(2);
-}
-
-reg_t cpu_state_t::get_CSR(uint16_t csr) const {
-    //TODO do this properly
-    // TODO check if CSR can be read from
-    if (csr == 0x341) {
-        return this->m_CSR.mepc;
-    }
-    if (csr == 0x342) {
-        return (uint32_t)this->m_CSR.mcause;
-    }
-    if((csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
-        // if not readable, throw exception to be caught?
-    }
-    assert(false && "TODO");
-}
-
-void cpu_state_t::set_CSR(uint16_t csr, word_t data) {
-    //TODO do this properly
-    // TODO check if CSR can be written to
-    if (csr == 0x341) {
-        this->m_CSR.mepc = data & 0xFFFFFFFC;
-        return;
-    }
-    if (csr == 0x342) {
-        this->m_CSR.mcause = (cause_t)data.u;
-        return;
-    }
-    if((csr >> 10) == 0b11 || (csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
-        // if not writeable, throw exception to be caught?
-    }
-
-    //TODO some CSRs are read only, some are write only, some are read/write
-    //Sometimes only PARTS of a CSR are writable or affect other bits
-    //We need to check for that and deal with it here
-    assert(false && "TODO");
 }
 
 void cpu_state_t::increment_inst_count() {
@@ -145,15 +108,15 @@ void cpu_state_t::handle_exception(cause_t cause) {
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    if (this->m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception
+    if (this->m_CSR_ref.medeleg[raw_cause]) {//Supervisor mode should handle the exception
         //TODO handle this case
         assert(false && "TODO handle this case");
     } else {//Machine mode should handle the exception
         //TODO manage the privilege stack in mstatus?
         this->m_privilege_mode = privilege_mode_t::MACHINE_MODE;
 
-        this->m_CSR.mcause = cause;
-        this->m_CSR.mepc = this->m_pc;
+        this->m_CSR_ref.mcause = cause;
+        this->m_CSR_ref.mepc = this->m_pc;
         this->set_pc(MTVEC.srl(2));
 
         //TODO what else should be done if anything?

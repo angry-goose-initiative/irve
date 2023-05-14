@@ -33,6 +33,12 @@ namespace irve::internal::CSR {
     public:
         CSR_t();
 
+        irve::internal::reg_t get(uint16_t csr) const;
+        void set(uint16_t csr, irve::internal::word_t data);
+
+
+        //TODO make these private
+
         reg_t sscratch;//Address 0x140
         reg_t sepc;//Address 0x141
         cause_t scause;//Address 0x142

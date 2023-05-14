@@ -14,12 +14,13 @@
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
+#include "CSR.h"
 
 /* Function/Class Declarations */
 
 namespace irve::internal::execute {
     void load(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
-    void custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
+    void custom_0(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory, CSR::CSR_t& CSR);
     void misc_mem(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void op_imm(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void auipc(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
@@ -30,7 +31,7 @@ namespace irve::internal::execute {
     void branch(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void jalr(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
     void jal(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state);
-    void system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, memory_t& memory);
+    void system(const decoded_inst_t& decoded_inst, cpu_state_t& cpu_state, CSR::CSR_t& CSR);
 }
 
 #endif//EXECUTE_H
