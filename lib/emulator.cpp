@@ -181,14 +181,14 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    if (this->m_CSR.medeleg[raw_cause]) {//Supervisor mode should handle the exception
+    if (this->m_CSR.medeleg.bit(raw_cause) != 0) {//Supervisor mode should handle the exception if the relevant bit is set
         //TODO handle this case
         assert(false && "TODO handle this case");
     } else {//Machine mode should handle the exception
         //TODO manage the privilege stack in mstatus?
         this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
 
-        this->m_CSR.mcause = cause;
+        this->m_CSR.mcause.as_cause_t = cause;
         this->m_CSR.mepc = this->m_cpu_state.get_pc();
         this->m_cpu_state.set_pc(MTVEC.srl(2));
 

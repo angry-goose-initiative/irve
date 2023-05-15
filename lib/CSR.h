@@ -48,6 +48,8 @@ namespace irve::internal::CSR {
         void set_privilege_mode(privilege_mode_t new_privilege_mode);
         privilege_mode_t get_privilege_mode() const;
 
+        //TODO add way to implicitly read/write CSRs so they won't cause exceptions (ex. for timers, etc.)
+
         void increment_inst_count();
         uint64_t get_inst_count() const;
 
@@ -56,15 +58,18 @@ namespace irve::internal::CSR {
 
         reg_t sscratch;//Address 0x140
         reg_t sepc;//Address 0x141
-        rvexception::cause_t scause;//Address 0x142//TODO do this as a union of cause_t and reg_t
+        union {//Address 0x142
+            rvexception::cause_t as_cause_t;
+            reg_t as_reg_t;
+        } scause;
         reg_t stval;//Address 0x143
         //TODO sip here or somewhere else?//Address 0x144
         //TODO satp here or somewhere else?//Address 0x180
 
         //TODO mstatus here or somewhere else?//Address 0x300
         //misa is NOT here//Address 0x301
-        bool medeleg[32];//Address 0x302
-        bool mideleg[32];//Address 0x303
+        reg_t medeleg;//Address 0x302
+        reg_t mideleg;//Address 0x303
         //TODO mie here or somewhere else?//Address 0x304
         //TODO mtvec here or somewhere else?//Address 0x305
         //TODO mcounteren here or somewhere else?//Address 0x306
@@ -72,7 +77,10 @@ namespace irve::internal::CSR {
         //TODO mstatush here or somewhere else?//Address 0x310
 
         reg_t mepc;//Address 0x341
-        rvexception::cause_t mcause;//Address 0x342//TODO do this as a union of cause_t and reg_t
+        union {
+            rvexception::cause_t as_cause_t;//Address 0x342
+            reg_t as_reg_t;
+        } mcause;
 
         //TODO add CSRs HERE
 

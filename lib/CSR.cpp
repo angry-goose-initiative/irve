@@ -20,11 +20,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 // TODO what should CSRs be initialized to?
-CSR::CSR_t::CSR_t() : m_privilege_mode(privilege_mode_t::MACHINE_MODE), minstret(0) {
-    for (std::size_t i = 0; i < 32; ++i) {
-        this->medeleg[i] = false;
-        this->mideleg[i] = false;
-    }
+CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE), minstret(0) {
 }
 
 reg_t CSR::CSR_t::get(uint16_t csr) const {
@@ -34,7 +30,7 @@ reg_t CSR::CSR_t::get(uint16_t csr) const {
         return this->mepc;
     }
     if (csr == 0x342) {
-        return (uint32_t)this->mcause;
+        return this->mcause.as_reg_t;
     }
    /* if((csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
         throw rvexception_t(ILLEGAL_INSTRUCTION);
@@ -51,7 +47,7 @@ void CSR::CSR_t::set(uint16_t csr, word_t data) {
         return;
     }
     if (csr == 0x342) {
-        this->mcause = (rvexception::cause_t)data.u;
+        this->mcause.as_reg_t = data;
         return;
     }
     /*

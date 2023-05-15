@@ -20,7 +20,7 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
 
     typedef union word_t {
     public:
-        word_t();
+        word_t() = default;//Instead of defining the constructor as empty elsewhere, use the default keyword so that we can put word_t in places like in other unions
         word_t(uint32_t data);
         word_t(int32_t data);
         //NOTE: NOT providing these transparent type conversion functions to make things more explicit
