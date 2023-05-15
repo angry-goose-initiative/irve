@@ -30,7 +30,7 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
     assert(str && "irvelog called with null format string");
 
     if (inst_num) {
-        fprintf(destination, "\x1b[94m%lu\x1b[1;90m>\x1b[0m ", inst_num);
+        fprintf(destination, "\x1b[94m%llu\x1b[1;90m>\x1b[0m ", (long long unsigned int) inst_num);
     } else {
         fprintf(destination, "\x1b[94mIRVE\x1b[1;90m>\x1b[0m ");
     }
