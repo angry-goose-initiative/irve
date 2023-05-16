@@ -52,6 +52,7 @@ static void actual_log_function(FILE* destination, uint64_t inst_num, uint8_t in
 /* Function Implementations */
 
 void logging::irvelog_internal_variadic_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...) {
+    //TODO in async logging try to do this on the logging thread
     va_list list_copy_1;
     va_start(list_copy_1, str);
     va_list list_copy_2;
@@ -83,18 +84,20 @@ class AsyncLogger {
         std::thread m_thread;
     public:
         AsyncLogger() : m_queue_busy(false), m_thread_running(true), m_thread([&]() {
-            puts("Hello from thread!");
-
+            std::setbuf(stdout, NULL);//Disable stdout buffering since we're using multiple threads anyways
             //Main logging loop
             while (true) {
                 //Continually try to reserve the queue
                 while (m_queue_busy.exchange(true)) {
+                    //Okay to yield here since in testing, the logging thread can't keep up with the main thread
+                    //anyways (so might as well be more efficient)
                     std::this_thread::yield();
                 }
                 //At this point, the queue is reserved
 
                 //If the queue is empty, release it and check if the thread should exit
                 if (m_queue.empty()) {
+                    assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
                     m_queue_busy.store(false);
 
                     if (!m_thread_running.load()) {//The queue is empty and will never be filled again
@@ -104,6 +107,7 @@ class AsyncLogger {
                     //Pop the front element and release the queue
                     auto [destination, inst_num, indent, str] = m_queue.front();
                     m_queue.pop();
+                    assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
                     m_queue_busy.store(false);
 
                     //Log the popped element
@@ -119,8 +123,9 @@ class AsyncLogger {
         }
 
         void enqueue_log_request(FILE* destination, uint64_t inst_num, uint8_t indent, std::string str) {
-            while (m_queue_busy.exchange(true));//Busy wait until the queue is free
+            while (m_queue_busy.exchange(true));//Busy wait until the queue is free (NOT yeilding since this needs to be very fast)
             m_queue.emplace(destination, inst_num, indent, str);
+            assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
             m_queue_busy.store(false);//Release the queue
         }
 };
@@ -138,7 +143,7 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
     async_logger.enqueue_log_request(destination, inst_num, indent, str);
 }
 
-#else
+#else//Non-async logging
 
 /* Function Implementations */
 

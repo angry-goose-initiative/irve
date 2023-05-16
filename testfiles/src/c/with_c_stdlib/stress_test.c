@@ -60,6 +60,10 @@ int main() {
         //TODO add another allocation to test how the heap allocations move around
     }
 
+    //for (int i = 0; i < 1000; ++i) {
+    //    puts("TESTING123\n");
+    //}
+
     //TODO do more
     
     return 0;

@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <cstring>
 
 #include "CSR.h"
 
@@ -121,6 +122,7 @@ void memory::memory_t::p(word_t addr) const {
 
 memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
+    std::memset(this->m_ram, 0, RAMSIZE);
 }
 
 memory::pmemory_t::~pmemory_t() {
