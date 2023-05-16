@@ -81,7 +81,7 @@ void irve::logging::log(uint8_t indent, const char* str, ...) {
     va_end(list_copy_2);
 
     //Actually log the string
-    irvelog_raw(indent, buffer);
+    irvelog(indent, buffer);
 
     //Free the buffer
     std::free(buffer);
@@ -103,7 +103,7 @@ void irve::logging::log_always(uint8_t indent, const char* str, ...) {//USE THIS
     va_end(list_copy_2);
 
     //Actually log the string
-    irvelog_raw_always(indent, buffer);
+    irvelog_always(indent, buffer);
 
     //Free the buffer
     std::free(buffer);

@@ -19,9 +19,6 @@
 
 /* Constants And Defines */
 
-//The raw versions of the logging functions are faster, but don't have any formatting
-//TODO make the raw version the default, and varadic opt-in with virvelog
-
 #ifndef INST_COUNT
 #error "INST_COUNT must be defined before including logging.h"
 #endif
@@ -40,51 +37,34 @@
     ((void)(str)); \
 } while (0)
 
-#else
+#else//Logging is enabled
 
 #define irvelog(indent, ...) do { \
     irvelog_always(indent, __VA_ARGS__); \
 } while (0)
 
-#define irvelog_raw(indent, str) do { \
-    irvelog_raw_always(indent, str); \
-} while (0)
-
 #endif
 
 //USE THIS SPARINGLY
-#define irvelog_raw_always(indent, str) do { \
-    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(stderr, INST_COUNT, indent, str); \
-} while (0)
-
-//USE THIS SPARINGLY
-#define irvelog_always(indent, ...) do { \
-    irve::internal::logging::irvelog_internal_variadic_function_dont_use_this_directly(stderr, INST_COUNT, indent, __VA_ARGS__); \
+//The magic of __VA_OPT__ automatically chooses the more efficient function if there are no variadic arguments
+#define irvelog_always(indent, str, ...) do { \
+    irve::internal::logging::irvelog_internal_ ## __VA_OPT__(variadic_) ## function_dont_use_this_directly(stderr, INST_COUNT, indent, str __VA_OPT__(,) __VA_ARGS__); \
 } while (0)
 
 //SHOULD ONLY BE USED FOR RISC-V OUTPUT
-#define irvelog_raw_always_stdout(indent, str) do { \
-    irve::internal::logging::irvelog_internal_function_dont_use_this_directly(stdout, INST_COUNT, indent, str); \
-} while (0)
-
-//SHOULD ONLY BE USED FOR RISC-V OUTPUT
-#define irvelog_always_stdout(indent, ...) do { \
-    irve::internal::logging::irvelog_internal_variadic_function_dont_use_this_directly(stdout, INST_COUNT, indent, __VA_ARGS__); \
+//The magic of __VA_OPT__ automatically chooses the more efficient function if there are no variadic arguments
+#define irvelog_always_stdout(indent, str, ...) do { \
+    irve::internal::logging::irvelog_internal_ ## __VA_OPT__(variadic_) ## function_dont_use_this_directly(stdout, INST_COUNT, indent, str __VA_OPT__(,) __VA_ARGS__); \
 } while (0)
 
 /* Function/Class Declarations */
 
 namespace irve::internal::logging {
-//#if IRVE_INTERNAL_CONFIG_ASYNC_LOGGING
-    //void init();
-    //void irvelog_async_deinit();
-    //void irvelog_async_flush();
-//#endif
-
-    //TODO have -1 mean end
-    void irvelog_internal_variadic_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...);
+    //This is more efficient than the variadic version
     void irvelog_internal_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str);
-    //void irvelog_internal_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, va_list list);
+
+    //The slower version that supports variadic arguments
+    void irvelog_internal_variadic_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...);
 }
 
 #endif//LOGGING_H
