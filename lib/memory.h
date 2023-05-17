@@ -13,6 +13,8 @@
 
 /* Constants And Defines */
 
+//TODO put these into a namespace as regular C++ constants
+
 #define RAMSIZE 0x04000000//64MB (should be plenty for the kernel to begin with)
 #define DEBUGADDR 0xFFFFFFFF//RISC-V code that writes a series of bytes to this address will print them to stdout (flushed when a newline is encountered)
 

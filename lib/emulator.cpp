@@ -190,7 +190,7 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
 
         this->m_CSR.mcause.as_cause_t = cause;
         this->m_CSR.mepc = this->m_cpu_state.get_pc();
-        this->m_cpu_state.set_pc(MTVEC.srl(2));
+        this->m_cpu_state.set_pc(MTVEC_CONTENTS.srl(2));
 
         //TODO what else should be done if anything?
     }

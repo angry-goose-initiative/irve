@@ -18,15 +18,72 @@
 
 /* Constants and Defines */
 
+//TODO move these to the address namespace
+
 #define MEPC_ADDRESS 0x341
 
 //TODO fill in the x's with supported extensions
-#define MISA word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
+#define MISA_CONTENTS word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
 
 //MTVEC hardcoded to start at 0x00000004 and be vectored
-#define MTVEC word_t((0x00000004 << 2) | 0b01)
+#define MTVEC_CONTENTS word_t((0x00000004 << 2) | 0b01)
 
 namespace irve::internal::CSR {
+
+    /* Constants */
+
+    namespace address {
+        //TODO list of CSR addresses here
+        const word_t SSCRATCH       = 0x140;
+        const word_t SEPC           = 0x141;
+        const word_t SCAUSE         = 0x142;
+        const word_t STVAL          = 0x143;
+        const word_t SIP            = 0x144;
+        //const word_t SATP           = 0x180;
+        const word_t MSTATUS        = 0x300;
+        const word_t MISA           = 0x301;
+        const word_t MEDELEG        = 0x302;
+        const word_t MIDELEG        = 0x303;
+        const word_t MIE            = 0x304;
+        const word_t MTVEC          = 0x305;
+        const word_t MCOUNTEREN     = 0x306;
+        const word_t MENVCFG        = 0x30A;
+        const word_t MSTATUSH       = 0x310;
+        const word_t MENVCFGH       = 0x31A;
+        const word_t MCOUNTINHIBIT  = 0x320;
+        //TODO the event counters
+        const word_t MSCRATCH       = 0x340;
+        const word_t MEPC           = 0x341;
+        const word_t MCAUSE         = 0x342;
+        const word_t MTVAL          = 0x343;
+        const word_t MIP            = 0x344;
+        const word_t MTINST         = 0x34A;
+        const word_t MTVAL2         = 0x34B;
+        //TODO the PMP CSRs
+        //const word_t SATP           = 0x5A8;
+        const word_t MSECCFG        = 0x747;
+        const word_t MSECCFGH       = 0x757;
+        const word_t MCYCLE         = 0xB00;
+        const word_t MINSTRET       = 0xB02;
+        //TODO the event counters
+        const word_t MCYCLEH        = 0xB80;
+        const word_t MINSTRETH      = 0xB82;
+        //TODO the event counters
+        const word_t CYCLE          = 0xC00;
+        const word_t TIME           = 0xC01;
+        const word_t INSTRET        = 0xC02;
+        //TODO the event counters
+        const word_t CYCLEH         = 0xC80;
+        const word_t TIMEH          = 0xC81;
+        const word_t INSTRETH       = 0xC82;
+        //TODO the event counters
+        const word_t MVENDORID      = 0xF11;
+        const word_t MARCHID        = 0xF12;
+        const word_t MIMPID         = 0xF13;
+        const word_t MHARTID        = 0xF14;
+        const word_t MCONFIGPTR     = 0xF15;
+
+    };
 
     /* Types */
 
