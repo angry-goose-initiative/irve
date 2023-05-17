@@ -21,7 +21,6 @@
 static void print_string(const char* str);
 static void print_double(double d);
 static void print_uint(uint64_t uint);
-static void print_uint_bin(uint32_t uint);
 void test_iterations(uint32_t cycles);
 
 /* Function Implementations */
@@ -52,10 +51,12 @@ int main() {
     print_string("\na / b is ");
     print_double(a / b);
     print_string("\n");
+
+    return 0;
 }
 
 //Called if an assertion fails
-void __assert_func(const char* file, int line, const char* function, const char* expr) {
+void __assert_func(const char* file, int, const char* function, const char* expr) {
     print_string("Assertion failed: ");
     print_string(file);
     print_string(" | ");
@@ -69,7 +70,6 @@ void __assert_func(const char* file, int line, const char* function, const char*
 /* Static Function Implementations */
 
 static void print_string(const char* str) {
-    volatile char test = *str;
     while (*str) {
         IRVE_DEBUG_ADDR = *str;
         ++str;
@@ -107,29 +107,6 @@ static void print_uint(uint64_t uint) {//TODO do this more efficiently
         uint /= 10;
     }
     print_string(&buffer[index + 1]);
-}
-
-static void print_uint_bin(uint32_t uint) {
-    IRVE_DEBUG_ADDR = '0';
-    IRVE_DEBUG_ADDR = 'b';
-
-    uint32_t mask = 1ull << 31;
-    bool first_one_encountered = false;
-    while (mask) {
-
-        if (uint & mask) {
-            IRVE_DEBUG_ADDR = '1';
-            first_one_encountered = true;
-        } else if (first_one_encountered) {
-            IRVE_DEBUG_ADDR = '0';
-        }
-
-        mask >>= 1;
-    }
-
-    if (!first_one_encountered) {
-        IRVE_DEBUG_ADDR = '0';
-    }
 }
 
 void test_iterations(uint32_t iterations) {

@@ -19,60 +19,34 @@
 
 #include "rvexception.h"
 
-/* Types */
-
-//TODO namespacing
-
-enum class privilege_mode_t : uint8_t {
-    USER_MODE = 0b00,
-    SUPERVISOR_MODE = 0b01,
-    MACHINE_MODE = 0b11
-};
-
 /* Function/Class Declarations */
 
-//TODO namespacing
+namespace irve::internal::cpu_state {
 
-class cpu_state_t {
-public:
-    //We need a reference to memory so we can access the page table and virtual memory settings of the class
-    cpu_state_t(memory_t& memory_ref);
+    class cpu_state_t {
+    public:
+        cpu_state_t(irve::internal::CSR::CSR_t& CSR_ref);
 
-    irve::internal::reg_t get_CSR(uint16_t csr) const;
-    void set_CSR(uint16_t csr, irve::internal::word_t data);
+        reg_t get_pc() const;
+        void set_pc(reg_t new_pc);
 
-    void increment_inst_count();
-    uint64_t get_inst_count() const;
+        reg_t get_r(uint8_t reg_num) const;
+        void set_r(uint8_t reg_num, reg_t new_val);
 
-    irve::internal::reg_t get_pc() const;
-    void set_pc(irve::internal::reg_t new_pc);
+        void log(uint8_t indent) const;
 
-    irve::internal::reg_t get_r(uint8_t reg_num) const;
-    void set_r(uint8_t reg_num, irve::internal::reg_t new_val);
+        void validate_reservation_set();
+        void invalidate_reservation_set();
+        bool reservation_set_valid() const;
 
-    void log(uint8_t indent) const;
+        void goto_next_sequential_pc();
+    private:
+        reg_t m_pc;
+        reg_file::reg_file_t m_regs;
+        CSR::CSR_t& m_CSR_ref;
+        bool m_atomic_reservation_set_valid;
+    };
 
-    void set_privilege_mode(privilege_mode_t new_privilege_mode);
-    privilege_mode_t get_privilege_mode() const;
-
-    void handle_interrupt(cause_t cause);
-    void handle_exception(cause_t cause);
-
-    void validate_reservation_set();
-    void invalidate_reservation_set();
-    bool reservation_set_valid() const;
-
-    void goto_next_sequential_pc();
-private:
-    irve::internal::CSR::CSR_t m_CSR;
-    uint64_t m_inst_count;
-    irve::internal::reg_t m_pc;
-    reg_file_t m_regs;
-    privilege_mode_t m_privilege_mode;
-    memory_t& m_memory_ref;//Used for managing if virtual memory is enabled or not, the page table location, etc
-    bool m_atomic_reservation_set_valid;
-
-    //TODO interrupts
-};
+}
 
 #endif//CPU_STATE_H

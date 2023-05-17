@@ -8,13 +8,14 @@
 #
 
 #Config options
-set(IRVE_DISABLE_LOGGING 0)
+set(IRVE_DISABLE_LOGGING 0)#TODO make this enabled by default in release builds#TODO rename to disable verbose logging
+set(IRVE_ASYNC_LOGGING 0)
 set(IRVE_SANITIZE 0)
 
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.3.0)
+project(irve VERSION 0.4.1)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
@@ -26,7 +27,7 @@ endif()
 
 set(GIT_EXECUTABLE git)
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++20")
+set(CMAKE_CXX_FLAGS "-Wall -std=c++20 -Werror")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /std:c++20")
 else()

@@ -61,13 +61,52 @@ void irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const c
 
 //Namepace: irve::logging
 
-void irve::logging::log(uint8_t indent, const char* str, ...) {
-#if not(IRVE_INTERNAL_CONFIG_DISABLE_LOGGING)
-    va_list list;
-    va_start(list, str);
+#if IRVE_INTERNAL_CONFIG_DISABLE_LOGGING
 
-    irvelog(indent, str, list);
+void irve::logging::log(uint8_t, const char*, ...) {}
+
+#else
+
+void irve::logging::log(uint8_t indent, const char* str, ...) {
+    va_list list_copy_1;
+    va_start(list_copy_1, str);
+    va_list list_copy_2;
+    va_copy(list_copy_2, list_copy_1);
+
+    //Perform variable argument string formatting into a buffer
+    std::size_t buffer_size = std::vsnprintf(nullptr, 0, str, list_copy_1) + 1;//vsnprintf doesn't count the null terminator
+    va_end(list_copy_1);
+    char* buffer = (char*)std::malloc(buffer_size);
+    std::vsnprintf(buffer, buffer_size, str, list_copy_2);
+    va_end(list_copy_2);
+
+    //Actually log the string
+    irvelog(indent, buffer);
+
+    //Free the buffer
+    std::free(buffer);
+}
+
 #endif
+
+void irve::logging::log_always(uint8_t indent, const char* str, ...) {//USE THIS SPARINGLY
+    va_list list_copy_1;
+    va_start(list_copy_1, str);
+    va_list list_copy_2;
+    va_copy(list_copy_2, list_copy_1);
+
+    //Perform variable argument string formatting into a buffer
+    std::size_t buffer_size = std::vsnprintf(nullptr, 0, str, list_copy_1) + 1;//vsnprintf doesn't count the null terminator
+    va_end(list_copy_1);
+    char* buffer = (char*)std::malloc(buffer_size);
+    std::vsnprintf(buffer, buffer_size, str, list_copy_2);
+    va_end(list_copy_2);
+
+    //Actually log the string
+    irvelog_always(indent, buffer);
+
+    //Free the buffer
+    std::free(buffer);
 }
 
 bool irve::logging::logging_disabled() {

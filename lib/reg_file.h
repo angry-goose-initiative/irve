@@ -18,15 +18,17 @@
 
 /* Function/Class Declarations */
 
-//TODO namespacing
+namespace irve::internal::reg_file {
 
-class reg_file_t {
-private:
-    mutable irve::internal::reg_t regs[32];
-public:
-    reg_file_t();
-    irve::internal::reg_t& operator[](uint8_t i);
-    const irve::internal::reg_t& operator[](uint8_t i) const;
-};
+    class reg_file_t {
+    private:
+        mutable irve::internal::reg_t regs[32];
+    public:
+        reg_file_t();
+        irve::internal::reg_t& operator[](uint8_t i);
+        const irve::internal::reg_t& operator[](uint8_t i) const;
+    };
+
+}
 
 #endif

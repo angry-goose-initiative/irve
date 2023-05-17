@@ -11,7 +11,7 @@
 #include <cassert>
 #include <cstdint>
 #include "common.h"
-#include "memory.h"
+#include "CSR.h"
 #include "cpu_state.h"
 
 #include "rvexception.h"
@@ -21,8 +21,8 @@ using namespace irve::internal;
 /* Function Implementations */
 
 int test_cpu_state_cpu_state_t() {
-    memory_t memory;
-    cpu_state_t cpu_state(memory);
+    CSR::CSR_t CSR;
+    cpu_state::cpu_state_t cpu_state(CSR);
 
     assert(cpu_state.get_pc() == 0x00000000);//It should be 0x00000000 at reset
     cpu_state.set_pc(0xABCD1234);
@@ -31,12 +31,13 @@ int test_cpu_state_cpu_state_t() {
     assert(cpu_state.get_pc() == 0x00000000);
     //TODO what if the PC is misaligned?
 
-    assert(cpu_state.get_inst_count() == 0);
+    /*assert(cpu_state.get_inst_count() == 0);
 
     for (uint32_t i = 0; i < 123; ++i) {
         cpu_state.increment_inst_count();
         assert(cpu_state.get_inst_count() == (i + 1));
     }
+    */
 
     assert(cpu_state.get_r(0) == 0);
     cpu_state.set_r(0, 0x12345678);

@@ -15,6 +15,9 @@
 
 #include <cassert>
 #include <iostream>
+#include <cstring>
+
+#include "CSR.h"
 
 #include "common.h"
 #include "rvexception.h"
@@ -29,12 +32,12 @@ using namespace irve::internal;
 //Virtual memory
 
 // All of memory is initialized to 0
-memory_t::memory_t(): m_mem() {
+memory::memory_t::memory_t(CSR::CSR_t& CSR_ref): m_mem(), m_CSR_ref(CSR_ref) {
     irvelog(1, "Created new Memory instance");
 }
 
 // Read from memory
-word_t memory_t::r(word_t addr, int8_t func3) const {
+word_t memory::memory_t::r(word_t addr, int8_t func3) const {
 
 
     // inaccessable address exceptions:
@@ -53,9 +56,9 @@ word_t memory_t::r(word_t addr, int8_t func3) const {
     //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
 
     if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
     } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        throw rvexception_t(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     // MSB of func3 determines signed/unsigned
@@ -78,11 +81,11 @@ word_t memory_t::r(word_t addr, int8_t func3) const {
 }
 
 // Write to memory
-void memory_t::w(word_t addr, int8_t func3, word_t data) {
+void memory::memory_t::w(word_t addr, int8_t func3, word_t data) {
     if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        throw rvexception_t(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception_with_cause(STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
@@ -103,7 +106,7 @@ void memory_t::w(word_t addr, int8_t func3, word_t data) {
 
 // TODO integrate with logging or delete
 // Prints the 8 bytes at and following the specified address in hex
-void memory_t::p(word_t addr) const {
+void memory::memory_t::p(word_t addr) const {
 
     for(int byte{}; byte<8; ++byte) {
         // top 4 bits
@@ -117,17 +120,18 @@ void memory_t::p(word_t addr) const {
 
 //Physical memory
 
-pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
+memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
+    std::memset(this->m_ram, 0, RAMSIZE);
 }
 
-pmemory_t::~pmemory_t() {
+memory::pmemory_t::~pmemory_t() {
     delete[] this->m_ram;
 }
 
-uint8_t pmemory_t::r(word_t addr) const {
+uint8_t memory::pmemory_t::r(word_t addr) const {
     if (addr.u >= RAMSIZE) {
-        throw rvexception_t(LOAD_ACCESS_FAULT_EXCEPTION);
+        invoke_rv_exception_with_cause(LOAD_ACCESS_FAULT_EXCEPTION);
     }
 
     //TODO add MMIO devices that provide data as things progress
@@ -135,14 +139,14 @@ uint8_t pmemory_t::r(word_t addr) const {
     return this->m_ram[addr.u];
 }
 
-void pmemory_t::w(word_t addr, uint8_t data) {
+void memory::pmemory_t::w(word_t addr, uint8_t data) {
     //TODO other MMIO devices
     
     if (addr == DEBUGADDR) {//Debug output
         //End of line; print the debug string
         if (data == '\n') {
             //NOTE: We print to std::cout instead of using logging because we want to see this even if logging is disabled
-            std::cout << "\x1b[1mRISC-V Says: \"" << this->m_debugstr << "\"\x1b[0m" << std::endl;
+            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
             this->m_debugstr.clear();
         } else {
             this->m_debugstr.push_back(data);
@@ -151,7 +155,7 @@ void pmemory_t::w(word_t addr, uint8_t data) {
         return;
     } else {//RAM
         if (addr.u >= RAMSIZE) {
-            throw rvexception_t(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
+            invoke_rv_exception_with_cause(STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
         }
 
         this->m_ram[addr.u] = data;

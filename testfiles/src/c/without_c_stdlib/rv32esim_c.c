@@ -17,9 +17,7 @@
 /* Static Function Declarations */
 
 static void print_string(const char* str);
-static void print_uint(uint64_t uint);
 static void print_uint_bin(uint32_t uint);
-//static void rvsim_printf(const char* str, ...);
 void test_iterations(uint32_t cycles);
 
 /* Function Implementations */
@@ -49,7 +47,7 @@ int main() {
     assert(false && "Sanity check assert works");
 }
 
-void __assert_func(const char* file, int line, const char* function, const char* expr) {
+void __assert_func(const char* file, int, const char* function, const char* expr) {
     print_string("!!!Assertion failed: ");
     print_string(file);
     print_string(" | ");
@@ -64,23 +62,8 @@ void __assert_func(const char* file, int line, const char* function, const char*
 /* Static Function Implementations */
 
 static void print_string(const char* str) {
-    volatile char test = *str;
     while (*str)
         *((volatile uint8_t*)-1) = *(str++);
-}
-
-static void print_uint(uint64_t uint) {//TODO do this more efficiently
-    char buffer[32];
-    buffer[31] = 0x00;//Null terminator
-
-    uint64_t index = 30;
-    while (uint) {
-        buffer[index] = '0' + (uint % 10);
-
-        --index;
-        uint /= 10;
-    }
-    print_string(&buffer[index + 1]);
 }
 
 static void print_uint_bin(uint32_t uint) {

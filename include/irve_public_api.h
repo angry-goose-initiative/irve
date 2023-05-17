@@ -36,6 +36,7 @@ namespace irve {//NOT irve::internal
 
     namespace logging {
         void log(uint8_t indent, const char* str, ...);
+        void log_always(uint8_t indent, const char* str, ...);//USE THIS SPARINGLY
         bool logging_disabled();
     }
 

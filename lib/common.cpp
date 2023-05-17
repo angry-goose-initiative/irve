@@ -20,8 +20,6 @@ using irve::internal::word_t;//TODO avoid this (only use irve::internal)
 
 /* Function Implementations */
 
-word_t::word_t() {}
-
 word_t::word_t(uint32_t u) : u(u) {}
 
 word_t::word_t(int32_t s) : s(s) {}
