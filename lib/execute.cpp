@@ -792,7 +792,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 switch (privilege_mode) {
                     case CSR::privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
-                        CSR.set(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC
+                        CSR.implicit_write(MEPC_ADDRESS, cpu_state.get_pc());//NOT the next instruction's PC//TODO should this be implicit or explicit?
                         invoke_rv_exception_with_cause(MMODE_ECALL_EXCEPTION);
                         break;
                     case CSR::privilege_mode_t::SUPERVISOR_MODE:
@@ -817,7 +817,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 irvelog(3, "Mnemonic: MRET");
                 //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
-                cpu_state.set_pc(CSR.get(MEPC_ADDRESS) & 0xFFFFFFFC);
+                cpu_state.set_pc(CSR.implicit_read(MEPC_ADDRESS) & 0xFFFFFFFC);
                 cpu_state.goto_next_sequential_pc();//TODO is this correct?
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
@@ -834,10 +834,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             irvelog(3, "Mnemonic: CSRRS");
             {//TODO better code reuse w/ the other CSR instructions
              //TODO better logging
-                reg_t csr = CSR.get(imm.u);
+                reg_t csr = CSR.implicit_read(imm.u);
                 cpu_state.set_r(decoded_inst.get_rd(), csr);
                 csr |= rs1;
-                CSR.set(imm.u, csr);
+                CSR.implicit_write(imm.u, csr);
                 cpu_state.goto_next_sequential_pc();
             }
             break;

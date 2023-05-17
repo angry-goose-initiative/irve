@@ -23,7 +23,17 @@ using namespace irve::internal;
 CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE), minstret(0) {
 }
 
-reg_t CSR::CSR_t::get(uint16_t csr) const {
+reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Should throw exceptions if the address is invalid
+    //TODO address checking and ILLEGAL_INSTRUCTION_EXCEPTION throwing
+    return this->implicit_read(csr);
+}
+
+void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Should throw exceptions if the address is invalid
+    //TODO address checking and ILLEGAL_INSTRUCTION_EXCEPTION throwing
+    this->implicit_write(csr, data);
+}
+
+reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the address is valid
     //TODO do this properly
     // TODO check if CSR can be read from
     if (csr == 0x341) {
@@ -39,7 +49,7 @@ reg_t CSR::CSR_t::get(uint16_t csr) const {
     assert(false && "TODO");
 }
 
-void CSR::CSR_t::set(uint16_t csr, word_t data) {
+void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert the address is valid
     //TODO do this properly
     // TODO check if CSR can be written to
     if (csr == 0x341) {

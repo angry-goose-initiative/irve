@@ -42,8 +42,11 @@ namespace irve::internal::CSR {
     public:
         CSR_t();
 
-        reg_t get(uint16_t csr) const;
-        void set(uint16_t csr, word_t data);
+        //Use these to implement CSR instructions
+        reg_t explicit_read(uint16_t csr) const;
+        void explicit_write(uint16_t csr, word_t data);
+        reg_t implicit_read(uint16_t csr) const;
+        void implicit_write(uint16_t csr, word_t data);
 
         void set_privilege_mode(privilege_mode_t new_privilege_mode);
         privilege_mode_t get_privilege_mode() const;
@@ -53,6 +56,8 @@ namespace irve::internal::CSR {
         void increment_inst_count();
         uint64_t get_inst_count() const;
 
+
+        //TODO perhaps leave these public to use them for implicit reads/writes?
 
         //TODO make these private
 
