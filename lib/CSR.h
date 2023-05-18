@@ -117,25 +117,39 @@ namespace irve::internal::CSR {
         reg_t sepc;
         reg_t scause;
         reg_t stval;
-        //TODO sip here or somewhere else?
-        //TODO satp here or somewhere else?
-
-        //TODO mstatus here or somewhere else?
+        reg_t sip;
+        //reg_t satp;
+        reg_t mstatus;
         //misa is NOT here
         reg_t medeleg;
         reg_t mideleg;
-        //TODO mie here or somewhere else?
-        //TODO mtvec here or somewhere else?
-        //TODO mcounteren here or somewhere else?
-        //TODO menvcfg here or somewhere else?
-        //TODO mstatush here or somewhere else?
-
+        reg_t mie;
+        reg_t mtvec;
+        reg_t mcounteren;
+        reg_t menvcfg;
+        reg_t mstatush;
+        reg_t menvcfgh;
+        reg_t mcountinhibit;
+        //TODO the event counters
+        reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
+        reg_t mtval;
+        //mtval is NOT here
+        reg_t mip;
+        reg_t mtinst;
+        reg_t mtval2;
+        //TODO the PMP CSRs
+        //reg_t satp;
+        //TODO the event counters
 
         //TODO add CSRs HERE
 
         uint64_t minstret;//Handles both minstret and minstreth
+        uint64_t mcycle;//Handles both mcycle and mcycleh
+        uint64_t cycle;//Handles both cycle and cycleh
+        uint64_t time;//Handles both time and timeh
+        uint64_t instret;//Handles both instret and instreth
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };
