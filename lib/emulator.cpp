@@ -92,7 +92,7 @@ word_t emulator::emulator_t::fetch() const {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {
-        invoke_rv_exception_with_cause(INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
+        invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
     }
 
     //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
@@ -181,16 +181,16 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    if (this->m_CSR.medeleg.bit(raw_cause) != 0) {//Supervisor mode should handle the exception if the relevant bit is set
+    if (this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) != 0) {//Supervisor mode should handle the exception if the relevant bit is set
         //TODO handle this case
         assert(false && "TODO handle this case");
     } else {//Machine mode should handle the exception
         //TODO manage the privilege stack in mstatus?
         this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
 
-        this->m_CSR.mcause.as_cause_t = cause;
-        this->m_CSR.mepc = this->m_cpu_state.get_pc();
-        this->m_cpu_state.set_pc(MTVEC_CONTENTS.srl(2));
+        this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
+        this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
+        this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).srl(2));//MTVEC_CONTENTS.srl(2));
 
         //TODO what else should be done if anything?
     }

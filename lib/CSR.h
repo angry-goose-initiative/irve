@@ -20,10 +20,8 @@
 
 //TODO move these to the address namespace
 
-#define MEPC_ADDRESS 0x341
-
-//TODO fill in the x's with supported extensions
-#define MISA_CONTENTS word_t(0b010000xxxxxxxxxxxxxxxxxxxxxxxxxx)
+//                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
 
 //MTVEC hardcoded to start at 0x00000004 and be vectored
 #define MTVEC_CONTENTS word_t((0x00000004 << 2) | 0b01)
@@ -34,54 +32,52 @@ namespace irve::internal::CSR {
 
     namespace address {
         //TODO list of CSR addresses here
-        const word_t SSCRATCH       = 0x140;
-        const word_t SEPC           = 0x141;
-        const word_t SCAUSE         = 0x142;
-        const word_t STVAL          = 0x143;
-        const word_t SIP            = 0x144;
-        //const word_t SATP           = 0x180;
-        const word_t MSTATUS        = 0x300;
-        const word_t MISA           = 0x301;
-        const word_t MEDELEG        = 0x302;
-        const word_t MIDELEG        = 0x303;
-        const word_t MIE            = 0x304;
-        const word_t MTVEC          = 0x305;
-        const word_t MCOUNTEREN     = 0x306;
-        const word_t MENVCFG        = 0x30A;
-        const word_t MSTATUSH       = 0x310;
-        const word_t MENVCFGH       = 0x31A;
-        const word_t MCOUNTINHIBIT  = 0x320;
+        const uint16_t SSCRATCH       = 0x140;
+        const uint16_t SEPC           = 0x141;
+        const uint16_t SCAUSE         = 0x142;
+        const uint16_t STVAL          = 0x143;
+        const uint16_t SIP            = 0x144;
+        //const uint16_t SATP           = 0x180;
+        const uint16_t MSTATUS        = 0x300;
+        const uint16_t MISA           = 0x301;
+        const uint16_t MEDELEG        = 0x302;
+        const uint16_t MIDELEG        = 0x303;
+        const uint16_t MIE            = 0x304;
+        const uint16_t MTVEC          = 0x305;
+        const uint16_t MCOUNTEREN     = 0x306;
+        const uint16_t MENVCFG        = 0x30A;
+        const uint16_t MSTATUSH       = 0x310;
+        const uint16_t MENVCFGH       = 0x31A;
+        const uint16_t MCOUNTINHIBIT  = 0x320;
         //TODO the event counters
-        const word_t MSCRATCH       = 0x340;
-        const word_t MEPC           = 0x341;
-        const word_t MCAUSE         = 0x342;
-        const word_t MTVAL          = 0x343;
-        const word_t MIP            = 0x344;
-        const word_t MTINST         = 0x34A;
-        const word_t MTVAL2         = 0x34B;
+        const uint16_t MSCRATCH       = 0x340;
+        const uint16_t MEPC           = 0x341;
+        const uint16_t MCAUSE         = 0x342;
+        const uint16_t MTVAL          = 0x343;
+        const uint16_t MIP            = 0x344;
+        const uint16_t MTINST         = 0x34A;
+        const uint16_t MTVAL2         = 0x34B;
         //TODO the PMP CSRs
-        //const word_t SATP           = 0x5A8;
-        const word_t MSECCFG        = 0x747;
-        const word_t MSECCFGH       = 0x757;
-        const word_t MCYCLE         = 0xB00;
-        const word_t MINSTRET       = 0xB02;
+        //const uint16_t SATP           = 0x5A8;
+        const uint16_t MCYCLE         = 0xB00;
+        const uint16_t MINSTRET       = 0xB02;
         //TODO the event counters
-        const word_t MCYCLEH        = 0xB80;
-        const word_t MINSTRETH      = 0xB82;
+        const uint16_t MCYCLEH        = 0xB80;
+        const uint16_t MINSTRETH      = 0xB82;
         //TODO the event counters
-        const word_t CYCLE          = 0xC00;
-        const word_t TIME           = 0xC01;
-        const word_t INSTRET        = 0xC02;
+        const uint16_t CYCLE          = 0xC00;
+        const uint16_t TIME           = 0xC01;
+        const uint16_t INSTRET        = 0xC02;
         //TODO the event counters
-        const word_t CYCLEH         = 0xC80;
-        const word_t TIMEH          = 0xC81;
-        const word_t INSTRETH       = 0xC82;
+        const uint16_t CYCLEH         = 0xC80;
+        const uint16_t TIMEH          = 0xC81;
+        const uint16_t INSTRETH       = 0xC82;
         //TODO the event counters
-        const word_t MVENDORID      = 0xF11;
-        const word_t MARCHID        = 0xF12;
-        const word_t MIMPID         = 0xF13;
-        const word_t MHARTID        = 0xF14;
-        const word_t MCONFIGPTR     = 0xF15;
+        const uint16_t MVENDORID      = 0xF11;
+        const uint16_t MARCHID        = 0xF12;
+        const uint16_t MIMPID         = 0xF13;
+        const uint16_t MHARTID        = 0xF14;
+        const uint16_t MCONFIGPTR     = 0xF15;
 
     };
 
@@ -113,42 +109,35 @@ namespace irve::internal::CSR {
         void increment_inst_count();
         uint64_t get_inst_count() const;
 
+    private:
+        bool valid_explicit_read_at_current_privilege_mode(uint16_t csr) const;
+        bool valid_explicit_write_at_current_privilege_mode(uint16_t csr) const;
 
-        //TODO perhaps leave these public to use them for implicit reads/writes?
+        reg_t sscratch;
+        reg_t sepc;
+        reg_t scause;
+        reg_t stval;
+        //TODO sip here or somewhere else?
+        //TODO satp here or somewhere else?
 
-        //TODO make these private
+        //TODO mstatus here or somewhere else?
+        //misa is NOT here
+        reg_t medeleg;
+        reg_t mideleg;
+        //TODO mie here or somewhere else?
+        //TODO mtvec here or somewhere else?
+        //TODO mcounteren here or somewhere else?
+        //TODO menvcfg here or somewhere else?
+        //TODO mstatush here or somewhere else?
 
-        reg_t sscratch;//Address 0x140
-        reg_t sepc;//Address 0x141
-        union {//Address 0x142
-            rvexception::cause_t as_cause_t;
-            reg_t as_reg_t;
-        } scause;
-        reg_t stval;//Address 0x143
-        //TODO sip here or somewhere else?//Address 0x144
-        //TODO satp here or somewhere else?//Address 0x180
-
-        //TODO mstatus here or somewhere else?//Address 0x300
-        //misa is NOT here//Address 0x301
-        reg_t medeleg;//Address 0x302
-        reg_t mideleg;//Address 0x303
-        //TODO mie here or somewhere else?//Address 0x304
-        //TODO mtvec here or somewhere else?//Address 0x305
-        //TODO mcounteren here or somewhere else?//Address 0x306
-        //TODO menvcfg here or somewhere else?//Address 0x30A
-        //TODO mstatush here or somewhere else?//Address 0x310
-
-        reg_t mepc;//Address 0x341
-        union {
-            rvexception::cause_t as_cause_t;//Address 0x342
-            reg_t as_reg_t;
-        } mcause;
+        reg_t mepc;
+        reg_t mcause;
 
         //TODO add CSRs HERE
 
-    private:
+        uint64_t minstret;//Handles both minstret and minstreth
+
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
-        uint64_t minstret;
     };
 }
 

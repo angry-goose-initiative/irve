@@ -20,12 +20,12 @@
 
 /* Macros */
 
-#define invoke_rv_interrupt_with_cause(the_cause) do { \
-    throw irve::internal::rvexception::rvinterrupt_t(irve::internal::rvexception::cause_t::the_cause); \
+#define invoke_rv_interrupt(the_cause) do { \
+    throw irve::internal::rvexception::rvinterrupt_t(irve::internal::rvexception::cause_t::the_cause ## _INTERRUPT); \
 } while (0)
 
-#define invoke_rv_exception_with_cause(the_cause) do { \
-    throw irve::internal::rvexception::rvexception_t(irve::internal::rvexception::cause_t::the_cause); \
+#define invoke_rv_exception(the_cause) do { \
+    throw irve::internal::rvexception::rvexception_t(irve::internal::rvexception::cause_t::the_cause ## _EXCEPTION); \
 } while (0)
 
 #define invoke_polite_irve_exit_request() do { \
