@@ -85,24 +85,8 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MIMPID:           return 0; 
         case address::MHARTID:          return 0;
         case address::MCONFIGPTR:       return 0;
-        default:                        assert(false && "Attempt to implicitly read from invalid CSR address"); return 0;
+        default:                        assert(false && "Attempt to implicitly read from an invalid CSR address"); return 0;
     }
-    //TODO this is just a switch statement, with a default case that asserts false
-    //TODO do this properly
-    // TODO check if CSR can be read from
-    /*
-    if (csr == 0x341) {
-        return this->mepc;
-    }
-    if (csr == 0x342) {
-        return this->mcause.as_reg_t;
-    }
-    if((csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
-        throw rvexception_t(ILLEGAL_INSTRUCTION);
-    }
-    
-    assert(false && "TODO");
-    */
 }
 
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert the address is valid
@@ -117,11 +101,6 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         this->mcause = data;
         return;
     }
-    /*
-    if((csr >> 10) == 0b11 || (csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
-        throw rvexception_t(ILLEGAL_INSTRUCTION);
-    }
-    */
 
     //TODO some CSRs are read only, some are write only, some are read/write
     //Sometimes only PARTS of a CSR are writable or affect other bits
@@ -147,11 +126,19 @@ uint64_t CSR::CSR_t::get_inst_count() const {
 }
 
 bool CSR::CSR_t::valid_explicit_read_at_current_privilege_mode(uint16_t /* csr */) const {
-    //TODO
+    //TODO use bits in the csr to determine if it can be read from at the current privilege mode
+    /*if((csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
+        throw rvexception_t(ILLEGAL_INSTRUCTION);
+    }*/
     return true;
 }
 
 bool CSR::CSR_t::valid_explicit_write_at_current_privilege_mode(uint16_t /* csr */) const {
-    //TODO
+    //TODO use bits in the csr to determine if it can be read from at the current privilege mode
+    /*
+    if((csr >> 10) == 0b11 || (csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness
+        throw rvexception_t(ILLEGAL_INSTRUCTION);
+    }
+    */
     return true;
 }
