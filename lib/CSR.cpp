@@ -107,6 +107,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
 }
 
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert the address is valid
+    //TODO CRITICAL will have to only allow writes to certain fields (create some sort of mask helper perhaps like a macro or word_t member function?)
     //TODO this is just a switch statement, with a default case that asserts false
     //TODO do this properly
     // TODO check if CSR can be written to
