@@ -73,20 +73,6 @@ namespace irve::internal::CSR {
         const uint16_t MHPMCOUNTERH_START   = 0xB83;//Inclusive
         const uint16_t MHPMCOUNTERH_END     = 0xB9F;//Inclusive
 
-        const uint16_t CYCLE                = 0xC00;
-        const uint16_t TIME                 = 0xC01;
-        const uint16_t INSTRET              = 0xC02;
-       
-        const uint16_t HPMCOUNTER_START     = 0xC03;//Inclusive
-        const uint16_t HPMCOUNTER_END       = 0xC1F;//Inclusive
-
-        const uint16_t CYCLEH               = 0xC80;
-        const uint16_t TIMEH                = 0xC81;
-        const uint16_t INSTRETH             = 0xC82;
-
-        const uint16_t HPMCOUNTERH_START    = 0xC83;//Inclusive
-        const uint16_t HPMCOUNTERH_END      = 0xC9F;//Inclusive
-
         const uint16_t MVENDORID            = 0xF11;
         const uint16_t MARCHID              = 0xF12;
         const uint16_t MIMPID               = 0xF13;
@@ -138,12 +124,9 @@ namespace irve::internal::CSR {
         reg_t mideleg;
         reg_t mie;
         reg_t mtvec;
-        reg_t mcounteren;
         reg_t menvcfg;
         reg_t mstatush;
         reg_t menvcfgh;
-        reg_t mcountinhibit;
-        //TODO the event counters
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
@@ -153,15 +136,12 @@ namespace irve::internal::CSR {
         reg_t mtval2;
         //TODO the PMP CSRs
         //reg_t satp;
-        //TODO the event counters
 
         //TODO add CSRs HERE
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
-        uint64_t cycle;//Handles both cycle and cycleh
         uint64_t time;//Handles both time and timeh
-        uint64_t instret;//Handles both instret and instreth
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };

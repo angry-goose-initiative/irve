@@ -51,12 +51,14 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
         case address::MIE:              return this->mie;
-        case address::MTVEC:            return this->mtvec;
-        case address::MCOUNTEREN:       return this->mcounteren;
+        case address::MTVEC:            return 0;
+        case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg;
         case address::MSTATUSH:         return this->mstatush;
-        case address::MCOUNTINHIBIT:    return this->mcountinhibit;
-        //TODO the event counters
+        case address::MCOUNTINHIBIT:    return 0;
+
+        case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
+
         case address::MSCRATCH:         return this->mscratch;
         case address::MEPC:             return this->mepc;
         case address::MCAUSE:           return this->mcause;
@@ -68,18 +70,14 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
         case address::MINSTRET:         return (uint32_t)(this->minstret & 0xFFFFFFFF);
-        //TODO the event counters
+
+        case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return 0;
+
         case address::MCYCLEH:          return (uint32_t)(this->mcycle >> 32);
         case address::MINSTRETH:        return (uint32_t)(this->minstret >> 32);
-        //TODO the event counters
-        case address::CYCLE:            return (uint32_t)(this->cycle & 0xFFFFFFFF);
-        case address::TIME:             return (uint32_t)(this->time & 0xFFFFFFFF);
-        case address::INSTRET:          return (uint32_t)(this->instret & 0xFFFFFFFF);
-        //TODO the event counters
-        case address::CYCLEH:           return (uint32_t)(this->cycle >> 32);
-        case address::TIMEH:            return (uint32_t)(this->time >> 32);
-        case address::INSTRETH:         return (uint32_t)(this->instret >> 32);
-        //TODO the event counters
+
+        case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
+
         case address::MVENDORID:        return 0;
         case address::MARCHID:          return 0; 
         case address::MIMPID:           return 0; 
@@ -98,20 +96,19 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         //case address::SIP:              //TODO
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         //case address::MSTATUS:          //TODO
-        case address::MISA:             return;//We simply ignore writes to MISA
-        //case address::MEDELEG:          //TODO
-        //case address::MIDELEG:          //TODO
+        case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
+        case address::MEDELEG:          this->medeleg = data; return;
+        case address::MIDELEG:          this->mideleg = data; return;
         //case address::MIE:              //TODO
         //case address::MTVEC:            //TODO
-        //case address::MCOUNTEREN:       //TODO
         //case address::MENVCFG:          //TODO
         //case address::MSTATUSH:         //TODO
-        //case address::MCOUNTINHIBIT:    //TODO
+        case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
         //TODO the event counters
         case address::MSCRATCH:         this->mscratch = data; return;
         case address::MEPC:             this->mepc = data & 0xFFFFFFFC; return;
         case address::MCAUSE:           this->mcause = data; return;
-        case address::MTVAL:              return;//We simply ignore writes to MTVAL//TODO since we chose to make it read-only, should we throw an exception?
+        case address::MTVAL:              return;//We simply ignore writes to MTVAL, NOT throw an exception//TODO since we chose to make it read-only, should we throw an exception?
         //case address::MIP:              //TODO
         //case address::MTINST:           //TODO
         //case address::MTVAL2:           //TODO
@@ -119,10 +116,14 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         //case address::MCYCLE:           //TODO 
         //case address::MINSTRET:         //TODO
-        //TODO the event counters
+
+        case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
+
         //case address::MCYCLEH:          //TODO
         //case address::MINSTRETH:        //TODO
-        //TODO the event counters
+
+        case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
+
         default:                        assert(false && "Attempt to implicitly write to an invalid or read-only CSR address"); return;
     }
     //TODO CRITICAL will have to only allow writes to certain fields (create some sort of mask helper perhaps like a macro or word_t member function?)
