@@ -47,7 +47,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::SIP:              return this->sip;
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         case address::MSTATUS:          return this->mstatus;
-        case address::MISA:             return MISA_CONTENTS;
+        case address::MISA:             return 0;
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
         case address::MIE:              return this->mie;
@@ -60,7 +60,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MSCRATCH:         return this->mscratch;
         case address::MEPC:             return this->mepc;
         case address::MCAUSE:           return this->mcause;
-        case address::MTVAL:            return this->mtval;
+        case address::MTVAL:            return 0;
         case address::MIP:              return this->mip;
         case address::MTINST:           return this->mtinst;
         case address::MTVAL2:           return this->mtval2;
@@ -90,23 +90,58 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
 }
 
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert the address is valid
+    switch (csr) {
+        //case address::SSCRATCH:         //TODO
+        //case address::SEPC:             //TODO
+        //case address::SCAUSE:           //TODO
+        //case address::STVAL:            //TODO
+        //case address::SIP:              //TODO
+        //case address::SATP:             return this->satp;//TODO figure out which satp is which
+        //case address::MSTATUS:          //TODO
+        case address::MISA:             return;//We simply ignore writes to MISA
+        //case address::MEDELEG:          //TODO
+        //case address::MIDELEG:          //TODO
+        //case address::MIE:              //TODO
+        //case address::MTVEC:            //TODO
+        //case address::MCOUNTEREN:       //TODO
+        //case address::MENVCFG:          //TODO
+        //case address::MSTATUSH:         //TODO
+        //case address::MCOUNTINHIBIT:    //TODO
+        //TODO the event counters
+        case address::MSCRATCH:         this->mscratch = data; return;
+        case address::MEPC:             this->mepc = data & 0xFFFFFFFC; return;
+        case address::MCAUSE:           this->mcause = data; return;
+        case address::MTVAL:              return;//We simply ignore writes to MTVAL//TODO since we chose to make it read-only, should we throw an exception?
+        //case address::MIP:              //TODO
+        //case address::MTINST:           //TODO
+        //case address::MTVAL2:           //TODO
+        //TODO the PMP CSRs
+        //case address::SATP:             return this->satp;//TODO figure out which satp is which
+        //case address::MCYCLE:           //TODO 
+        //case address::MINSTRET:         //TODO
+        //TODO the event counters
+        //case address::MCYCLEH:          //TODO
+        //case address::MINSTRETH:        //TODO
+        //TODO the event counters
+        default:                        assert(false && "Attempt to implicitly write to an invalid or read-only CSR address"); return;
+    }
     //TODO CRITICAL will have to only allow writes to certain fields (create some sort of mask helper perhaps like a macro or word_t member function?)
     //TODO this is just a switch statement, with a default case that asserts false
     //TODO do this properly
     // TODO check if CSR can be written to
-    if (csr == 0x341) {
+    /*if (csr == 0x341) {
         this->mepc = data & 0xFFFFFFFC;
         return;
-    }
-    if (csr == 0x342) {
+    }*/
+    /*if (csr == 0x342) {
         this->mcause = data;
         return;
-    }
+    }*/
 
     //TODO some CSRs are read only, some are write only, some are read/write
     //Sometimes only PARTS of a CSR are writable or affect other bits
     //We need to check for that and deal with it here
-    assert(false && "TODO");
+    //assert(false && "TODO");
 }
 
 void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
@@ -134,7 +169,10 @@ bool CSR::CSR_t::valid_explicit_read_at_current_privilege_mode(uint16_t /* csr *
     return true;
 }
 
-bool CSR::CSR_t::valid_explicit_write_at_current_privilege_mode(uint16_t /* csr */) const {
+bool CSR::CSR_t::valid_explicit_write_at_current_privilege_mode(uint16_t csr) const {
+    if (((csr >> 10) & 0b11) == 0b11) {//If top 2 bits are 1, then it's a read only CSR
+        return false;
+    }
     //TODO use bits in the csr to determine if it can be read from at the current privilege mode
     /*
     if((csr >> 10) == 0b11 || (csr & 0b1100000000) > ((uint16_t)(m_privilege_mode) << 8)) {//FIXME avoid comparing integers of different signedness

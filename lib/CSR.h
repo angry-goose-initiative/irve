@@ -18,11 +18,10 @@
 
 /* Constants and Defines */
 
-//TODO move these to the address namespace
-
 //                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
+//#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
 
+//TODO move this somewhere else
 //MTVEC hardcoded to start at 0x00000004 and be vectored
 #define MTVEC_CONTENTS word_t((0x00000004 << 2) | 0b01)
 
@@ -32,53 +31,67 @@ namespace irve::internal::CSR {
 
     namespace address {
         //TODO list of CSR addresses here
-        const uint16_t SSCRATCH       = 0x140;
-        const uint16_t SEPC           = 0x141;
-        const uint16_t SCAUSE         = 0x142;
-        const uint16_t STVAL          = 0x143;
-        const uint16_t SIP            = 0x144;
-        //const uint16_t SATP           = 0x180;
-        const uint16_t MSTATUS        = 0x300;
-        const uint16_t MISA           = 0x301;
-        const uint16_t MEDELEG        = 0x302;
-        const uint16_t MIDELEG        = 0x303;
-        const uint16_t MIE            = 0x304;
-        const uint16_t MTVEC          = 0x305;
-        const uint16_t MCOUNTEREN     = 0x306;
-        const uint16_t MENVCFG        = 0x30A;
-        const uint16_t MSTATUSH       = 0x310;
-        const uint16_t MENVCFGH       = 0x31A;
-        const uint16_t MCOUNTINHIBIT  = 0x320;
-        //TODO the event counters
-        const uint16_t MSCRATCH       = 0x340;
-        const uint16_t MEPC           = 0x341;
-        const uint16_t MCAUSE         = 0x342;
-        const uint16_t MTVAL          = 0x343;
-        const uint16_t MIP            = 0x344;
-        const uint16_t MTINST         = 0x34A;
-        const uint16_t MTVAL2         = 0x34B;
-        //TODO the PMP CSRs
-        //const uint16_t SATP           = 0x5A8;
-        const uint16_t MCYCLE         = 0xB00;
-        const uint16_t MINSTRET       = 0xB02;
-        //TODO the event counters
-        const uint16_t MCYCLEH        = 0xB80;
-        const uint16_t MINSTRETH      = 0xB82;
-        //TODO the event counters
-        const uint16_t CYCLE          = 0xC00;
-        const uint16_t TIME           = 0xC01;
-        const uint16_t INSTRET        = 0xC02;
-        //TODO the event counters
-        const uint16_t CYCLEH         = 0xC80;
-        const uint16_t TIMEH          = 0xC81;
-        const uint16_t INSTRETH       = 0xC82;
-        //TODO the event counters
-        const uint16_t MVENDORID      = 0xF11;
-        const uint16_t MARCHID        = 0xF12;
-        const uint16_t MIMPID         = 0xF13;
-        const uint16_t MHARTID        = 0xF14;
-        const uint16_t MCONFIGPTR     = 0xF15;
+        const uint16_t SSCRATCH             = 0x140;
+        const uint16_t SEPC                 = 0x141;
+        const uint16_t SCAUSE               = 0x142;
+        const uint16_t STVAL                = 0x143;
+        const uint16_t SIP                  = 0x144;
+        //const uint16_t SATP                 = 0x180;
+        const uint16_t MSTATUS              = 0x300;
+        const uint16_t MISA                 = 0x301;
+        const uint16_t MEDELEG              = 0x302;
+        const uint16_t MIDELEG              = 0x303;
+        const uint16_t MIE                  = 0x304;
+        const uint16_t MTVEC                = 0x305;
+        const uint16_t MCOUNTEREN           = 0x306;
+        const uint16_t MENVCFG              = 0x30A;
+        const uint16_t MSTATUSH             = 0x310;
+        const uint16_t MENVCFGH             = 0x31A;
+        const uint16_t MCOUNTINHIBIT        = 0x320;
 
+        const uint16_t MHPMEVENT_START       = 0x323;//Inclusive
+        const uint16_t MHPMEVENT_END         = 0x33F;//Inclusive
+
+        const uint16_t MSCRATCH             = 0x340;
+        const uint16_t MEPC                 = 0x341;
+        const uint16_t MCAUSE               = 0x342;
+        const uint16_t MTVAL                = 0x343;
+        const uint16_t MIP                  = 0x344;
+        const uint16_t MTINST               = 0x34A;
+        const uint16_t MTVAL2               = 0x34B;
+        //TODO the PMP CSRs
+        //const uint16_t SATP                 = 0x5A8;
+        const uint16_t MCYCLE               = 0xB00;
+        const uint16_t MINSTRET             = 0xB02;
+
+        const uint16_t MHPMCOUNTER_START    = 0xB03;//Inclusive
+        const uint16_t MHPMCOUNTER_END      = 0xB1F;//Inclusive
+
+        const uint16_t MCYCLEH              = 0xB80;
+        const uint16_t MINSTRETH            = 0xB82;
+
+        const uint16_t MHPMCOUNTERH_START   = 0xB83;//Inclusive
+        const uint16_t MHPMCOUNTERH_END     = 0xB9F;//Inclusive
+
+        const uint16_t CYCLE                = 0xC00;
+        const uint16_t TIME                 = 0xC01;
+        const uint16_t INSTRET              = 0xC02;
+       
+        const uint16_t HPMCOUNTER_START     = 0xC03;//Inclusive
+        const uint16_t HPMCOUNTER_END       = 0xC1F;//Inclusive
+
+        const uint16_t CYCLEH               = 0xC80;
+        const uint16_t TIMEH                = 0xC81;
+        const uint16_t INSTRETH             = 0xC82;
+
+        const uint16_t HPMCOUNTERH_START    = 0xC83;//Inclusive
+        const uint16_t HPMCOUNTERH_END      = 0xC9F;//Inclusive
+
+        const uint16_t MVENDORID            = 0xF11;
+        const uint16_t MARCHID              = 0xF12;
+        const uint16_t MIMPID               = 0xF13;
+        const uint16_t MHARTID              = 0xF14;
+        const uint16_t MCONFIGPTR           = 0xF15;
     };
 
     /* Types */
@@ -134,7 +147,6 @@ namespace irve::internal::CSR {
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
-        reg_t mtval;
         //mtval is NOT here
         reg_t mip;
         reg_t mtinst;
