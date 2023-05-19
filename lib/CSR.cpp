@@ -20,8 +20,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 // TODO what should CSRs be initialized to?
-CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE), minstret(0) {
-}
+CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Should throw exceptions if the address is invalid
     if (!this->valid_explicit_read_at_current_privilege_mode(csr)) {
@@ -67,19 +66,19 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MTVAL2:           return this->mtval2;
         //TODO the PMP CSRs
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
-        case address::MCYCLE:           return this->mcycle;
+        case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
         case address::MINSTRET:         return (uint32_t)(this->minstret & 0xFFFFFFFF);
         //TODO the event counters
-        case address::MCYCLEH:          return this->mcycleh;
+        case address::MCYCLEH:          return (uint32_t)(this->mcycle >> 32);
         case address::MINSTRETH:        return (uint32_t)(this->minstret >> 32);
         //TODO the event counters
-        case address::CYCLE:            return this->cycle;
-        case address::TIME:             return this->time;
-        case address::INSTRET:          return this->instret;
+        case address::CYCLE:            return (uint32_t)(this->cycle & 0xFFFFFFFF);
+        case address::TIME:             return (uint32_t)(this->time & 0xFFFFFFFF);
+        case address::INSTRET:          return (uint32_t)(this->instret & 0xFFFFFFFF);
         //TODO the event counters
-        case address::CYCLEH:           return this->cycleh;
-        case address::TIMEH:            return this->timeh;
-        case address::INSTRETH:         return this->instreth;
+        case address::CYCLEH:           return (uint32_t)(this->cycle >> 32);
+        case address::TIMEH:            return (uint32_t)(this->time >> 32);
+        case address::INSTRETH:         return (uint32_t)(this->instret >> 32);
         //TODO the event counters
         case address::MVENDORID:        return 0;
         case address::MARCHID:          return 0; 
@@ -116,7 +115,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         return;
     }
     if (csr == 0x342) {
-        this->mcause.as_reg_t = data;
+        this->mcause = data;
         return;
     }
     /*
