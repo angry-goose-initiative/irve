@@ -133,7 +133,6 @@ namespace irve::internal::CSR {
         //mtval is NOT here
         reg_t mip;
         reg_t mtinst;
-        reg_t mtval2;
         //TODO the PMP CSRs
         //reg_t satp;
 

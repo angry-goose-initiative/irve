@@ -40,21 +40,21 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Should throw excep
 
 reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the address is valid
     switch (csr) {
-        case address::SSCRATCH:         return this->sscratch;
-        case address::SEPC:             return this->sepc;
-        case address::SCAUSE:           return this->scause;
-        case address::STVAL:            return this->stval;
-        case address::SIP:              return this->sip;
+        //case address::SSCRATCH:         return this->sscratch;//TODO
+        //case address::SEPC:             return this->sepc;//TODO
+        //case address::SCAUSE:           return this->scause;//TODO
+        //case address::STVAL:            return this->stval;//TODO
+        //case address::SIP:              return this->sip;//TODO
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
-        case address::MSTATUS:          return this->mstatus;
+        //case address::MSTATUS:          return this->mstatus;//TODO
         case address::MISA:             return 0;
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
-        case address::MIE:              return this->mie;
-        case address::MTVEC:            return 0;
+        //case address::MIE:              return this->mie;//TODO
+        case address::MTVEC:            return MTVEC_CONTENTS;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
-        case address::MENVCFG:          return this->menvcfg;
-        case address::MSTATUSH:         return this->mstatush;
+        //case address::MENVCFG:          return this->menvcfg & 0b1;
+        //case address::MSTATUSH:         return this->mstatush;//TODO
         case address::MCOUNTINHIBIT:    return 0;
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
@@ -63,9 +63,8 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MEPC:             return this->mepc;
         case address::MCAUSE:           return this->mcause;
         case address::MTVAL:            return 0;
-        case address::MIP:              return this->mip;
-        case address::MTINST:           return this->mtinst;
-        case address::MTVAL2:           return this->mtval2;
+        //case address::MIP:              return this->mip;
+        //case address::MTINST:           return this->mtinst;//TODO
         //TODO the PMP CSRs
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
@@ -83,7 +82,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MIMPID:           return 0; 
         case address::MHARTID:          return 0;
         case address::MCONFIGPTR:       return 0;
-        default:                        assert(false && "Attempt to implicitly read from an invalid CSR address"); return 0;
+        default:                        assert(false && "Attempt to implicitly read from an invalid CSR address"); return 0;//TODO invoke an exception instead of asserting
     }
 }
 
@@ -101,7 +100,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         case address::MIDELEG:          this->mideleg = data; return;
         //case address::MIE:              //TODO
         //case address::MTVEC:            //TODO
-        //case address::MENVCFG:          //TODO
+        case address::MENVCFG:          this->menvcfg = data & 0b1; return;
         //case address::MSTATUSH:         //TODO
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
         //TODO the event counters
@@ -124,25 +123,8 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
 
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
 
-        default:                        assert(false && "Attempt to implicitly write to an invalid or read-only CSR address"); return;
+        default:                        assert(false && "Attempt to implicitly write to an invalid or read-only CSR address"); return;//TODO invoke an exception instead of asserting
     }
-    //TODO CRITICAL will have to only allow writes to certain fields (create some sort of mask helper perhaps like a macro or word_t member function?)
-    //TODO this is just a switch statement, with a default case that asserts false
-    //TODO do this properly
-    // TODO check if CSR can be written to
-    /*if (csr == 0x341) {
-        this->mepc = data & 0xFFFFFFFC;
-        return;
-    }*/
-    /*if (csr == 0x342) {
-        this->mcause = data;
-        return;
-    }*/
-
-    //TODO some CSRs are read only, some are write only, some are read/write
-    //Sometimes only PARTS of a CSR are writable or affect other bits
-    //We need to check for that and deal with it here
-    //assert(false && "TODO");
 }
 
 void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
