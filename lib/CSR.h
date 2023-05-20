@@ -36,7 +36,7 @@ namespace irve::internal::CSR {
         const uint16_t SCAUSE               = 0x142;
         const uint16_t STVAL                = 0x143;
         const uint16_t SIP                  = 0x144;
-        //const uint16_t SATP                 = 0x180;
+        const uint16_t SATP                 = 0x180;
         const uint16_t MSTATUS              = 0x300;
         const uint16_t MISA                 = 0x301;
         const uint16_t MEDELEG              = 0x302;
@@ -60,7 +60,6 @@ namespace irve::internal::CSR {
         const uint16_t MTINST               = 0x34A;
         const uint16_t MTVAL2               = 0x34B;
         //TODO the PMP CSRs
-        //const uint16_t SATP                 = 0x5A8;
         const uint16_t MCYCLE               = 0xB00;
         const uint16_t MINSTRET             = 0xB02;
 
@@ -109,8 +108,8 @@ namespace irve::internal::CSR {
         uint64_t get_inst_count() const;
 
     private:
-        bool valid_explicit_read_at_current_privilege_mode(uint16_t csr) const;
-        bool valid_explicit_write_at_current_privilege_mode(uint16_t csr) const;
+        bool current_privilege_mode_can_explicitly_read(uint16_t csr) const;
+        bool current_privilege_mode_can_explicitly_write(uint16_t csr) const;
 
         reg_t sscratch;
         reg_t sepc;

@@ -175,7 +175,9 @@ void emulator::emulator_t::handle_interrupt(rvexception::cause_t /* cause */) {
 
 void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-     
+    
+    //TODO if the trap is going into S-mode, set stval to 0
+
     uint32_t raw_cause = (uint32_t)cause;
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
