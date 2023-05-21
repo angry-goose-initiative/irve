@@ -27,11 +27,11 @@ endif()
 
 set(GIT_EXECUTABLE git)
 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++20 -Werror")
+set(CMAKE_CXX_FLAGS "")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /std:c++20")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /Wall /WX")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -Wall -Wextra -Werror")
 endif()
 
 if (IRVE_SANITIZE)

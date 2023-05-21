@@ -46,7 +46,7 @@ namespace irve::internal::memory {
         // The "physical" memory
         pmemory_t m_mem;
 
-        CSR::CSR_t& m_CSR_ref;
+        //CSR::CSR_t& m_CSR_ref;//TODO uncomment this when we implement virtual memory
     public:
         memory_t(CSR::CSR_t& CSR_ref);
         word_t r(word_t addr, int8_t func3) const;

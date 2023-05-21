@@ -32,7 +32,7 @@ using namespace irve::internal;
 //Virtual memory
 
 // All of memory is initialized to 0
-memory::memory_t::memory_t(CSR::CSR_t& CSR_ref): m_mem(), m_CSR_ref(CSR_ref) {
+memory::memory_t::memory_t(CSR::CSR_t& /*CSR_ref*/): m_mem()/*, m_CSR_ref(CSR_ref)*/ {
     irvelog(1, "Created new Memory instance");
 }
 
