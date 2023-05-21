@@ -66,3 +66,4 @@ add_integration_test(logging)
 
 add_testfiles_test(jzjcoresoftware_adding2)
 add_testfiles_test(jzjcoresoftware_auipctest)
+add_testfiles_test(jzjcoresoftware_bneandsubtest)
