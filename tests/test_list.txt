@@ -64,4 +64,5 @@ add_integration_test(logging)
 ####################################################################################################
 #NOTE: May or may not correspond to a particular testfile in the testfiles directory
 
+add_testfiles_test(jzjcoresoftware_adding2)
 add_testfiles_test(jzjcoresoftware_auipctest)

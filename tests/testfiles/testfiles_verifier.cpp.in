@@ -25,13 +25,13 @@
 
 /* External Function Declarations */
 
-#define X(test_name) extern int test_##test_name();
+#define X(test_name) extern int verify_##test_name();
 TEST_LIST
 #undef X
 
 /* Constants */
 
-#define X(test_name) {#test_name, test_##test_name},
+#define X(test_name) {#test_name, verify_##test_name},
 const std::unordered_map<std::string, int (*)()> TEST_MAP = {
     TEST_LIST
 };
