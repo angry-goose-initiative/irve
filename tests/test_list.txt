@@ -64,4 +64,8 @@ add_testfiles_test(jzjcoresoftware_callrettest)
 add_testfiles_test(jzjcoresoftware_fenceecalltest)
 add_testfiles_test(jzjcoresoftware_fibbonaccijal)
 add_testfiles_test(jzjcoresoftware_fibbonaccijalr)
+add_testfiles_test(jzjcoresoftware_lbutest)
+add_testfiles_test(jzjcoresoftware_lhtest)
+add_testfiles_test(jzjcoresoftware_lhutest)
+add_testfiles_test(jzjcoresoftware_loadbytetest)
 #TODO add others
