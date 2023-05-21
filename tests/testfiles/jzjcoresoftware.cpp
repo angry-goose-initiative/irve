@@ -2,8 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Performs integration tests to ensure that assembly programs originally
- * from JZJCoreSoftware run as expected
+ * Verifies that assembly programs originally from JZJCoreSoftware run as expected
  *
 */
 
@@ -376,6 +375,8 @@ int verify_jzjcoresoftware_memorywritetest() {
     
     return 0;
 }
+
+//TODO the rest
 
 /* Static Function Implementations */
 

@@ -42,7 +42,7 @@ int test_memory_memory_t_valid_ramaddrs_bytes() {//None of these should throw an
     }
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        assert(memory.r(i, 0b000) == (uint8_t)(i * 123));
+        assert(memory.r(i, 0b100) == (uint8_t)(i * 123));
         //TODO test little endianness here (halfword accesses, word accesses)
         //TODO test load signed here too
     }

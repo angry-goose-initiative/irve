@@ -36,13 +36,13 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_rd    (instruction.bits(11, 7) .u),
     m_rs1   (instruction.bits(19, 15).u),
     m_rs2   (instruction.bits(24, 20).u),
-    m_imm_I (instruction.bits(31, 20).sign_extend_upward_from_bit(11).u),
+    m_imm_I (instruction.bits(31, 20).sign_extend_from_bit_number(11).u),
     m_imm_S (
         (
             (instruction.bits(31, 25) << 5) | 
             instruction.bits (11, 7)
         )
-        .sign_extend_upward_from_bit(11).u
+        .sign_extend_from_bit_number(11).u
     ),
     m_imm_B (
         (
@@ -52,7 +52,7 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
             (instruction.bits(11, 8)    << 1)   |
             0b0
         )
-        .sign_extend_upward_from_bit(12).u
+        .sign_extend_from_bit_number(12).u
     ),
     m_imm_U (instruction & 0b11111111111111111111000000000000),//Just zero out the lower 12 bits (keep the upper 20)
     m_imm_J (
@@ -63,7 +63,7 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
             (instruction.bits(30, 21)   << 1)   |
             0b0
         )
-        .sign_extend_upward_from_bit(20).u
+        .sign_extend_from_bit_number(20).u
     )
 {
     //These are defined invalid RISC-V instructions

@@ -77,7 +77,14 @@ word_t memory::memory_t::r(word_t addr, int8_t func3) const {
         data |= (m_mem.r(addr + byte) & 0xFF) << (byte * 8);
     }
 
-    return data;
+    //Perform sign extension if necessary
+    if (func3 == 0b000) {//lb
+        return data.sign_extend_from_size(8);
+    } else if (func3 == 0b001) {//lh
+        return data.sign_extend_from_size(16);
+    } else {
+        return data;
+    }
 }
 
 // Write to memory

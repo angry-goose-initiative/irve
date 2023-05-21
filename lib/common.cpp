@@ -119,7 +119,8 @@ bool word_t::operator!=(const word_t& other) const {
 }
 
 word_t word_t::bit(uint8_t bit) const {//TODO should we overload operator()
-    return this->bits(bit, bit);
+    assert((bit < 32) && "Bad argument to bit()");
+    return this->srl(bit) & 0b1;
 }
 
 word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we overload operator()
@@ -138,8 +139,8 @@ word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we
     return intermediate & mask;
 }
 
-word_t word_t::sign_extend_upward_from_bit(uint8_t bit) const {//Sign extend from a bit upward 
-    assert((bit < 32) && "Bad argument to sign_extend_from()");
+word_t word_t::sign_extend_from_bit_number(uint8_t bit) const {//Sign extend from a bit upward to 32 bits
+    assert((bit < 32) && "Bad argument to sign_extend_from_bit_number()");
 
     uint8_t shift_amount = 31 - bit;
 
@@ -148,6 +149,11 @@ word_t word_t::sign_extend_upward_from_bit(uint8_t bit) const {//Sign extend fro
 
     //ARITHMETIC shift things back down to perform sign extension and return
     return intermediate.sra(shift_amount);
+}
+
+word_t word_t::sign_extend_from_size(uint8_t original_size) const {
+    assert(original_size && (original_size <= 32) && "Bad argument to sign_extend_from_size()");
+    return this->sign_extend_from_bit_number(original_size - 1);
 }
 
 uint32_t irve::internal::upow(uint32_t base, uint32_t exponent) {//Unsigned integer power

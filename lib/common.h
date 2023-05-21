@@ -74,7 +74,8 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
         word_t pow(const word_t& other) const;//Integer power
         word_t bit(uint8_t bit) const;//Get a single bit//TODO should we overload operator()
         word_t bits(uint8_t top_bit, uint8_t bottom_bit) const;//Get a range of bits (inclusive)//TODO should we overload operator()
-        word_t sign_extend_upward_from_bit(uint8_t bit) const;//Sign extend from a bit upward
+        word_t sign_extend_from_bit_number(uint8_t bit) const;//Sign extend from a bit upward to 32 bits
+        word_t sign_extend_from_size(uint8_t original_size) const;//Sign extend from a size to 32 bits
 
         uint32_t u;
         int32_t s;
