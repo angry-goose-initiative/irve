@@ -35,7 +35,8 @@ int _write(int file, char *ptr, int len);
 /* Function Implementations */
 
 int main() {
-    puts("Hello World printed with puts from Newlib!\n");
+    puts("Hello World printed with puts from Newlib!");
+    fflush(stdout);
     return 0;
 }
 

@@ -17,6 +17,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "irve.h"
 
@@ -52,6 +53,10 @@ void __pre_main(void) {
 }
 
 void __post_main(void) {
+    //Flush debug output before we halt
+    fflush(stdout);
+    fflush(stderr);
+    
     //TODO must we do anything here?
     //TODO we should be calling "destructors" (the c atexit() function) before we halt?
 }
@@ -104,7 +109,7 @@ int _read(int, char*, int) {
 
 int _write(int, char* str, int len) {
     //NOTE: file is ignored since we only support stdout
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; ++i) {
         IRVE_DEBUG_ADDR = str[i];
     }
 

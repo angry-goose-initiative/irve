@@ -15,6 +15,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 /* Includes */
 
@@ -40,13 +41,16 @@ extern int __heap_start__;
 int main() {
     printf("Hello %s!\n", "World");
     printf("Testing %d\n", 123);
-    printf("This is broken: %f\n", 123.456);//FIXME this may be a newlib bug?
+    printf("This is used to be broken and print a lot of zeroes. Now it prints 123.456! : %f\n", 123.456);
     
+    printf("Let's look at some cool stuff with addresses!\n");
+    printf("Address of main: %p\n", (char*) &main);
     printf("Address of __executable_start: %p\n", (char*) &__executable_start);
     printf("Address of __stack_top: %p\n", (char*) &__stack_top);
     printf("Address of __SDATA_BEGIN__: %p\n", (char*) &__SDATA_BEGIN__);
     printf("Address of __heap_start__: %p\n", (char*) &__heap_start__);
 
+    printf("Let's see if Newlib's dynamic memory routines work!\n");
     for (int i = 0; i < 10; i++) {
         int size = (i * 123) + 2;
         char* test_of_dynamic_memory_that_should_never_be_done_on_an_embedded_system_but_is_being_done_for_testing_purposes = (char*)malloc((i * 123) + 2);
@@ -59,6 +63,9 @@ int main() {
 
         //TODO add another allocation to test how the heap allocations move around
     }
+
+    volatile double pi = M_PI;
+    printf("The square root of pi is %f\n", sqrt(pi));
 
     //for (int i = 0; i < 1000; ++i) {
     //    puts("TESTING123\n");

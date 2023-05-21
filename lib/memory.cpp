@@ -134,6 +134,10 @@ memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
 
 memory::pmemory_t::~pmemory_t() {
     delete[] this->m_ram;
+
+    if (this->m_debugstr.size() > 0) {
+        irvelog_always_stdout(0, "\x1b[92mRISC-V Remaining Debug At IRVE Exit:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+    }
 }
 
 uint8_t memory::pmemory_t::r(word_t addr) const {
@@ -152,11 +156,13 @@ void memory::pmemory_t::w(word_t addr, uint8_t data) {
     if (addr == DEBUGADDR) {//Debug output
         //End of line; print the debug string
         if (data == '\n') {
-            //NOTE: We print to std::cout instead of using logging because we want to see this even if logging is disabled
-            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+            this->m_debugstr.clear();
+        } else if (data == '\0') {
+            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
             this->m_debugstr.clear();
         } else {
-            this->m_debugstr.push_back(data);
+            this->m_debugstr.push_back((char)data);
         }
 
         return;

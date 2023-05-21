@@ -18,11 +18,11 @@
 /* Function Implementations */
 
 int main() {
-    puts("Playing with RISC-V exceptions!\n");
+    puts("Playing with RISC-V exceptions!");
 
     __asm__ volatile("ecall");
 
-    puts("Back in main!\n");
+    puts("Back in main!");
 
     return 0;//This should be a regular return
 }
@@ -30,6 +30,6 @@ int main() {
 //Adding this attribute makes the compiler emit a different return instruction
 //It will also save all registers to the stack to avoid clobbering them
 __attribute__ ((interrupt ("machine"))) void __riscv_synchronous_exception_and_user_mode_swi_handler(void) {
-    puts("Hey would you look at that, an exception!\n");
+    puts("Hey would you look at that, an exception!");
     return;//This should be different than a normal return when emitted by the compiler
 }
