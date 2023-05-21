@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Contains (mostly) CSRs for IRVE as well as methods to read and write them.
  *
 */
 
@@ -103,9 +103,6 @@ namespace irve::internal::CSR {
         privilege_mode_t get_privilege_mode() const;
 
         //TODO add way to implicitly read/write CSRs so they won't cause exceptions (ex. for timers, etc.)
-
-        void increment_inst_count();
-        uint64_t get_inst_count() const;
 
     private:
         bool current_privilege_mode_can_explicitly_read(uint16_t csr) const;

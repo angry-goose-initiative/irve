@@ -21,7 +21,7 @@
 #include "memory.h"
 #include "rvexception.h"
 
-#define INST_COUNT this->get_inst_count()
+#define INST_COUNT this->m_CSR.implicit_read(CSR::address::MINSTRET).u
 #include "logging.h"
 
 using namespace irve::internal;
@@ -33,7 +33,9 @@ emulator::emulator_t::emulator_t() : m_CSR(), m_memory(m_CSR), m_cpu_state(m_CSR
 }
 
 bool emulator::emulator_t::tick() {
-    this->m_CSR.increment_inst_count();//FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
+    //FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
+    this->m_CSR.implicit_write(CSR::address::MINSTRET,  this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
+    this->m_CSR.implicit_write(CSR::address::MCYCLE,    this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
@@ -77,7 +79,7 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
 }
 
 uint64_t emulator::emulator_t::get_inst_count() const {
-    return this->m_CSR.get_inst_count();
+    return INST_COUNT;
 }
 
 int8_t emulator::emulator_t::mem_read_byte(word_t addr) const {

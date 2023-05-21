@@ -23,7 +23,7 @@
 #include "decode.h"
 #include "rvexception.h"
 
-#define INST_COUNT CSR.get_inst_count()
+#define INST_COUNT CSR.implicit_read(CSR::address::MINSTRET).u
 #include "logging.h"
 
 using namespace irve::internal;

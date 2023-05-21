@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO description
+ * Contains (mostly) CSRs for IRVE as well as methods to read and write them.
  *
 */
 
@@ -16,7 +16,7 @@
 #include "rvexception.h"
 
 using namespace irve::internal;
-return 0;
+
 /* Function Implementations */
 
 // TODO what should CSRs be initialized to?
@@ -132,14 +132,6 @@ void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
 
 CSR::privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
     return this->m_privilege_mode;
-}
-
-void CSR::CSR_t::increment_inst_count() {
-    ++this->minstret;
-}
-
-uint64_t CSR::CSR_t::get_inst_count() const {
-    return this->minstret;
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {
