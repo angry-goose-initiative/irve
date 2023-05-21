@@ -16,7 +16,6 @@ set(
     ${CMAKE_CURRENT_BINARY_DIR}/integration_tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/basics.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/init.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/jzjcoresoftware.cpp
 )
 
 add_executable(integration_tester ${INTEGRATION_TESTER_SOURCES})

@@ -33,7 +33,6 @@ namespace irve {//NOT irve::internal
         void load_verilog_32(emulator::emulator_t& emulator, const char* filename);
     }
 
-
     namespace logging {
         void log(uint8_t indent, const char* str, ...);
         void log_always(uint8_t indent, const char* str, ...);//USE THIS SPARINGLY

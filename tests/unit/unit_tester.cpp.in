@@ -7,6 +7,7 @@
 */
 
 //FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
+//TODO to get access to internal state, do #define private public
 
 /* Includes */
 
