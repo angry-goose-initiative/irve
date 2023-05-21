@@ -15,6 +15,7 @@
 #include "emulator.h"
 #include "cpu_state.h"
 #include "CSR.h"
+#include "memory.h"
 
 #include <cassert>
 #include <cstdint>
@@ -316,6 +317,63 @@ int verify_jzjcoresoftware_loadbytetest() {
         assert((cpu_state_ref.get_pc() == 0x0));
     }
 
+    return 0;
+}
+
+int verify_jzjcoresoftware_luitest() {
+    //Load the luitest program
+    setup_emulator_with_program("luitest");
+    uint64_t expected_inst_count = 0;
+
+    //Check the two instructions
+    emulator.tick();//Execute the lui
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+    assert((cpu_state_ref.get_r(31) == (703710 << 12)));
+    emulator.run_until(0);//Execute the IRVE.EXIT
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_memoryreadtest() {
+    //Load the memoryreadtest program
+    setup_emulator_with_program("memoryreadtest");
+    uint64_t expected_inst_count = 0;
+
+    //Check the instruction
+    emulator.run_until(1);//Execute the lw
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+    assert((cpu_state_ref.get_r(31) == 2863311530u));
+    
+    return 0;
+}
+
+int verify_jzjcoresoftware_memorywritetest() {
+    //Load the memorywritetest program
+    setup_emulator_with_program("memorywritetest");
+    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    uint64_t expected_inst_count = 0;
+
+    //Check the instructions
+    emulator.run_until(1);//Execute the addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+    assert((cpu_state_ref.get_r(30) == 26));
+    emulator.tick();//Execute the sw
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x8));
+    assert((memory_ref.r(0x10, 0b010) == 26));
+    emulator.tick();//Execute the lw
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0xC));
+    assert((cpu_state_ref.get_r(31) == 26));
+    emulator.tick();//Execute the IRVE.EXIT
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0xC));
+    
     return 0;
 }
 
