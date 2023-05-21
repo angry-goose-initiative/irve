@@ -47,15 +47,8 @@ add_unit_test(reg_file_reg_file_t)
 # Integration Test List (integration_tester)
 ####################################################################################################
 
-#TODO the integration tester will test for assertions both in IRVE and RISC-V code
-#It will have an internal list of tests to run which will include the path to
-#the testfile, and a function to verify that the CPU state, memory, and output
-#were as expected
-
-#TODO actually there will be a third list of tests for the testcase_tester
-
 add_integration_test(about)
-#add_integration_test(emulator_t_init)
+#add_integration_test(emulator_t_init)#TODO
 add_integration_test(emulator_t_sanity)
 add_integration_test(logging)
 
@@ -67,3 +60,5 @@ add_integration_test(logging)
 add_testfiles_test(jzjcoresoftware_adding2)
 add_testfiles_test(jzjcoresoftware_auipctest)
 add_testfiles_test(jzjcoresoftware_bneandsubtest)
+add_testfiles_test(jzjcoresoftware_callrettest)
+add_testfiles_test(jzjcoresoftware_fenceecalltest)
