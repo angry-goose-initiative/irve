@@ -87,13 +87,13 @@ int verify_jzjcoresoftware_bneandsubtest() {
     assert((cpu_state_ref.get_r(29) == 5));
 
     //Now we get to the loop
-    uint32_t expected_r31 = 1000;
-    while (expected_r31 >= 510) {
+    uint32_t expected_x31 = 1000;
+    while (expected_x31 >= 510) {
         emulator.tick();//Execute the sub
-        expected_r31 -= 5;
+        expected_x31 -= 5;
         assert((emulator.get_inst_count() == ++expected_inst_count));
         assert((cpu_state_ref.get_pc() == 0x10));
-        assert((cpu_state_ref.get_r(31) == expected_r31));
+        assert((cpu_state_ref.get_r(31) == expected_x31));
         emulator.tick();//Execute the bne
         assert((emulator.get_inst_count() == ++expected_inst_count));
         assert((cpu_state_ref.get_pc() == 0xc));
@@ -101,10 +101,10 @@ int verify_jzjcoresoftware_bneandsubtest() {
 
     //On the last iteration, the bne should not be taken
     emulator.tick();//Execute the sub
-    expected_r31 -= 5;
+    expected_x31 -= 5;
     assert((emulator.get_inst_count() == ++expected_inst_count));
     assert((cpu_state_ref.get_pc() == 0x10));
-    assert((cpu_state_ref.get_r(31) == expected_r31));
+    assert((cpu_state_ref.get_r(31) == expected_x31));
     emulator.tick();//Execute the bne
     assert((emulator.get_inst_count() == ++expected_inst_count));
     assert((cpu_state_ref.get_pc() == 0x14));
@@ -170,5 +170,99 @@ int verify_jzjcoresoftware_fenceecalltest() {
         assert((cpu_state_ref.get_pc() == 0x4));
     }
     
+    return 0;
+}
+
+int verify_jzjcoresoftware_fibbonaccijal() {
+    //Load the fibbonaccijal program
+    setup_emulator_with_program("fibbonaccijal");
+    uint64_t expected_inst_count = 0;
+    uint32_t expected_x29 = 0;
+    uint32_t expected_x30 = 1;
+    uint32_t expected_x31 = 0;
+
+    //Checks things are as expected at the start
+    emulator.tick();//Execute the first addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+    assert((cpu_state_ref.get_r(29) == expected_x29));
+    emulator.tick();//Execute the second addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x8));
+    assert((cpu_state_ref.get_r(30) == expected_x30));
+    emulator.tick();//Execute the third addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0xC));
+    assert((cpu_state_ref.get_r(31) == expected_x31));
+    
+    //In the loop
+    for (uint32_t i = 0; i < 47; ++i) {//Max fibonacci number that can fit in a 32 bit register is the 47th
+        emulator.tick();//Execute the add
+        expected_x31 = expected_x29 + expected_x30;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x10));
+        assert((cpu_state_ref.get_r(31) == expected_x31));
+        emulator.tick();//Execute the first addi
+        expected_x29 = expected_x30;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x14));
+        assert((cpu_state_ref.get_r(29) == expected_x29));
+        emulator.tick();//Execute the second addi
+        expected_x30 = expected_x31;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x18));
+        assert((cpu_state_ref.get_r(30) == expected_x30));
+        emulator.tick();//Execute the jal
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0xC));
+    }
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_fibbonaccijalr() {
+    //Load the fibbonaccijal program
+    setup_emulator_with_program("fibbonaccijalr");
+    uint64_t expected_inst_count = 0;
+    uint32_t expected_x29 = 0;
+    uint32_t expected_x30 = 1;
+    uint32_t expected_x31 = 0;
+
+    //Checks things are as expected at the start
+    emulator.tick();//Execute the first addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x4));
+    assert((cpu_state_ref.get_r(29) == expected_x29));
+    emulator.tick();//Execute the second addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0x8));
+    assert((cpu_state_ref.get_r(30) == expected_x30));
+    emulator.tick();//Execute the third addi
+    assert((emulator.get_inst_count() == ++expected_inst_count));
+    assert((cpu_state_ref.get_pc() == 0xC));
+    assert((cpu_state_ref.get_r(31) == expected_x31));
+    
+    //In the loop
+    for (uint32_t i = 0; i < 47; ++i) {//Max fibonacci number that can fit in a 32 bit register is the 47th
+        emulator.tick();//Execute the add
+        expected_x31 = expected_x29 + expected_x30;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x10));
+        assert((cpu_state_ref.get_r(31) == expected_x31));
+        emulator.tick();//Execute the first addi
+        expected_x29 = expected_x30;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x14));
+        assert((cpu_state_ref.get_r(29) == expected_x29));
+        emulator.tick();//Execute the second addi
+        expected_x30 = expected_x31;
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0x18));
+        assert((cpu_state_ref.get_r(30) == expected_x30));
+        emulator.tick();//Execute the jalr
+        assert((emulator.get_inst_count() == ++expected_inst_count));
+        assert((cpu_state_ref.get_pc() == 0xC));
+    }
+
     return 0;
 }
