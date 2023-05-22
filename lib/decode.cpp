@@ -119,7 +119,9 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
 void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     switch (this->get_format()) {
         case inst_format_t::R_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = R");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -129,7 +131,9 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "rs2    = x%u", this->get_rs2());
             break;
         case inst_format_t::I_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = I");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -138,7 +142,9 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case inst_format_t::S_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = S");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -147,7 +153,9 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case inst_format_t::B_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = B");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "funct3 = 0x%X", this->get_funct3());
@@ -156,14 +164,18 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case inst_format_t::U_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = U");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "rd     = x%u", this->get_rd());
             irvelog(indent, "imm    = 0x%X", this->get_imm());
             break;
         case inst_format_t::J_TYPE:
+#if IRVE_INTERNAL_CONFIG_RUST
             irvelog(indent, "pretty = %s", this->disassemble().c_str());
+#endif
             irvelog(indent, "type   = J");
             irvelog(indent, "opcode = 0x%X", this->get_opcode());
             irvelog(indent, "rd     = x%u", this->get_rd());
@@ -251,9 +263,20 @@ word_t decode::decoded_inst_t::get_imm() const {
 
 std::string decode::decoded_inst_t::disassemble() const {
 #if IRVE_INTERNAL_CONFIG_RUST
-    char* disassembly = irve::internal::disassemble::disassemble(123);//TODO provide the actual instruction here
+    disassemble::RawInst rust_raw_inst = {
+        //TODO format
+        //TODO opcode
+        .rd         = this->m_rd,
+        .rs1        = this->m_rs1,
+        .rs2        = this->m_rs2,
+        .funct3     = this->m_funct3,
+        .funct5     = this->m_funct5,
+        .funct7     = this->m_funct7,
+        .imm        = (this->get_format == inst_format_t::R_TYPE) ? 0 : this->get_imm(),        
+    };
+    char* disassembly = disassemble::disassemble(&rust_raw_inst);
     std::string disassembly_copy = disassembly;
-    irve::internal::disassemble::free_disassembly(disassembly);
+    disassemble::free_disassembly(disassembly);
     return disassembly_copy;
 #else
     return "Disassembly not available in non-Rust IRVE builds";

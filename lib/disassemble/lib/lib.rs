@@ -24,34 +24,36 @@
 
 /* Types */
 
-/*struct RawInst {
-    opcode: u8,
+#[derive(Debug)]
+#[repr(C)]
+pub struct RawInst {
+    //TODO add the format here too
+    //TODO opcode
     rd: u8,
     rs1: u8,
     rs2: u8,
     funct3: u8,
+    funct5: u8,
     funct7: u8,
-    imm: u32,
+    imm: u32//TODO make the immediate an enum
 }
-*/
 
 /* Associated Functions and Methods */
 
-//TODO
-
-/* The Main Disassembly Function */
-
-//pub fn actual_disassemble(raw_inst: u32) -> String {
-pub fn actual_disassemble(_: u32) -> String {//TODO implement this function
-    return "TODO: irve_disassemble is not fully implemented yet!".to_string();
-    //todo!()
+impl RawInst {
+    //The Main Disassembly Function
+    fn disassemble(&self) -> String {//TODO implement this function
+        //return "TODO: irve_disassemble is not fully implemented yet!".to_string();
+        return format!("TODO: {:?}", self);
+        //todo!()
+    }
 }
 
 /* FFI-Related Functions */
 
 #[no_mangle]
-pub extern "C" fn disassemble(raw_inst: u32) -> *mut std::os::raw::c_char {
-    let disassembly_string = actual_disassemble(raw_inst);
+pub extern "C" fn disassemble(raw_inst: &RawInst) -> *mut std::os::raw::c_char {
+    let disassembly_string = raw_inst.disassemble();
     let owned_c_string = std::ffi::CString::new(disassembly_string)
         .expect("The disassembly shouldn't contain any null bytes (it should be human-readable)!");
     let raw_c_string = owned_c_string.into_raw();
