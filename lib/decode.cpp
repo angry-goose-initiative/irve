@@ -17,6 +17,8 @@
 #include <cstdint>
 #include <string>
 
+#include "config.h"
+
 #include "common.h"
 
 #include "rvexception.h"

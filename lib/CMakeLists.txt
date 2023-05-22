@@ -13,6 +13,10 @@ cmake_minimum_required(VERSION 3.16.3)
 #Gets variables from parent directory CMakeLists.txt files
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY)
 
+if (IRVE_RUST)
+
+endif()
+
 set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
