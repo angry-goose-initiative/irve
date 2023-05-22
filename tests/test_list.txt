@@ -71,4 +71,6 @@ add_testfiles_test(jzjcoresoftware_loadbytetest)
 add_testfiles_test(jzjcoresoftware_luitest)
 add_testfiles_test(jzjcoresoftware_memoryreadtest)
 add_testfiles_test(jzjcoresoftware_memorywritetest)
+add_testfiles_test(jzjcoresoftware_nop)
+add_testfiles_test(jzjcoresoftware_sbtest)
 #TODO add others

@@ -9,7 +9,7 @@
 
 #Common options
 cmake_minimum_required(VERSION 3.16.3)
-project(irve_testfiles VERSION 0.2.1 LANGUAGES C ASM)
+project(irve_testfiles VERSION 0.3.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
