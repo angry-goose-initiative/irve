@@ -272,7 +272,7 @@ std::string decode::decoded_inst_t::disassemble() const {
         .funct7     = this->m_funct7,
         .imm        = (this->get_format() == inst_format_t::R_TYPE) ? 0 : this->get_imm().u,
     };
-    char* disassembly = disassemble::disassemble(&rust_decoded_inst);
+    const char* disassembly = disassemble::disassemble(&rust_decoded_inst);
     std::string disassembly_copy = disassembly;
     disassemble::free_disassembly(disassembly);
     return disassembly_copy;

@@ -95,7 +95,7 @@ pub struct DecodedInst {
  * This can be done by calling free_disassembly() on the pointer returned by this function.
 */
 #[no_mangle]
-pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::ffi::c_char {//TODO avoid giving a mut ptr instead of const (but it is needed for free_disassembly())
+pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *const std::ffi::c_char {
     let disassembly_string = raw_inst.disassemble()
         .unwrap_or_else(|reason| format!("\x1b[91mDisassembly failed: {reason}\x1b[0m"));
     let owned_c_string = std::ffi::CString::new(disassembly_string)
@@ -113,7 +113,7 @@ pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::ffi::c_char {
  * Furthermore, the caller must NOT alter the size of the string ex. by inserting null bytes into it.
 */
 #[no_mangle]
-pub unsafe extern "C" fn free_disassembly(disassembly: *mut std::ffi::c_char) {
+pub unsafe extern "C" fn free_disassembly(disassembly: *const std::ffi::c_char) {
     if disassembly.is_null() {
         panic!("Attempted to free a null pointer in irve::internal::disassemble::free_disassembly()!");
     } else {
@@ -121,7 +121,7 @@ pub unsafe extern "C" fn free_disassembly(disassembly: *mut std::ffi::c_char) {
         //We can't really verify this beyond the null check above, so we'll just have to trust the C++ user
 
         //This will take ownership of the pointer again and free it when it is dropped
-        drop(std::ffi::CString::from_raw(disassembly));
+        drop(std::ffi::CString::from_raw(disassembly.cast_mut()));//Safe to cast_mut because this originally came from a CString
     }
 }
 
