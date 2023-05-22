@@ -23,15 +23,15 @@ namespace irve::internal::decode {
     /* Types */
 
     //opcode_t is an enum of RISC-V opcodes
-    enum class opcode_t : uint8_t {
+    enum class opcode_t : uint8_t {//NOTE: If you change this, you must also change things on the Rust side
         LOAD = 0b00000,     LOAD_FP = 0b00001,  CUSTOM_0 = 0b00010,     MISC_MEM = 0b00011, OP_IMM = 0b00100,   AUIPC = 0b00101,        OP_IMM_32 = 0b00110,    B48_0 = 0b00111,
         STORE = 0b01000,    STORE_FP = 0b01001, CUSTOM_1 = 0b01010,     AMO = 0b01011,      OP = 0b01100,       LUI = 0b01101,          OP_32 = 0b01110,        B64 = 0b01111,
         MADD = 0b10000,     MSUB = 0b10001,     NMSUB = 0b10010,        NMADD = 0b10011,    OP_FP = 0b10100,    RESERVED_0 = 0b10101,   CUSTOM_2 = 0b10110,     B48_1 = 0b10111,
         BRANCH = 0b11000,   JALR = 0b11001,     RESERVED_1 = 0b11010,   JAL = 0b11011,      SYSTEM = 0b11100,   RESERVED_3 = 0b11101,   CUSTOM_3 = 0b11110,     BGE80 = 0b11111,
     };
 
-    enum class inst_format_t {
-        R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE
+    enum class inst_format_t {//NOTE: If you change this, you must also change things on the Rust side
+        R_TYPE = 0, I_TYPE = 1, S_TYPE = 2, B_TYPE = 3, U_TYPE = 4, J_TYPE = 5
     };
 
     /* Function/Class Declarations */

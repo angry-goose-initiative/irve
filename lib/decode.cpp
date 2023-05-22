@@ -256,23 +256,23 @@ word_t decode::decoded_inst_t::get_imm() const {
             break;
         default:
             assert(false && "We should never get here");
+            return 0x0BADDEAD;
             break;
     }
-    return this->m_imm_I;
 }
 
 std::string decode::decoded_inst_t::disassemble() const {
 #if IRVE_INTERNAL_CONFIG_RUST
     disassemble::RawInst rust_raw_inst = {
-        //TODO format
-        //TODO opcode
+        .format     = (disassemble::Format)this->get_format(),//NOTE: Relies on the enum numbering being the same
+        .opcode     = (disassemble::Opcode)this->get_opcode(),//NOTE: Relies on the enum numbering being the same
         .rd         = this->m_rd,
         .rs1        = this->m_rs1,
         .rs2        = this->m_rs2,
         .funct3     = this->m_funct3,
         .funct5     = this->m_funct5,
         .funct7     = this->m_funct7,
-        .imm        = (this->get_format == inst_format_t::R_TYPE) ? 0 : this->get_imm(),        
+        .imm        = (this->get_format() == inst_format_t::R_TYPE) ? 0 : this->get_imm().u,
     };
     char* disassembly = disassemble::disassemble(&rust_raw_inst);
     std::string disassembly_copy = disassembly;
