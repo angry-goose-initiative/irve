@@ -10,6 +10,10 @@
 #Common options
 cmake_minimum_required(VERSION 3.16.3)
 
+if (IRVE_RUST)
+    add_subdirectory(disassemble)
+endif()
+
 #Gets variables from parent directory CMakeLists.txt files
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY)
 
@@ -71,30 +75,13 @@ set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 #]]
 
 if (IRVE_RUST)
+    #TODO put the static library in a common area perhaps?
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/irve_disassemble.h
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
-            DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
-            COMMAND cargo build
-        )
-        add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/irve_disassemble.h
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
-            DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
-            COMMAND cargo build --release
-        )
-        add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
     endif()
-
+    #TODO put the header in an include subdirectory in target perhaps?
     target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target)
     add_dependencies(libirve_object libirve_disassemble)
-    set_property(
-        TARGET libirve_disassemble
-        APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/Cargo.lock"
-    )
 endif()
