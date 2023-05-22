@@ -13,10 +13,6 @@ cmake_minimum_required(VERSION 3.16.3)
 #Gets variables from parent directory CMakeLists.txt files
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY)
 
-if (IRVE_RUST)
-
-endif()
-
 set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
@@ -67,3 +63,29 @@ target_include_directories(libirve_shared PRIVATE ${CMAKE_SOURCE_DIR}/include)#P
 #End of the old way
 set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 #]]
+
+if (IRVE_RUST)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
+            COMMAND cargo build
+        )
+        add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
+        target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
+            COMMAND cargo build --release
+        )
+        add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
+        target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
+    endif()
+
+    add_dependencies(libirve_object libirve_disassemble)
+    set_property(
+        TARGET libirve_disassemble
+        APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target"
+    )
+endif()
