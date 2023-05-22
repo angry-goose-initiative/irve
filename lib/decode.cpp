@@ -7,8 +7,6 @@
  * Based on code from rv32esim
 */
 
-//TODO transition to using word_t and reg_t
-
 /* Includes */
 
 #include "decode.h"

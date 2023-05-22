@@ -648,6 +648,8 @@ int verify_jzjcoresoftware_sllsrlblttest() {
     return 0;
 }
 
+//TODO more verifiers
+
 /* Static Function Implementations */
 
 static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::cpu_state::cpu_state_t& cpu_state_ref) {

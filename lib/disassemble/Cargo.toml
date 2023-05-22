@@ -8,9 +8,8 @@ license = "MIT"
 
 [dependencies]
 
-#TODO add a build script to create bindings
-#[build-dependencies]
-#cbindgen = "0.24.0"
+[build-dependencies]
+cbindgen = "0.24.0"
 
 [features]
 default = []

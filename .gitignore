@@ -7,3 +7,4 @@ build/
 testfiles/.cache/
 .cache/
 lib/disassemble/target
+lib/disassemble/Cargo.lock

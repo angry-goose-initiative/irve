@@ -41,6 +41,12 @@ set(LIBIRVE_SOURCES
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
 )
 
+set(LIBIRVE_DISASSEMBLE_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/Cargo.toml
+    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/build.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs
+)
+
 #Attempt to avoid needing to double compile everything:
 #Foiled by the fact that we don't need PIC for static libraries, but we do for shared libraries
 #https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
@@ -67,28 +73,28 @@ set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 if (IRVE_RUST)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/irve_disassemble.h
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs#TODO move this somewhere common and also add other things like Cargo.toml, etc
+            DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
             COMMAND cargo build
         )
         add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/irve_disassemble.h
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs#TODO move this somewhere common and also add other things like Cargo.toml, etc
+            DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
             COMMAND cargo build --release
         )
         add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
     endif()
 
-    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/include)
+    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target)
     add_dependencies(libirve_object libirve_disassemble)
     set_property(
         TARGET libirve_disassemble
-        APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target"
+        APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/Cargo.lock"
     )
 endif()
