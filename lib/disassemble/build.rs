@@ -11,29 +11,11 @@
 
 extern crate cbindgen;
 
-/* Constants */
-
-//TODO
-
-/* Macros */
-
-//TODO (also pub(crate) use the_macro statements here too)
-
-/* Static Variables */
-
-//TODO
-
-/* Types */
-
-//TODO
-
-/* Associated Functions and Methods */
-
-//TODO
-
 /* Function Implementations */
 
 fn main() {
+    println!("cargo:rerun-if-changed=lib/target/irve_disassemble.h");
+
     let crate_directory_path = std::env::var("CARGO_MANIFEST_DIR").unwrap();
 
     cbindgen::Builder::new()

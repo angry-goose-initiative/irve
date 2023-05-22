@@ -49,6 +49,8 @@ set(LIBIRVE_DISASSEMBLE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/Cargo.toml
     ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/build.rs
     ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/ffi.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/disassemble.rs
 )
 
 #Attempt to avoid needing to double compile everything:
