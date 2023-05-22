@@ -263,7 +263,7 @@ word_t decode::decoded_inst_t::get_imm() const {
 
 std::string decode::decoded_inst_t::disassemble() const {
 #if IRVE_INTERNAL_CONFIG_RUST
-    disassemble::RawInst rust_raw_inst = {
+    disassemble::DecodedInst rust_decoded_inst = {
         .format     = (disassemble::Format)this->get_format(),//NOTE: Relies on the enum numbering being the same
         .opcode     = (disassemble::Opcode)this->get_opcode(),//NOTE: Relies on the enum numbering being the same
         .rd         = this->m_rd,
@@ -274,7 +274,7 @@ std::string decode::decoded_inst_t::disassemble() const {
         .funct7     = this->m_funct7,
         .imm        = (this->get_format() == inst_format_t::R_TYPE) ? 0 : this->get_imm().u,
     };
-    char* disassembly = disassemble::disassemble(&rust_raw_inst);
+    char* disassembly = disassemble::disassemble(&rust_decoded_inst);
     std::string disassembly_copy = disassembly;
     disassemble::free_disassembly(disassembly);
     return disassembly_copy;

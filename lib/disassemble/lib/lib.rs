@@ -24,6 +24,15 @@
 
 /* Types */
 
+/** Contains the instruction format of a RISC-V instruction
+ *
+ * This should be self-explanatory.
+ *
+ * # Safety
+ *
+ * Ensure the enum values are legal when configuring the fields of this struct from the C++ side.
+ * Otherwise undefined behavior may occur after a call to disassemble().
+*/
 #[derive(Debug)]
 #[repr(C)]
 pub enum Format {
@@ -37,6 +46,15 @@ pub enum Format {
     J = 5
 }
 
+/** Contains the opcode of a RISC-V instruction
+ *
+ * This should be self-explanatory.
+ *
+ * # Safety
+ *
+ * Ensure the enum values are legal when configuring the fields of this struct from the C++ side.
+ * Otherwise undefined behavior may occur after a call to disassemble().
+*/
 #[derive(Debug)]
 #[repr(C)]
 pub enum Opcode {
@@ -49,9 +67,19 @@ pub enum Opcode {
     Branch = 0b11000,   Jalr = 0b11001,     Reserved1 = 0b11010,   Jal = 0b11011,      System = 0b11100,   Reserved3 = 0b11101,   Custom3 = 0b11110,     BGE80 = 0b11111
 }
 
+/** Contains the decoded fields of a RISC-V instruction
+ *
+ * This struct is used to pass data between the C++ and Rust sides of the library.
+ * The fields should be self-explanatory.
+ *
+ * # Safety
+ *
+ * Ensure the enum values are legal when configuring the fields of this struct from the C++ side.
+ * Otherwise undefined behavior may occur after a call to disassemble().
+*/
 #[derive(Debug)]
 #[repr(C)]
-pub struct RawInst {
+pub struct DecodedInst {
     format: Format,
     opcode: Opcode,
     rd: u8,
@@ -65,7 +93,7 @@ pub struct RawInst {
 
 /* Associated Functions and Methods */
 
-impl RawInst {
+impl DecodedInst {
     //The Main Disassembly Function
     fn disassemble(&self) -> String {//TODO implement this function
         //return "TODO: irve_disassemble is not fully implemented yet!".to_string();
@@ -76,8 +104,15 @@ impl RawInst {
 
 /* FFI-Related Functions */
 
+/** Disassembles a decoded RISC-V instruction into a human-readable C-style string
+ *
+ * # Avoiding Memory Leaks
+ *
+ * The returned string is allocated on the heap, so it must be freed by the caller when it is no longer needed.
+ * This can be done by calling free_disassembly() on the pointer returned by this function.
+*/
 #[no_mangle]
-pub extern "C" fn disassemble(raw_inst: &RawInst) -> *mut std::os::raw::c_char {
+pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::os::raw::c_char {
     let disassembly_string = raw_inst.disassemble();
     let owned_c_string = std::ffi::CString::new(disassembly_string)
         .expect("The disassembly shouldn't contain any null bytes (it should be human-readable)!");
@@ -85,17 +120,23 @@ pub extern "C" fn disassemble(raw_inst: &RawInst) -> *mut std::os::raw::c_char {
     raw_c_string
 }
 
+/** Frees a string returned by disassemble()
+ *
+ * # Safety
+ *
+ * This function is unsafe because it takes ownership of a pointer and frees it.
+ * It is the caller's responsibility to ensure that the pointer is valid and that it was originally returned by disassemble().
+*/
 #[no_mangle]
-pub extern "C" fn free_disassembly(disassembly: *mut std::os::raw::c_char) {
+pub unsafe extern "C" fn free_disassembly(disassembly: *mut std::os::raw::c_char) {
     if disassembly.is_null() {
         panic!("Attempted to free a null pointer in irve::internal::disassemble::free_disassembly()!");
     } else {
         //Safety is contingent on this being a pointer to a string originally returned by disassemble()
         //We can't really verify this beyond the null check above, so we'll just have to trust the C++ user
-        unsafe {
-            //This will take ownership of the pointer again and free it when it is dropped
-            drop(std::ffi::CString::from_raw(disassembly));
-        }
+
+        //This will take ownership of the pointer again and free it when it is dropped
+        drop(std::ffi::CString::from_raw(disassembly));
     }
 }
 
