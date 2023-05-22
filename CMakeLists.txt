@@ -16,7 +16,7 @@ set(IRVE_RUST 0)#Optional to use most things, but notably required for disassemb
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.4.1)
+project(irve VERSION 0.5.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
