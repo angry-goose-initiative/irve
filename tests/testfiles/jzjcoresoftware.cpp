@@ -418,19 +418,232 @@ int verify_jzjcoresoftware_sbtest() {
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
-    assert(memory_ref.r(0xC, 0b010) == 0x89abcdef);
+    assert(memory_ref.r(0xC, 0b010) == 0x89ABCDEF);
     emulator.tick();//Execute the sb
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x4);
     assert(memory_ref.r(0xC, 0b000) == 0x00);
-    assert(memory_ref.r(0xC, 0b010) == 0x89abcd00);
+    assert(memory_ref.r(0xC, 0b010) == 0x89ABCD00);
     emulator.tick();//Execute the lw
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);
-    assert(cpu_state_ref.get_r(31) == 0x89abcd00);
+    assert(cpu_state_ref.get_r(31) == 0x89ABCD00);
     emulator.tick();//Execute the IRVE.EXIT
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_sbtest2() {
+    //Load the sbtest2 program
+    setup_emulator_with_program("sbtest2");
+    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    uint64_t expected_inst_count = 0;
+
+    //Check the instructions
+    assert(memory_ref.r(0xC, 0b010) == 0x89ABCDEF);
+    emulator.tick();//Execute the sb
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x4);
+    assert(memory_ref.r(0xD, 0b000) == 0x00);
+    assert(memory_ref.r(0xC, 0b010) == 0x89AB00EF);
+    emulator.tick();//Execute the lw
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+    assert(cpu_state_ref.get_r(31) == 0x89AB00EF);
+    emulator.tick();//Execute the IRVE.EXIT
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_shtest() {
+    //Load the shtest program
+    setup_emulator_with_program("shtest");
+    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    uint64_t expected_inst_count = 0;
+
+    //Check the instructions
+    assert(memory_ref.r(0x10, 0b010) == 0x89abcdef);
+    emulator.tick();//Execute the sh
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x4);
+    assert(memory_ref.r(0x10, 0b001) == 0x0000);
+    assert(memory_ref.r(0x10, 0b010) == 0x89AB0000);
+    emulator.tick();//Execute the first lhu 
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+    assert(cpu_state_ref.get_r(31) == 0x00000000);
+    emulator.tick();//Execute the second lhu 
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0xC);
+    assert(cpu_state_ref.get_r(31) == 0x000089AB);
+    emulator.tick();//Execute the IRVE.EXIT
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0xC);
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_sllisrliblttest() {
+    //Load the sllisrliblttest program
+    setup_emulator_with_program("sllisrliblttest");
+    uint64_t expected_inst_count = 0;
+    uint32_t expected_x29 = 0;
+    const uint32_t expected_x30 = 15;
+    uint32_t expected_x31 = 1;
+
+    //Check the initial instructions
+    emulator.tick();//Execute the first addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x4);
+    assert(cpu_state_ref.get_r(29) == expected_x29);
+    emulator.tick();//Execute the second addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+    assert(cpu_state_ref.get_r(30) == expected_x30);
+    emulator.tick();//Execute the third addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0xC);
+    assert(cpu_state_ref.get_r(31) == expected_x31);
+
+    //Test the loops
+    for (uint32_t i = 0; i < 100; ++i) {//100 iterations of outer loop should be fine (it runs infinitely)
+        for (uint32_t j = 0; j < 15; ++j) {//15 iterations of both inner loops
+            assert(cpu_state_ref.get_pc() == 0xC);
+            emulator.tick();//Execute the slli 
+            expected_x31 = expected_x31 << 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x10);
+            assert(cpu_state_ref.get_r(31) == expected_x31);
+            emulator.tick();//Execute the addi
+            expected_x29 += 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x14);
+            assert(cpu_state_ref.get_r(29) == expected_x29);
+            emulator.tick();//Execute the blt
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+        }
+        assert(cpu_state_ref.get_pc() == 0x18);
+
+        emulator.tick();//Execute the addi in between the two inner loops
+        expected_x29 = 0;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x1C);
+        assert(cpu_state_ref.get_r(29) == expected_x29);
+
+        for (uint32_t j = 0; j < 15; ++j) {//15 iterations of both inner loops
+            assert(cpu_state_ref.get_pc() == 0x1C);
+            emulator.tick();//Execute the srli 
+            expected_x31 = expected_x31 >> 1;//Logical shift
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x20);
+            assert(cpu_state_ref.get_r(31) == expected_x31);
+            emulator.tick();//Execute the addi
+            expected_x29 += 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x24);
+            assert(cpu_state_ref.get_r(29) == expected_x29);
+            emulator.tick();//Execute the blt
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+        }
+        assert(cpu_state_ref.get_pc() == 0x28);
+
+        //Tail of the main loop
+        emulator.tick();//Execute the addi
+        expected_x29 = 0;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x2C);
+        assert(cpu_state_ref.get_r(29) == expected_x29);
+        emulator.tick();//Execute the jalr
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0xC);
+    }
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_sllsrlblttest() {
+    //Load the sllsrlblttest program
+    setup_emulator_with_program("sllsrlblttest");
+    uint64_t expected_inst_count = 0;
+    const uint32_t expected_x28 = 1;
+    uint32_t expected_x29 = 0;
+    const uint32_t expected_x30 = 15;
+    uint32_t expected_x31 = 1;
+
+    //Check the initial instructions
+    emulator.tick();//Execute the first addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x4);
+    assert(cpu_state_ref.get_r(28) == expected_x28);
+    emulator.tick();//Execute the second addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+    assert(cpu_state_ref.get_r(29) == expected_x29);
+    emulator.tick();//Execute the third addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0xC);
+    assert(cpu_state_ref.get_r(30) == expected_x30);
+    emulator.tick();//Execute the fourth addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x10);
+    assert(cpu_state_ref.get_r(31) == expected_x31);
+
+    //Test the loops
+    for (uint32_t i = 0; i < 100; ++i) {//100 iterations of outer loop should be fine (it runs infinitely)
+        for (uint32_t j = 0; j < 15; ++j) {//15 iterations of both inner loops
+            assert(cpu_state_ref.get_pc() == 0x10);
+            emulator.tick();//Execute the sll
+            expected_x31 = expected_x31 << 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x14);
+            assert(cpu_state_ref.get_r(31) == expected_x31);
+            emulator.tick();//Execute the addi
+            expected_x29 += 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x18);
+            assert(cpu_state_ref.get_r(29) == expected_x29);
+            emulator.tick();//Execute the blt
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+        }
+        assert(cpu_state_ref.get_pc() == 0x1C);
+
+        emulator.tick();//Execute the addi in between the two inner loops
+        expected_x29 = 0;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x20);
+        assert(cpu_state_ref.get_r(29) == expected_x29);
+
+        for (uint32_t j = 0; j < 15; ++j) {//15 iterations of both inner loops
+            assert(cpu_state_ref.get_pc() == 0x20);
+            emulator.tick();//Execute the srl
+            expected_x31 = expected_x31 >> 1;//Logical shift
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x24);
+            assert(cpu_state_ref.get_r(31) == expected_x31);
+            emulator.tick();//Execute the addi
+            expected_x29 += 1;
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+            assert(cpu_state_ref.get_pc() == 0x28);
+            assert(cpu_state_ref.get_r(29) == expected_x29);
+            emulator.tick();//Execute the blt
+            assert(emulator.get_inst_count() == ++expected_inst_count);
+        }
+        assert(cpu_state_ref.get_pc() == 0x2C);
+
+        //Tail of the main loop
+        emulator.tick();//Execute the addi
+        expected_x29 = 0;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x30);
+        assert(cpu_state_ref.get_r(29) == expected_x29);
+        emulator.tick();//Execute the jalr
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x10);
+    }
 
     return 0;
 }

@@ -73,4 +73,8 @@ add_testfiles_test(jzjcoresoftware_memoryreadtest)
 add_testfiles_test(jzjcoresoftware_memorywritetest)
 add_testfiles_test(jzjcoresoftware_nop)
 add_testfiles_test(jzjcoresoftware_sbtest)
+add_testfiles_test(jzjcoresoftware_sbtest2)
+add_testfiles_test(jzjcoresoftware_shtest)
+add_testfiles_test(jzjcoresoftware_sllisrliblttest)
+add_testfiles_test(jzjcoresoftware_sllsrlblttest)
 #TODO add others
