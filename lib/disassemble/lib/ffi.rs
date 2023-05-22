@@ -95,7 +95,7 @@ pub struct DecodedInst {
  * This can be done by calling free_disassembly() on the pointer returned by this function.
 */
 #[no_mangle]
-pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::os::raw::c_char {
+pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::ffi::c_char {//TODO avoid giving a mut ptr instead of const (but it is needed for free_disassembly())
     let disassembly_string = raw_inst.disassemble()
         .unwrap_or_else(|reason| format!("\x1b[91mDisassembly failed: {reason}\x1b[0m"));
     let owned_c_string = std::ffi::CString::new(disassembly_string)
@@ -110,9 +110,10 @@ pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::os::raw::c_ch
  *
  * This function is unsafe because it takes ownership of a pointer and frees it.
  * It is the caller's responsibility to ensure that the pointer is valid and that it was originally returned by disassemble().
+ * Furthermore, the caller must NOT alter the size of the string ex. by inserting null bytes into it.
 */
 #[no_mangle]
-pub unsafe extern "C" fn free_disassembly(disassembly: *mut std::os::raw::c_char) {
+pub unsafe extern "C" fn free_disassembly(disassembly: *mut std::ffi::c_char) {
     if disassembly.is_null() {
         panic!("Attempted to free a null pointer in irve::internal::disassemble::free_disassembly()!");
     } else {
