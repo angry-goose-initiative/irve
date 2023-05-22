@@ -69,6 +69,7 @@ if (IRVE_RUST)
         add_custom_command(
             OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs#TODO move this somewhere common and also add other things like Cargo.toml, etc
             COMMAND cargo build
         )
         add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
@@ -77,12 +78,14 @@ if (IRVE_RUST)
         add_custom_command(
             OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/disassemble
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs#TODO move this somewhere common and also add other things like Cargo.toml, etc
             COMMAND cargo build --release
         )
         add_custom_target(libirve_disassemble DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
     endif()
 
+    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/include)
     add_dependencies(libirve_object libirve_disassemble)
     set_property(
         TARGET libirve_disassemble

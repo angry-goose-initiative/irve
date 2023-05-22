@@ -2,12 +2,41 @@
 name = "irve_disassemble"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 
+#TODO add a build script to create bindings
+#[build-dependencies]
+#cbindgen = "0.24.0"
+
+[features]
+default = []
+#nightly-features = ["nightly-features-benches"]
+#nightly-features-benches = []
+
 [lib]
 name = "irve_disassemble"
 path = "lib/lib.rs"
-crate-type = ["staticlib"]
+crate-type = ["staticlib"]#In order to link to libirve
+
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+strip = true
+overflow-checks = false
+panic = "abort"
+lto = true
+
+[profile.release-with-debug]
+inherits = "release"
+strip = false
+overflow-checks = false
+panic = "abort"
+lto = false
+debug = true
+

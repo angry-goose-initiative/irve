@@ -26,6 +26,10 @@
 #define INST_COUNT inst_count
 #include "logging.h"
 
+#if IRVE_INTERNAL_CONFIG_RUST
+#include "irve_disassemble.h"
+#endif
+
 using namespace irve::internal;
 
 /* Function Implementations */
@@ -246,5 +250,12 @@ word_t decode::decoded_inst_t::get_imm() const {
 }
 
 std::string decode::decoded_inst_t::disassemble() const {
-    return std::string("TODO disassembly of instruction here (Save this for XRVE actually)");//TODO
+#if IRVE_INTERNAL_CONFIG_RUST
+    char* disassembly = irve::internal::disassemble::disassemble(123);//TODO provide the actual instruction here
+    std::string disassembly_copy = disassembly;
+    irve::internal::disassemble::free_disassembly(disassembly);
+    return disassembly_copy;
+#else
+    return "Disassembly not available in non-Rust IRVE builds";
+#endif
 }

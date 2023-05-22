@@ -50,11 +50,11 @@ pub fn actual_disassemble(_: u32) -> String {//TODO implement this function
 /* FFI-Related Functions */
 
 #[no_mangle]
-pub extern "C" fn disassemble(raw_inst: u32) -> *const std::os::raw::c_char {
+pub extern "C" fn disassemble(raw_inst: u32) -> *mut std::os::raw::c_char {
     let disassembly_string = actual_disassemble(raw_inst);
     let owned_c_string = std::ffi::CString::new(disassembly_string)
         .expect("The disassembly shouldn't contain any null bytes (it should be human-readable)!");
-    let raw_c_string: *const std::os::raw::c_char = owned_c_string.into_raw();
+    let raw_c_string = owned_c_string.into_raw();
     raw_c_string
 }
 

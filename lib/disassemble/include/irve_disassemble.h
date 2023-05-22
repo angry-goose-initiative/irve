@@ -13,7 +13,7 @@ namespace disassemble {
 
 extern "C" {
 
-const char *disassemble(uint32_t raw_inst);
+char *disassemble(uint32_t raw_inst);
 
 void free_disassembly(char *disassembly);
 

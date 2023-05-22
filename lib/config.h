@@ -70,6 +70,10 @@
 #define IRVE_INTERNAL_CONFIG_COMPILER_STRING        IRVE_CMAKE_COMPILER_STRING
 #endif
 
+#ifndef IRVE_INTERNAL_CONFIG_RUST
+#define IRVE_INTERNAL_CONFIG_RUST                   IRVE_CMAKE_RUST
+#endif
+
 #elif defined(IRVE_RAW_MAKEFILE_BUILDSYSTEM)
 
 #ifndef IRVE_INTERNAL_CONFIG_BUILD_SYSTEM_STRING
@@ -125,6 +129,10 @@
 //TODO ask the compiler itself in this case
 #ifndef IRVE_INTERNAL_CONFIG_COMPILER_STRING
 #define IRVE_INTERNAL_CONFIG_COMPILER_STRING        "Unknown"
+#endif
+
+#ifndef IRVE_INTERNAL_CONFIG_RUST
+#define IRVE_INTERNAL_CONFIG_RUST                   0
 #endif
 
 #endif//CONFIG_H
