@@ -6,3 +6,4 @@ testfiles/build/
 build/
 testfiles/.cache/
 .cache/
+lib/disassemble/target

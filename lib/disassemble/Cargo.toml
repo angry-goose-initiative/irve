@@ -1,0 +1,13 @@
+[package]
+name = "irve_disassemble"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[lib]
+name = "irve_disassemble"
+path = "lib/lib.rs"
+crate-type = ["staticlib"]

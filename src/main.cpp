@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
         //Locate and the image file (guessing it if it is not a whole path for convenience)
         std::string mem_file = argv[1];
         //A testfile name rather than a path, so prepend the testfiles directory
-        if (mem_file.find(TESTFILES_DIR) == std::string::npos) {
+        if (mem_file.find("/") == std::string::npos) {
             mem_file = TESTFILES_DIR + mem_file;
         }
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     auto execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - execution_start_time).count();
     irvelog_always(0, "Emulation finished in %luus", execution_time_us);
     irvelog_always(0, "%lu instructions were executed", emulator.get_inst_count());
-    auto average_ips = (((double)emulator.get_inst_count()) / ((double)execution_time_us)) * 1000000.0;//TODO avoid divide by zero
+    auto average_ips = (((double)emulator.get_inst_count()) / ((double)execution_time_us)) * 1000000.0;
     irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000));
 
     irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
