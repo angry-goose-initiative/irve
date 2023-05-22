@@ -26,9 +26,9 @@ use crate::ffi::DecodedInst;
 
 impl DecodedInst {
     //The main disassembly function
-    pub fn disassemble(&self) -> String {//TODO implement this function
-        //return "TODO: irve_disassemble is not fully implemented yet!".to_string();
-        return format!("TODO: {:?}", self);
+    pub fn disassemble(&self) -> Result<String, String> {//TODO implement this function
+        Err("TODO: irve_disassemble is not fully implemented yet!".to_string())
+        //Ok(format!("TODO: {:?}", self))
         //todo!()
     }
 }

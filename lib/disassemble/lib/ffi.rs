@@ -84,7 +84,8 @@ pub struct DecodedInst {
 */
 #[no_mangle]
 pub extern "C" fn disassemble(raw_inst: &DecodedInst) -> *mut std::os::raw::c_char {
-    let disassembly_string = raw_inst.disassemble();
+    let disassembly_string = raw_inst.disassemble()
+        .unwrap_or_else(|reason| format!("\x1b[91mDisassembly failed: {reason}\x1b[0m"));
     let owned_c_string = std::ffi::CString::new(disassembly_string)
         .expect("The disassembly shouldn't contain any null bytes (it should be human-readable)!");
     let raw_c_string = owned_c_string.into_raw();

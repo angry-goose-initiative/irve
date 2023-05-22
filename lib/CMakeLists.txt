@@ -45,14 +45,6 @@ set(LIBIRVE_SOURCES
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
 )
 
-set(LIBIRVE_DISASSEMBLE_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/Cargo.toml
-    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/build.rs
-    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/lib.rs
-    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/ffi.rs
-    ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/lib/disassemble.rs
-)
-
 #Attempt to avoid needing to double compile everything:
 #Foiled by the fact that we don't need PIC for static libraries, but we do for shared libraries
 #https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries

@@ -15,6 +15,7 @@ set(LIBIRVE_DISASSEMBLE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/build.rs
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/lib.rs
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/ffi.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/disassemble.rs
 )
 
 #TODO put the static library in a common area perhaps?
