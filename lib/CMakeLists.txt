@@ -54,19 +54,20 @@ add_library(libirve_object OBJECT ${LIBIRVE_SOURCES})
 target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/)#To get the generated cmake_config.h
 target_include_directories(libirve_object PRIVATE ${CMAKE_SOURCE_DIR}/include/)#Public API header(s)
 
-#Commented out since at the moment we only really need an object library (this may change in the future)
-#[[
+#CHANGES: Actually, we're just biting the bullet and using -fPIC
+#When irvers is linking against the static library, it still needs it to be fPIC anways...
+set_property(TARGET libirve_object PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 add_library(libirve_static STATIC $<TARGET_OBJECTS:libirve_object>)
 set_property(TARGET libirve_static PROPERTY OUTPUT_NAME irve)
 
-#add_library(libirve_shared SHARED $<TARGET_OBJECTS:libirve_object>)#Foiled!
+add_library(libirve_shared SHARED $<TARGET_OBJECTS:libirve_object>)
 #The old way
-add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})
-target_include_directories(libirve_shared PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/)#To get the generated cmake_config.h
-target_include_directories(libirve_shared PRIVATE ${CMAKE_SOURCE_DIR}/include)#Public API header(s)
+#add_library(libirve_shared SHARED ${LIBIRVE_SOURCES})
+#target_include_directories(libirve_shared PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/)#To get the generated cmake_config.h
+#target_include_directories(libirve_shared PRIVATE ${CMAKE_SOURCE_DIR}/include)#Public API header(s)
 #End of the old way
 set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
-#]]
 
 if (IRVE_RUST)
     #TODO put the static library in a common area perhaps?

@@ -8,5 +8,5 @@ testfiles/.cache/
 .cache/
 lib/disassemble/target
 lib/disassemble/Cargo.lock
-src/irver/target
-src/irver/Cargo.lock
+src/irvers/target
+src/irvers/Cargo.lock

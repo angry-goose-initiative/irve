@@ -1,5 +1,5 @@
 [package]
-name = "irver"
+name = "irvers"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
@@ -17,7 +17,7 @@ default = []
 #nightly-features-benches = []
 
 [[bin]]
-name = "irver"
+name = "irvers"
 path = "src/main.rs"
 
 [profile.dev]
