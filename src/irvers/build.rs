@@ -20,7 +20,8 @@ fn main() {
     println!("cargo:rustc-link-search=./");
 
     println!("cargo:rerun-if-changed=wrapper.h");
-    println!("cargo:rerun-if-changed=../../include/irve_disassemble.h");
+    println!("cargo:rerun-if-changed=../../include/irve_public_api.h");
+    //TODO also need to rerun if anything in project root/lib changes
 
     let output_path = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap());
 

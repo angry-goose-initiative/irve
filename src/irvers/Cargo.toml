@@ -16,6 +16,10 @@ default = []
 #nightly-features = ["nightly-features-benches"]
 #nightly-features-benches = []
 
+[lib]
+name = "irve"
+path = "lib/lib.rs"
+
 [[bin]]
 name = "irvers"
 path = "src/main.rs"

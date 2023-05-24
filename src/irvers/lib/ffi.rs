@@ -16,3 +16,13 @@
 /* Imports */
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+
+/* Tests */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    //#[test]
+    //TODO
+}

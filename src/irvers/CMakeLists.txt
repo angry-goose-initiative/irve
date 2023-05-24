@@ -13,13 +13,9 @@ cmake_minimum_required(VERSION 3.16.3)
 set(IRVERS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Cargo.toml
     ${CMAKE_CURRENT_SOURCE_DIR}/build.rs
-    #TODO
-    #${CMAKE_CURRENT_SOURCE_DIR}/lib/lib.rs
-    #${CMAKE_CURRENT_SOURCE_DIR}/lib/ffi.rs
-    #${CMAKE_CURRENT_SOURCE_DIR}/lib/disassemble.rs
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.rs
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/irve.rs
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/irve/ffi.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/lib.rs
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/ffi.rs
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

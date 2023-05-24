@@ -30,7 +30,7 @@ namespace irve {//NOT irve::internal
     namespace emulator { class emulator_t; }
 
     namespace loader {
-        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);
+        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);//TODO return false if this fails
     }
 
     namespace logging {

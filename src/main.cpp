@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     irvelog_always(0, "Emulation finished in %luus", execution_time_us);
     irvelog_always(0, "%lu instructions were executed", emulator.get_inst_count());
     auto average_ips = (((double)emulator.get_inst_count()) / ((double)execution_time_us)) * 1000000.0;
-    irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000));
+    irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000.0));
 
     irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     return 0;

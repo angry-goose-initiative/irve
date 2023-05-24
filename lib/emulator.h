@@ -21,7 +21,7 @@
 /* Types */
 
 namespace irve::internal::emulator {
-    class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
+    class emulator_t {
     public:
         emulator_t();
 
