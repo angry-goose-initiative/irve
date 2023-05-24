@@ -10,6 +10,10 @@
 #Common options
 cmake_minimum_required(VERSION 3.16.3)
 
+if (IRVE_RUST)
+    add_subdirectory(irvers)
+endif()
+
 set(IRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h

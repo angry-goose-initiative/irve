@@ -15,6 +15,7 @@ extern crate bindgen;
 
 fn main() {
     println!("cargo:rustc-link-lib=static=irve");
+    println!("cargo:rustc-link-lib=static=irve_disassemble");
     println!("cargo:rustc-link-lib=stdc++");//TODO will this break if the system only has Clang's libc++ and not GNU's libstdc++?
     println!("cargo:rustc-link-search=./");
 
