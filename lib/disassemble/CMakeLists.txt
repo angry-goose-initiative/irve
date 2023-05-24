@@ -27,7 +27,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         OUTPUT ${LIBIRVE_DISASSEMBLE_OUTPUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
-        COMMAND cargo build
+        COMMAND cargo build --target-dir ${PROJECT_BINARY_DIR}/rust/target/
     )
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(LIBIRVE_DISASSEMBLE_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/target/release/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/target/irve_disassemble.h)
@@ -35,7 +35,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         OUTPUT ${LIBIRVE_DISASSEMBLE_OUTPUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${LIBIRVE_DISASSEMBLE_SOURCES}
-        COMMAND cargo build --release
+        COMMAND cargo build --target-dir ${PROJECT_BINARY_DIR}/rust/target/ --release 
     )
 endif()
 

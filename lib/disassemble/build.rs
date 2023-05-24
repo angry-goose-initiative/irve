@@ -14,19 +14,20 @@ extern crate cbindgen;
 /* Function Implementations */
 
 fn main() {
-    println!("cargo:rerun-if-changed=lib/target/irve_disassemble.h");
-
     let crate_directory_path = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let crate_directory_path_ref = &crate_directory_path;
+
+    println!("cargo:rerun-if-changed={crate_directory_path_ref}/../../build/lib/disassemble/irve_disassemble.h");
 
     cbindgen::Builder::new()
-        .with_crate(crate_directory_path)
+        .with_crate(crate_directory_path_ref)
         .with_language(cbindgen::Language::Cxx)
         .with_include_guard("IRVE_DISASSEMBLE_H")
         .with_namespaces(&["irve", "internal", "disassemble"])
         .with_tab_width(4)
         .generate()
         .expect("cbindgen should sucessfully generate bindings")
-        .write_to_file("target/irve_disassemble.h");
+        .write_to_file(format!("{crate_directory_path_ref}/../../build/lib/disassemble/irve_disassemble.h"));
 }
 
 /* Tests */

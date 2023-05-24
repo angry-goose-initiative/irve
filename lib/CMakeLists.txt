@@ -77,6 +77,6 @@ if (IRVE_RUST)
         target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
     endif()
     #TODO put the header in an include subdirectory in target perhaps?
-    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target)
+    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/disassemble/)#To get access to the Bindgen generated header
     add_dependencies(libirve_object libirve_disassemble)
 endif()
