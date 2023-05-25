@@ -17,19 +17,6 @@ use std::time::Instant;
 /* Constants */
 
 const TESTFILES_DIR: &str = "testfiles/compiled/";
-//TODO
-
-/* Macros */
-
-//TODO (also pub(crate) use the_macro statements here too)
-
-/* Static Variables */
-
-//TODO
-
-/* Associated Functions and Methods */
-
-//TODO
 
 /* Functions */
 

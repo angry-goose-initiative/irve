@@ -94,10 +94,10 @@ namespace irve::internal::CSR {
         CSR_t();
 
         //Use these to implement CSR instructions
-        reg_t explicit_read(uint16_t csr) const;
-        void explicit_write(uint16_t csr, word_t data);
-        reg_t implicit_read(uint16_t csr) const;
-        void implicit_write(uint16_t csr, word_t data);
+        reg_t explicit_read(uint16_t csr) const;//Performs privilege checks
+        void explicit_write(uint16_t csr, word_t data);//Performs privilege checks
+        reg_t implicit_read(uint16_t csr) const;//Does not perform privilege checks
+        void implicit_write(uint16_t csr, word_t data);//Does not perform privilege checks
 
         void set_privilege_mode(privilege_mode_t new_privilege_mode);
         privilege_mode_t get_privilege_mode() const;
@@ -113,7 +113,7 @@ namespace irve::internal::CSR {
         reg_t scause;
         reg_t stval;
         reg_t sip;
-        //reg_t satp;
+        reg_t satp;
         reg_t mstatus;
         //misa is NOT here
         reg_t medeleg;

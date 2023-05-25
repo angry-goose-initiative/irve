@@ -19,10 +19,11 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-// TODO what should CSRs be initialized to?
+//TODO what should CSRs be initialized to?
+//See Volume 2 Section 3.4
 CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}
 
-reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Should throw exceptions if the address is invalid
+reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     } else {
@@ -30,7 +31,7 @@ reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Should throw exceptions i
     }
 }
 
-void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Should throw exceptions if the address is invalid
+void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_write(csr)) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     } else {
@@ -38,14 +39,15 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Should throw excep
     }
 }
 
-reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the address is valid
+reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
+    //TODO handle WPRI in this function
     switch (csr) {
         //case address::SSCRATCH:         return this->sscratch;//TODO
         //case address::SEPC:             return this->sepc;//TODO
         //case address::SCAUSE:           return this->scause;//TODO
         case address::STVAL:            return this->stval;
         //case address::SIP:              return this->sip;//TODO
-        //case address::SATP:             return this->satp;//TODO figure out which satp is which
+        case address::SATP:             return this->satp;
         //case address::MSTATUS:          return this->mstatus;//TODO
         case address::MISA:             return 0;
         case address::MEDELEG:          return this->medeleg;
@@ -63,7 +65,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
         case address::MEPC:             return this->mepc;
         case address::MCAUSE:           return this->mcause;
         case address::MTVAL:            return 0;
-        //case address::MIP:              return this->mip;
+        case address::MIP:              return this->mip;
         //case address::MTINST:           return this->mtinst;//TODO
         //TODO the PMP CSRs
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
@@ -86,14 +88,15 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//This should assert the ad
     }
 }
 
-void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert the address is valid
+void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
+    //TODO handle WARL in this function
     switch (csr) {
         //case address::SSCRATCH:         //TODO
         //case address::SEPC:             //TODO
         //case address::SCAUSE:           //TODO
         case address::STVAL:            this->stval = data; return;
         //case address::SIP:              //TODO
-        //case address::SATP:             return this->satp;//TODO figure out which satp is which
+        case address::SATP:             this->satp = data; return;
         //case address::MSTATUS:          //TODO
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
         case address::MEDELEG:          this->medeleg = data; return;
@@ -109,7 +112,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//This should assert
         case address::MEPC:             this->mepc = data & 0xFFFFFFFC; return;
         case address::MCAUSE:           this->mcause = data; return;
         case address::MTVAL:            return;//We simply ignore writes to MTVAL, NOT throw an exception//TODO since we chose to make it read-only, should we throw an exception?
-        //case address::MIP:              //TODO
+        case address::MIP:              this->mip = data; return;
         //case address::MTINST:           //TODO
         //TODO the PMP CSRs
         case address::MCYCLE:           this->mcycle    = (this->mcycle   & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;

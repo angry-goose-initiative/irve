@@ -249,6 +249,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
 void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
+    //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
+
     //Sanity checks
     assert((decoded_inst.get_opcode() == decode::opcode_t::AMO) && "amo instruction must have opcode AMO");
     assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "amo instruction must be R_TYPE");

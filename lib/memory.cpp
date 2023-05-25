@@ -141,6 +141,8 @@ memory::pmemory_t::~pmemory_t() {
 }
 
 uint8_t memory::pmemory_t::r(word_t addr) const {
+    //TODO add mtime and mtimecmp registers
+
     if (addr.u >= RAMSIZE) {
         invoke_rv_exception(LOAD_ACCESS_FAULT);
     }

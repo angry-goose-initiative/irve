@@ -34,6 +34,8 @@ namespace irve::internal::memory {
         pmemory_t();
         ~pmemory_t();
 
+        //TODO if/when we implement PMP, this will need an m_CSR_ref too
+
         uint8_t r(word_t addr) const;//TODO this can't be const because we need to handle read side effects
         void w(word_t addr, uint8_t data);
     private:
