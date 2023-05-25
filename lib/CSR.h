@@ -31,6 +31,11 @@ namespace irve::internal::CSR {
 
     namespace address {
         //TODO list of CSR addresses here
+        const uint16_t SSTATUS              = 0x100;
+        const uint16_t SIE                  = 0x104;
+        const uint16_t STVEC                = 0x105;
+        const uint16_t SCOUNTEREN           = 0x106;
+        const uint16_t SENVCFG              = 0x10A;
         const uint16_t SSCRATCH             = 0x140;
         const uint16_t SEPC                 = 0x141;
         const uint16_t SCAUSE               = 0x142;
