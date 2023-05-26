@@ -77,4 +77,9 @@ add_testfiles_test(jzjcoresoftware_sbtest2)
 add_testfiles_test(jzjcoresoftware_shtest)
 add_testfiles_test(jzjcoresoftware_sllisrliblttest)
 add_testfiles_test(jzjcoresoftware_sllsrlblttest)
+add_testfiles_test(jzjcoresoftware_testingfunctions)
+add_testfiles_test(jzjcoresoftware_uncondjumptest)
+add_testfiles_test(jzjcoresoftware_uncondjumptest2)
+add_testfiles_test(jzjcoresoftware_xoritoggle)
+
 #TODO add others

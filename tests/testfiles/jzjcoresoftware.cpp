@@ -648,7 +648,101 @@ int verify_jzjcoresoftware_sllsrlblttest() {
     return 0;
 }
 
-//TODO more verifiers
+int verify_jzjcoresoftware_testingfunctions() {
+    //Load the testingfunctions program
+    setup_emulator_with_program("testingfunctions");
+    uint64_t expected_inst_count = 0;
+
+    //Check the instructions
+    emulator.tick();//Execute the first addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x4);
+    assert(cpu_state_ref.get_r(31) == 10);
+    emulator.tick();//Execute the jal
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0xC);
+    assert(cpu_state_ref.get_r(1) == 0x8);
+    emulator.tick();//Execute the second addi
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x10);
+    assert(cpu_state_ref.get_r(31) == 27);
+    emulator.tick();//Execute the jalr
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+    emulator.tick();//Execute the IRVE.EXIT
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(cpu_state_ref.get_pc() == 0x8);
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_uncondjumptest() {
+    //Load the uncondjumptest program
+    setup_emulator_with_program("uncondjumptest");
+    uint64_t expected_inst_count = 0;
+    uint32_t expected_x31 = 0;
+
+    //This testcase assumes x31 starts at 0 (it forgot to set it)
+    cpu_state_ref.set_r(31, 0);
+
+    //Check the instructions in the loop
+    for (uint32_t i = 0; i < 100; ++i) {
+        emulator.tick();//Execute the addi
+        expected_x31 += 2;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x4);
+        assert(cpu_state_ref.get_r(31) == expected_x31);
+        emulator.tick();//Execute the jalr
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x0);
+    }
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_uncondjumptest2() {
+    //Load the uncondjumptest2 program
+    setup_emulator_with_program("uncondjumptest2");
+    uint64_t expected_inst_count = 0;
+
+    //Check the instructions in the loop
+    for (uint32_t i = 0; i < 100; ++i) {
+        emulator.tick();//Execute the addi
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x4);
+        assert(cpu_state_ref.get_r(31) == 2);
+        emulator.tick();//Execute the jalr
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x0);
+        assert(cpu_state_ref.get_r(31) == 8);
+    }
+
+    return 0;
+}
+
+int verify_jzjcoresoftware_xoritoggle() {
+    //Load the xoritoggle program
+    setup_emulator_with_program("xoritoggle");
+    uint64_t expected_inst_count = 0;
+    uint32_t expected_x31 = 0;
+
+    //This testcase assumes x31 starts at 0 (it forgot to set it)
+    cpu_state_ref.set_r(31, 0);
+
+    //Check the instructions in the loop
+    for (uint32_t i = 0; i < 100; ++i) {
+        emulator.tick();//Execute the xori
+        expected_x31 ^= 0xFFFFFFFF;
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x4);
+        assert(cpu_state_ref.get_r(31) == expected_x31);
+        emulator.tick();//Execute the jalr
+        assert(emulator.get_inst_count() == ++expected_inst_count);
+        assert(cpu_state_ref.get_pc() == 0x0);
+    }
+
+    return 0;
+}
 
 /* Static Function Implementations */
 
