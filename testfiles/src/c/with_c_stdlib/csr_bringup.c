@@ -74,13 +74,18 @@
 int main() {
     puts("CSR Bringup Tests");
 
-    puts("Testing csrrc");
+    puts("Testing csrrs");
     uint32_t result;
     uint32_t source = 0;//NOTE: This is not the same as x0, since it still "writes" to the CSR
     csrrs(result, 0xB02, source);
     printf("minstret: %lu\n", result);
-    csrrs_read(result, 0xB02);
+    csrrs_read(result, minstret);
     printf("minstret without write: %lu\n", result);
+    source = 0xFFFFFFFF;
+    csrrs(result, mscratch, source);
+    csrrs_read(result, mscratch);
+    assert((result == 0xFFFFFFFF) && "mscratch was not set to 0xFFFFFFFF");
+    printf("mscratch was set to: 0x%08lX\n", result);
 
     return 0;
 }
