@@ -6,3 +6,41 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[features]
+default = []
+#nightly-features = ["nightly-features-benches"]
+#nightly-features-benches = []
+
+[lib]
+name = "irvervrust"
+path = "lib/lib.rs"
+crate-type = ["staticlib"]
+
+[[bin]]
+name = "hello_world"
+path = "src/hello_world.rs"
+
+#Workaround: https://github.com/Rahix/avr-hal/issues/131
+[profile.dev.package.compiler_builtins]
+overflow-checks = false
+
+[profile.dev]
+incremental = true
+panic = "abort"
+
+[profile.release]
+codegen-units = 1
+strip = true
+overflow-checks = false
+panic = "abort"
+lto = true
+
+[profile.release-with-debug]
+inherits = "release"
+strip = false
+overflow-checks = false
+panic = "abort"
+lto = false
+debug = true
+

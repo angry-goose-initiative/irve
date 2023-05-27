@@ -10,3 +10,5 @@ lib/disassemble/target
 lib/disassemble/Cargo.lock
 src/irvers/target
 src/irvers/Cargo.lock
+testfiles/src/rust/target
+testfiles/src/rust/Cargo.lock
