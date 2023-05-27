@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * A testfile used for CSR bringup (CSR instructions, not the actual CSRs quite yet)
+ * A testfile used for CSR bringup (CSR instructions, not specific CSR registers quite yet)
  *
 */
 
@@ -169,11 +169,37 @@ int main() {
     printf("mscratch after csrrci: 0x%08lX\n", result);
     assert((result == 0x10) && "mscratch was not written correctly");
 
-    puts("\n********** Now for some assertions **********");/////////////////////////////////////////////////////////////////////
+    puts("\n********** Now for some more comprehensive assertions **********");/////////////////////////////////////////////////////////////////////
 
-    puts("TODO");
+    source = 0x12345678;
+    csrrw(result, mscratch, source);
+    source = 0xABCD1234;
+    csrrw(result, mscratch, source);
+    assert(result == 0x12345678);
+    source = 0x00FFFF00;
+    csrrs(result, mscratch, source);
+    assert(result == 0xABCD1234);
+    csrrs_read(result, mscratch);
+    assert(result == 0xABFFFF34);
+    source = 0x000FF000;
+    csrrc(result, mscratch, source);
+    assert(result == 0xABFFFF34);
+    csrrc_read(result, mscratch);
+    assert(result == 0xABF00F34);
+    csrrwi(result, mscratch, 0xF);
+    assert(result == 0xABF00F34);
+    csrrwi(result, mscratch, 0x0);
+    assert(result == 0xF);
+    csrrsi(result, mscratch, 0x3);
+    assert(result == 0x0);
+    csrrsi_read(result, mscratch);
+    assert(result == 0x3);
+    csrrci(result, mscratch, 0x1);
+    assert(result == 0x3);
+    csrrci_read(result, mscratch);
+    assert(result == 0x2);
 
-    puts("All assertions passed!");
+    puts("All assertions passed! You made it! :)");
     return 0;
 }
 
