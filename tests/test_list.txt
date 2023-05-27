@@ -93,6 +93,7 @@ add_testfiles_parse_test(rv32esim_c)
 add_testfiles_parse_test(rv32im_sanity)
 add_testfiles_parse_test(software_floating_point_fun)
 
+add_testfiles_parse_test(csr_bringup)
 add_testfiles_parse_test(debugging_puts_weirdness)
 add_testfiles_parse_test(hello_exceptions)
 add_testfiles_parse_test(hello_newlib)

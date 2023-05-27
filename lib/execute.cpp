@@ -836,10 +836,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             irvelog(3, "Mnemonic: CSRRS");
             {//TODO better code reuse w/ the other CSR instructions
              //TODO better logging
-                reg_t csr = CSR.implicit_read(imm.u);
+                uint16_t csr_addr = (uint16_t)((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
+                reg_t csr = CSR.explicit_read(csr_addr);
                 cpu_state.set_r(decoded_inst.get_rd(), csr);
                 csr |= rs1;
-                CSR.implicit_write(imm.u, csr);
+                CSR.explicit_write(csr_addr, csr);//TODO only do the implicit write if the source is not x0
                 cpu_state.goto_next_sequential_pc();
             }
             break;
