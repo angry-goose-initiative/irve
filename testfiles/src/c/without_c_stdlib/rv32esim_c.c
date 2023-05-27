@@ -44,7 +44,9 @@ int main() {
     assert((uint32_t)(ai >> bi) == 0xF0000000);
 
     assert((b * bi) == 6);
-    assert(false && "Sanity check assert works");
+    //assert(false && "Sanity check assert works");
+
+    return 0;
 }
 
 void __assert_func(const char* file, int, const char* function, const char* expr) {

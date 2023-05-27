@@ -2,7 +2,7 @@
 # Copyright (C) 2023 John Jekel and Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 #
-# CMake configuration file for irve testfile verification tests
+# CMake configuration file for irve testfile verification and parsing tests
 #
 # Based on CMakeLists.txt from rv32esim
 #
@@ -29,7 +29,14 @@ macro(add_testfiles_test TEST_NAME)
     #The working directory is important because tests will need to access the testfiles
     add_test(NAME testfiles_${TEST_NAME} COMMAND testfiles_verifier ${TEST_NAME} WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/testfiles/compiled")
     set(TESTFILES_TEST_LIST "${TESTFILES_TEST_LIST} X(${TEST_NAME})")
-    set_property(TEST testfiles_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:integration_tester>")
+    set_property(TEST testfiles_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:testfiles_verifier>")
+endmacro()
+macro(add_testfiles_parse_test TEST_NAME)#Useful for C tests that have assertions in RISC-V code rather than in testfiles_verifier
+    add_test(NAME testfiles_parse_${TEST_NAME} COMMAND irve ${TEST_NAME}.hex WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    set_property(TEST testfiles_parse_${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION "IRVE is shutting down. Bye bye!")
+    #The way we did assertions pre-newlib and Newlib-style respectively
+    set_property(TEST testfiles_parse_${TEST_NAME} PROPERTY FAIL_REGULAR_EXPRESSION "Assertion failed;assertion \".*\" failed")
+    set_property(TEST testfiles_parse_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:irve>")
 endmacro()
 macro(add_unit_test)
     #Do nothing

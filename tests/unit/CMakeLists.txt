@@ -40,6 +40,9 @@ endmacro()
 macro(add_testfiles_test)
     #Do nothing
 endmacro()
+macro(add_testfiles_parse_test)
+    #Do nothing
+endmacro()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../test_list.txt)
 

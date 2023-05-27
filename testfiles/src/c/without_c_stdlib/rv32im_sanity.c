@@ -63,7 +63,7 @@ int main() {
     assert((will_cause_overflow % -1) == 0);//This is what should occur according to the spec
     
     //TODO test more M extension stuff
-    
+
     return 0;
 }
 
