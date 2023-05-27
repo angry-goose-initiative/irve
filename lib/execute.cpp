@@ -827,41 +827,77 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             } else {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
-            break;
+            return;
         case 0b001://CSRRW
             irvelog(3, "Mnemonic: CSRRW");
-            assert(false && "TODO implement CSRRW");
             break;
         case 0b010://CSRRS
             irvelog(3, "Mnemonic: CSRRS");
-            {//TODO better code reuse w/ the other CSR instructions
-             //TODO better logging
-                uint16_t csr_addr = (uint16_t)((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
-                reg_t csr = CSR.explicit_read(csr_addr);
-                cpu_state.set_r(decoded_inst.get_rd(), csr);
-                csr |= rs1;
-                CSR.explicit_write(csr_addr, csr);//TODO only do the implicit write if the source is not x0
-                cpu_state.goto_next_sequential_pc();
-            }
             break;
         case 0b011://CSRRC
             irvelog(3, "Mnemonic: CSRRC");
-            assert(false && "TODO implement CSRRC");
             break;
         case 0b101://CSRRWI
             irvelog(3, "Mnemonic: CSRRWI");
-            assert(false && "TODO implement CSRRWI");
             break;
         case 0b110://CSRRSI
             irvelog(3, "Mnemonic: CSRRSI");
-            assert(false && "TODO implement CSRRSI");
             break;
         case 0b111://CSRRCI
             irvelog(3, "Mnemonic: CSRRCI");
-            assert(false && "TODO implement CSRRCI");
             break;
         default:
             invoke_rv_exception(ILLEGAL_INSTRUCTION);
             break;
     }
+
+    //If we got here, this is a CSR instruction
+    uint16_t csr_addr = (uint16_t)((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
+    word_t uimm = decoded_inst.get_rs1();//NOT sign extended (zero extended)
+    
+    //Read the CSR into the destination register
+    //TODO avoid read side effects if destination register is x0
+    reg_t csr = CSR.explicit_read(csr_addr);
+    cpu_state.set_r(decoded_inst.get_rd(), csr);
+
+    //What we write back depends on the instruction (and we may not write back at all)
+    switch (decoded_inst.get_funct3()) {
+        case 0b001://CSRRW
+            csr = rs1;//We always cause a write, even if rs1 is x0
+            CSR.explicit_write(csr_addr, csr);
+            break;
+        case 0b010://CSRRS
+            if (decoded_inst.get_rs1()) {//If rs1 is x0, then we do not cause a write
+                csr |= rs1;
+                CSR.explicit_write(csr_addr, csr);
+            }
+            break;
+        case 0b011://CSRRC
+            if (decoded_inst.get_rs1()) {//If rs1 is x0, then we do not cause a write
+                csr &= ~rs1;
+                CSR.explicit_write(csr_addr, csr);
+            }
+            break;
+        case 0b101://CSRRWI
+            csr = uimm;
+            CSR.explicit_write(csr_addr, csr);
+            break;
+        case 0b110://CSRRSI
+            if (uimm != 0) {//If uimm is 0, then we do not cause a write
+                csr |= uimm;
+                CSR.explicit_write(csr_addr, csr);
+            }
+            break;
+        case 0b111://CSRRCI
+            if (uimm != 0) {//If uimm is 0, then we do not cause a write
+                csr &= ~uimm;
+                CSR.explicit_write(csr_addr, csr);
+            }
+            break;
+        default:
+            assert(false && "We should have already caught illegal instructions, so we should never get here");
+            break;
+    }
+
+    cpu_state.goto_next_sequential_pc();
 }

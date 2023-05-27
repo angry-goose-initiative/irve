@@ -42,9 +42,27 @@
     ); \
 } while (0)
 
-#define csrrw_read(destination, csr) do { \
+#define csrrwi(destination, csr, imm) do { \
     __asm__ volatile ( \
-        "csrrw %[rd], " #csr ", x0" \
+        "csrrwi %[rd], " #csr ", " #imm \
+        : [rd] "=r" (destination) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
+#define csrrsi(destination, csr, imm) do { \
+    __asm__ volatile ( \
+        "csrrci %[rd], " #csr ", " #imm \
+        : [rd] "=r" (destination) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
+#define csrrci(destination, csr, imm) do { \
+    __asm__ volatile ( \
+        "csrrci %[rd], " #csr ", " #imm \
         : [rd] "=r" (destination) \
         : /* No source registers */ \
         : /* No clobbered registers */ \
@@ -69,10 +87,32 @@
     ); \
 } while (0)
 
+#define csrrsi_read(destination, csr) do { \
+    __asm__ volatile ( \
+        "csrrsi %[rd], " #csr ", 0" \
+        : [rd] "=r" (destination) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
+#define csrrci_read(destination, csr) do { \
+    __asm__ volatile ( \
+        "csrrci %[rd], " #csr ", 0" \
+        : [rd] "=r" (destination) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
 /* Function Implementations */
 
 int main() {
     puts("CSR Bringup Tests");
+
+    puts("\nSome initial experiments");/////////////////////////////////////////////////////////////////////
+
+    //TODO test even unimplemented instructions so that we can fix our mistakes until everything is implemented
 
     puts("Testing csrrs");
     uint32_t result;
@@ -84,8 +124,27 @@ int main() {
     source = 0xFFFFFFFF;
     csrrs(result, mscratch, source);
     csrrs_read(result, mscratch);
-    assert((result == 0xFFFFFFFF) && "mscratch was not set to 0xFFFFFFFF");
     printf("mscratch was set to: 0x%08lX\n", result);
+    assert((result == 0xFFFFFFFF) && "mscratch was not set to 0xFFFFFFFF");
+
+    puts("Testing csrrc");
+    csrrc(result, 0xB02, source);
+    printf("minstret: %lu\n", result);
+    csrrs_read(result, minstret);
+    printf("minstret without write: %lu\n", result);
+    source = 0xFFFFFFFF;
+    csrrc(result, mscratch, source);
+    csrrc_read(result, mscratch);
+    printf("mscratch was set to: 0x%08lX\n", result);
+    assert((result == 0) && "mscratch was not set to 0");
+
+    puts("TODO");
+
+    puts("Testing csrrw");
+
+    puts("TODO");
+
+    puts("\nNow for some assertions");/////////////////////////////////////////////////////////////////////
 
     return 0;
 }
