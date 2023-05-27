@@ -15,6 +15,7 @@ set(
     TESTFILES_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/testfiles_verifier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jzjcoresoftware.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rv32esim.cpp
 )
 
 add_executable(testfiles_verifier ${TESTFILES_TESTER_SOURCES})

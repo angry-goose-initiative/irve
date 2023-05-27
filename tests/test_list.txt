@@ -82,4 +82,6 @@ add_testfiles_test(jzjcoresoftware_uncondjumptest)
 add_testfiles_test(jzjcoresoftware_uncondjumptest2)
 add_testfiles_test(jzjcoresoftware_xoritoggle)
 
+add_testfiles_test(rv32esim)
+
 #TODO add others
