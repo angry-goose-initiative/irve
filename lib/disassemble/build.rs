@@ -17,7 +17,7 @@ fn main() {
     let crate_directory_path = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let crate_directory_path_ref = &crate_directory_path;
 
-    println!("cargo:rerun-if-changed={crate_directory_path_ref}/../../build/lib/disassemble/irve_disassemble.h");
+    println!("cargo:rerun-if-changed={crate_directory_path_ref}/../../build/rust/target/irve_disassemble.h");
 
     cbindgen::Builder::new()
         .with_crate(crate_directory_path_ref)
@@ -27,7 +27,7 @@ fn main() {
         .with_tab_width(4)
         .generate()
         .expect("cbindgen should sucessfully generate bindings")
-        .write_to_file(format!("{crate_directory_path_ref}/../../build/lib/disassemble/irve_disassemble.h"));
+        .write_to_file(format!("{crate_directory_path_ref}/../../build/rust/target/irve_disassemble.h"));
 }
 
 /* Tests */

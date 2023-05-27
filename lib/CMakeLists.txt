@@ -72,11 +72,11 @@ set_property(TARGET libirve_shared PROPERTY OUTPUT_NAME irve)
 if (IRVE_RUST)
     #TODO put the static library in a common area perhaps?
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/debug/libirve_disassemble.a)
+        target_link_libraries(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target/debug/libirve_disassemble.a)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-        target_link_libraries(libirve_object PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/disassemble/target/release/libirve_disassemble.a)
+        target_link_libraries(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target/release/libirve_disassemble.a)
     endif()
     #TODO put the header in an include subdirectory in target perhaps?
-    target_include_directories(libirve_object PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/disassemble/)#To get access to the Bindgen generated header
+    target_include_directories(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target)#To get access to the Bindgen generated header
     add_dependencies(libirve_object libirve_disassemble)
 endif()

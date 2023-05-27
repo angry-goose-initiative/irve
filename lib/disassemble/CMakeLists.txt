@@ -22,7 +22,7 @@ set(LIBIRVE_DISASSEMBLE_SOURCES
 #TODO put the header in an include subdirectory in target perhaps?
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(LIBIRVE_DISASSEMBLE_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/target/debug/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/target/irve_disassemble.h)
+    set(LIBIRVE_DISASSEMBLE_OUTPUT ${PROJECT_BINARY_DIR}/rust/target/debug/libirve_disassemble.a ${PROJECT_BINARY_DIR}/rust/target/irve_disassemble.h)
     add_custom_command(
         OUTPUT ${LIBIRVE_DISASSEMBLE_OUTPUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -30,7 +30,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         COMMAND cargo build --target-dir ${PROJECT_BINARY_DIR}/rust/target/
     )
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(LIBIRVE_DISASSEMBLE_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/target/release/libirve_disassemble.a ${CMAKE_CURRENT_SOURCE_DIR}/target/irve_disassemble.h)
+    set(LIBIRVE_DISASSEMBLE_OUTPUT ${PROJECT_BINARY_DIR}/rust/target/release/libirve_disassemble.a ${PROJECT_BINARY_DIR}/rust/target/irve_disassemble.h)
     add_custom_command(
         OUTPUT ${LIBIRVE_DISASSEMBLE_OUTPUT}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -42,5 +42,5 @@ endif()
 add_custom_target(libirve_disassemble DEPENDS ${LIBIRVE_DISASSEMBLE_OUTPUT})
 set_property(
     TARGET libirve_disassemble
-    APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/target ${CMAKE_CURRENT_SOURCE_DIR}/Cargo.lock"
+    APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${PROJECT_BINARY_DIR}/rust/target/"
 )

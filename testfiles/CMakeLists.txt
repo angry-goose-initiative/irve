@@ -13,6 +13,10 @@ project(irve_testfiles VERSION 0.3.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if (IRVE_RUST)
+    add_subdirectory(src/rust)
+endif()
+
 #TODO recompile everything if irve.ld changes
 
 #TODO make the normal assembly target use the vector table but not crt0.s
@@ -67,6 +71,13 @@ add_library(irvenewlib OBJECT ${LIBIRVENEWLIB_SOURCES})
 target_include_directories(irvervc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
 target_include_directories(irvenewlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
 target_link_libraries(irvenewlib irvervc)
+
+#Static libraries are provided as an option though
+add_library(irvervc_static STATIC $<TARGET_OBJECTS:irvervc>)
+set_property(TARGET irvervc_static PROPERTY OUTPUT_NAME irvervc)
+add_library(irvenewlib_static STATIC $<TARGET_OBJECTS:irvenewlib>)
+set_property(TARGET irvenewlib_static PROPERTY OUTPUT_NAME irvenewlib)
+target_link_libraries(irvenewlib_static irvervc_static)
 
 ###############################################################################
 # Test executables
