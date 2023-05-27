@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * A testfile used for CSR bringup.
+ * A testfile used for CSR bringup (CSR instructions, not the actual CSRs quite yet)
  *
 */
 
@@ -53,7 +53,7 @@
 
 #define csrrsi(destination, csr, imm) do { \
     __asm__ volatile ( \
-        "csrrci %[rd], " #csr ", " #imm \
+        "csrrsi %[rd], " #csr ", " #imm \
         : [rd] "=r" (destination) \
         : /* No source registers */ \
         : /* No clobbered registers */ \
@@ -108,15 +108,22 @@
 /* Function Implementations */
 
 int main() {
-    puts("CSR Bringup Tests");
+    puts("CSR (instruction) Bringup Tests");
 
-    puts("\nSome initial experiments");/////////////////////////////////////////////////////////////////////
-
-    //TODO test even unimplemented instructions so that we can fix our mistakes until everything is implemented
+    puts("\n********** Some initial experiments **********");/////////////////////////////////////////////////////////////////////
 
     puts("Testing csrrs");
     uint32_t result;
-    uint32_t source = 0;//NOTE: This is not the same as x0, since it still "writes" to the CSR
+    uint32_t source = 123456;//NOTE: This is not the same as x0, since it still "writes" to the CSR
+    csrrw(result, 0xB02, source);
+    printf("minstret before overwrite (now overwritten): %lu\n", result);
+    csrrw(result, 0xB02, source);
+    printf("minstret after overwrite (now restored): %lu\n", result);
+    assert((result >= 123456) && "minstret was not written to correctly by the first csrrw");
+    puts("Testing csrrw");
+
+    puts("Testing csrrs");
+    source = 0;//NOTE: This is not the same as x0, since it still "writes" to the CSR
     csrrs(result, 0xB02, source);
     printf("minstret: %lu\n", result);
     csrrs_read(result, minstret);
@@ -138,14 +145,35 @@ int main() {
     printf("mscratch was set to: 0x%08lX\n", result);
     assert((result == 0) && "mscratch was not set to 0");
 
+    puts("Testing csrrwi");
+    csrrwi(result, mscratch, 0x12);
+    printf("mscratch before overwrite (now overwritten): 0x%08lX\n", result);
+    assert((result == 0) && "csrrwi did not return 0");
+    csrrwi(result, mscratch, 0x11);
+    printf("minstret after overwrite (now overwritten again): 0x%08lX\n", result);
+    assert((result == 0x12) && "mscratch was not written to correctly by the first csrrw");
+
+    puts("Testing csrrsi");
+    csrrsi(result, mscratch, 0x5);
+    printf("mscratch before csrrsi: 0x%08lX\n", result);
+    assert((result == 0x11) && "csrrsi did not return 0x11");
+    csrrsi_read(result, mscratch);
+    printf("mscratch after csrrsi: 0x%08lX\n", result);
+    assert((result == 0x15) && "mscratch was not written correctly");
+
+    puts("Testing csrrci");
+    csrrci(result, mscratch, 0xD);
+    printf("mscratch before csrrci: 0x%08lX\n", result);
+    assert((result == 0x15) && "csrrci did not return 0x15");
+    csrrci_read(result, mscratch);
+    printf("mscratch after csrrci: 0x%08lX\n", result);
+    assert((result == 0x10) && "mscratch was not written correctly");
+
+    puts("\n********** Now for some assertions **********");/////////////////////////////////////////////////////////////////////
+
     puts("TODO");
 
-    puts("Testing csrrw");
-
-    puts("TODO");
-
-    puts("\nNow for some assertions");/////////////////////////////////////////////////////////////////////
-
+    puts("All assertions passed!");
     return 0;
 }
 
