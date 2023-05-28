@@ -823,7 +823,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, and MPIE, and MIE bits
                 //MPP is set to 0b00
                 mstatus |= 1 << 7;//Set MPIE to 1
-                mstatus |= mpie << 3;//Set MIE to MPIE
+                mstatus |= mpie << 3;//Set MIE to the old MPIE
                 CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
 
                 //Return to the address in MEPC
@@ -831,7 +831,20 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
-                assert(false && "TODO implement SRET");
+                //TODO better logging
+                //Manage the privilege stack
+                word_t sstatus = CSR.implicit_read(CSR::address::SSTATUS);
+                CSR.set_privilege_mode((sstatus.bit(8) == 0b1) ? CSR::privilege_mode_t::SUPERVISOR_MODE : CSR::privilege_mode_t::USER_MODE);//Set the privilege mode based on the value in SPP
+                word_t spie = sstatus.bit(5);
+                sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
+                //SPP is set to 0b0
+                sstatus |= 1 << 5;//Set SPIE to 1
+                sstatus |= spie << 1;//Set SIE to the old SPIE
+                CSR.implicit_write(CSR::address::SSTATUS, sstatus);//Write changes back to the CSR
+
+                //Return to the address in SEPC
+                cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
+                //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
             } else {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
