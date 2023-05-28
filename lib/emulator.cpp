@@ -184,18 +184,27 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
+    bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
+    bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) == 0;
+
+    if (exception_from_machine_mode || exception_delegated_to_machine_mode) {//Exception should be handled in machine mode
+        //TODO manage the privilege stack in mstatus
+        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
+
+        this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
+        this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
+        this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).bits(31, 2));
+
+        //TODO what else should be done if anything?
+
+    } else {//Exception should be handled by supervisor mode
+        assert(false && "TODO handle this case");
+    }
+/*
     //Decide which privilege mode should handle the exception (and thus which one we should switch to)
     if (this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) != 0) {//Supervisor mode should handle the exception if the relevant bit is set
         //TODO handle this case
         assert(false && "TODO handle this case");
     } else {//Machine mode should handle the exception
-        //TODO manage the privilege stack in mstatus?
-        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
-
-        this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
-        this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
-        this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).srl(2));//MTVEC_CONTENTS.srl(2));
-
-        //TODO what else should be done if anything?
-    }
+    }*/
 }

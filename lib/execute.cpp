@@ -61,17 +61,17 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
             invoke_rv_exception(ILLEGAL_INSTRUCTION);
             break;
     }
-    try {
+    //try {
         word_t loaded = memory.r(r1 + imm, funct3);
         irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
         cpu_state.set_r(decoded_inst.get_rd(), loaded);
-    }
+    /*}
     catch(...) {
         assert(false && "TODO");
         // TODO what happens when we access invalid memory?
         //Actually we probably shouldn't catch here, but rather pass this up to the emulator
         //TODO priority of this exception vs. the illegal instruction exception?
-    }
+    }*/
 
     //Increment PC
     cpu_state.goto_next_sequential_pc();
@@ -231,16 +231,16 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
             break;
     }
     
-    try {
+    //try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
         memory.w(r1.u + imm.u, funct3, r2.s);
         irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
-    }
+    /*}
     catch(...) {
         assert(false && "TODO");// TODO what happens when we access invalid memory?
         //Actually we probably shouldn't catch here, but rather pass this up to the emulator
         //TODO priority of this exception vs. the illegal instruction exception?
-    }
+    }*/
 
     //Increment PC
     cpu_state.goto_next_sequential_pc();
@@ -820,7 +820,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC) & 0xFFFFFFFC);
-                cpu_state.goto_next_sequential_pc();//TODO is this correct?
+                //We do NOT go to the PC after the instruction that cause the exceptinon; the handler must do this manually
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 assert(false && "TODO implement SRET");

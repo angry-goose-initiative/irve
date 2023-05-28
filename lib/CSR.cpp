@@ -48,7 +48,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::STVAL:            return this->stval;
         //case address::SIP:              return this->sip;//TODO
         case address::SATP:             return this->satp;
-        //case address::MSTATUS:          return this->mstatus;//TODO
+        case address::MSTATUS:          return this->mstatus;
         case address::MISA:             return 0;
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
@@ -56,7 +56,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MTVEC:            return MTVEC_CONTENTS;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg & 0b1;
-        //case address::MSTATUSH:         return this->mstatush;//TODO
+        case address::MSTATUSH:         return this->mstatush;
         case address::MCOUNTINHIBIT:    return 0;
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
@@ -97,13 +97,13 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::STVAL:            this->stval = data; return;
         //case address::SIP:              //TODO
         case address::SATP:             this->satp = data; return;
-        //case address::MSTATUS:          //TODO
+        case address::MSTATUS:          this->mstatus = data; return;
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
         case address::MEDELEG:          this->medeleg = data; return;
         case address::MIDELEG:          this->mideleg = data; return;
         //case address::MIE:              //TODO
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;
-        //case address::MSTATUSH:         //TODO
+        case address::MSTATUSH:         this->mstatush = data; return;
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions

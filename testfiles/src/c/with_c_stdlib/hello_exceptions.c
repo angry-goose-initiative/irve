@@ -31,5 +31,23 @@ int main() {
 //It will also save all registers to the stack to avoid clobbering them
 __attribute__ ((interrupt ("machine"))) void __riscv_synchronous_exception_and_user_mode_swi_handler(void) {
     puts("Hey would you look at that, an exception!");
-    return;//This should be different than a normal return when emitted by the compiler
+
+    //We want to simply go to the instruction after the ecall
+    uint32_t pc_of_ecall;
+    __asm__ volatile (//Read mepc without modifying it
+        "csrrsi %[rd], mepc, 0"
+        : [rd] "=r" (pc_of_ecall)
+        : /* No source registers */
+        : /* No clobbered registers */
+    );
+    uint32_t pc_to_return_to = pc_of_ecall + 4;//The instruction after the ecall
+    __asm__ volatile (//Update mepc
+        "csrrw %[rd], mepc, %[rs1]"
+        : [rd] "=r" (pc_to_return_to)
+        : [rs1] "r" (pc_to_return_to)
+        : /* No clobbered registers */
+    );
+    assert(pc_to_return_to == pc_of_ecall);//The swap worked
+
+    return;//This should be different than a normal return when emitted by the compiler (MRET)
 }
