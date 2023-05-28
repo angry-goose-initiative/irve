@@ -178,7 +178,7 @@ void emulator::emulator_t::handle_interrupt(rvexception::cause_t /* cause */) {
 void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
     
-    //TODO if the trap is going into S-mode, set stval to 0
+    //TODO better logging
 
     uint32_t raw_cause = (uint32_t)cause;
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
@@ -188,23 +188,24 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) == 0;
 
     if (exception_from_machine_mode || exception_delegated_to_machine_mode) {//Exception should be handled in machine mode
-        //TODO manage the privilege stack in mstatus
+        //Manage the privilege stack
+        word_t mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
+        word_t mie = mstatus.bit(3);
+        mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, MPIE, and MIE bits
+        mstatus |= ((uint32_t)this->m_CSR.get_privilege_mode()) << 11;//Set the MPP bits to the current privilege mode
+        mstatus |= mie << 7;//Set MPIE to MIE
+        //MIE is set to 0
+        this->m_CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
         this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
 
+        //Write other CSRs to indicate information about the exception
         this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
         this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
+
+        //Jump to the exception handler
         this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).bits(31, 2));
-
-        //TODO what else should be done if anything?
-
     } else {//Exception should be handled by supervisor mode
-        assert(false && "TODO handle this case");
+        //TODO if the trap is going into S-mode, set stval to 0
+        assert(false && "TODO exceptions delegated to supervisor mode");
     }
-/*
-    //Decide which privilege mode should handle the exception (and thus which one we should switch to)
-    if (this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) != 0) {//Supervisor mode should handle the exception if the relevant bit is set
-        //TODO handle this case
-        assert(false && "TODO handle this case");
-    } else {//Machine mode should handle the exception
-    }*/
 }

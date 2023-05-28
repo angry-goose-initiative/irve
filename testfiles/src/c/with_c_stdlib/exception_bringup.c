@@ -119,11 +119,15 @@ static volatile struct {
 int main() {
     puts("Exception Bringup Tests");
 
+    puts("Start with mstatus = 0x00000000");
+    uint32_t zero = 0x00000000;
+    csrrw(zero, mstatus, zero);
+
     puts("\n********** Some initial experiments **********");/////////////////////////////////////////////////////////////////////
 
     *((volatile uint32_t*)0xDEADBEEF) = 0x12345678;//Access to an unmapped address should cause an exception
+    //TODO mstatus assertion that we came from machine mode
     assert((last_exception_info.mcause == 0x00000006) && "Exception cause was not a store/AMO address misaligned exception");
-    //TODO mstatus assertion
     //assert(last_exception_info.mepc == ???);//TODO we'll have to test this with pure assembly since we don't now the address of the instruction that caused the exception
 
     puts("\n********** Now for some more comprehensive assertions **********");/////////////////////////////////////////////////////////////////////

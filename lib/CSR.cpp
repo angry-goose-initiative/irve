@@ -21,7 +21,7 @@ using namespace irve::internal;
 
 //TODO what should CSRs be initialized to?
 //See Volume 2 Section 3.4
-CSR::CSR_t::CSR_t() : medeleg(0), mideleg(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}
+CSR::CSR_t::CSR_t() : mstatus(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
@@ -62,7 +62,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
 
         case address::MSCRATCH:         return this->mscratch;
-        case address::MEPC:             return this->mepc;
+        case address::MEPC:             return this->mepc & 0xFFFFFFFC;
         case address::MCAUSE:           return this->mcause;
         case address::MTVAL:            return 0;
         case address::MIP:              return this->mip;
@@ -109,7 +109,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
 
         case address::MSCRATCH:         this->mscratch = data; return;
-        case address::MEPC:             this->mepc = data & 0xFFFFFFFC; return;
+        case address::MEPC:             this->mepc = data; return;//Masking handled on reads to make it easier to support IALIGN=16 in the future
         case address::MCAUSE:           this->mcause = data; return;
         case address::MTVAL:            return;//We simply ignore writes to MTVAL, NOT throw an exception//TODO since we chose to make it read-only, should we throw an exception?
         case address::MIP:              this->mip = data; return;

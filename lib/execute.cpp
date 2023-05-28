@@ -790,11 +790,9 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
-                //TODO write any CSRs that need to be written
                 switch (privilege_mode) {
                     case CSR::privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
-                        //CSR.implicit_write(CSR::address::MEPC, cpu_state.get_pc());//NOT the next instruction's PC//TODO should this be implicit or explicit?//Actually the exception will do this
                         invoke_rv_exception(MMODE_ECALL);
                         break;
                     case CSR::privilege_mode_t::SUPERVISOR_MODE:
@@ -817,10 +815,20 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
             } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
                 irvelog(3, "Mnemonic: MRET");
-                //FIXME this assumes mepc contains a physical address, but it could be a virtual address if it is from Supervisor or User mode
                 //TODO better logging
-                cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC) & 0xFFFFFFFC);
-                //We do NOT go to the PC after the instruction that cause the exceptinon; the handler must do this manually
+                //Manage the privilege stack
+                word_t mstatus = CSR.implicit_read(CSR::address::MSTATUS);
+                CSR.set_privilege_mode((CSR::privilege_mode_t)mstatus.bits(12, 11).u);//Set the privilege mode to the value in MPP
+                word_t mpie = mstatus.bit(7);
+                mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, and MPIE, and MIE bits
+                //MPP is set to 0b00
+                mstatus |= 1 << 7;//Set MPIE to 1
+                mstatus |= mpie << 3;//Set MIE to MPIE
+                CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
+
+                //Return to the address in MEPC
+                cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC));
+                //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
             } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 assert(false && "TODO implement SRET");
