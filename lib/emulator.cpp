@@ -201,11 +201,27 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
         //Write other CSRs to indicate information about the exception
         this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
         this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
+        this->m_CSR.implicit_write(CSR::address::MTVAL, 0);
 
         //Jump to the exception handler
         this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).bits(31, 2));
     } else {//Exception should be handled by supervisor mode
-        //TODO if the trap is going into S-mode, set stval to 0
-        assert(false && "TODO exceptions delegated to supervisor mode");
+        //Manage the privilege stack
+        word_t sstatus = this->m_CSR.implicit_read(CSR::address::SSTATUS);
+        word_t sie = sstatus.bit(1);
+        sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
+        sstatus |= ((this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE) ? 0b1 : 0b0) << 8;//Set the SPP bit appropriately
+        sstatus |= sie << 5;//Set SPIE to SIE
+        //SIE is set to 0
+        this->m_CSR.implicit_write(CSR::address::SSTATUS, sstatus);//Write changes back to the CSR
+        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+
+        //Write other CSRs to indicate information about the exception
+        this->m_CSR.implicit_write(CSR::address::SCAUSE, (uint32_t) cause);
+        this->m_CSR.implicit_write(CSR::address::SEPC, this->m_cpu_state.get_pc());
+        this->m_CSR.implicit_write(CSR::address::STVAL, 0);
+
+        //Jump to the exception handler
+        this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::STVEC).bits(31, 2));
     }
 }

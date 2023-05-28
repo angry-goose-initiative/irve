@@ -42,6 +42,11 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege
 reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
     //TODO handle WPRI in this function
     switch (csr) {
+        case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
+        //case address::SIE:              return this->sie;//TODO
+        //case address::STVEC:            return this->stvec;
+        //case address::SCOUNTEREN:       return ;//TODO
+        //case address::SENVCFG:          return ;//TODO
         //case address::SSCRATCH:         return this->sscratch;//TODO
         //case address::SEPC:             return this->sepc;//TODO
         //case address::SCAUSE:           return this->scause;//TODO
@@ -64,7 +69,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MSCRATCH:         return this->mscratch;
         case address::MEPC:             return this->mepc & 0xFFFFFFFC;
         case address::MCAUSE:           return this->mcause;
-        case address::MTVAL:            return 0;
+        case address::MTVAL:            return this->mtval;
         case address::MIP:              return this->mip;
         //case address::MTINST:           return this->mtinst;//TODO
         //TODO the PMP CSRs
@@ -91,6 +96,11 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
     //TODO handle WARL in this function
     switch (csr) {
+        case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
+        //case address::SIE:              //TODO
+        //case address::STVEC:            //TODO
+        //case address::SCOUNTEREN:       //TODO
+        //case address::SENVCFG:          //TODO
         //case address::SSCRATCH:         //TODO
         //case address::SEPC:             //TODO
         //case address::SCAUSE:           //TODO
@@ -111,7 +121,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MSCRATCH:         this->mscratch = data; return;
         case address::MEPC:             this->mepc = data; return;//Masking handled on reads to make it easier to support IALIGN=16 in the future
         case address::MCAUSE:           this->mcause = data; return;
-        case address::MTVAL:            return;//We simply ignore writes to MTVAL, NOT throw an exception//TODO since we chose to make it read-only, should we throw an exception?
+        case address::MTVAL:            this->mtval = data; return;
         case address::MIP:              this->mip = data; return;
         //case address::MTINST:           //TODO
         //TODO the PMP CSRs

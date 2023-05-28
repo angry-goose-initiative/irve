@@ -131,7 +131,7 @@ namespace irve::internal::CSR {
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
-        //mtval is NOT here
+        reg_t mtval;
         reg_t mip;
         reg_t mtinst;
         //TODO the PMP CSRs
