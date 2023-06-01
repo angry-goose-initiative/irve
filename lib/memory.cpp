@@ -16,6 +16,7 @@
 #include <cassert>
 #include <iostream>
 #include <cstring>
+#include <memory>
 
 #include "CSR.h"
 
@@ -129,12 +130,10 @@ void memory::memory_t::p(word_t addr) const {
 
 memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
-    std::memset(this->m_ram, 0, RAMSIZE);
+    std::memset(this->m_ram.get(), 0, RAMSIZE);
 }
 
 memory::pmemory_t::~pmemory_t() {
-    delete[] this->m_ram;
-
     if (this->m_debugstr.size() > 0) {
         irvelog_always_stdout(0, "\x1b[92mRISC-V Remaining Debug At IRVE Exit:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
     }

@@ -21,6 +21,7 @@
 /* Includes */
 
 #include <iostream>
+#include <memory>
 
 #include "common.h"
 #include "CSR.h"
@@ -39,7 +40,7 @@ namespace irve::internal::memory {
         uint8_t r(word_t addr) const;//TODO this can't be const because we need to handle read side effects
         void w(word_t addr, uint8_t data);
     private:
-        uint8_t* m_ram;
+        std::unique_ptr<uint8_t[]> m_ram;
         std::string m_debugstr;
     };
 
