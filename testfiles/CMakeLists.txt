@@ -112,7 +112,7 @@ macro(add_asm_target NAME)
 endmacro()
 
 #IRVE assembly test files
-#TODO
+add_asm_target(privilege_levels src/assembly/privilege_levels.s)
 
 #Assembly test files from rv32esim
 add_asm_target(rv32esim src/assembly/rv32esim.s)
