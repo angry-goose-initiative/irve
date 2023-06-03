@@ -1,8 +1,8 @@
-# privilege_levels.s
+# user_and_back_in_time_for_dinner.s
 # Copyright (C) 2023 John Jekel and Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 #
-# Testing out moving between privilege levels in assembly
+# Goin' all the way to U-Mode and back to M-Mode!
 #
 
 .section .vector_table, "ax"
@@ -50,7 +50,22 @@ mmode_ecall_handler:
 smode_entry:
     la a0, smode_string
     call print
-    ecall#Go back to M-Mode
+
+    #Set sstatus so that when we execute sret, we will go to U-Mode
+    li t0, 0b00000000000000000000000100000000
+    csrrc zero, sstatus, t0#Set SPP to 0b0 (U-Mode)
+
+    #Set sepc to the address of the umode_entry label
+    la t0, umode_entry
+    csrrw zero, sepc, t0
+
+    #Go to U-Mode
+    sret
+
+umode_entry:
+    la a0, umode_string
+    call print
+    ecall
 
 print:#Expect address in a0
     lbu t0, 0(a0)
@@ -69,3 +84,6 @@ mmode_string1:
 
 smode_string:
 .string "Hello from S-Mode!\n"
+
+umode_string:
+.string "Hello from U-Mode!\n"

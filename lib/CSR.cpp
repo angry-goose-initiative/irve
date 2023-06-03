@@ -48,7 +48,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         //case address::SCOUNTEREN:       return ;//TODO
         //case address::SENVCFG:          return ;//TODO
         //case address::SSCRATCH:         return this->sscratch;//TODO
-        //case address::SEPC:             return this->sepc;//TODO
+        case address::SEPC:             return this->sepc;//TODO is this correct?
         //case address::SCAUSE:           return this->scause;//TODO
         case address::STVAL:            return this->stval;
         //case address::SIP:              return this->sip;//TODO
@@ -102,7 +102,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         //case address::SCOUNTEREN:       //TODO
         //case address::SENVCFG:          //TODO
         //case address::SSCRATCH:         //TODO
-        //case address::SEPC:             //TODO
+        case address::SEPC:             this->sepc = data; return;//TODO is this correct?
         //case address::SCAUSE:           //TODO
         case address::STVAL:            this->stval = data; return;
         //case address::SIP:              //TODO

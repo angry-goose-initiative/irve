@@ -113,6 +113,7 @@ endmacro()
 
 #IRVE assembly test files
 add_asm_target(privilege_levels src/assembly/privilege_levels.s)
+add_asm_target(user_and_back_in_time_for_dinner src/assembly/user_and_back_in_time_for_dinner.s)
 
 #Assembly test files from rv32esim
 add_asm_target(rv32esim src/assembly/rv32esim.s)

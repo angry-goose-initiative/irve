@@ -810,9 +810,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             } else if (imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
                 invoke_rv_exception(BREAKPOINT);
-            } else if (imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
+            } else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
+                cpu_state.goto_next_sequential_pc();
             } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
