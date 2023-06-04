@@ -152,7 +152,7 @@ add_jzjcoresoftware_asm_target(xoritoggle)
 ############
 macro(add_c_target NAME)
     add_target(${NAME} ${ARGN})
-    target_link_libraries(${NAME} irvervc)
+    target_link_libraries(${NAME} irvervc)#Get the IRVE bare-bones c runtime
     target_link_libraries(${NAME} gcc)#To get GCC's emulation routines
 endmacro()
 macro(add_c_target_with_newlib NAME)

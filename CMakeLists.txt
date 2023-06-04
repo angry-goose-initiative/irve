@@ -55,4 +55,5 @@ execute_process(
 add_subdirectory(tests)
 add_subdirectory(testfiles)
 add_subdirectory(lib)
+add_subdirectory(sbi)
 add_subdirectory(src)
