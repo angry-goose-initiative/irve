@@ -39,6 +39,8 @@ set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 #set(OBJCOPY_FLAGS "-O verilog --verilog-data-width=4")#TODO this dosn't work for some reason
 
 set(IRVE_SBI_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/exception_entry.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/jump2smode.s
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
 )
 

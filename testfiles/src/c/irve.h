@@ -9,6 +9,10 @@
 #ifndef IRVE_H
 #define IRVE_H
 
+/* Includes */
+
+#include <stdbool.h>
+
 /* Constants And Defines */
 
 #define IRVE_DEBUG_ADDR (*(volatile char*)(0xFFFFFFFF))
