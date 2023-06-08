@@ -9,7 +9,8 @@
 /* Constants And Defines */
 
 //const static st:
-#define SMODE_ENTRY_ADDR 0x80000000
+#define KERNEL_ADDR 0xC0000000
+#define DTB_ADDR 0xDEADBEEF//TODO
 
 /* Includes */
 
@@ -30,7 +31,8 @@ typedef struct {
 
 /* External Function Declarations */
 
-void jump2smode(uint32_t entry_addr);
+//void jump2smode(uint32_t entry_addr);
+void jump2linux(uint32_t hard_id, uint32_t dtb_addr, uint32_t kernel_addr);
 
 /* Static Function Declarations */
 
@@ -47,7 +49,8 @@ int main() {
 
     //TODO do initialization stuff here
 
-    jump2smode(SMODE_ENTRY_ADDR);
+    //jump2smode(SMODE_ENTRY_ADDR);
+    jump2linux(0, DTB_ADDR, KERNEL_ADDR);//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
 
     return 0;
 }
