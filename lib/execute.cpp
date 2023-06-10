@@ -782,7 +782,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     CSR::privilege_mode_t privilege_mode = CSR.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
-        case 0b000://ECALL, EBREAK, WFI, MRET, or SRET
+        case 0b000://ECALL, EBREAK, WFI, MRET, SRET, or SFENCE.VMA
             //For all of these, the register fields rd and rs1 must be zero
             if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
@@ -846,6 +846,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //Return to the address in SEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
+            } else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
+                irvelog(3, "Mnemonic: SFENCE.VMA");
+                irvelog(4, "We don't have a TLB in the simulator, so this is a NOP");
+                cpu_state.goto_next_sequential_pc();
             } else {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
