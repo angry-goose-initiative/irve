@@ -30,7 +30,7 @@ namespace irve {//NOT irve::internal
     namespace emulator { class emulator_t; }
 
     namespace loader {
-        bool load_verilog_32(emulator::emulator_t& emulator, const char* filename);//TODO return false if this fails
+        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);//TODO return false if this fails
     }
 
     namespace logging {
@@ -77,7 +77,7 @@ namespace irve {//NOT irve::internal
 
             //TODO how to best expose CPU state to the user for them to modify/read? (particularly for integration testing)
         private:
-            friend bool irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
+            friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
             irve::internal::emulator::emulator_t* m_emulator_ptr;
         };
     }

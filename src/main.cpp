@@ -66,10 +66,7 @@ int main(int argc, char** argv) {
         }
 
         irvelog_always(0, "Loading memory image from file \"%s\"", mem_file.c_str());
-        if (!irve::loader::load_verilog_32(emulator, mem_file.c_str())) {
-            irvelog_always(0, "\x1b[91mAn error occured while trying to load the memory image!!!\x1b[0m");
-            return 1;
-        }
+        irve::loader::load_verilog_32(emulator, mem_file.c_str());
     }
 
     auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();

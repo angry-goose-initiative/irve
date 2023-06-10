@@ -55,8 +55,8 @@ void irve::emulator::emulator_t::mem_write_byte(uint32_t addr, uint8_t data) {
 
 //Namepace: irve::loader
 
-bool irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const char* filename) {
-    return irve::internal::loader::load_verilog_32(*(emulator.m_emulator_ptr), filename);
+void irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const char* filename) {
+    irve::internal::loader::load_verilog_32(*(emulator.m_emulator_ptr), filename);
 }
 
 //Namepace: irve::logging
