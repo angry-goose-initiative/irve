@@ -91,6 +91,8 @@ void emulator::emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {
 }
 
 word_t emulator::emulator_t::fetch() const {
+    irvelog(1, "Fetching from 0x%08x", this->m_cpu_state.get_pc());
+
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {

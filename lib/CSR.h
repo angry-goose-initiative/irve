@@ -113,6 +113,7 @@ namespace irve::internal::CSR {
         bool current_privilege_mode_can_explicitly_read(uint16_t csr) const;
         bool current_privilege_mode_can_explicitly_write(uint16_t csr) const;
 
+        reg_t sie;
         reg_t sscratch;
         reg_t sepc;
         reg_t scause;

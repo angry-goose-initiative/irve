@@ -24,10 +24,10 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
     csrw mepc, a2
 
     #TESTING
-    #li t0, 'A'
-    #sb t0, -1(zero)
-    #li t0, '\n'
-    #sb t0, -1(zero)
+    li t0, 'A'
+    sb t0, -1(zero)
+    li t0, '\n'
+    sb t0, -1(zero)
 
     #The kernel expects the hart ID and address of the DTB in a0 and a1, so we don't have to do anything else!
 
