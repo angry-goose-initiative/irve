@@ -283,7 +283,21 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
 
     //TODO make these constexpr too
     //TODO should these become part of word_t?
+    
+    /**
+     * @brief Raise an unsigned integer to a power
+     * @param base The base of the operation
+     * @param exp The exponent of the operation
+     * @return base ** exp
+    */
     uint32_t upow(uint32_t base, uint32_t exp);//Unsigned integer power
+
+    /**
+     * @brief Raise a signed integer to a power
+     * @param base The base of the operation
+     * @param exp The exponent of the operation
+     * @return base ** exp
+    */
     int32_t spow(int32_t base, int32_t exp);//Signed integer power
 
 }//namespace irve::internal
