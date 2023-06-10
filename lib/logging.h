@@ -1,7 +1,7 @@
 /* logging.h
  * By: John Jekel
  *
- * Logging facilities for
+ * Logging facilities for irve
  *
  * Based on code from rv32esim
 */
