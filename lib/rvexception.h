@@ -20,14 +20,27 @@
 
 /* Macros */
 
+/**
+ * @brief Invoke a RISC-V interrupt (more concise than using throw)
+ * 
+ * @param the_cause The cause of the interrupt
+*/
 #define invoke_rv_interrupt(the_cause) do { \
     throw irve::internal::rvexception::rvinterrupt_t(irve::internal::rvexception::cause_t::the_cause ## _INTERRUPT); \
 } while (0)
 
+/**
+ * @brief Invoke a RISC-V exception (more concise than using throw)
+ * 
+ * @param the_cause The cause of the exception
+*/
 #define invoke_rv_exception(the_cause) do { \
     throw irve::internal::rvexception::rvexception_t(irve::internal::rvexception::cause_t::the_cause ## _EXCEPTION); \
 } while (0)
 
+/**
+ * @brief Invoke an IRVE exit request (more concise than using throw)
+*/
 #define invoke_polite_irve_exit_request() do { \
     throw irve::internal::rvexception::irve_exit_request_t(); \
 } while (0)
@@ -85,13 +98,6 @@ namespace irve::internal::rvexception {
          * @return The cause this exception was constructed with (see cause_t)
         */
         cause_t cause() const;
-
-        /**
-         * @brief Override of std::exception::what()
-         * 
-         * @return The string describing that this exception should always be caught and handled
-        */
-        const char* what() const noexcept override;
     private:
 
         ///The cause of the interrupt/exception
