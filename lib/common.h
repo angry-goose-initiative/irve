@@ -277,6 +277,7 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
         int32_t s;
     } word_t;
 
+    ///A register is just a word_t, but seeing it a reg_t can be more insightful in other code
     typedef word_t reg_t;
 
     /* Function/Class Declarations */

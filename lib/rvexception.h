@@ -36,6 +36,7 @@ namespace irve::internal::rvexception {
 
     /* Types */
 
+    ///Possible contents of the mcause/scause registers, indicating the reason for the interrupt/exception
     enum class cause_t : uint32_t {
         //Interrupts
         SUPERVISOR_SOFTWARE_INTERRUPT               = 1     | 0x80000000,
@@ -63,29 +64,90 @@ namespace irve::internal::rvexception {
 
     /* Function/Class Declarations */
 
+    /**
+     * @brief Base class for all RISC-V interrupts and exceptions
+     *
+     * Yes throwing excpetions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
+     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
+    */
     class rv_base_cpp_exception_t : public std::runtime_error {
     public:
+        /**
+         * @brief Construct a new rv_base_cpp_exception_t
+         * 
+         * @param cause The cause of the interrupt/exception (see cause_t)
+        */
         rv_base_cpp_exception_t(cause_t cause);
         
+        /**
+         * @brief Get the cause of the interrupt/exception
+         * 
+         * @return The cause this exception was constructed with (see cause_t)
+        */
         cause_t cause() const;
+
+        /**
+         * @brief Override of std::exception::what()
+         * 
+         * @return The string describing that this exception should always be caught and handled
+        */
+        const char* what() const noexcept override;
     private:
+
+        ///The cause of the interrupt/exception
         cause_t m_cause;
     };
 
+    /**
+     * @brief Exception thrown when an interrupt is invoked by the RISC-V system
+     *
+     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
+     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
+    */
     class rvinterrupt_t : public rv_base_cpp_exception_t {
     public:
+        /**
+         * @brief Construct a new rvinterrupt_t
+         * 
+         * @param cause The cause of the interrupt/exception (see cause_t)
+        */
         rvinterrupt_t(cause_t cause);
     };
 
+    /**
+     * @brief Exception thrown when an exception is invoked by the RISC-V system
+     *
+     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
+     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
+    */
     class rvexception_t : public rv_base_cpp_exception_t {
     public:
+        /**
+         * @brief Construct a new rvexception_t
+         * 
+         * @param cause The cause of the interrupt/exception (see cause_t)
+        */
         rvexception_t(cause_t cause);
     };
 
+    /**
+     * @brief Exception thrown when the RISC-V system executes IRVE.EXIT
+     *
+     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
+     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
+    */
     class irve_exit_request_t : public std::exception {
     public:
+        /**
+         * @brief Construct a new irve_exit_request_t
+        */
         irve_exit_request_t();
 
+        /**
+         * @brief Override of std::exception::what()
+         * 
+         * @return The string describing that this exception should always be caught and handled
+        */
         const char* what() const noexcept override;
     };
 
