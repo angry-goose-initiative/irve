@@ -128,9 +128,10 @@ void memory::memory_t::p(word_t addr) const {
 
 //Physical memory
 
-memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
+memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]), m_second_ram(new uint8_t[SECOND_RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
     std::memset(this->m_ram.get(), 0, RAMSIZE);
+    std::memset(this->m_second_ram.get(), 0, SECOND_RAMSIZE);
 }
 
 memory::pmemory_t::~pmemory_t() {
@@ -142,19 +143,26 @@ memory::pmemory_t::~pmemory_t() {
 uint8_t memory::pmemory_t::r(word_t addr) const {
     //TODO add mtime and mtimecmp registers
 
-    if (addr.u >= RAMSIZE) {
+    if (addr.u < RAMSIZE) {
+        return this->m_ram[addr.u];
+    } else if ((addr.u >= 0xC0000000) && ((addr.u - 0xC0000000) < SECOND_RAMSIZE)) {
+        return this->m_second_ram[addr.u - 0xC0000000];
+    } else {
         invoke_rv_exception(LOAD_ACCESS_FAULT);
     }
 
     //TODO add MMIO devices that provide data as things progress
     
-    return this->m_ram[addr.u];
 }
 
 void memory::pmemory_t::w(word_t addr, uint8_t data) {
     //TODO other MMIO devices
-    
-    if (addr == DEBUGADDR) {//Debug output
+
+    if (addr.u < RAMSIZE) {
+        this->m_ram[addr.u] = data;
+    } else if ((addr.u >= 0xC0000000) && ((addr.u - 0xC0000000) < SECOND_RAMSIZE)) {
+        this->m_second_ram[addr.u - 0xC0000000] = data;
+    } else if (addr == DEBUGADDR) {//Debug output
         //End of line; print the debug string
         if (data == '\n') {
             irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
@@ -167,11 +175,7 @@ void memory::pmemory_t::w(word_t addr, uint8_t data) {
         }
 
         return;
-    } else {//RAM
-        if (addr.u >= RAMSIZE) {
-            invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
-        }
-
-        this->m_ram[addr.u] = data;
+    } else {
+        invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
     }
 }

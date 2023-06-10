@@ -15,7 +15,8 @@
 
 //TODO put these into a namespace as regular C++ constants
 
-#define RAMSIZE 0x04000000//64MB (should be plenty for the kernel to begin with)
+#define RAMSIZE 0x04000000//64MB (should be plenty to begin with)
+#define SECOND_RAMSIZE 0x04000000//Starting at 0xC0000000//64MB (should be plenty for the kernel to begin with)
 #define DEBUGADDR 0xFFFFFFFF//RISC-V code that writes a series of bytes to this address will print them to stdout (flushed when a newline is encountered)
 
 /* Includes */
@@ -41,6 +42,7 @@ namespace irve::internal::memory {
         void w(word_t addr, uint8_t data);
     private:
         std::unique_ptr<uint8_t[]> m_ram;
+        std::unique_ptr<uint8_t[]> m_second_ram;
         std::string m_debugstr;
     };
 
