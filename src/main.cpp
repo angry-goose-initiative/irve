@@ -55,18 +55,18 @@ int main(int argc, char** argv) {
 
     if (argc < 2) {
         irvelog_always(0, "No memory image file specified. Starting with empty memory.");
-    } else {
-        assert(argc == 2 && "Too many arguments for now");//TODO remove this if we need in the future
+    } else {//Load each memory images in the order they were specified
+        for (int i = 1; i < argc; i++) {
+            //Locate and the image file (guessing it if it is not a whole path for convenience)
+            std::string mem_file = argv[i];
+            //A testfile name rather than a path, so prepend the testfiles directory
+            if (mem_file.find("/") == std::string::npos) {
+                mem_file = TESTFILES_DIR + mem_file;
+            }
 
-        //Locate and the image file (guessing it if it is not a whole path for convenience)
-        std::string mem_file = argv[1];
-        //A testfile name rather than a path, so prepend the testfiles directory
-        if (mem_file.find("/") == std::string::npos) {
-            mem_file = TESTFILES_DIR + mem_file;
+            irvelog_always(0, "Loading memory image from file \"%s\"", mem_file.c_str());
+            irve::loader::load_verilog_32(emulator, mem_file.c_str());
         }
-
-        irvelog_always(0, "Loading memory image from file \"%s\"", mem_file.c_str());
-        irve::loader::load_verilog_32(emulator, mem_file.c_str());
     }
 
     auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();

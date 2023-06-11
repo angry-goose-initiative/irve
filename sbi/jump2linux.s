@@ -36,3 +36,7 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
 
     #We should never return. Leave this as a sanity check so we exit if we do.
     .insn r CUSTOM_0, 0, 0, zero, zero, zero
+
+#.data
+#    .align 4
+

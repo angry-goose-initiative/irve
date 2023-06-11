@@ -32,7 +32,7 @@ typedef struct {
 /* External Function Declarations */
 
 //void jump2smode(uint32_t entry_addr);
-void jump2linux(uint32_t hard_id, uint32_t dtb_addr, uint32_t kernel_addr);
+void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr);
 
 /* Static Function Declarations */
 
