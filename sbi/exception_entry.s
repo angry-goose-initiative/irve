@@ -10,13 +10,10 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     #Restore the M-mode stack pointer and save the S-mode one (swap with mscratch)
     csrrw sp, mscratch, sp
 
-    #Push all registers onto the stack (full descending), with the following exceptions:
-    #sp: Since it is already saved in mscratch
-    #a0, a1: Since they may be clobbered according to the RISC-V SBI (and also may be needed to return)
-    #FIXME: IF IT IS NOT A SUPERVISOR ECALL, THEN PRESERVE A0 AND A1 TOO
-    addi sp, sp, 31*-4#Make room
+    #Push all S-Mode registers onto the stack (full descending), except for sp since it is already saved in mscratch
+    addi sp, sp, 31 * -4#Make room on the stack
     sw x1, 0(sp)
-    #sw x2, 4(sp)#sp
+    #sw x2, 4(sp)#Skip sp
     sw x3, 8(sp)
     sw x4, 12(sp)
     sw x5, 16(sp)
@@ -24,8 +21,8 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     sw x7, 24(sp)
     sw x8, 28(sp)
     sw x9, 32(sp)
-    #sw x10, 36(sp)#a0
-    #sw x11, 40(sp)#a1
+    sw x10, 36(sp)
+    sw x11, 40(sp)
     sw x12, 44(sp)
     sw x13, 48(sp)
     sw x14, 52(sp)
@@ -46,15 +43,51 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     sw x29, 112(sp)
     sw x30, 116(sp)
     sw x31, 120(sp)
-    #TODO
 
-    #TODO decide what to do based on the kind of exception this was
-    #Ex. if it was a supervisor ECALL, call handle_smode_ecall
-    #FIXME: IF IT IS NOT A SUPERVISOR ECALL, THEN PRESERVE A0 AND A1 TOO
-    #FIXME don't just assume this is an ecall
-    call handle_smode_ecall#Arguments are already in a0 thru a7
+    #Now we can clobber registers and still get them back later
+    #If we actually want to update S-Mode registers, we have to write to the stack
+    #Then the new values will be incorperated when we restore them from the stack later
 
-    #Pop registers from the stack (full descending), with the same exceptions as before
+    #Restore the M-Mode global and thread pointers
+    la t0, mmode_preserved_gp
+    lw gp, 0(t0)
+    la t0, mmode_preserved_tp
+    lw tp, 0(t0)
+
+    #There are no other M-Mode registers to restore. See jump2linux.s for why.
+
+    #Read mcause into t0. If it is 9 (an S-Mode ECALL), then jump to is_smode_ecall
+    csrr t0, mcause
+    li t1, 9
+    beq t0, t1, is_smode_ecall
+
+isnt_smode_ecall:
+    #The function will have to get the registers it needs from the stack, and update the values on the stack which we will restore later
+    #(we aren't using the standard calling convention here since, unlike SBI calls, we aren't guaranteed that all info we need is in a0 thru a7)
+    #Ex. we could have to emulate an instruction in this case
+    #Also an exception is that if it needs to modify the S-Mode PC, it must instead modify mscratch
+    #Thus with this calling convention, we make no guarantees about what happens to arguments or return values, other than that ra is set such that we will return here
+    call handle_other_exceptions
+    j return_from_exception
+
+is_smode_ecall:
+    #SBI arguments are already in S-Mode registers a0 thru a7, which are currently on the stack
+    #However, they're also still in the M-Mode registers a0 thru a7, and we haven't clobbered them
+    #So we can avoid a copy here and use the standard calling convention (since the SBI call info should be entirely contained in a0 thru a7)
+    call handle_smode_ecall
+    #The result is in M-Mode registers a0 and a1. However, we need to update the S-Mode registers a0 and a1
+    #These are currently stored on the stack. So copy the new a0 and a1 to the proper places on the stack
+    sw a0, 36(sp)
+    sw a1, 40(sp)
+
+return_from_exception:
+    #Preserve the M-Mode global and thread pointers
+    la t0, mmode_preserved_gp
+    sw gp, 0(t0)
+    la t0, mmode_preserved_tp
+    sw tp, 0(t0)
+
+    #Pop all S-Mode registers from the stack (full descending), except for sp since it is saved in mscratch
     lw x1, 0(sp)
     #lw x2, 4(sp)#sp
     lw x3, 8(sp)
@@ -64,8 +97,8 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     lw x7, 24(sp)
     lw x8, 28(sp)
     lw x9, 32(sp)
-    #lw x10, 36(sp)#a0
-    #lw x11, 40(sp)#a1
+    lw x10, 36(sp)
+    lw x11, 40(sp)
     lw x12, 44(sp)
     lw x13, 48(sp)
     lw x14, 52(sp)
@@ -86,7 +119,7 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     lw x29, 112(sp)
     lw x30, 116(sp)
     lw x31, 120(sp)
-    addi sp, sp, 31*4#Remove room on the stack
+    addi sp, sp, 31 * 4#Remove room on the stack
 
     #Restore the S-mode stack pointer and save the M-mode one (swap with mscratch)
     csrrw sp, mscratch, sp

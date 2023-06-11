@@ -39,7 +39,9 @@ typedef struct {
 
 /* Variables */
 
-//TODO
+//Needs to be preserved so, when returning from S-Mode, we can still use C if the compiler depends on these
+uint32_t mmode_preserved_gp;
+uint32_t mmode_preserved_tp;
 
 /* External Function Declarations */
 
@@ -90,7 +92,7 @@ sbiret handle_smode_ecall(
 }
 
 void handle_other_exceptions(/* TODO decide args, if we actualy will be doing this in C at all */) {
-    assert(false && "TODO implement other exceptions");//TODO
+    assert(false && "TODO this function will need to be done in assembly as it needs fine-grained control of registers and the stack");
 }
 
 /* Static Function Implementations */

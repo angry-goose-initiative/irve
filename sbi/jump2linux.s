@@ -7,13 +7,6 @@
 
 .global jump2linux
 jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = address of kernel image
-    #TODO preserve M-Mode registers other than SP on the M-Mode stack
-
-    #TODO for security should we also clear registers other than a0 and a1?
-
-    #Preserve the M-Mode stack pointer in mscratch
-    csrw mscratch, sp
-
     #Set mstatus so that when we execute mret, we will go to S-Mode
     li t0, 0b00000000000000000001100000000000
     li t1, 0b00000000000000000000100000000000
@@ -23,11 +16,51 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
     #Set mepc to the address contained within a2
     csrw mepc, a2
 
-    #TESTING
-    li t0, 'A'
-    sb t0, -1(zero)
-    li t0, '\n'
-    sb t0, -1(zero)
+    #Preserve the M-Mode stack pointer in mscratch
+    csrw mscratch, sp
+
+    #Preserve the M-Mode global and thread pointers
+    la t0, mmode_preserved_gp
+    sw gp, 0(t0)
+    la t0, mmode_preserved_tp
+    sw tp, 0(t0)
+
+    #NOTE: There is no point in saving any other registers since this function is noreturn. So we needn't
+    #preserve any callee-saved registers.
+
+    #For security, zero all registers other than a0 and a1
+    #The kernel will look at a0 and a1. We only needed a2 to set mepc, so we can zero it too.
+    li x1, 0
+    li x2, 0
+    li x3, 0
+    li x4, 0
+    li x5, 0
+    li x6, 0
+    li x7, 0
+    li x8, 0
+    li x9, 0
+    #NOT x10 (a0)
+    #NOT x11 (a1)
+    li x12, 0
+    li x13, 0
+    li x14, 0
+    li x15, 0
+    li x16, 0
+    li x17, 0
+    li x18, 0
+    li x19, 0
+    li x20, 0
+    li x21, 0
+    li x22, 0
+    li x23, 0
+    li x24, 0
+    li x25, 0
+    li x26, 0
+    li x27, 0
+    li x28, 0
+    li x29, 0
+    li x30, 0
+    li x31, 0
 
     #The kernel expects the hart ID and address of the DTB in a0 and a1, so we don't have to do anything else!
 
@@ -36,7 +69,3 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
 
     #We should never return. Leave this as a sanity check so we exit if we do.
     .insn r CUSTOM_0, 0, 0, zero, zero, zero
-
-#.data
-#    .align 4
-
