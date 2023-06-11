@@ -1,6 +1,6 @@
 # irve
 
-![Fancy IRVE Logo](logo.jpg | width=100)
+<img src="logo.jpg" width=100>
 
 [![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
 [![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
