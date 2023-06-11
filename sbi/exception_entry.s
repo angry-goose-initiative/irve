@@ -48,7 +48,7 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     #If we actually want to update S-Mode registers, we have to write to the stack
     #Then the new values will be incorperated when we restore them from the stack later
 
-    #Restore the M-Mode global and thread pointers in case the functions we call later are C functions and depend on these
+    #Restore the M-Mode global and thread pointers so C and assembly code can access global variables
     call restore_mmode_gp_tp
 
     #There are no other M-Mode registers to restore, since this is an entry back into M-mode.

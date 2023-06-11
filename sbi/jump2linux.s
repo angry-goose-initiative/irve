@@ -10,7 +10,7 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
     #Preserve the M-Mode stack pointer in mscratch
     csrw mscratch, sp
 
-    #Preserve the M-Mode global and thread pointers so C code can handle exceptions (they will need to be restored later)
+    #Preserve the M-Mode global and thread pointers so C and assembly code can access global variables (they will need to be restored later)
     call preserve_mmode_gp_tp
 
     #NOTE: There is no point in saving any other registers since this function is noreturn. So we needn't
