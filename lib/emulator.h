@@ -23,25 +23,55 @@
 namespace irve::internal::emulator {
     class emulator_t {
     public:
+
+        /**
+         * @brief The constructor
+        */
         emulator_t();
 
-        bool tick();//Returns true as long as the emulator should continue running
-         
-        //Runs the emulator until the given instruction count is reached or an exit request is made
-        //For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+        /**
+         * @brief TODO
+         * @return True as long as the emulator should continue running
+        */
+        bool tick();
+        
+        /**
+         * @brief Runs the emulator until the given instruction count is reached or an exit request is made.
+         *        For dynamic linking to libirve, this is more efficient than calling tick() in a loop.
+         * @param inst_count TODO
+        */
         void run_until(uint64_t inst_count);
 
+        /**
+         * @brief TODO
+         * @return TODO
+        */
         uint64_t get_inst_count() const;
-
-        int8_t mem_read_byte(word_t addr) const;
-        void mem_write(word_t addr, uint8_t size, word_t data);
 
     private:
 
-        word_t fetch() const;
+        /**
+         * @brief TODO
+         * @return TODO
+        */
+        word_t fetch();
+
+        /**
+         * @brief TODO
+         * @param decoded_inst TODO
+        */
         void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
 
+        /**
+         * @brief TODO
+         * @param cause TODO
+        */
         void handle_interrupt(rvexception::cause_t cause);
+
+        /**
+         * @brief TODO
+         * @param cause TODO
+        */
         void handle_exception(rvexception::cause_t cause);
         
         CSR::CSR_t m_CSR;

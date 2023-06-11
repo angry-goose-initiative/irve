@@ -14,6 +14,17 @@
 
 #include <cstdint>
 
+/* Constants and Defines */
+
+// DT prefix stands for 'data type'
+#define DT_BYTE                0b000
+#define DT_HALFWORD            0b001
+#define DT_WORD                0b010
+#define DT_SIGNED_BYTE         0b000
+#define DT_SIGNED_HALFWORD     0b001
+#define DT_UNSIGNED_BYTE       0b100
+#define DT_UNSIGNED_HALFWORD   0b101
+
 /* Types */
 
 namespace irve::internal {//Exception: Not irve::internal::common since it is, after all, "common"
@@ -77,7 +88,10 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
         word_t sign_extend_from_bit_number(uint8_t bit) const;//Sign extend from a bit upward to 32 bits
         word_t sign_extend_from_size(uint8_t original_size) const;//Sign extend from a size to 32 bits
 
+        // Interpret word as unsigned integer
         uint32_t u;
+
+        // Interpret word as signed integer
         int32_t s;
     } word_t;
 

@@ -72,7 +72,8 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
     if (inst_count) {
         //Run until the given instruction count is reached or an exit request is made
         while ((this->get_inst_count() < inst_count) && this->tick());
-    } else {
+    }
+    else {
         //The only exit criteria is an exit request
         while (this->tick());
     }
@@ -82,24 +83,16 @@ uint64_t emulator::emulator_t::get_inst_count() const {
     return INST_COUNT;
 }
 
-int8_t emulator::emulator_t::mem_read_byte(word_t addr) const {
-    return (int8_t)this->m_memory.r(addr, 0b000).u;
-}
-
-void emulator::emulator_t::mem_write(word_t addr, uint8_t size, word_t data) {
-    this->m_memory.w(addr, size, data);
-}
-
-word_t emulator::emulator_t::fetch() const {
+word_t emulator::emulator_t::fetch() {
     //Throw an exception if the PC is not aligned to a word boundary
     //TODO priority of this exception vs. others?
     if ((this->m_cpu_state.get_pc().u % 4) != 0) {
         invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
     }
 
-    //Read a word from memory at the PC (using a "funct3" of 0b010 to get 32 bits)
+    //Read a word from memory at the PC
     //NOTE: It may throw an exception for various reasons
-    word_t inst = this->m_memory.r(this->m_cpu_state.get_pc(), 0b010);
+    word_t inst = this->m_memory.instruction(this->m_cpu_state.get_pc());
 
     //Log what we fetched and return it
     irvelog(1, "Fetched 0x%08x from 0x%08x", inst, this->m_cpu_state.get_pc());

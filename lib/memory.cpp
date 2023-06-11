@@ -30,105 +30,117 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-//Virtual memory
+// `memory_t` Function Implementations
 
-// All of memory is initialized to 0
-memory::memory_t::memory_t(CSR::CSR_t& CSR_ref): m_mem(), m_CSR_ref(CSR_ref) {
+memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
+        m_mem(),
+        m_CSR_ref(CSR_ref) {
     irvelog(1, "Created new Memory instance");
 }
 
-// Read from memory
-word_t memory::memory_t::r(word_t addr, int8_t func3) const {
+word_t memory::memory_t::instruction(word_t addr) {
+    uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
+    return read_physical(machine_addr, DT_WORD);
+}
 
-    // inaccessable address exceptions:
-    //  - vacant addresses are never accessible
+word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
+    assert((data_type <= 0b111) && "Invalid funct3");
 
-    // should memory accesses be word-aligned? (if misaligned is allowed caching will be harder)
+    uint64_t machine_addr = translate_address(addr, AT_LOAD);
 
-    // refuse to run RVTSO binaries?
+    return read_physical(machine_addr, data_type);
+}
 
-    assert((func3 >= 0b000) && (func3 <= 0b111) && "Invalid func3");
-    //TODO from now on exceptions for invalid physical memory accesses will be thrown by pmemory_t instead
-    //TODO we will have to handle page faults here though
-    //assert((addr < MEMSIZE) && "Invalid memory address");  // TODO throw exceptions to be caught?
-    //assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
+void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
+    assert((data_type <= 0b010) && "Invalid funct3");
 
-    //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
+    uint64_t machine_addr = translate_address(addr, AT_STORE);
 
-    if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
-    } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    // 2^(funct3[1:0]) is the number of bytes
+    int8_t byte = (int8_t)spow(2, data_type & 0b11);
+
+    // Check that all bytes are writable before any byte is written to
+    for(int i = 0; i<byte; ++i) {
+        this->m_mem.check_writable_byte(machine_addr + i);
     }
 
-    // MSB of func3 determines signed/unsigned
-    bool isUnsigned = func3 >> 2;
-    // 2^(func3[1:0]) is the number of bytes
-    int8_t byte = (int8_t)(spow(2, func3 % 4) - 1);
+    // If all bytes are writable, then write to each byte
+    for(int i = 0; i<byte; ++i) {
+        this->m_mem.write_byte(machine_addr + i, (uint8_t)data.srl(8 * i).u);
+    }
 
-    word_t data = m_mem.r(addr + byte) << (byte * 8);
+    // Check for misaligned access
+    // Note that this happens AFTER writing to physical memory because access faults take
+    // priority over misaligned faults
+    if (((data_type & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
+        // Misaligned halfword read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+    else if ((data_type == 0b010) && ((addr.u % 4) != 0)) {
+        // Misaligned word read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+}
 
-    // The casting above sign extends so if the number is unsigned then we need
-    // to remove the sign extention
-    if (isUnsigned) data &= (0xFF << (byte * 8));
-    --byte;
-    
+uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
+    if(1) { //TODO condition for no address translation
+        return (uint64_t)untranslated_addr.u;
+    }
+    int i = 1;
+    uint64_t machine_addr{};
+    uint32_t a = satp_PPN * PAGESIZE;
+    uint64_t pte_addr = a + va_VPN(untranslated_addr, i) * 4;
+    word_t pte = read_physical(pte_addr, DT_WORD);
+    // If the pte is not valid or the page is writable and not readable, raise a page-fault
+    // exception corresponding to the access type
+    if(pte_V(pte) == 0 || (pte_R(pte) == 0 && pte_W(pte) == 1)) {
+        invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+    }
+    // TODO more steps
+    machine_addr = untranslated_addr.bits(12,0).u;
+
+    return machine_addr;
+}
+
+word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
+
+    // 2^(funct3[1:0]) is the number of bytes
+    int8_t byte = (int8_t)(spow(2, data_type & 0b11) - 1);
+
+    word_t data;
+
     for(; byte > -1; --byte) {
-        data |= (m_mem.r(addr + byte) & 0xFF) << (byte * 8);
+        data |= this->m_mem.read_byte(addr + byte) << (byte * 8);
     }
 
-    //Perform sign extension if necessary
-    if (func3 == 0b000) {//lb
-        return data.sign_extend_from_size(8);
-    } else if (func3 == 0b001) {//lh
-        return data.sign_extend_from_size(16);
-    } else {
-        return data;
+    // Perform sign extension if necessary
+    if (data_type == DT_SIGNED_BYTE) {
+        data = data.sign_extend_from_size(8);
     }
+    else if (data_type == DT_SIGNED_HALFWORD) {
+        data = data.sign_extend_from_size(16);
+    }
+
+    // Check for misaligned access
+    // Note that this happens AFTER reading from physical memory because access faults take
+    // priority over misaligned faults
+    if (((data_type & 0b11) == 0b001) && ((addr % 2) != 0)) {
+        // Misaligned halfword read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+    else if ((data_type == 0b010) && ((addr % 4) != 0)) {
+        // Misaligned word read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+
+    return data;
 }
 
-// Write to memory
-void memory::memory_t::w(word_t addr, int8_t func3, word_t data) {
-    if (((func3 & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
-    } else if ((func3 == 0b010) && ((addr.u % 4) != 0)) {
-        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
-    }
+// `pmemory_t` Function Implementations
 
-    //FIXME to pass the unit test we need to ask physical memory if it is valid to read a particular size from an address
-
-    assert((func3 >= 0b000) && (func3 <= 0b010) && "Invalid func3");
-    //TODO from now on exceptions for invalid physical memory accesses will be thrown by pmemory_t instead
-    //TODO we will have to handle page faults here though
-    //assert((addr < MEMSIZE) && "Invalid memory address"); // TODO throw exceptions to be caught?
-    //assert(((addr + pow(2, func3%4) - 1) < MEMSIZE) && "Invalid memory address");
-
-    // 2^(func3[1:0]) is the number of bytes
-    int8_t byte = (int8_t)spow(2, func3 % 4);
-
-    for(int i{}; i<byte; ++i) {
-        m_mem.w(addr + i, (data.srl(8 * i) & 0xFF).u);
-    }
-}
-
-// TODO integrate with logging or delete
-// Prints the 8 bytes at and following the specified address in hex
-void memory::memory_t::p(word_t addr) const {
-
-    for(int byte{}; byte<8; ++byte) {
-        // top 4 bits
-        std::cout << std::hex << ((m_mem.r(addr + byte) >> 4) & 0xF);
-        // bottom 4 bits
-        std::cout << std::hex << (m_mem.r(addr + byte) & 0xF);
-        std::cout << " ";
-    }
-    std::cout << std::endl;
-}
-
-//Physical memory
-
-memory::pmemory_t::pmemory_t(): m_ram(new uint8_t[RAMSIZE]) {
+memory::pmemory_t::pmemory_t():
+        m_ram(new uint8_t[RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
     std::memset(this->m_ram.get(), 0, RAMSIZE);
 }
@@ -139,39 +151,55 @@ memory::pmemory_t::~pmemory_t() {
     }
 }
 
-uint8_t memory::pmemory_t::r(word_t addr) const {
+uint8_t memory::pmemory_t::read_byte(uint64_t addr) const {
     //TODO add mtime and mtimecmp registers
 
-    if (addr.u >= RAMSIZE) {
+    if (addr >= RAMSIZE) {
         invoke_rv_exception(LOAD_ACCESS_FAULT);
     }
 
     //TODO add MMIO devices that provide data as things progress
     
-    return this->m_ram[addr.u];
+    return this->m_ram[addr];
 }
 
-void memory::pmemory_t::w(word_t addr, uint8_t data) {
+void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
     //TODO other MMIO devices
-    
-    if (addr == DEBUGADDR) {//Debug output
-        //End of line; print the debug string
-        if (data == '\n') {
-            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
-            this->m_debugstr.clear();
-        } else if (data == '\0') {
-            irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
-            this->m_debugstr.clear();
-        } else {
-            this->m_debugstr.push_back((char)data);
-        }
 
-        return;
-    } else {//RAM
-        if (addr.u >= RAMSIZE) {
-            invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
-        }
+    switch (addr) {
+        case DEBUGADDR:
+            //End of line; print the debug string
+            if (data == '\n') {
+                irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+                this->m_debugstr.clear();
+            }
+            else if (data == '\0') {
+                irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
+                this->m_debugstr.clear();
+            }
+            else {
+                this->m_debugstr.push_back((char)data);
+            }
+            break;
+        default:
+            // Not MMIO
+            if (addr >= RAMSIZE) {
+                assert(false && "Use `check_writable_byte` first");
+            }
+            this->m_ram[addr] = data;
+            break;
+    }
+}
 
-        this->m_ram[addr.u] = data;
+void memory::pmemory_t::check_writable_byte(uint64_t addr) {
+    switch (addr) {
+        case DEBUGADDR:
+            break;
+        default:
+            // Not MMIO
+            if (addr >= RAMSIZE) {
+                invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+            }
+            break;
     }
 }

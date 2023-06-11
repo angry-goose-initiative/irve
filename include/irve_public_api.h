@@ -72,9 +72,6 @@ namespace irve {//NOT irve::internal
 
             uint64_t get_inst_count() const;
 
-            uint8_t mem_read_byte(uint32_t addr) const;
-            void mem_write_byte(uint32_t addr, uint8_t data);
-
             //TODO how to best expose CPU state to the user for them to modify/read? (particularly for integration testing)
         private:
             friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
