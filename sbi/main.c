@@ -13,31 +13,14 @@
 #define KERNEL_ADDR 0xC0000000
 #define DTB_ADDR 0xDEADBEEF//TODO
 
-//SBI Constants
-#define SBI_SUCCESS                 0
-#define SBI_ERR_FAILED              -1
-#define SBI_ERR_NOT_SUPPORTED       -2
-#define SBI_ERR_INVALID_PARAM       -3
-#define SBI_ERR_DENIED              -4
-#define SBI_ERR_INVALID_ADDRESS     -5
-#define SBI_ERR_ALREADY_AVAILABLE   -6
-#define SBI_ERR_ALREADY_STARTED     -7
-#define SBI_ERR_ALREADY_STOPPED     -8
-#define SBI_ERR_INVALID_HART_ID     -9
-
 /* Includes */
+
+#include "asm_c_interface.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include "irve.h"
-
-/* Types */
-
-typedef struct {
-    long error;//a0
-    long value;//a1
-} sbiret_t;
 
 /* Macros */
 
@@ -48,10 +31,6 @@ typedef struct {
 #define dputs(str) do {} while (0)
 #define dprintf(...) do {} while (0)
 #endif
-
-/* External Function Declarations */
-
-void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr);
 
 /* Static Function Declarations */
 
@@ -104,11 +83,23 @@ sbiret_t handle_smode_ecall(
     switch (EID) {
         case 0x10:
             dputs("Base Extension");
-            assert(false && "TODO implement");//TODO
+            switch (FID) {
+                case 0:
+                    dputs("Function: sbi_get_spec_version()\n");
+                    result.error = SBI_SUCCESS;
+                    result.value = 0b00000001000000000000000000000000;//We implement Version 1.0.0 (the latest)
+                    break;
+                //TODO others
+                default:
+                    dputs("Invalid or unsupported Base Extension function!");
+                    result.error = SBI_ERR_NOT_SUPPORTED;
+                    break;
+            }
             break;
         default:
-            dputs("Invalid or unsupported SBI call!");
+            dputs("Invalid or unsupported SBI extension!");
             result.error = SBI_ERR_NOT_SUPPORTED;
+            break;
     }
 
     return result;
