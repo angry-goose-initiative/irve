@@ -49,12 +49,6 @@ typedef struct {
 #define dprintf(...) do {} while (0)
 #endif
 
-/* Variables */
-
-//Needs to be preserved so, when returning from S-Mode, we can still use C if the compiler depends on these
-uint32_t mmode_preserved_gp;
-uint32_t mmode_preserved_tp;
-
 /* External Function Declarations */
 
 void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr);
@@ -71,8 +65,8 @@ int main() {
 
     dputs("Configuration Info:");
     dprintf("  HART_ID:     %d\n",   HART_ID);
-    dprintf("  DTB_ADDR:    0x%x\n", DTB_ADDR);
-    dprintf("  KERNEL_ADDR: 0x%x\n", KERNEL_ADDR);
+    dprintf("  DTB_ADDR:    0x%X\n", DTB_ADDR);
+    dprintf("  KERNEL_ADDR: 0x%X\n", KERNEL_ADDR);
 
     dputs("Delegating all interrupts and exceptions to M-Mode...");
     __asm__ volatile("csrrw zero, medeleg, zero");//All exceptions are handled in M-Mode
@@ -97,14 +91,14 @@ sbiret_t handle_smode_ecall(
     uint32_t EID __attribute__((unused))
 ) {
     dputs("Recieved S-Mode ECALL");
-    dprintf("  a0:  0x%lx\n", a0);
-    dprintf("  a1:  0x%lx\n", a1);
-    dprintf("  a2:  0x%lx\n", a2);
-    dprintf("  a3:  0x%lx\n", a3);
-    dprintf("  a4:  0x%lx\n", a4);
-    dprintf("  a5:  0x%lx\n", a5);
-    dprintf("  FID: 0x%lx\n", FID);
-    dprintf("  EID: 0x%lx\n", EID);
+    dprintf("  a0:  0x%lX\n", a0);
+    dprintf("  a1:  0x%lX\n", a1);
+    dprintf("  a2:  0x%lX\n", a2);
+    dprintf("  a3:  0x%lX\n", a3);
+    dprintf("  a4:  0x%lX\n", a4);
+    dprintf("  a5:  0x%lX\n", a5);
+    dprintf("  FID: 0x%lX\n", FID);
+    dprintf("  EID: 0x%lX\n", EID);
 
     sbiret_t result;
     switch (EID) {

@@ -27,7 +27,7 @@ set(OBJCOPY riscv32-unknown-elf-objcopy)
 
 #Compile options
 #TODO DON'T USE -ffreestanding for files that use Newlib or the special case hello_newlib.c
-set(COMMON_FLAGS "-std=gnu18 -Wall -Wextra -Werror -march=rv32imazicsr -mabi=ilp32 -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align -T ${CMAKE_CURRENT_SOURCE_DIR}/irvesbi.ld")
+set(COMMON_FLAGS "-std=gnu18 -fomit-frame-pointer -Wall -Wextra -Werror -march=rv32imazicsr -mabi=ilp32 -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align -T ${CMAKE_CURRENT_SOURCE_DIR}/irvesbi.ld")
 set(COMMON_FLAGS_DEBUG "-O0 -g3")
 set(COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
@@ -40,6 +40,7 @@ set(CMAKE_ASM_FLAGS_RELEASE "${COMMON_FLAGS_RELEASE}")
 
 set(IRVE_SBI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/exception_entry.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/gp_tp_preserve_restore.s
     ${CMAKE_CURRENT_SOURCE_DIR}/jump2linux.s
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
 )

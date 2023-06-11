@@ -44,17 +44,15 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     sw x30, 116(sp)
     sw x31, 120(sp)
 
-    #Now we can clobber registers and still get them back later
+    #Now we can clobber registers and still get S-Mode ones back later
     #If we actually want to update S-Mode registers, we have to write to the stack
     #Then the new values will be incorperated when we restore them from the stack later
 
-    #Restore the M-Mode global and thread pointers (pc-relative so this should work)
-    la t0, mmode_preserved_gp
-    la t1, mmode_preserved_tp
-    lw gp, 0(t0)
-    lw tp, 0(t1)
+    #Restore the M-Mode global and thread pointers in case the functions we call later are C functions and depend on these
+    call restore_mmode_gp_tp
 
-    #There are no other M-Mode registers to restore. See jump2linux.s for why.
+    #There are no other M-Mode registers to restore, since this is an entry back into M-mode.
+    #See jump2linux.s for more info
 
     #Read mcause into t0. If it is 9 (an S-Mode ECALL), then jump to is_smode_ecall
     csrr t0, mcause
@@ -67,6 +65,7 @@ isnt_smode_ecall:
     #Ex. we could have to emulate an instruction in this case
     #Also note that if it needs to modify the S-Mode PC, it must instead modify mscratch rather than the stack
     #Thus with this calling convention, we make no guarantees about what happens to arguments or return values, other than that ra is set such that we will return here
+    #TODO actually we could setup a pointer to the stack containing the array of registers in a0, and then actually change to also preserving the sp on the stack too
     call handle_other_exceptions
     j return_from_exception
 
@@ -81,11 +80,8 @@ is_smode_ecall:
     sw a1, 40(sp)
 
 return_from_exception:
-    #Preserve the M-Mode global and thread pointers (pc-relative so this should work)
-    la t0, mmode_preserved_gp
-    la t1, mmode_preserved_tp
-    sw gp, 0(t0)
-    sw tp, 0(t1)
+    #Preserve the M-Mode global and thread pointers again
+    call preserve_mmode_gp_tp
 
     #Pop all S-Mode registers from the stack (full descending), except for sp since it is saved in mscratch
     lw x1, 0(sp)
