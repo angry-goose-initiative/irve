@@ -13,6 +13,18 @@
 #define KERNEL_ADDR 0xC0000000
 #define DTB_ADDR 0xDEADBEEF//TODO
 
+//SBI Constants
+#define SBI_SUCCESS                 0
+#define SBI_ERR_FAILED              -1
+#define SBI_ERR_NOT_SUPPORTED       -2
+#define SBI_ERR_INVALID_PARAM       -3
+#define SBI_ERR_DENIED              -4
+#define SBI_ERR_INVALID_ADDRESS     -5
+#define SBI_ERR_ALREADY_AVAILABLE   -6
+#define SBI_ERR_ALREADY_STARTED     -7
+#define SBI_ERR_ALREADY_STOPPED     -8
+#define SBI_ERR_INVALID_HART_ID     -9
+
 /* Includes */
 
 #include <assert.h>
@@ -25,7 +37,7 @@
 typedef struct {
     long error;//a0
     long value;//a1
-} sbiret;
+} sbiret_t;
 
 /* Macros */
 
@@ -74,7 +86,7 @@ int main() {
     assert(false && "We should never get here!");
 }
 
-sbiret handle_smode_ecall(
+sbiret_t handle_smode_ecall(
     uint32_t a0  __attribute__((unused)), 
     uint32_t a1  __attribute__((unused)),
     uint32_t a2  __attribute__((unused)),
@@ -85,10 +97,27 @@ sbiret handle_smode_ecall(
     uint32_t EID __attribute__((unused))
 ) {
     dputs("Recieved S-Mode ECALL");
+    dprintf("  a0:  0x%lx\n", a0);
+    dprintf("  a1:  0x%lx\n", a1);
+    dprintf("  a2:  0x%lx\n", a2);
+    dprintf("  a3:  0x%lx\n", a3);
+    dprintf("  a4:  0x%lx\n", a4);
+    dprintf("  a5:  0x%lx\n", a5);
     dprintf("  FID: 0x%lx\n", FID);
     dprintf("  EID: 0x%lx\n", EID);
 
-    assert(false && "TODO implement");//TODO actually implement SBI calls
+    sbiret_t result;
+    switch (EID) {
+        case 0x10:
+            dputs("Base Extension");
+            assert(false && "TODO implement");//TODO
+            break;
+        default:
+            dputs("Invalid or unsupported SBI call!");
+            result.error = SBI_ERR_NOT_SUPPORTED;
+    }
+
+    return result;
 }
 
 void handle_other_exceptions(/* TODO decide args, if we actualy will be doing this in C at all */) {

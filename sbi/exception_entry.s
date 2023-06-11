@@ -13,7 +13,7 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     #Push all S-Mode registers onto the stack (full descending), except for sp since it is already saved in mscratch
     addi sp, sp, 31 * -4#Make room on the stack
     sw x1, 0(sp)
-    #sw x2, 4(sp)#Skip sp
+    sw zero, 4(sp)#sw x2, 4(sp)#Skip sp, and instead push a nonsensical 0 to aid in debugging
     sw x3, 8(sp)
     sw x4, 12(sp)
     sw x5, 16(sp)
@@ -48,11 +48,11 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
     #If we actually want to update S-Mode registers, we have to write to the stack
     #Then the new values will be incorperated when we restore them from the stack later
 
-    #Restore the M-Mode global and thread pointers
+    #Restore the M-Mode global and thread pointers (pc-relative so this should work)
     la t0, mmode_preserved_gp
+    la t1, mmode_preserved_tp
     lw gp, 0(t0)
-    la t0, mmode_preserved_tp
-    lw tp, 0(t0)
+    lw tp, 0(t1)
 
     #There are no other M-Mode registers to restore. See jump2linux.s for why.
 
@@ -65,7 +65,7 @@ isnt_smode_ecall:
     #The function will have to get the registers it needs from the stack, and update the values on the stack which we will restore later
     #(we aren't using the standard calling convention here since, unlike SBI calls, we aren't guaranteed that all info we need is in a0 thru a7)
     #Ex. we could have to emulate an instruction in this case
-    #Also an exception is that if it needs to modify the S-Mode PC, it must instead modify mscratch
+    #Also note that if it needs to modify the S-Mode PC, it must instead modify mscratch rather than the stack
     #Thus with this calling convention, we make no guarantees about what happens to arguments or return values, other than that ra is set such that we will return here
     call handle_other_exceptions
     j return_from_exception
@@ -81,15 +81,15 @@ is_smode_ecall:
     sw a1, 40(sp)
 
 return_from_exception:
-    #Preserve the M-Mode global and thread pointers
+    #Preserve the M-Mode global and thread pointers (pc-relative so this should work)
     la t0, mmode_preserved_gp
+    la t1, mmode_preserved_tp
     sw gp, 0(t0)
-    la t0, mmode_preserved_tp
-    sw tp, 0(t0)
+    sw tp, 0(t1)
 
     #Pop all S-Mode registers from the stack (full descending), except for sp since it is saved in mscratch
     lw x1, 0(sp)
-    #lw x2, 4(sp)#sp
+    #lw x2, 4(sp)#Skip sp
     lw x3, 8(sp)
     lw x4, 12(sp)
     lw x5, 16(sp)
