@@ -61,12 +61,24 @@ __riscv_synchronous_exception_and_user_mode_swi_handler:
 
 isnt_smode_ecall:
     #The function will have to get the registers it needs from the stack, and update the values on the stack which we will restore later
-    #(we aren't using the standard calling convention here since, unlike SBI calls, we aren't guaranteed that all info we need is in a0 thru a7)
     #Ex. we could have to emulate an instruction in this case
-    #Also note that if it needs to modify the S-Mode PC, it must instead modify mscratch rather than the stack
-    #Thus with this calling convention, we make no guarantees about what happens to arguments or return values, other than that ra is set such that we will return here
-    #TODO actually we could setup a pointer to the stack containing the array of registers in a0, and then actually change to also preserving the sp on the stack too
-    call handle_other_exceptions
+    #We thus copy the S-Mode in mscratch currently into the stack at where sp would have otherwise been
+    #We will then copy this back from the stack into mscratch before jumping to return_from_exception
+    #Then we can just pass a pointer to the registers on the stack to the function, and use the normal calling convention!
+
+    csrr t0, mscratch#t0 contains the S-Mode SP
+    sw t0, 4(sp)#Store the S-Mode SP on the stack, at where sp would have otherwise been
+
+    #Setup and execute the call
+    mv a0, sp#Pass a pointer to the S-Mode registers on the stack (which is just the M-Mode stack pointer)
+    csrr a1, mcause#Pass the mcause as well for convenience
+    csrr a2, mepc#Pass the mepc as well for convenience
+    call handle_other_exceptions#void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc);
+
+    #Move the potentially updated S-Mode SP on the stack back into mscratch
+    lw t0, 4(sp)#Load the (potentially updated) S-Mode SP from the stack, at where sp would have otherwise been
+    csrw mscratch, t0#Store the (potentially updated) S-Mode SP back mscratch as the return_from_exception code expects
+
     j return_from_exception
 
 is_smode_ecall:
@@ -76,6 +88,7 @@ is_smode_ecall:
     call handle_smode_ecall
     #The result is in M-Mode registers a0 and a1. However, we need to update the S-Mode registers a0 and a1
     #These are currently stored on the stack. So copy the new a0 and a1 to the proper places on the stack
+    #In this way we give return_from_exception what it expects
     sw a0, 36(sp)
     sw a1, 40(sp)
 

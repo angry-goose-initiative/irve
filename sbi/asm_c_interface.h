@@ -55,6 +55,6 @@ sbiret_t handle_smode_ecall(
     uint32_t EID __attribute__((unused))
 );
 
-void handle_other_exceptions(/* TODO decide args, if we actualy will be doing this in C at all */);
+void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc);
 
 #endif//ASM_C_INTERFACE_H

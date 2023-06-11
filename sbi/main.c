@@ -25,8 +25,8 @@
 /* Macros */
 
 #ifndef NDEBUG
-#define dputs(str) puts(str)
-#define dprintf(...) printf(__VA_ARGS__)
+#define dputs(str) puts("IRVESBI> " str)
+#define dprintf(...) printf("IRVESBI> " __VA_ARGS__)
 #else
 #define dputs(str) do {} while (0)
 #define dprintf(...) do {} while (0)
@@ -105,8 +105,15 @@ sbiret_t handle_smode_ecall(
     return result;
 }
 
-void handle_other_exceptions(/* TODO decide args, if we actualy will be doing this in C at all */) {
-    assert(false && "TODO this function will need to be done in assembly as it needs fine-grained control of registers and the stack");
+void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc) {
+    dputs("Recieved a non-S-Mode-ECALL exception");
+    for (int i = 1; i < 32; i++) {
+        dprintf("  x%d:\t0x%lX\n", i, registers[i - 1]);
+    }
+    dprintf("  mcause: 0x%lX\n", mcause);
+    dprintf("  mepc:   0x%lX\n", mepc);
+
+    assert(false && "TODO implement");
 }
 
 /* Static Function Implementations */
