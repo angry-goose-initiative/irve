@@ -53,7 +53,7 @@ int main() {
 
     //TODO do other initialization stuff here
 
-    dputs("Jumping to Linux...");
+    dputs("Jumping to the kernel, cya later!");
     jump2linux(HART_ID, DTB_ADDR, KERNEL_ADDR);//Never returns
 
     assert(false && "We should never get here!");

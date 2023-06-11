@@ -18,6 +18,11 @@
 
 /* Function/Class Declarations */
 
+/**
+ * @brief The internal irve namespace for executing RISC-V instructions
+ *
+ * Split into functions by major (5-bit) opcode
+*/
 namespace irve::internal::execute {
     void load    (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR);
     void custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory,       CSR::CSR_t& CSR);

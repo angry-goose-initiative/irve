@@ -165,7 +165,7 @@ namespace irve {//NOT irve::internal
             /**
              * @brief Emulate one instruction
             */
-            bool tick();//Returns true as long as the emulator should continue running
+            bool tick();//Returns true if the emulator should continue running
 
             /**
              * @brief Repeatedly emulate instructions

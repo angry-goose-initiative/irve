@@ -20,23 +20,57 @@
 
 /* Types */
 
+/**
+ * @brief The namespace containing the actual emulator_t class (internal)
+*/
 namespace irve::internal::emulator {
+    /**
+     * @brief The main IRVE emulator class (internal)
+    */
     class emulator_t {
     public:
+        /**
+         * @brief Construct a new emulator_t
+        */
         emulator_t();
 
-        bool tick();//Returns true as long as the emulator should continue running
+        /**
+         * @brief Emulate one instruction
+        */
+        bool tick();//Returns true if the emulator should continue running
          
-        //Runs the emulator until the given instruction count is reached or an exit request is made
-        //For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+        /**
+         * @brief Repeatedly emulate instructions
+         * @param inst_count The value of minstret at which to stop
+         * Runs the emulator until the given instruction count is reached or an exit request is made
+         * For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+         *
+        */
         void run_until(uint64_t inst_count);
 
+        /**
+         * @brief Get the current instruction count
+         * @return minstret
+        */
         uint64_t get_inst_count() const;
 
+        /**
+         * @brief Read a byte from memory
+         * @param addr The address to read from
+         * @return The byte at the given address
+        */
         int8_t mem_read_byte(word_t addr) const;
+
+        /**
+         * @brief Write a byte to memory
+         * @param addr The address to write to
+         * @param data The byte to write
+        */
         void mem_write(word_t addr, uint8_t size, word_t data);
 
     private:
+        
+        //TODO document these as well
 
         word_t fetch() const;
         void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
