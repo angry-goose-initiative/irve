@@ -107,8 +107,8 @@ sbiret_t handle_smode_ecall(
 
 void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc) {
     dputs("Recieved a non-S-Mode-ECALL exception");
-    for (int i = 1; i < 32; i++) {
-        dprintf("  x%d:\t0x%lX\n", i, registers[i - 1]);
+    for (int i = 0; i < 31; ++i) {
+        dprintf("  x%d:\t0x%lX\n", i + 1, registers[i]);
     }
     dprintf("  mcause: 0x%lX\n", mcause);
     dprintf("  mepc:   0x%lX\n", mepc);
