@@ -88,8 +88,62 @@ sbiret_t handle_smode_ecall(
                     dputs("Function: sbi_get_spec_version()\n");
                     result.error = SBI_SUCCESS;
                     result.value = 0b00000001000000000000000000000000;//We implement Version 1.0.0 (the latest)
+                    dprintf("  SBI Spec Version: 0x%lX\n", result.value);
                     break;
-                //TODO others
+                case 1:
+                    dputs("Function: sbi_get_impl_id()\n");
+                    result.error = SBI_SUCCESS;
+                    result.value = 0xABCD1234;//TODO we'd likely need to ask the foundation for an ID
+                    dprintf("  Implementation ID: 0x%lX\n", result.value);
+                    break;
+                case 2:
+                    dputs("Function: sbi_get_impl_version()\n");
+                    result.error = SBI_SUCCESS;
+                    result.value = 0;//TODO decide how we'll encode version information
+                    dprintf("  Implementation Version: 0x%lX\n", result.value);
+                    break;
+                case 3:
+                    dputs("Function: sbi_probe_extension()\n");
+                    result.error = SBI_SUCCESS;
+                    switch (a0) {
+                        case 0x10: result.value = 1; break;//Base Extension
+                        default:   result.value = 0; break;//Unsupported or non-existent extension
+                    }
+                    dprintf("  Extension 0x%lX is %s\n", a0, result.value ? "supported" : "unsupported");
+                    break;
+                case 4:
+                    dputs("Function: sbi_get_mvendorid()\n");
+                    result.error = SBI_SUCCESS;
+                    __asm__ volatile (
+                        "csrr %[rd], mvendorid"
+                        : [rd] "=r" (result.value)
+                        : /* No source registers */
+                        : /* No clobbered registers */
+                    );
+                    dprintf("  mvendorid: 0x%lX\n", result.value);
+                    break;
+                case 5:
+                    dputs("Function: sbi_get_marchid()\n");
+                    result.error = SBI_SUCCESS;
+                    __asm__ volatile (
+                        "csrr %[rd], marchid"
+                        : [rd] "=r" (result.value)
+                        : /* No source registers */
+                        : /* No clobbered registers */
+                    );
+                    dprintf("  marchid: 0x%lX\n", result.value);
+                    break;
+                case 6:
+                    dputs("Function: sbi_get_mimpid()\n");
+                    result.error = SBI_SUCCESS;
+                    __asm__ volatile (
+                        "csrr %[rd], mimpid"
+                        : [rd] "=r" (result.value)
+                        : /* No source registers */
+                        : /* No clobbered registers */
+                    );
+                    dprintf("  mimpid: 0x%lX\n", result.value);
+                    break;
                 default:
                     dputs("Invalid or unsupported Base Extension function!");
                     result.error = SBI_ERR_NOT_SUPPORTED;
@@ -112,6 +166,10 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
     }
     dprintf("  mcause: 0x%lX\n", mcause);
     dprintf("  mepc:   0x%lX\n", mepc);
+
+    //TODO if the kernel is paging part of itself out, it may need the ex. page faults delegated to it, not use UMode ecalls
+    //Similarly for access faults potentially...
+    //We may need to delegate more than we think to S-Mode
 
     switch (mcause) {
         case 0://INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION
