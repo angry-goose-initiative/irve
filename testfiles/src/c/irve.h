@@ -15,6 +15,8 @@
 
 /* Constants And Defines */
 
+//These only work in M-Mode
+
 #define IRVE_DEBUG_ADDR (*(volatile char*)(0xFFFFFFFF))
 
 //The while(true) convinces the compiler that this is a dead end,

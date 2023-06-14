@@ -79,6 +79,9 @@ add_library(irvenewlib_static STATIC $<TARGET_OBJECTS:irvenewlib>)
 set_property(TARGET irvenewlib_static PROPERTY OUTPUT_NAME irvenewlib)
 target_link_libraries(irvenewlib_static irvervc_static)
 
+#Same things, but for S-Mode programs
+#TODO
+
 ###############################################################################
 # Test executables
 ###############################################################################
