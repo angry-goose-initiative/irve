@@ -1,3 +1,3 @@
 [submodule "rvsw"]
-	path = rvsw
+	path = rvsw/rvsw
 	url = https://github.com/JZJisawesome/rvsw
