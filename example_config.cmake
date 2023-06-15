@@ -5,7 +5,15 @@
 # Example configuration file for rvsw
 #
 
-set(RVSW_MMODE_LD_SCRIPT "path/to/linker/script.ld")#Your linker script here
+set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)  
+set(CMAKE_ASM_COMPILER riscv32-unknown-elf-gcc)
+set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
+
+set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")
+set(RVSW_COMMON_FLAGS_DEBUG "-O0 -g3")
+set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+
+set(RVSW_MMODE_LD_SCRIPT "path/to/linker/script.ld")#Your linker script here (relative to the root of the rvsw checkout)
 set(RVSW_ENTRY_ADDR "0x00000000")#Your entry address here
 set(RVSW_MTVEC_IS_HARDWIRED "Vectored")#Uncomment if not hardwired, else "Direct" if direct, or "Vectored" if vectored
 set(RVSW_MTVEC_HARDWIRED_ADDR "0x00000004")#MTVEC hardwired address if applicable
