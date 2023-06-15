@@ -20,6 +20,10 @@ else()
     include(${RVSW_CONFIG_PATH})
 endif()
 
+#Add options specified by other RVSW config options to the build command line
+#FIXME the linker script will be different for S-Mode
+set(RVSW_COMMON_FLAGS "${RVSW_COMMON_FLAGS} -march=${RVSW_MARCH} -mabi=${RVSW_MABI} -T ${RVSW_MMODE_LD_SCRIPT}")
+
 set(CMAKE_C_FLAGS "${RVSW_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${RVSW_COMMON_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${RVSW_COMMON_FLAGS_DEBUG}")
