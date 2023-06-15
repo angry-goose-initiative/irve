@@ -14,8 +14,9 @@ project(rvsw VERSION 0.0.0 LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (NOT RVSW_CONFIG_PATH)
-    error("The CMake variable RVSW_CONFIG_PATH must be set to the path of the rvsw config file. Bailing out.")
+    message(FATAL_ERROR "The CMake variable RVSW_CONFIG_PATH must be set to the path of the rvsw config file. Bailing out.")
 else()
+    message("Using the rvsw config file at ${RVSW_CONFIG_PATH}")
     include(${RVSW_CONFIG_PATH})
 endif()
 
