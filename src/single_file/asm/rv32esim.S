@@ -1,10 +1,12 @@
-# rv32esim.s
+# rv32esim.S
 # Copyright (C) 2023 John Jekel and Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 #
-# IRVE test code (assembly)
+# Some basic test code in assembly
 #
 # Based on code from rv32esim
+
+#include "rvsw_asm.h"
 
 .global _start
 _start:
@@ -30,7 +32,7 @@ loop:
     addi x7, x7, 1
     j loop
 end:
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
+    RVSW_EXIT_ASM
 
 .text
 string:

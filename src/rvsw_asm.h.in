@@ -1,0 +1,33 @@
+/* rvsw_asm.h.in
+ * Copyright (C) 2023 John Jekel
+ * See the LICENSE file at the root of the project for licensing info.
+ *
+ * A header file to be included in assembly programs to access some
+ * (potentially configuration dependent) constants and macros.
+ *
+*/
+
+#ifndef RVSW_ASM_H
+#define RVSW_ASM_H
+
+#define SELF_JUMP 0
+#define CUSTOM_INSTRUCTION 1
+#define FUNCTION_CALL 2
+#define RVSW_EXIT_METHOD @RVSW_EXIT_METHOD@
+
+#if RVSW_EXIT_METHOD == SELF_JUMP
+#define RVSW_EXIT_ASM j .
+#elif RVSW_EXIT_METHOD == CUSTOM_INSTRUCTION
+#define RVSW_EXIT_ASM @RVSW_CUSTOM_EXIT_INSTR@
+#elif RVSW_EXIT_METHOD == FUNCTION_CALL
+#define RVSW_EXIT_ASM j @RVSW_CUSTOM_EXIT_FN@
+#else
+#error "Unsupported RVSW_EXIT_METHOD"
+#endif
+
+#undef SELF_JUMP
+#undef CUSTOM_INSTRUCTION
+#undef FUNCTION_CALL
+#undef RVSW_EXIT_METHOD
+
+#endif//RVSW_ASM_H

@@ -131,9 +131,10 @@ endmacro()
 ############
 macro(add_asm_target NAME)
     add_target(${NAME} ${ARGN})
+    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)#To get the generated rvsw_asm.h
 endmacro()
 
 #Assembly test files from rv32esim
-add_asm_target(rv32esim asm/rv32esim.s)
+add_asm_target(rv32esim asm/rv32esim.S)
 
 #TODO others

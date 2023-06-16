@@ -20,6 +20,10 @@ set(RVSW_MTVEC_HARDWIRED_ADDR "0x00000004")#MTVEC hardwired address if applicabl
 set(RVSW_MARCH "rv32i")#Your -march=[...] here
 set(RVSW_MABI "ilp32")#Your -mabi=[...] here
 
+set(RVSW_EXIT_METHOD "SELF_JUMP")#One of: SELF_JUMP, CUSTOM_INSTRUCTION, FUNCTION_CALL, or potentially others in the future
+set(RVSW_CUSTOM_EXIT_INSTR ".insn r CUSTOM_0, 0, 0, zero, zero, zero")#Put your custom exit instruction here (this is the one from IRVE for example)
+set(RVSW_CUSTOM_EXIT_FN "my_custom_exit_fn_symbol")
+
 #Your own firmware must link against the SBI static library that is built
 set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify the name of the one you want to build)
 
