@@ -23,7 +23,7 @@
 
 #define setup_emulator_with_program(program_name) \
     irve::emulator::emulator_t emulator; \
-    irve::loader::load_verilog_32(emulator, "rvsw/compiled/src/single_file/single_file_asm_jzjcoresoftware_" program_name ".vhex32"); \
+    irve::loader::load_verilog_32(emulator, "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex32"); \
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
 /* Static Function Declarations */
