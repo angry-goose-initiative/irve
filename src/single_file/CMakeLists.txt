@@ -114,25 +114,55 @@ endmacro()
 
 #Macro for adding targets
 macro(add_target NAME)
-    add_executable(${NAME} ${ARGN})
+    add_executable(single_file_${NAME} ${ARGN})
 
     #We output several different file formats for each target
-    set_target_properties(${NAME} PROPERTIES SUFFIX ".elf")
-    add_vhex8_target(${NAME})
-    add_vhex16_target(${NAME})
-    add_vhex32_target(${NAME})
-    add_bin_target(${NAME})
-    add_ihex_target(${NAME})
-    add_srec_target(${NAME})
+    set_target_properties(single_file_${NAME} PROPERTIES SUFFIX ".elf")
+    add_vhex8_target(single_file_${NAME})
+    add_vhex16_target(single_file_${NAME})
+    add_vhex32_target(single_file_${NAME})
+    add_bin_target(single_file_${NAME})
+    add_ihex_target(single_file_${NAME})
+    add_srec_target(single_file_${NAME})
 endmacro()
 
 ############
 # Assembly #
 ############
 macro(add_asm_target NAME)
-    add_target(${NAME} ${ARGN})
-    target_include_directories(${NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)#To get the generated rvsw_asm.h
+    message(STATUS "Adding assembly target ${NAME}")
+    add_target(asm_${NAME} ${ARGN})
+    target_include_directories(single_file_asm_${NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)#To get the generated rvsw_asm.h
 endmacro()
+
+#Assembly test files from jzjcoresoftware
+macro(add_jzjcoresoftware_asm_target NAME)
+    add_asm_target(jzjcoresoftware_${NAME} ${CMAKE_CURRENT_SOURCE_DIR}/asm/jzjcoresoftware/${NAME}.S)
+endmacro()
+add_jzjcoresoftware_asm_target(adding2)
+add_jzjcoresoftware_asm_target(auipctest)
+add_jzjcoresoftware_asm_target(bneandsubtest) 
+add_jzjcoresoftware_asm_target(callrettest)
+add_jzjcoresoftware_asm_target(fenceecalltest)
+add_jzjcoresoftware_asm_target(fibbonaccijal)
+add_jzjcoresoftware_asm_target(fibbonaccijalr)
+add_jzjcoresoftware_asm_target(lbutest)
+add_jzjcoresoftware_asm_target(lhtest)
+add_jzjcoresoftware_asm_target(lhutest)   
+add_jzjcoresoftware_asm_target(loadbytetest)
+add_jzjcoresoftware_asm_target(luitest)
+add_jzjcoresoftware_asm_target(memoryreadtest)
+add_jzjcoresoftware_asm_target(memorywritetest)
+add_jzjcoresoftware_asm_target(nop)
+add_jzjcoresoftware_asm_target(sbtest)
+add_jzjcoresoftware_asm_target(sbtest2)   
+add_jzjcoresoftware_asm_target(shtest)  
+add_jzjcoresoftware_asm_target(sllisrliblttest)
+add_jzjcoresoftware_asm_target(sllsrlblttest)
+add_jzjcoresoftware_asm_target(testingfunctions)
+add_jzjcoresoftware_asm_target(uncondjumptest)
+add_jzjcoresoftware_asm_target(uncondjumptest2)
+add_jzjcoresoftware_asm_target(xoritoggle)
 
 #Assembly test files from rv32esim
 add_asm_target(rv32esim asm/rv32esim.S)

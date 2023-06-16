@@ -1,0 +1,4 @@
+#include "rvsw_asm.h"
+
+    lw x31, 4(x0)
+    .word 2863311530
