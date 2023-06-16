@@ -27,7 +27,7 @@ target_link_libraries(testfiles_verifier PRIVATE libirve_object)#TODO or should 
 set(TESTFILES_TEST_LIST "")
 macro(add_testfiles_test TEST_NAME)
     #The working directory is important because tests will need to access the testfiles
-    add_test(NAME testfiles_${TEST_NAME} COMMAND testfiles_verifier ${TEST_NAME} WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/testfiles/compiled")
+    add_test(NAME testfiles_${TEST_NAME} COMMAND testfiles_verifier ${TEST_NAME} WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
     set(TESTFILES_TEST_LIST "${TESTFILES_TEST_LIST} X(${TEST_NAME})")
     set_property(TEST testfiles_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:testfiles_verifier>")
 endmacro()

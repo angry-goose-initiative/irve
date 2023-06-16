@@ -27,7 +27,7 @@
 int verify_rv32esim() {
     //Load rv32esim program
     irve::emulator::emulator_t emulator;
-    irve::loader::load_verilog_32(emulator, "rv32esim.hex");
+    irve::loader::load_verilog_32(emulator, "rvsw/compiled/src/single_file/single_file_asm_rv32esim.vhex32");
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
     uint64_t expected_inst_count = 0;
 

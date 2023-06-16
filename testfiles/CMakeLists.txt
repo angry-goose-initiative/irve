@@ -118,38 +118,6 @@ endmacro()
 add_asm_target(privilege_levels src/assembly/privilege_levels.s)
 add_asm_target(user_and_back_in_time_for_dinner src/assembly/user_and_back_in_time_for_dinner.s)
 
-#Assembly test files from rv32esim
-#add_asm_target(rv32esim src/assembly/rv32esim.s)
-
-#Assembly test files from jzjcoresoftware
-macro(add_jzjcoresoftware_asm_target NAME)
-    add_asm_target(${NAME} src/assembly/jzjcoresoftware/${NAME}.mem.s)
-endmacro()
-add_jzjcoresoftware_asm_target(adding2)
-add_jzjcoresoftware_asm_target(auipctest)
-add_jzjcoresoftware_asm_target(bneandsubtest)
-add_jzjcoresoftware_asm_target(callrettest)
-add_jzjcoresoftware_asm_target(fenceecalltest)
-add_jzjcoresoftware_asm_target(fibbonaccijal)
-add_jzjcoresoftware_asm_target(fibbonaccijalr)
-add_jzjcoresoftware_asm_target(lbutest)
-add_jzjcoresoftware_asm_target(lhtest)
-add_jzjcoresoftware_asm_target(lhutest)
-add_jzjcoresoftware_asm_target(loadbytetest)
-add_jzjcoresoftware_asm_target(luitest)
-add_jzjcoresoftware_asm_target(memoryreadtest)
-add_jzjcoresoftware_asm_target(memorywritetest)
-add_jzjcoresoftware_asm_target(nop)
-add_jzjcoresoftware_asm_target(sbtest)
-add_jzjcoresoftware_asm_target(sbtest2)
-add_jzjcoresoftware_asm_target(shtest)
-add_jzjcoresoftware_asm_target(sllisrliblttest)
-add_jzjcoresoftware_asm_target(sllsrlblttest)
-add_jzjcoresoftware_asm_target(testingfunctions)
-add_jzjcoresoftware_asm_target(uncondjumptest)
-add_jzjcoresoftware_asm_target(uncondjumptest2)
-add_jzjcoresoftware_asm_target(xoritoggle)
-
 ############
 #     C    #
 ############

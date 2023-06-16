@@ -20,6 +20,10 @@ set(RVSW_MTVEC_HARDWIRED_ADDR "0x00000004")#MTVEC hardwired address if applicabl
 set(RVSW_MARCH "rv32ima_zicsr")#Your -march=[...] here
 set(RVSW_MABI "ilp32")#Your -mabi=[...] here
 
+set(RVSW_EXIT_METHOD "CUSTOM_INSTRUCTION")
+set(RVSW_CUSTOM_EXIT_INSTR ".insn r CUSTOM_0, 0, 0, zero, zero, zero")
+#set(RVSW_CUSTOM_EXIT_FN "my_custom_exit_fn_symbol")
+
 #Your own firmware must link against the SBI static library that is built
 set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify the name of the one you want to build)
 
