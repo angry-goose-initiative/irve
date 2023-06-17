@@ -29,5 +29,7 @@ set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify t
 
 #TODO options for firmware
 
+set(RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET "irve_rvsw_newlib_syscalls")
+
 set(RVSW_BUILD_SMODE_SW "1")#Uncomment if you want to build supervisor mode software too
 #TODO other options

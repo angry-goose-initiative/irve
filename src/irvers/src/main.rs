@@ -16,7 +16,7 @@ use std::time::Instant;
 
 /* Constants */
 
-const TESTFILES_DIR: &str = "testfiles/compiled/";
+const TESTFILES_DIR: &str = "rvsw/compiled/";
 
 /* Functions */
 

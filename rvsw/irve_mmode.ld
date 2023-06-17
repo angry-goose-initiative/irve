@@ -18,36 +18,28 @@ MEMORY
     ram : ORIGIN = 0x00000000, LENGTH = 64M
 }
 
-/* the arch is rv32 */
+/* The arch is rv32 */
 OUTPUT_ARCH("riscv")
 OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv", "elf32-littleriscv")
 
-/* _start is defined in crt0.s */
-ENTRY(_start)
+ENTRY(___rvsw_reset___)
 
 SECTIONS
 {
-    PROVIDE (__executable_start = ORIGIN(ram));
-    PROVIDE(__stack_top = ORIGIN(ram) + LENGTH(ram));
+    PROVIDE(___rvsw_stack_top___ = ORIGIN(ram) + LENGTH(ram));
     
-    .vector_table : { *(.vector_table*) } > ram
     .init : { *(.init*) } > ram
+    .vector_table : { *(.vector_table*) } > ram
     .text : { *(.text*) } > ram
     .rodata : { *(.rodata*) } > ram
-    .sdata :
-    {
-        __SDATA_BEGIN__ = .; 
-        *(.sdata*)
-    } > ram
+    .sdata : { *(.sdata*) } > ram
     .data : { *(.data*) } > ram
     .bss : { *(.bss*) } > ram
 
-    /* TODO I basically guessed this, is this correct? */
-    .heap : { 
-        __heap_start__ = .;
-        end = __heap_start__;
+    .heap : {
+        end = .;/* We do this to tell Newlib's default sbrk implementation that here is the end of globals/ the beginning of the heap; see https://github.com/eblot/newlib/blob/master/libgloss/sbrk.c */
         *(.heap*)
     } > ram
 
-    __global_pointer$ = .; /* The global pointer points to the beginning of the SDATA section */
+    ___rvsw_global_pointer___$ = .; /* The global pointer points to the beginning of the SDATA section */
 }

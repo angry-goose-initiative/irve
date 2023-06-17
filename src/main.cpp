@@ -10,7 +10,7 @@
 
 /* Constants and Defines */
 
-#define TESTFILES_DIR "testfiles/compiled/"
+#define TESTFILES_DIR "rvsw/compiled/"
 
 #define irvelog(...) irve::logging::log(__VA_ARGS__)
 #define irvelog_always(...) irve::logging::log_always(__VA_ARGS__)
