@@ -21,7 +21,7 @@ set(RVSW_MTVEC_IS_HARDWIRED "DIRECT")#Uncomment if not hardwired, else "DIRECT" 
 #set(RVSW_MTVEC_HARDWIRED_ADDR "0x00000004")#MTVEC hardwired address if applicable
 
 set(RVSW_DATA_SEGMENT_ALREADY_LOADED "0")#Set to 0 if you need the C startup code to load the data segment before calling anything
-set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to load the data segment before calling anything
+set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
 
 #Required linker script sections:
 #.init <- The cpu should begin execution at the first instruction of this section

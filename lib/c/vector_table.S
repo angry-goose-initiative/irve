@@ -13,7 +13,7 @@
 
 .section .init, "ax"
 
-.weak ___rvsw_reset___#Assembly entry point
+.global ___rvsw_reset___#Assembly entry point
 ___rvsw_reset___:
     j ___rvsw_crt0___#It is important this is exactly 4 bytes long to avoid interfering with the vector table
 
@@ -23,7 +23,7 @@ ___rvsw_reset___:
 
 .section .vector_table, "ax"
 
-.weak ___rvsw_vector_table___
+.global ___rvsw_vector_table___
 ___rvsw_vector_table___:
 #if RVSW_VECTORED_ABRUPT_CONTROL_FLOW
     j   ___rvsw_exception_handler___
