@@ -7,6 +7,14 @@
 
 cmake_minimum_required(VERSION 3.16.3)
 
+###################################################################################################
+# RVSW Setup
+###################################################################################################
+
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rvsw/.git")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --recursive "${CMAKE_CURRENT_SOURCE_DIR}/rvsw" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
 set(RVSW_CONFIG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/irve_rvsw_config.cmake")
 add_subdirectory(rvsw)
 
