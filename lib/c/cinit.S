@@ -17,11 +17,6 @@
 
 #include "rvsw_asm.h"
 
-.section .init, "ax"
-.weak ___rvsw_reset___#Assembly entry point
-___rvsw_entry___:
-    j ___rvsw_crt0___
-
 .section .text, "ax"
 .weak ___rvsw_crt0___#C Runtime Initialization (0th stage)
 ___rvsw_crt0___:

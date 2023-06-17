@@ -30,7 +30,9 @@ set(RVSWC_SOURCES
 
 add_library(rvswc STATIC ${RVSWC_SOURCES})
 target_include_directories(rvswc PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
+
 target_link_libraries(rvswc gcc)#To get GCC's emulation routines
+target_link_libraries(rvswc ${RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET})#To get the user's implementation of Newlib syscalls
 target_link_libraries(rvswc c)#To get Newlib's C library
 target_link_libraries(rvswc m)#To get Newlib's math library
 
