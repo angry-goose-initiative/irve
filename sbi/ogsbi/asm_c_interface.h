@@ -1,5 +1,5 @@
 /* asm_c_interface.h
- * Copyright (C) TODO John Jekel
+ * Copyright (C) 2023 John Jekel
  * See the LICENSE file at the root of the project for licensing info.
  *
  * Assembly things exposed to C code

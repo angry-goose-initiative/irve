@@ -5,8 +5,10 @@
 # Entry point back into M mode upon recieving an exception
 #
 
-.global __riscv_synchronous_exception_and_user_mode_swi_handler
-__riscv_synchronous_exception_and_user_mode_swi_handler:
+#TODO support DIRECT mode too
+
+.global ___rvsw_exception_handler___
+___rvsw_exception_handler___:
     #Restore the M-mode stack pointer and save the S-mode one (swap with mscratch)
     csrrw sp, mscratch, sp
 

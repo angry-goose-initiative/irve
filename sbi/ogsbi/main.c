@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Entry point into the IRVE SBI/Firmware
+ * Entry point into the OGSBI (originally IRVE SBI/Firmware)
  *
 */
 
@@ -20,13 +20,14 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "irve.h"
+#include <stdbool.h>
+#include <stdlib.h>
 
 /* Macros */
 
 #ifndef NDEBUG
-#define dputs(str) puts("IRVESBI> " str)
-#define dprintf(...) printf("IRVESBI> " __VA_ARGS__)
+#define dputs(str) puts("OGSBI> " str)
+#define dprintf(...) printf("OGSBI> " __VA_ARGS__)
 #else
 #define dputs(str) do {} while (0)
 #define dprintf(...) do {} while (0)
@@ -39,7 +40,7 @@
 /* Function Implementations */
 
 int main() {
-    dputs("IRVE SBI and Firmware starting...");
+    dputs("OGSBI starting...");
     dputs("Copyright (C) 2023 John Jekel and Nick Chan");
 
     dputs("Configuration Info:");
@@ -181,7 +182,7 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             dputs("  S-Mode code has just attempted to fetch an instruction from invalid memory or memory protected by PMP");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
         case 2://ILLEGAL_INSTRUCTION_EXCEPTION
             dputs("Illegal Instruction Exception");
@@ -200,7 +201,7 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             dputs("  S-Mode code has just attempted to read from invalid memory or memory protected by PMP");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
         case 6://STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION
             dputs("Store or AMO Address Misaligned Exception");
@@ -211,40 +212,40 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             dputs("  S-Mode code has just attempted to store to or perform an AMO on invalid memory or memory protected by PMP");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
         case 8://UMODE_ECALL_EXCEPTION
             assert(false && "We should never get here; UMODE_ECALL_EXCEPTIONs should be delegated to S-Mode");
-            irve_exit();
+            exit(1);
             break;
         case 9://SMODE_ECALL_EXCEPTION
             assert(false && "We should never get here; this should be handled by handle_smode_ecall()");
-            irve_exit();
+            exit(1);
             break;
         case 11://MMODE_ECALL_EXCEPTION
             assert(false && "We should never get here; The IRVE SBI never does ECALL!");
-            irve_exit();
+            exit(1);
             break;
         case 12://INSTRUCTION_PAGE_FAULT_EXCEPTION
             dputs("Instruction Page Fault Exception");
             dputs("  S-Mode code has just attempted to fetch and instruction from invalid virtual memory");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
         case 13://LOAD_PAGE_FAULT_EXCEPTION
             dputs("Load Page Fault Exception");
             dputs("  S-Mode code has just attempted read from invalid virtual memory");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
         case 15://STORE_OR_AMO_PAGE_FAULT_EXCEPTION
             dputs("Store or AMO Page Fault Exception");
             dputs("  S-Mode code has just attempted to store to or perform an AMO on invalid virtual memory");
             dputs("  This is likely a bug in S-Mode code!");
             dputs("  I give up!");
-            irve_exit();
+            exit(1);
             break;
     }
 }

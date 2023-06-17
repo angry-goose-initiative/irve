@@ -5,6 +5,8 @@
 # Starts the Linux kernel in S-Mode
 # 
 
+#include "rvsw_asm.h"
+
 .global jump2linux
 jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = address of kernel image
     #Preserve the M-Mode stack pointer in mscratch
@@ -65,4 +67,4 @@ jump2linux:#Arguments: a0 = hart ID, a1 = address of device tree blob, a2 = addr
     mret
 
     #We should never return. Leave this as a sanity check so we exit if we do.
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero
+    RVSW_EXIT_ASM
