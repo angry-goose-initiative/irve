@@ -145,12 +145,12 @@ macro(add_smode_target NAME)
 
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME "${NAME}_smode" SUFFIX ".elf")
-    add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
-    add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
-    add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
-    add_bin_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
-    add_ihex_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
-    add_srec_target(${FULLY_QUALIFIED_TARGET_NAME}_smode ${NAME})
+    add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    add_bin_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    add_ihex_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    add_srec_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
 endmacro()
 
 #TODO add more in the future
