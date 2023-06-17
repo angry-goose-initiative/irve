@@ -15,6 +15,4 @@
 void ___rvsw_cleanup___(void) {
     fflush(stdout);
     fflush(stderr);
-
-    //TODO do Newlib atexit() things
 }

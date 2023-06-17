@@ -33,14 +33,44 @@ ___rvsw_crt0___:
     #Setup stack pointer based on linker script symbol
     la sp, ___rvsw_stack_top___
 
+    #Zero out the BSS section if needed
+#if RVSW_NEED_BSS_ZEROED
+    la t0, ___rvsw_bss_start___
+    la t1, ___rvsw_bss_end___
+0: #BSS-zeroing loop
+    bgtu t0, t1, 1f
+    sb zero, 0(t0)
+    addi t0, t0, 1
+    j 0b
+1:  #End of BSS-zeroing loop
+#endif
+
+    #Load the data segment into memory if needed
+#if RVSW_NEED_DATA_LOADED
+    la t0, ___rvsw_data_rom_start___
+    la t1, ___rvsw_data_rom_end___
+    la t2, ___rvsw_data_ram_start___
+0: #Data-loading loop
+    bgtu t0, t1, 1f
+    lb t3, 0(t0)
+    sb t3, 0(t2)
+    addi t0, t0, 1
+    addi t2, t2, 1
+    j 0b
+1:  #End of data-loading loop
+#endif
+
     #Setup Newlib code
     call __libc_init_array
     
     #Jump to main
     call main
 
-    #Post-main cleanup
+    #Post-main RVSW-specific cleanup in C
     call ___rvsw_cleanup___
+
+    #Teardown Newlib code
+    call __libc_fini_array
 
     #Halt cpu if we ever return from main
     RVSW_EXIT_ASM

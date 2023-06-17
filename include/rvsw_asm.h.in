@@ -24,7 +24,7 @@
 #elif RVSW_EXIT_METHOD == FUNCTION_CALL
 #define RVSW_EXIT_ASM j @RVSW_CUSTOM_EXIT_FN@
 #else
-#error "Unsupported RVSW_EXIT_METHOD"
+#error "Unsupported RVSW_EXIT_METHOD value"
 #endif
 
 #undef SELF_JUMP
@@ -43,11 +43,29 @@
 #elif RVSW_MTVEC_IS_HARDWIRED == VECTORED
 #define RVSW_VECTORED_ABRUPT_CONTROL_FLOW 1
 #else
-#error "Unsupported RVSW_MTVEC_IS_HARDWIRED"
+#error "Unsupported RVSW_MTVEC_IS_HARDWIRED value"
 #endif
 
 #undef DIRECT
 #undef VECTORED
 #undef RVSW_MTVEC_IS_HARDWIRED
+
+//Deal with the need/lack of need to initialize sections
+
+#if @RVSW_BSS_SEGMENT_ALREADY_ZEROED@ == 1
+#define RVSW_NEED_BSS_ZEROED 0
+#elif @RVSW_BSS_SEGMENT_ALREADY_ZEROED@ == 0
+#define RVSW_NEED_BSS_ZEROED 1
+#else
+#error "Unsupported RVSW_BSS_SEGMENT_ALREADY_ZEROED value"
+#endif
+
+#if @RVSW_DATA_SEGMENT_ALREADY_LOADED@ == 1
+#define RVSW_NEED_DATA_LOADED 0
+#elif @RVSW_DATA_SEGMENT_ALREADY_LOADED@ == 0
+#define RVSW_NEED_DATA_LOADED 1
+#else
+#error "Unsupported RVSW_DATA_SEGMENT_ALREADY_LOADED value"
+#endif
 
 #endif//RVSW_ASM_H
