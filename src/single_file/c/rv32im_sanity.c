@@ -2,32 +2,24 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * IRVE test code for the base RISC-V spec and M extension
+ * Test code for the base RISC-V spec and M extension
  *
  * Based on code from rv32esim
 */
 
 /* Includes */
 
-#include "irve.h"
-
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
 
-/* Static Function Declarations */
-
-static void print_string(const char* str);
-static void print_uint_bin(uint32_t uint);
-void test_iterations(uint32_t cycles);
-
 /* Function Implementations */
 
 int main() {
-    print_string("Sanity test for base RISC-V spec and M extension\n");
+    puts("Sanity test for base RISC-V spec and M extension\n");
 
-    print_string("Testing base spec\n");
+    puts("Testing base spec\n");
     volatile uint32_t a = 1;
     volatile uint32_t b = 2;
     assert((a + b) == 3);
@@ -37,8 +29,7 @@ int main() {
     assert(a < b);
     volatile int32_t ai = 0x80000000;
     volatile uint32_t bi = 3;
-    print_uint_bin(ai >> bi);//Arithmetic shift right
-    print_string("\n");
+    printf("0x%lX\n", ai >> bi);//Arithmetic shift right
     assert((uint32_t)(ai >> bi) == 0xF0000000);
     
     //Test how well lui works (hopefully)
@@ -47,7 +38,7 @@ int main() {
 
     //TODO test more base spec stuff
 
-    print_string("Testing M extension\n");
+    puts("Testing M extension\n");
 
     volatile uint32_t zero = 0;
     volatile int32_t zeroi = 0;
@@ -65,53 +56,4 @@ int main() {
     //TODO test more M extension stuff
 
     return 0;
-}
-
-//Called if an assertion fails
-void __assert_func(const char* file, int, const char* function, const char* expr) {
-    print_string("Assertion failed: ");
-    print_string(file);
-    print_string(" | ");
-    print_string(function);
-    print_string(" | ");
-    print_string(expr);
-    print_string("\n");
-    irve_exit();
-}
-
-/* Static Function Implementations */
-
-static void print_string(const char* str) {
-    while (*str) {
-        IRVE_DEBUG_ADDR = *str;
-        ++str;
-    }
-}
-
-static void print_uint_bin(uint32_t uint) {
-    IRVE_DEBUG_ADDR = '0';
-    IRVE_DEBUG_ADDR = 'b';
-
-    uint32_t mask = 1ull << 31;
-    bool first_one_encountered = false;
-    while (mask) {
-
-        if (uint & mask) {
-            IRVE_DEBUG_ADDR = '1';
-            first_one_encountered = true;
-        } else if (first_one_encountered) {
-            IRVE_DEBUG_ADDR = '0';
-        }
-
-        mask >>= 1;
-    }
-
-    if (!first_one_encountered) {
-        IRVE_DEBUG_ADDR = '0';
-    }
-}
-
-void test_iterations(uint32_t iterations) {
-    for (uint32_t i = 0; i < iterations; ++i)
-        __asm__ volatile("nop");
 }

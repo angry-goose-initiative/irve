@@ -30,8 +30,8 @@ int main() {
     assert(a < b);
     volatile int32_t ai = 0x80000000;
     volatile uint32_t bi = 3;
-    printf("0x%X", ai >> bi);
-    putc('\n');
+    printf("0x%lX", ai >> bi);
+    putc('\n', stdout);
     assert((uint32_t)(ai >> bi) == 0xF0000000);
 
     assert((b * bi) == 6);
