@@ -31,12 +31,13 @@ set(RVSW_C_RUNTIME_SOURCES
 add_library(rvsw_c_runtime STATIC ${RVSW_C_RUNTIME_SOURCES})
 target_include_directories(rvsw_c_runtime PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
 
-add_library(rvswc INTERFACE)#Represents several static libraries
+#[[add_library(rvswc INTERFACE)#Represents several static libraries#FIXME this does not work
 target_link_libraries(rvswc INTERFACE rvsw_c_runtime)
 target_link_libraries(rvswc INTERFACE gcc)#To get GCC's emulation routines
 target_link_libraries(rvswc INTERFACE ${RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET})#To get the user's implementation of Newlib syscalls
 target_link_libraries(rvswc INTERFACE c)#To get Newlib's C library
 target_link_libraries(rvswc INTERFACE m)#To get Newlib's math library
+#]]
 
 #[[
 
