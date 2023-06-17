@@ -23,6 +23,7 @@ target_include_directories(rvsw_c_runtime PRIVATE ${PROJECT_BINARY_DIR}/include)
 
 #Add M-Mode specific flags
 target_compile_options(rvsw_c_runtime PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
+target_link_options(rvsw_c_runtime PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
 
 #As a workaround, use the workaround_add_needed_c_static_libs_for_target macro for the time being
 #[[add_library(rvswc INTERFACE)#Represents several static libraries#FIXME this does not work
@@ -40,3 +41,4 @@ target_include_directories(rvsw_c_runtime_smode PRIVATE ${PROJECT_BINARY_DIR}/in
 
 #Add S-Mode specific flags
 target_compile_options(rvsw_c_runtime_smode PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
+target_link_options(rvsw_c_runtime_smode PRIVATE ${RVSW_SMODE_COMMON_FLAGS})

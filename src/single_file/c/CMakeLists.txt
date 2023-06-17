@@ -22,7 +22,7 @@ endmacro()
 macro(add_smode_c_target NAME)
     add_smode_target(${NAME} ${ARGN})
 
-    #target_link_libraries(src__single_file__c__${NAME} rvswc)#TODO switch to this once we get it working
+    #target_link_libraries(src__single_file__c__${NAME}_smode rvswc)#TODO switch to this once we get it working
     smode_workaround_add_needed_c_static_libs_for_target(src__single_file__c__${NAME}_smode)#The workaround
 endmacro()
 

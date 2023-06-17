@@ -120,6 +120,7 @@ macro(add_target NAME)#M-Mode
 
     #Add M-Mode specific flags
     target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
+    target_link_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
 
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME ${NAME} SUFFIX ".elf")
@@ -140,6 +141,7 @@ macro(add_smode_target NAME)
 
     #Add S-Mode specific flags
     target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
+    target_link_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
 
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME "${NAME}_smode" SUFFIX ".elf")

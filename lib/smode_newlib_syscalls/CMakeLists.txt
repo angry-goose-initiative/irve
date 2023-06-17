@@ -16,8 +16,9 @@ set(RVSW_SMODE_NEWLIB_SYSCALLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/smode_newlib_syscalls.c
 )
 
-add_library(rvsw_smode_newlib_syscalls STATIC ${RVSW_SMODE_NEWLIB_SYSCALLS_SOURCES})
+add_library(rvsw_smode_newlib_syscalls OBJECT ${RVSW_SMODE_NEWLIB_SYSCALLS_SOURCES})#FIXME why won't this work with STATIC?
 target_include_directories(rvsw_smode_newlib_syscalls PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
 
 #Add S-Mode specific flags
 target_compile_options(rvsw_smode_newlib_syscalls PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
+target_link_options(rvsw_smode_newlib_syscalls PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
