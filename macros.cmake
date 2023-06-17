@@ -166,3 +166,10 @@ macro(workaround_add_needed_c_static_libs_for_target NAME)#TODO remove me
     target_link_libraries(${NAME} m)#To get Newlib's math library
 endmacro()
 
+macro(smode_workaround_add_needed_c_static_libs_for_target NAME)#TODO remove me
+    target_link_libraries(${NAME} rvsw_c_runtime_smode)
+    target_link_libraries(${NAME} gcc)#To get GCC's emulation routines
+    target_link_libraries(${NAME} rvsw_smode_newlib_syscalls)#To get Newlib syscalls using the SBI
+    target_link_libraries(${NAME} c)#To get Newlib's C library
+    target_link_libraries(${NAME} m)#To get Newlib's math library
+endmacro()
