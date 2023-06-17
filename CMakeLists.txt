@@ -8,7 +8,7 @@
 #
 
 #Common options
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.19)
 project(rvsw VERSION 0.0.0 LANGUAGES C ASM)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -21,8 +21,10 @@ else()
 endif()
 
 #Add options specified by other RVSW config options to the build command line
-#FIXME the linker script will be different for S-Mode
-set(RVSW_COMMON_FLAGS "${RVSW_COMMON_FLAGS} -march=${RVSW_MARCH} -mabi=${RVSW_MABI} -T ${RVSW_MMODE_LD_SCRIPT}")
+set(RVSW_MMODE_COMMON_FLAGS "${RVSW_MMODE_COMMON_FLAGS} -march=${RVSW_MARCH} -mabi=${RVSW_MABI} -T ${RVSW_MMODE_LD_SCRIPT}")
+set(RVSW_SMODE_COMMON_FLAGS "${RVSW_SMODE_COMMON_FLAGS} -march=${RVSW_SMODE_MARCH} -mabi=${RVSW_SMODE_MABI} -T ${RVSW_SMODE_LD_SCRIPT}")
+string(REPLACE " " ";" RVSW_MMODE_COMMON_FLAGS "${RVSW_MMODE_COMMON_FLAGS}")#Convert to list
+string(REPLACE " " ";" RVSW_SMODE_COMMON_FLAGS "${RVSW_SMODE_COMMON_FLAGS}")#Convert to list
 
 set(CMAKE_C_FLAGS "${RVSW_COMMON_FLAGS}")
 set(CMAKE_ASM_FLAGS "${RVSW_COMMON_FLAGS}")

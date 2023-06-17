@@ -111,15 +111,38 @@ endmacro()
 
 #TODO create macro to get full name
 
-macro(add_target NAME)
+macro(add_target NAME)#M-Mode
     file(RELATIVE_PATH FULLY_QUALIFIED_TARGET_NAME ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
     string(REPLACE "/" "__" FULLY_QUALIFIED_TARGET_NAME ${FULLY_QUALIFIED_TARGET_NAME})
     set(FULLY_QUALIFIED_TARGET_NAME "${FULLY_QUALIFIED_TARGET_NAME}__${NAME}")
 
     add_executable(${FULLY_QUALIFIED_TARGET_NAME} ${ARGN})
 
+    #Add M-Mode specific flags
+    target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
+
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME ${NAME} SUFFIX ".elf")
+    add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    add_bin_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    add_ihex_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    add_srec_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+endmacro()
+
+macro(add_smode_target NAME)
+    file(RELATIVE_PATH FULLY_QUALIFIED_TARGET_NAME ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+    string(REPLACE "/" "__" FULLY_QUALIFIED_TARGET_NAME ${FULLY_QUALIFIED_TARGET_NAME})
+    set(FULLY_QUALIFIED_TARGET_NAME "${FULLY_QUALIFIED_TARGET_NAME}__${NAME}_smode")
+
+    add_executable(${FULLY_QUALIFIED_TARGET_NAME} ${ARGN})
+
+    #Add S-Mode specific flags
+    target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
+
+    #We output several different file formats for each target
+    set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME "${NAME}_smode" SUFFIX ".elf")
     add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
     add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
     add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
