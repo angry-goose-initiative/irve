@@ -5,22 +5,26 @@
 # Goin' all the way to U-Mode and back to M-Mode!
 #
 
-.section .vector_table, "ax"
-.global _start
-_start:
+#include "rvsw_asm.h"
+
+.section .init, "ax"
+.global ___rvsw_reset___#Assembly entry point
+___rvsw_reset___:
     j mmode_entry
+
+.section .vector_table, "ax"
     j mmode_ecall_handler
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
+    RVSW_EXIT_ASM
 
 .text
 mmode_entry:
@@ -45,7 +49,7 @@ mmode_entry:
 mmode_ecall_handler:
     la a0, mmode_string1
     call print
-    .insn r CUSTOM_0, 0, 0, zero, zero, zero#Exit
+    RVSW_EXIT_ASM
 
 smode_entry:
     la a0, smode_string

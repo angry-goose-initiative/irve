@@ -17,9 +17,8 @@ macro(add_asm_target NAME)
     target_include_directories(src__single_file__asm__${NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
 endmacro()
 
-#Assembly test files from rv32esim
 add_asm_target(rv32esim rv32esim.S)
-
-#TODO others
+add_asm_target(privilege_levels privilege_levels.S)
+add_asm_target(user_and_back_in_time_for_dinner user_and_back_in_time_for_dinner.S)
 
 add_subdirectory(jzjcoresoftware)
