@@ -129,3 +129,17 @@ macro(add_target NAME)
 endmacro()
 
 #TODO add more in the future
+
+###############################################################################
+# Workarounds
+###############################################################################
+
+#target_link_libraries(src__single_file__c__${NAME} rvswc)#TODO switch to this once we get it working
+macro(workaround_add_needed_c_static_libs_for_target NAME)#TODO remove me
+    target_link_libraries(${NAME} rvsw_c_runtime)
+    target_link_libraries(${NAME} gcc)#To get GCC's emulation routines
+    target_link_libraries(${NAME} ${RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET})#To get the user's implementation of Newlib syscalls
+    target_link_libraries(${NAME} c)#To get Newlib's C library
+    target_link_libraries(${NAME} m)#To get Newlib's math library
+endmacro()
+
