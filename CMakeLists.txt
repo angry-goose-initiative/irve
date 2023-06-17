@@ -53,8 +53,6 @@ execute_process(
 
 #So these all get the variables set here, put them at the end
 add_subdirectory(tests)
-add_subdirectory(testfiles)
 add_subdirectory(lib)
-add_subdirectory(sbi)
 add_subdirectory(src)
 add_subdirectory(rvsw)

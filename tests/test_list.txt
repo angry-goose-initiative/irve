@@ -90,15 +90,10 @@ add_testfiles_test(rv32esim)
 #testfiles_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
 add_testfiles_parse_test(hello_exceptions src/single_file/c/hello_exceptions.vhex32)
 add_testfiles_parse_test(hello_world src/single_file/c/hello_world.vhex32)
+add_testfiles_parse_test(irve_csr_bringup src/single_file/c/irve_csr_bringup.vhex32)
+add_testfiles_parse_test(irve_debugging_puts_weirdness src/single_file/c/irve_debugging_puts_weirdness.vhex32)
+add_testfiles_parse_test(irve_exception_bringup src/single_file/c/irve_exception_bringup.vhex32)
 add_testfiles_parse_test(irve_stress_test src/single_file/c/irve_stress_test.vhex32)
-
-#OLD
-
-#add_testfiles_parse_test(rv32esim_c)
-#add_testfiles_parse_test(rv32im_sanity)
-#add_testfiles_parse_test(software_floating_point_fun)
-
-#add_testfiles_parse_test(csr_bringup)
-#add_testfiles_parse_test(debugging_puts_weirdness)
-#add_testfiles_parse_test(exception_bringup)
-#add_testfiles_parse_test(hello_newlib)
+add_testfiles_parse_test(rv32esim src/single_file/c/rv32esim.vhex32)
+add_testfiles_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity.vhex32)
+add_testfiles_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun.vhex32)

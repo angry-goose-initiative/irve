@@ -140,10 +140,6 @@ add_c_target(rv32im_sanity src/c/without_c_stdlib/rv32im_sanity.c)
 add_c_target(software_floating_point_fun src/c/without_c_stdlib/software_floating_point_fun.c)
 #Special case (implement newlib syscalls themselves)
 add_c_target(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
-#With newlib
-add_c_target_with_newlib(csr_bringup src/c/with_c_stdlib/csr_bringup.c)
-add_c_target_with_newlib(debugging_puts_weirdness src/c/with_c_stdlib/debugging_puts_weirdness.c)
-add_c_target_with_newlib(exception_bringup src/c/with_c_stdlib/exception_bringup.c)
 
 #C test files from rv32esim (All without newlib)
 add_c_target(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)
