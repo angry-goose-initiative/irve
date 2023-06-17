@@ -82,6 +82,10 @@ sbiret_t handle_smode_ecall(
 
     sbiret_t result;
     switch (EID) {
+        case 0x08:
+            dputs("LEGACY Function: sbi_shutdown()\n");
+            dputs("  Shutting down, au revoir! ...");
+            exit(0);
         case 0x10:
             dputs("Base Extension");
             switch (FID) {
@@ -156,6 +160,8 @@ sbiret_t handle_smode_ecall(
             result.error = SBI_ERR_NOT_SUPPORTED;
             break;
     }
+
+    //FIXME increment PC here
 
     return result;
 }
