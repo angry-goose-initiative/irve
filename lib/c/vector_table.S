@@ -5,8 +5,6 @@
 # RVSW vector table and entry point for RISC-V code.
 #
 
-#TODO use ___ (to the ends as well) to prevent collisions
-
 #include "rvsw_asm.h"
 
 ################################################################################################################

@@ -18,7 +18,7 @@
 #include "rvsw_asm.h"
 
 .section .text, "ax"
-.weak ___rvsw_crt0___#C Runtime Initialization (0th stage)
+.weak ___rvsw_crt0___#C Runtime Initialization
 ___rvsw_crt0___:
     #Hint to assembler about start of function
     .cfi_startproc
@@ -40,14 +40,7 @@ ___rvsw_crt0___:
     call main
 
     #Post-main cleanup
-
-    #Flush stdio buffers
-    lw a0, stdout
-    call fflush
-    lw a0, stderr
-    call fflush
-
-    #TODO do Newlib atexit() things
+    call ___rvsw_cleanup___
 
     #Halt cpu if we ever return from main
     RVSW_EXIT_ASM

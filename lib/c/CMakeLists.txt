@@ -15,7 +15,7 @@ cmake_minimum_required(VERSION 3.16.3)
 set(RVSW_C_RUNTIME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cinit.S
     ${CMAKE_CURRENT_SOURCE_DIR}/vector_table.S
-    #TODO others
+    ${CMAKE_CURRENT_SOURCE_DIR}/cleanup.c
 )
 
 add_library(rvsw_c_runtime STATIC ${RVSW_C_RUNTIME_SOURCES})
