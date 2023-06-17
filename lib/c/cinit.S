@@ -33,6 +33,9 @@ ___rvsw_crt0___:
     #Setup stack pointer based on linker script symbol
     la sp, ___rvsw_stack_top___
 
+    #Setup Newlib code
+    call __libc_init_array
+
     #Allow code to (ex. setup Newlib or anything else) to run before main
     jal ra, ___rvsw_pre_main___
 .weak ___rvsw_pre_main___#By default, do nothing, and just jump to the next instruction
@@ -40,6 +43,8 @@ ___rvsw_pre_main___:
     
     #Jump to main
     jal ra, main
+
+    #TODO flush stdout and stderr after main
 
     #Allow code to (ex. teardown Newlib or anything else) to run after main
     jal ra, ___rvsw_post_main___
