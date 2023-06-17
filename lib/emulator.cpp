@@ -28,7 +28,10 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t() : m_CSR(), m_memory(m_CSR), m_cpu_state(m_CSR) {
+emulator::emulator_t::emulator_t(int imagec, char** imagev):
+        m_CSR(),
+        m_memory(imagec, imagev, m_CSR),
+        m_cpu_state(m_CSR) {
     irvelog(0, "Created new emulator instance");
 }
 
@@ -84,11 +87,6 @@ uint64_t emulator::emulator_t::get_inst_count() const {
 }
 
 word_t emulator::emulator_t::fetch() {
-    //Throw an exception if the PC is not aligned to a word boundary
-    //TODO priority of this exception vs. others?
-    if ((this->m_cpu_state.get_pc().u % 4) != 0) {
-        invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
-    }
 
     //Read a word from memory at the PC
     //NOTE: It may throw an exception for various reasons

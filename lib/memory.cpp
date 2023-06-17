@@ -17,6 +17,8 @@
 #include <iostream>
 #include <cstring>
 #include <memory>
+#include <fstream>
+#include <string>
 
 #include "CSR.h"
 
@@ -32,14 +34,27 @@ using namespace irve::internal;
 
 // `memory_t` Function Implementations
 
-memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
+    try {
+        load_memory_image_files(imagec, imagev);
+    }
+    catch(...) {
+        // TODO make this more descriptive?
+        throw std::exception();
+    }
     irvelog(1, "Created new Memory instance");
 }
 
 word_t memory::memory_t::instruction(word_t addr) {
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
+
+    // Throw an exception if the PC is not aligned to a word boundary
+    // TODO priority of this exception vs. others?
+    if ((machine_addr % 4) != 0) {
+        invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
+    }
 
     return read_physical(machine_addr, DT_WORD);
 }
@@ -57,34 +72,11 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 
     uint64_t machine_addr = translate_address(addr, AT_STORE);
 
-    // 2^(funct3[1:0]) is the number of bytes
-    int8_t byte = (int8_t)spow(2, data_type & 0b11);
-
-    // Check that all bytes are writable before any byte is written to
-    for(int i = 0; i<byte; ++i) {
-        this->m_mem.check_writable_byte(machine_addr + i);
-    }
-
-    // If all bytes are writable, then write to each byte
-    for(int i = 0; i<byte; ++i) {
-        this->m_mem.write_byte(machine_addr + i, (uint8_t)data.srl(8 * i).u);
-    }
-
-    // Check for misaligned access
-    // Note that this happens AFTER writing to physical memory because access faults take
-    // priority over misaligned faults
-    if (((data_type & 0b11) == 0b001) && ((addr.u % 2) != 0)) {
-        // Misaligned halfword read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
-    }
-    else if ((data_type == 0b010) && ((addr.u % 4) != 0)) {
-        // Misaligned word read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
-    }
+    write_physical(machine_addr, data_type, data);
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
-    if(1) { //TODO condition for no address translation
+    if(1) { // TODO condition for no address translation
         return (uint64_t)untranslated_addr.u;
     }
     int i = 1;
@@ -104,9 +96,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
 }
 
 word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
-
     // 2^(funct3[1:0]) is the number of bytes
-    int8_t byte = (int8_t)(spow(2, data_type & 0b11) - 1);
+    int8_t byte = (int8_t)(spow(2, data_type & DATA_WIDTH_MASK) - 1);
 
     word_t data;
 
@@ -125,16 +116,92 @@ word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
     // Check for misaligned access
     // Note that this happens AFTER reading from physical memory because access faults take
     // priority over misaligned faults
-    if (((data_type & 0b11) == 0b001) && ((addr % 2) != 0)) {
+    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
         // Misaligned halfword read
         invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
     }
-    else if ((data_type == 0b010) && ((addr % 4) != 0)) {
+    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
         // Misaligned word read
         invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
     }
 
     return data;
+}
+
+void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t data) {
+    // 2^(funct3[1:0]) is the number of bytes
+    int8_t byte = (int8_t)spow(2, data_type & DATA_WIDTH_MASK);
+
+    // Check that all bytes are writable before any byte is written to
+    for(int i = 0; i<byte; ++i) {
+        this->m_mem.check_writable_byte(addr + i);
+    }
+
+    // If all bytes are writable, then write to each byte
+    for(int i = 0; i<byte; ++i) {
+        this->m_mem.write_byte(addr + i, (uint8_t)data.srl(8 * i).u);
+    }
+
+    // Check for misaligned access
+    // Note that this happens AFTER writing to physical memory because access faults take
+    // priority over misaligned faults
+    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
+        // Misaligned halfword read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
+        // Misaligned word read
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+}
+
+void memory::memory_t::load_memory_image_files(int imagec, char** imagev) {
+    // Ensure that a memory file image was specified
+    if(imagec == 1) {
+        irvelog_always(0, "Error: No memory image file specified!");
+        throw std::exception();
+    }
+    // Load each memory file
+    for(int i = 1; i < imagec; ++i) {
+        std::string path = imagev[i];
+        if (path.find("/") == std::string::npos) {
+            path = TESTFILES_DIR + path;
+        }
+        irvelog_always(0, "Loading memory image from file \"%s\"", path.c_str());
+        load_verilog_32(path);
+    }
+}
+
+void memory::memory_t::load_verilog_32(std::string image_path) {
+    std::fstream fin = std::fstream(image_path);
+    assert(fin && "Failed to open memory image file");
+
+    // Read the file token by token
+    uint64_t addr = 0;
+    std::string token;
+    while (fin >> token) {
+        assert((token.length() != 0) && "This should never happen");
+        if (token.at(0) == '@') { // `@` indicates a new address (ASSUMING 32-BIT WORDS)
+            std::string new_addr_str = token.substr(1);
+            assert((new_addr_str.length() == 8) && "Memory image file is not formatted correctly (bad address)");
+            addr = std::stoul(new_addr_str, nullptr, 16);
+            addr *= 4; // This is a word address, not a byte address, so multiply by 4
+        }
+        else { // New data word (32-bit, could be an instruction or data)
+            if (token.length() != 8) {
+                irvelog(1, "Error: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long).");
+                irvelog(1, "This is likely an objcopy bug");
+                throw std::exception();
+            }
+            
+            // The data word this token represents
+            word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
+
+            // Write the data word to memory and increment the address to the next word
+            write_physical(addr, DT_WORD, data_word);
+            addr += 4;
+        }
+    }
 }
 
 // `pmemory_t` Function Implementations
@@ -183,9 +250,6 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
             break;
         default:
             // Not MMIO
-            if (addr >= RAMSIZE) {
-                assert(false && "Use `check_writable_byte` first");
-            }
             this->m_ram[addr] = data;
             break;
     }

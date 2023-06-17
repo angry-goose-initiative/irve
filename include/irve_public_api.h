@@ -61,7 +61,8 @@ namespace irve {//NOT irve::internal
         //We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
         class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
         public:
-            emulator_t();
+            emulator_t() = delete;
+            emulator_t(int imagec, char** imagev);
             ~emulator_t();
 
             bool tick();//Returns true as long as the emulator should continue running

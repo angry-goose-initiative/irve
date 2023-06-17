@@ -15,34 +15,37 @@
 
 //TODO put these into a namespace as regular C++ constants
 
-#define BYTE_MASK 0xFF
+// The directory where test files are located
+#define TESTFILES_DIR   "testfiles/compiled/"
 
-// Emulator memory size is 64 MiB (should be plenty for the kernel to begin with)
-#define RAMSIZE 0x0400000
+#define BYTE_MASK       0xFF
 
-//RISC-V code that writes a series of bytes to this address will print them to stdout (flushed when a newline is encountered)
-#define DEBUGADDR 0xFFFFFFFF
+#define DATA_WIDTH_MASK 0b11
 
+// Emulator memory size is 64 MiB
+#define RAMSIZE         0x0400000
+
+// RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
+// when a newline is encountered)
+#define DEBUGADDR       0xFFFFFFFF
 
 // Virtual address translation
 
-// RISC-V page size is 4 KiB
-#define PAGESIZE 0x1000
+// A RISC-V page size is 4 KiB
+#define PAGESIZE        0x1000
 
 // The physical page number field of the satp CSR
-#define satp_PPN m_CSR_ref.implicit_read(0x180).bits(21, 0).u
+#define satp_PPN        m_CSR_ref.implicit_read(0x180).bits(21, 0).u
 
 // The virtual page number (VPN) of a virtual address (va)
-#define va_VPN(va, i) va.bits(21 + 10 * i, 12 + 10 * i).u
+#define va_VPN(va, i)   va.bits(21 + 10 * i, 12 + 10 * i).u
 
 // Page is writable bit
-#define pte_W(pte) pte.bit(2).u
-
+#define pte_W(pte)      pte.bit(2).u
 // Page is readable bit
-#define pte_R(pte) pte.bit(1).u
-
+#define pte_R(pte)      pte.bit(1).u
 // Page table entry valid bit
-#define pte_V(pte) pte.bit(0).u
+#define pte_V(pte)      pte.bit(0).u
 
 // Access types
 #define AT_INSTRUCTION  0
@@ -65,19 +68,23 @@
 namespace irve::internal::memory {
 
     /**
-     * @brief A wrapper for physical memory which facilitates address translation and memory protection
+     * @brief A wrapper for physical memory
+     * 
+     * Facilitates address translation, memory protection, and loading the memory image file
     */
     class memory_t {
     public:
 
         /**
          * @brief The constructor
+         * @param imagec TODO
+         * @param imagev TODO
          * @param CSR_ref A reference to the CSRs
         */
-        memory_t(CSR::CSR_t& CSR_ref);
+        memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref);
 
         /**
-         * @brief Fetch instruction from memory
+         * @brief Fetch instruction from memory (implicit read)
          * @param addr The address to fetch from (physical or virtual depending on operating mode)
          * @return The instruction from memory
         */
@@ -86,7 +93,8 @@ namespace irve::internal::memory {
         /**
          * @brief Load data from memory
          * @param addr The address to load from (physical or virtual depending on operating mode)
-         * @param data_type From funct3 of memory instructions, specifies data width and signed/unsigned
+         * @param data_type From funct3 of memory instructions, specifies data width and
+         *                  signed/unsigned
          * @return The data read from memory
         */
         word_t load(word_t addr, uint8_t data_type);
@@ -94,7 +102,8 @@ namespace irve::internal::memory {
         /**
          * @brief Store data to memory
          * @param addr The address to write to (physical or virtual depending on operating mode)
-         * @param data_type From funct3 of memory instructions, specifies data width and signed/unsigned
+         * @param data_type From funct3 of memory instructions, specifies data width and
+         *                  signed/unsigned
          * @param data The data to be stored in memory
         */
         void store(word_t addr, uint8_t data_type, word_t data);
@@ -104,23 +113,44 @@ namespace irve::internal::memory {
         /**
          * @brief Translates a 32 bit address to a 34 bit machine address
          * @param untranslated_address 32 bit address
-         * @param access_type 
+         * @param access_type TODO
          * @return 34 bit machine address
-         */
+        */
         uint64_t translate_address(word_t untranslated_addr, uint8_t access_type) const;
 
         /**
-         * @brief Reads the specified data type from memory.
-         *        This funciton exists since address translation requires implicit memory reads.
+         * @brief Read the specified data type from memory
          * @param addr 34 bit machine address
-         * @param data_type From funct3 of memory instructions, specifies data width and signed/unsigned
+         * @param data_type From funct3 of memory instructions, specifies data width and
+         *                  signed/unsigned
          * @return 32 bit version of data that was read
         */
         word_t read_physical(uint64_t addr, uint8_t data_type) const;
 
         /**
+         * @brief Write data to memory
+         * @param addr 34 bit machine address
+         * @param data_type TODO
+         * @param data TODO
+        */
+        void write_physical(uint64_t addr, uint8_t data_type, word_t data);
+
+        /**
+         * @brief TODO
+         * @param imagec TODO
+         * @param imagev TODO
+        */
+        void load_memory_image_files(int imagec, char** imagev);
+
+        /**
+         * @brief TODO
+         * @param image_path TODO
+        */
+        void load_verilog_32(std::string image_path);
+
+        /**
          * @brief "physical" memory instance
-         */
+        */
         pmemory_t m_mem;
 
         /**
@@ -158,14 +188,16 @@ namespace irve::internal::memory {
          * @brief Write a byte to memory
          * @param addr 34 bit machine address
          * @param data The data to be written
-         * @note This does NOT raise exceptions if the byte is not writable. To verify that the
-         *       byte is writable, call `check_writable_byte` first.
+         * This function does NOT raise exceptions if the byte is not writable. To verify that the
+         * byte is writable, `check_writable_byte` should always be called first.
         */
         void write_byte(uint64_t addr, uint8_t data);
 
         /**
          * @brief Throws an exception if the byte is not writable
          * @param addr 34 bit machine address
+         * This function should always be used to check that a byte is writable before writing to
+         * the byte since `write_byte` assumes the byte is writable.
         */
        void check_writable_byte(uint64_t addr);
 

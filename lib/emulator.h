@@ -24,10 +24,18 @@ namespace irve::internal::emulator {
     class emulator_t {
     public:
 
+        // TODO how to document this?
+        /**
+         * The default constructor is deleted since the emulator is useless without a memory image
+         * file loaded
+        */
+        emulator_t() = delete;
+
         /**
          * @brief The constructor
+         * @param imagev TODO
         */
-        emulator_t();
+        emulator_t(int imagec, char** imagev);
 
         /**
          * @brief TODO
