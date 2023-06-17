@@ -12,6 +12,7 @@ set(IRVE_DISABLE_LOGGING 0)#TODO make this enabled by default in release builds#
 set(IRVE_ASYNC_LOGGING 0)
 set(IRVE_SANITIZE 0)
 set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
+set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
 
 #################################################################################################################################
 
@@ -55,4 +56,6 @@ execute_process(
 add_subdirectory(tests)
 add_subdirectory(lib)
 add_subdirectory(src)
-add_subdirectory(rvsw)
+if (IRVE_USE_RVSW)
+    add_subdirectory(rvsw)
+endif()
