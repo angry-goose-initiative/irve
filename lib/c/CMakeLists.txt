@@ -22,4 +22,52 @@ cmake_minimum_required(VERSION 3.16.3)
 
 #TODO others
 
-#add_subdirectory(jzjcoresoftware)
+set(RVSWC_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/cinit.S
+    ${CMAKE_CURRENT_SOURCE_DIR}/vector_table.S
+    #TODO others
+)
+
+add_library(rvswc STATIC ${RVSWC_SOURCES})
+target_include_directories(rvswc PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
+target_link_libraries(rvswc gcc)#To get GCC's emulation routines
+target_link_libraries(rvswc c)#To get Newlib's C library
+target_link_libraries(rvswc m)#To get Newlib's math library
+
+#[[
+
+##Static library target for RISC-V C runtime setup and other abstractions over
+#other IRVE features available to guest RISC-V programs
+#RVC means "RISC-V C", so libirvervc is the "RISC-V C" guest runtime library for IRVE
+#NOTE: NOT needed for assembly programs
+set(LIBIRVERVC_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/vector_table.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/crt0.s
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
+)
+
+#Static library target for Newlib initialization, syscalls, etc. using libirvervc
+#Depends on libirvervc
+#Optional if you don't want to use Newlib
+set(LIBIRVENEWLIB_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve_newlib.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/c/irve.h
+)
+
+ #NOTE: Using OBJECT libraries instead of STATIC libraries because of linker problems with static libraries and weak symbols
+#Basically implementing Newlib syscalls overrides some weak symbols, but this dosn't work with static libraries for some reason
+#(without --whole-archive, that is, which is a pain in CMake). So just use OBJECT libraries instead.
+add_library(irvervc OBJECT ${LIBIRVERVC_SOURCES})
+add_library(irvenewlib OBJECT ${LIBIRVENEWLIB_SOURCES})
+target_include_directories(irvervc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
+target_include_directories(irvenewlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/c)
+target_link_libraries(irvenewlib irvervc)
+
+#Static libraries are provided as an option though
+add_library(irvervc_static STATIC $<TARGET_OBJECTS:irvervc>)
+set_property(TARGET irvervc_static PROPERTY OUTPUT_NAME irvervc)
+add_library(irvenewlib_static STATIC $<TARGET_OBJECTS:irvenewlib>)
+set_property(TARGET irvenewlib_static PROPERTY OUTPUT_NAME irvenewlib)
+target_link_libraries(irvenewlib_static irvervc_static)add_subdirectory(jzjcoresoftware)
+
+#]]

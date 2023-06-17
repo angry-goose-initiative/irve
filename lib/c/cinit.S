@@ -32,7 +32,7 @@ ___rvsw_crt0___:
     #Setup global pointer
     .option push
     .option norelax
-    la gp, ___global_pointer$
+    la gp, ___rvsw_global_pointer___$
     .option pop
     
     #Setup stack pointer based on linker script symbol
@@ -47,7 +47,7 @@ ___rvsw_pre_main___:
     jal ra, main
 
     #Allow code to (ex. teardown Newlib or anything else) to run after main
-    jal ra, ___post_main
+    jal ra, ___rvsw_post_main___
 .weak ___rvsw_post_main___#By default, do nothing, and just jump to the next instruction
 ___rvsw_post_main___:
 
