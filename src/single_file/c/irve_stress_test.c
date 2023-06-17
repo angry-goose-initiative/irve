@@ -1,4 +1,4 @@
-/* stress_test.c
+/* irve_stress_test.c
  * Copyright (C) 2023 John Jekel
  * See the LICENSE file at the root of the project for licensing info.
  *
