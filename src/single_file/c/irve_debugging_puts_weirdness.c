@@ -8,8 +8,6 @@
 
 /* Includes */
 
-#include "irve.h"
-
 #include <stdio.h>
 
 /* Function Implementations */
