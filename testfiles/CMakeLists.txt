@@ -144,8 +144,6 @@ add_c_target(hello_newlib src/c/with_c_stdlib/hello_newlib.c)
 add_c_target_with_newlib(csr_bringup src/c/with_c_stdlib/csr_bringup.c)
 add_c_target_with_newlib(debugging_puts_weirdness src/c/with_c_stdlib/debugging_puts_weirdness.c)
 add_c_target_with_newlib(exception_bringup src/c/with_c_stdlib/exception_bringup.c)
-add_c_target_with_newlib(hello_exceptions src/c/with_c_stdlib/hello_exceptions.c)
-add_c_target_with_newlib(stress_test src/c/with_c_stdlib/stress_test.c)
 
 #C test files from rv32esim (All without newlib)
 add_c_target(rv32esim_c src/c/without_c_stdlib/rv32esim_c.c)

@@ -31,8 +31,9 @@ macro(add_testfiles_test TEST_NAME)
     set(TESTFILES_TEST_LIST "${TESTFILES_TEST_LIST} X(${TEST_NAME})")
     set_property(TEST testfiles_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:testfiles_verifier>")
 endmacro()
-macro(add_testfiles_parse_test TEST_NAME)#Useful for C tests that have assertions in RISC-V code rather than in testfiles_verifier
-    add_test(NAME testfiles_parse_${TEST_NAME} COMMAND irve "testfiles/compiled/${TEST_NAME}.hex" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+macro(add_testfiles_parse_test TEST_NAME REL_PATH)#Useful for C tests that have assertions in RISC-V code rather than in testfiles_verifier
+    add_test(NAME testfiles_parse_${TEST_NAME} COMMAND irve
+        "rvsw/compiled/${REL_PATH}" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
     set_property(TEST testfiles_parse_${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION "IRVE is shutting down. Bye bye!")
     #The way we did assertions pre-newlib and Newlib-style respectively
     set_property(TEST testfiles_parse_${TEST_NAME} PROPERTY FAIL_REGULAR_EXPRESSION "Assertion failed;assertion \".*\" failed")

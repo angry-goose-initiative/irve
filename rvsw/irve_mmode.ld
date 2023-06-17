@@ -34,7 +34,13 @@ SECTIONS
     .rodata : { *(.rodata*) } > ram
     .sdata : { *(.sdata*) } > ram
     .data : { *(.data*) } > ram
-    .bss : { *(.bss*) } > ram
+    .bss : {
+        ___rvsw_bss_start___ = .;
+        *(.bss*)
+        ___rvsw_bss_end___ = .;
+    } > ram
+
+    /* TODO sections for init and fini array: https://blog.thea.codes/the-most-thoroughly-commented-linker-script/ */
 
     .heap : {
         end = .;/* We do this to tell Newlib's default sbrk implementation that here is the end of globals/ the beginning of the heap; see https://github.com/eblot/newlib/blob/master/libgloss/sbrk.c */
