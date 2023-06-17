@@ -56,7 +56,7 @@ __attribute__((noreturn))
 void _exit(int) {
     //FIXME don't use legacy shutdown request
     __asm__ volatile (
-        "li a7, 0x08"
+        "li a7, 0x08\n"
         "ecall"
     );
 
@@ -101,7 +101,7 @@ int _write(int, char* str, int len) {
     //FIXME don't use legacy console putchar
     /*
     __asm__ volatile (
-        "li a7, 0x08"
+        "li a7, 0x08\n"
         "ecall"
     );
     */
