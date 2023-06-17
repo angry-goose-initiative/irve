@@ -12,6 +12,8 @@
 
 //Deal with the exit method
 
+#ifdef RVSW_MMODE
+
 #define SELF_JUMP 0
 #define CUSTOM_INSTRUCTION 1
 #define FUNCTION_CALL 2
@@ -31,6 +33,13 @@
 #undef CUSTOM_INSTRUCTION
 #undef FUNCTION_CALL
 #undef RVSW_EXIT_METHOD
+
+#elif defined(RVSW_SMODE)
+//TODO don't just do this so that assembly programs work too even if _exit doesn't exist
+#define RVSW_EXIT_ASM call _exit
+#else
+#error "RVSW_MMODE or RVSW_SMODE must be defined"
+#endif
 
 //Deal with MTVEC1
 

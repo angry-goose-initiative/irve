@@ -54,7 +54,12 @@ int _close(int) {
 //[[noreturn]]//FIXME this requires GCC 13
 __attribute__((noreturn))
 void _exit(int) {
-    //TODO flush stdout and stderr here
+    //FIXME don't use legacy shutdown request
+    __asm__ volatile (
+        "li a7, 0x08"
+        "ecall"
+    );
+
     //irve_mmode_exit();
     while (true);//TODO implement with SBI call
 }
@@ -93,6 +98,14 @@ int _read(int, char*, int) {
 }
 
 int _write(int, char* str, int len) {
+    //FIXME don't use legacy console putchar
+    /*
+    __asm__ volatile (
+        "li a7, 0x08"
+        "ecall"
+    );
+    */
+
     //TODO implement with SBI call
     //NOTE: file is ignored since we only support stdout
     /*for (int i = 0; i < len; ++i) {
