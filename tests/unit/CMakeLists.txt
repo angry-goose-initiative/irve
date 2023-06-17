@@ -37,10 +37,10 @@ endmacro()
 macro(add_integration_test)
     #Do nothing
 endmacro()
-macro(add_testfiles_test)
+macro(add_rvsw_test)
     #Do nothing
 endmacro()
-macro(add_testfiles_parse_test)
+macro(add_rvsw_parse_test)
     #Do nothing
 endmacro()
 

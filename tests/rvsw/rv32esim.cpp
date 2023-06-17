@@ -2,7 +2,7 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Verifies the rv32esim.s assembly program
+ * Verifies the rv32esim rvsw single_file assembly program
  *
 */
 

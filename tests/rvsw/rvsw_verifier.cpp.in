@@ -1,4 +1,4 @@
-/* testfiles_tester.cpp.in
+/* rvsw_verifier.cpp.in
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
@@ -21,7 +21,7 @@
 /* Defines */
 
 //CMake will populate this
-#define TEST_LIST @TESTFILES_TEST_LIST@
+#define TEST_LIST @RVSW_TEST_LIST@
 
 /* External Function Declarations */
 
@@ -40,7 +40,7 @@ const std::unordered_map<std::string, int (*)()> TEST_MAP = {
 /* Function Implementations */
 
 int main(int argc, char** argv) {
-    assert(argc == 2 && "Incorrect number of arguments. Usage: integration_tester test_to_run");
+    assert(argc == 2 && "Incorrect number of arguments. Usage: rvsw_verifier test_to_run");
 
     //Initialize random number generator for tests that use it
     srand(time(NULL));
@@ -48,6 +48,6 @@ int main(int argc, char** argv) {
     //Lookup the test to run and run it
     auto test = TEST_MAP.find(argv[1]);
     assert((test != TEST_MAP.end()) && "Test not found. Check the spelling and that it is in TEST_LIST");
-    std::cout << "Running the testfiles test called: \"" << argv[1] << "\"" << std::endl;
+    std::cout << "Running the rvsw test called: \"" << argv[1] << "\"" << std::endl;
     return test->second();
 }
