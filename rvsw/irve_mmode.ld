@@ -28,7 +28,7 @@ SECTIONS
 {
     PROVIDE(___rvsw_stack_top___ = ORIGIN(ram) + LENGTH(ram));
     
-    .init : { *(.init*) } > ram
+    .reset : { *(.reset*) } > ram
     .vector_table : { *(.vector_table*) } > ram
     .text : { *(.text*) } > ram
     .rodata : { *(.rodata*) } > ram
