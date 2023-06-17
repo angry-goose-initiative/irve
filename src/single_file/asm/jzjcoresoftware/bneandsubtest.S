@@ -1,5 +1,8 @@
 #include "rvsw_asm.h"
 
+.section .init, "ax"
+.global ___rvsw_reset___
+___rvsw_reset___:
     addi x31, x0, 1000
     addi x30, x0, 500
     addi x29, x0, 5

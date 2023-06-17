@@ -9,5 +9,4 @@
 
 cmake_minimum_required(VERSION 3.16.3)
 
-#add_subdirectory(larger)
-add_subdirectory(single_file)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/rvsw_asm.h.in ${CMAKE_CURRENT_BINARY_DIR}/rvsw_asm.h @ONLY)

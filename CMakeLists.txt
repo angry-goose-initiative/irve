@@ -36,6 +36,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 #add_subdirectory(firm)
-#add_subdirectory(lib)
+add_subdirectory(include)
+add_subdirectory(lib)
 #add_subdirectory(sbi)
 add_subdirectory(src)

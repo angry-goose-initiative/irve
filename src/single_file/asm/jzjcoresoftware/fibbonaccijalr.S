@@ -1,5 +1,8 @@
 #include "rvsw_asm.h"
 
+.section .init, "ax"
+.global ___rvsw_reset___
+___rvsw_reset___:
     # x29 is x, x30 is y, x31 is z
     
     # register setup

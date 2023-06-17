@@ -14,7 +14,7 @@ include(${PROJECT_SOURCE_DIR}/macros.cmake)
 
 macro(add_asm_target NAME)
     add_target(${NAME} ${ARGN})
-    target_include_directories(src__single_file__asm__${NAME} PRIVATE ${PROJECT_BINARY_DIR}/src)#To get the generated rvsw_asm.h
+    target_include_directories(src__single_file__asm__${NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
 endmacro()
 
 #Assembly test files from rv32esim

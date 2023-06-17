@@ -8,8 +8,9 @@
 
 #include "rvsw_asm.h"
 
-.global _start
-_start:
+.section .init, "ax"
+.global ___rvsw_reset___
+___rvsw_reset___:
 .local string
 .text
     nop

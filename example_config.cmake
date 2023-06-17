@@ -17,6 +17,19 @@ set(RVSW_MMODE_LD_SCRIPT "path/to/linker/script.ld")#Your linker script here (re
 set(RVSW_ENTRY_ADDR "0x00000000")#Your entry address here
 set(RVSW_MTVEC_IS_HARDWIRED "Vectored")#Uncomment if not hardwired, else "Direct" if direct, or "Vectored" if vectored
 set(RVSW_MTVEC_HARDWIRED_ADDR "0x00000004")#MTVEC hardwired address if applicable
+
+#Required linker script sections:
+#.init <- The cpu should begin execution at the first instruction of this section
+#.vector_table <- Needed only if vector table is hardwired
+#.text
+#TODO others
+
+#Required linker script defined symbols:
+#TODO
+
+#The linker script should also contain ENTRY(___rvsw_reset___) in the file
+
+
 set(RVSW_MARCH "rv32i")#Your -march=[...] here
 set(RVSW_MABI "ilp32")#Your -mabi=[...] here
 

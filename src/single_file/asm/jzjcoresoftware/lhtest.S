@@ -1,5 +1,8 @@
 #include "rvsw_asm.h"
 
+.section .init, "ax"
+.global ___rvsw_reset___
+___rvsw_reset___:
     #loop
     #load byte in data section into register 31
     lh x31, 12(x30)

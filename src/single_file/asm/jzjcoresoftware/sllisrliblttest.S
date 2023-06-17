@@ -1,5 +1,8 @@
 #include "rvsw_asm.h"
 
+.section .init, "ax"
+.global ___rvsw_reset___
+___rvsw_reset___:
     #Register setup
     #loop i register
     addi x29, x0, 0
