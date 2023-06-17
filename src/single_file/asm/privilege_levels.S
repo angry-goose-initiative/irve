@@ -7,7 +7,7 @@
 
 #include "rvsw_asm.h"
 
-.section .init, "ax"
+.section .reset, "ax"
 .global ___rvsw_reset___#Assembly entry point
 ___rvsw_reset___:
     j mmode_entry

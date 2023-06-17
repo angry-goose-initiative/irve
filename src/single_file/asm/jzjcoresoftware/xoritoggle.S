@@ -1,6 +1,6 @@
 #include "rvsw_asm.h"
 
-.section .init, "ax"
+.section .reset, "ax"
 .global ___rvsw_reset___
 ___rvsw_reset___:
     #Because of sign extention, the xori instruction below xor's all of the bits of x31 with 1 (effectively inverting them)

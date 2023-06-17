@@ -1,6 +1,6 @@
 #include "rvsw_asm.h"
 
-.section .init, "ax"
+.section .reset, "ax"
 .global ___rvsw_reset___
 ___rvsw_reset___:
     sb x0, 13(x0)

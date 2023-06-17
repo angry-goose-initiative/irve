@@ -70,7 +70,6 @@ sbiret_t handle_smode_ecall(
     uint32_t FID __attribute__((unused)),
     uint32_t EID __attribute__((unused))
 ) {
-    exit(3);//TESTING
     dputs("Recieved S-Mode ECALL");
     dprintf("  a0:  0x%lX\n", a0);
     dprintf("  a1:  0x%lX\n", a1);
@@ -162,7 +161,6 @@ sbiret_t handle_smode_ecall(
 }
 
 void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc) {
-    exit(2);//TESTING
     dputs("Recieved a non-S-Mode-ECALL exception");
     for (int i = 0; i < 31; ++i) {
         dprintf("  x%d:\t0x%lX\n", i + 1, registers[i]);

@@ -11,8 +11,7 @@
 # Entry point
 ################################################################################################################
 
-.section .init, "ax"
-
+.section .reset, "ax"
 .global ___rvsw_reset___#Assembly entry point
 ___rvsw_reset___:
     j ___rvsw_crt0___#It is important this is exactly 4 bytes long to avoid interfering with the vector table

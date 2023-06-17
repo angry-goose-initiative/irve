@@ -24,7 +24,7 @@ set(RVSW_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C startup cod
 set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
 
 #Required linker script sections:
-#.init <- The cpu should begin execution at the first instruction of this section
+#.reset <- The cpu should begin execution at the first instruction of this section
 #.vector_table <- Needed only if vector table is hardwired
 #.text
 #TODO others
