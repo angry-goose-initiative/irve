@@ -37,6 +37,9 @@ endmacro()
 macro(add_rvsw_parse_test)
     #Do nothing
 endmacro()
+macro(add_rvsw_smode_parse_test)
+    #Do nothing
+endmacro()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../test_list.txt)
 

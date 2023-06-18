@@ -38,6 +38,13 @@ macro(add_rvsw_parse_test TEST_NAME REL_PATH)#Useful for C tests that have asser
     set_property(TEST rvsw_parse_${TEST_NAME} PROPERTY FAIL_REGULAR_EXPRESSION "Assertion failed;assertion \".*\" failed")
     set_property(TEST rvsw_parse_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:irve>")
 endmacro()
+macro(add_rvsw_smode_parse_test TEST_NAME REL_PATH)#Useful for C tests that have assertions in RISC-V code rather than in rvsw_verifier
+    add_test(NAME rvsw_smode_parse_${TEST_NAME} COMMAND irve "rvsw/compiled/sbi/ogsbi/ogsbi.vhex32" "rvsw/compiled/${REL_PATH}" WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    set_property(TEST rvsw_smode_parse_${TEST_NAME} PROPERTY PASS_REGULAR_EXPRESSION "IRVE is shutting down. Bye bye!")
+    #The way we did assertions pre-newlib and Newlib-style respectively
+    set_property(TEST rvsw_smode_parse_${TEST_NAME} PROPERTY FAIL_REGULAR_EXPRESSION "Assertion failed;assertion \".*\" failed")
+    set_property(TEST rvsw_smode_parse_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:irve>")
+endmacro()
 macro(add_unit_test)
     #Do nothing
 endmacro()

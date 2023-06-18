@@ -1,8 +1,8 @@
-/* irve_mmode.ld
+/* irve_smode.ld
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Linker script for irve RISC-V M-Mode software
+ * Linker script for irve RISC-V S-Mode software
  *
  * Based on code from jzjcoresoftware, which was in turn based on code from the FSF:
  *
@@ -14,9 +14,9 @@
 
 MEMORY
 {
-    /* Default memory size is 64M and starts at 0x00000000 */
-    /* ram : ORIGIN = 0x00000000, LENGTH = 64M */
-    ram : ORIGIN = 0x00000000, LENGTH = 32M /* Temporary until memory-things are ready */
+    /* Default memory size is 64M and starts at 0xC0000000 */
+    /* ram : ORIGIN = 0xC0000000, LENGTH = 64M */
+    ram : ORIGIN = 0x02000000, LENGTH = 32M /* Temporary until memory-things are ready */
 }
 
 /* The arch is rv32 */

@@ -31,5 +31,10 @@ set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify t
 
 set(RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET "irve_rvsw_newlib_syscalls")
 
-set(RVSW_BUILD_SMODE_SW "1")#Uncomment if you want to build supervisor mode software too
-#TODO other options
+set(RVSW_BUILD_SMODE_SW "1")#Set to 1 if you want to build supervisor mode software too
+set(RVSW_SMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_smode.ld")#Your linker script here (relative to the root of the rvsw checkout)
+set(RVSW_STVEC_IS_HARDWIRED "VECTORED")#Uncomment if not hardwired, else "DIRECT" if direct, or "VECTORED" if vectored
+set(RVSW_SMODE_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C startup code to load the data segment before calling anything
+set(RVSW_SMODE_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
+set(RVSW_SMODE_MARCH "rv32ima_zicsr")#Your -march=[...] here (can be different from M-mode; ex if mmode code is emulating certain instructions)
+set(RVSW_SMODE_MABI "ilp32")#Your -mabi=[...] here (can be different from M-mode)
