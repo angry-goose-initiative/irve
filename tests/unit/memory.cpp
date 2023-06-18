@@ -263,64 +263,51 @@ int test_memory_memory_t_invalid_unmappedaddrs_misaligned_words() {
 }
 
 int test_memory_pmemory_t_valid_debugaddr() {//None of these should throw an exception
-    /*
     memory::pmemory_t pmemory;
 
-    pmemory.store(DEBUGADDR, 'I');
-    pmemory.store(DEBUGADDR, 'R');
-    pmemory.store(DEBUGADDR, 'V');
-    pmemory.store(DEBUGADDR, 'E');
-    pmemory.store(DEBUGADDR, '\n');
-    */
-
-    assert(false && "FIXME: Update this test to work with the new pmemory_t");
+    pmemory.write_byte(DEBUGADDR, 'I');
+    pmemory.write_byte(DEBUGADDR, 'R');
+    pmemory.write_byte(DEBUGADDR, 'V');
+    pmemory.write_byte(DEBUGADDR, 'E');
+    pmemory.write_byte(DEBUGADDR, '\n');
 
     return 0;
 }
 
 int test_memory_pmemory_t_valid_ramaddrs() {//None of these should throw an exception
-    /*
     memory::pmemory_t pmemory;
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        pmemory.store(i, (uint8_t)(i * 123));
+        pmemory.write_byte(i, (uint8_t)(i * 123));
     }
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        assert(pmemory.load(i) == (uint8_t)(i * 123));
+        assert(pmemory.read_byte(i) == (uint8_t)(i * 123));
     }
-    */
-
-    assert(false && "FIXME: Update this test to work with the new pmemory_t");
 
     return 0;
 }
 
 int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
-    /* 
     memory::pmemory_t pmemory;
 
     try {
-        pmemory.load(DEBUGADDR);
+        pmemory.read_byte(DEBUGADDR);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
         assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
-    */
-
-    assert(false && "FIXME: Update this test to work with the new pmemory_t");
 
     return 0;
 }
 
 int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
-    /*
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {
-            pmemory.load(i);
+            pmemory.read_byte(i);
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
@@ -331,20 +318,16 @@ int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
             break;
         }
     }
-    */
-
-    assert(false && "FIXME: Update this test to work with the new pmemory_t");
 
     return 0;
 }
 
 int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
-    /* 
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {
-            pmemory.store(i, 0xA5);
+            pmemory.write_byte(i, 0xA5);
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
@@ -355,9 +338,6 @@ int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
             break;
         }
     }
-    */
-
-    assert(false && "FIXME: Update this test to work with the new pmemory_t");
 
     return 0;
 }
