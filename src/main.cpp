@@ -47,7 +47,7 @@ void print_startup_message() {
     irvelog(0, "");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
 
     print_startup_message();

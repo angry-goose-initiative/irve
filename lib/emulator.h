@@ -39,7 +39,7 @@ namespace irve::internal::emulator {
          * @brief The constructor
          * @param imagev TODO
         */
-        emulator_t(int imagec, char** imagev);
+        emulator_t(int imagec, const char** imagev);
 
         /**
          * @brief Emulate one instruction

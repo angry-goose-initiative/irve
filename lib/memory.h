@@ -189,7 +189,7 @@ namespace irve::internal::memory {
          * @param imagev Vector of image files (comes directly from argv in main)
          * @param CSR_ref A reference to the CSRs
         */
-        memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref);
+        memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref);
 
         /**
          * @brief Fetch instruction from memory (implicit read)
@@ -250,7 +250,7 @@ namespace irve::internal::memory {
          * @param imagec The number of memory images plus 1 (comes directly from argc in main)
          * @param imagev Vector of image files (comes directly from argv in main)
         */
-        void load_memory_image_files(int imagec, char** imagev);
+        void load_memory_image_files(int imagec, const char** imagev);
 
         /**
          * @brief Loads a Verilog file to memory

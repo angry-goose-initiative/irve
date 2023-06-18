@@ -33,19 +33,6 @@ namespace irve {//NOT irve::internal
     namespace emulator { class emulator_t; }
 
     /**
-     * @brief Contains functions to load binaries into the emulator's memory from a file
-    */
-    namespace loader {
-        /**
-         * @brief Loads a RISC-V binary into the emulator's memory (in the Verilog format, 32-bits wide, big-endian)
-         * @param emulator A reference to the emulator to load the binary into
-         * @param filename The name of the file to load
-         * @return True if the binary was loaded successfully, false otherwise
-        */
-        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);//TODO return false if this fails
-    }
-
-    /**
      * @brief Contains functions to log messages to the console
     */
     namespace logging {
@@ -159,7 +146,7 @@ namespace irve {//NOT irve::internal
              * @param imagec The number of images to load into memory
              * @param imagev The names of the images to load into memory (array of char*)
             */
-            emulator_t(int imagec, char** imagev);
+            emulator_t(int imagec, const char** imagev);
 
             /**
              * @brief Destroy an emulator_t and free up its resources

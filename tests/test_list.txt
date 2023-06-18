@@ -59,8 +59,6 @@ add_integration_test(logging)
 ####################################################################################################
 #NOTE: May or may not correspond to a particular testcase in rvsw
 
-#[[
-
 #rvsw_verifier
 add_rvsw_test(jzjcoresoftware_adding2)
 add_rvsw_test(jzjcoresoftware_auipctest)
@@ -90,8 +88,6 @@ add_rvsw_test(jzjcoresoftware_xoritoggle)
 add_rvsw_test(rv32esim)
 
 #TODO add more
-
-#]]
 
 #rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
 add_rvsw_parse_test(hello_exceptions src/single_file/c/hello_exceptions.vhex32)

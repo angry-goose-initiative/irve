@@ -11,8 +11,6 @@
 cmake_minimum_required(VERSION 3.16.3)
 include(CTest)
 
-#[[
-
 set(
     RVSW_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/rvsw_verifier.cpp
@@ -32,12 +30,6 @@ macro(add_rvsw_test TEST_NAME)
     add_test(NAME rvsw_${TEST_NAME} COMMAND rvsw_verifier ${TEST_NAME} WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
     set(RVSW_TEST_LIST "${RVSW_TEST_LIST} X(${TEST_NAME})")
     set_property(TEST rvsw_${TEST_NAME} PROPERTY REQUIRED_FILES "$<TARGET_FILE:rvsw_verifier>")
-endmacro()
-
-#]]
-
-macro(add_rvsw_test TEST_NAME)
-    #FIXME get regular tests working again
 endmacro()
 
 macro(add_rvsw_parse_test TEST_NAME REL_PATH)#Useful for C tests that have assertions in RISC-V code rather than in rvsw_verifier
@@ -63,13 +55,9 @@ endmacro()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../test_list.txt)
 
-#[[
-
 #Put the list of testfiles tests in the testfiles tester file (THIS MUST COME AFTER INCLUDING THE TEST LIST)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/rvsw_verifier.cpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/rvsw_verifier.cpp
     @ONLY
 )
-
-#]]

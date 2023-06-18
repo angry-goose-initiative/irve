@@ -21,7 +21,7 @@ using namespace irve::internal;
 
 //TODO what should CSRs be initialized to?
 //See Volume 2 Section 3.4
-CSR::CSR_t::CSR_t() : mstatus(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}
+CSR::CSR_t::CSR_t() : satp(0), mstatus(0), minstret(0), m_privilege_mode(privilege_mode_t::MACHINE_MODE) {}//FIXME why must satp be initialized to 0?
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {

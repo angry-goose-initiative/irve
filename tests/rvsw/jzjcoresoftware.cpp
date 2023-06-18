@@ -22,8 +22,8 @@
 /* Macros */
 
 #define setup_emulator_with_program(program_name) \
-    irve::emulator::emulator_t emulator; \
-    irve::loader::load_verilog_32(emulator, "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex32"); \
+    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex32"; \
+    irve::emulator::emulator_t emulator(1, &file_name_ptr); \
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
 /* Static Function Declarations */
@@ -364,7 +364,7 @@ int verify_jzjcoresoftware_memorywritetest() {
     emulator.tick();//Execute the sw
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);
-    assert(memory_ref.r(0x10, 0b010) == 26);
+    assert(memory_ref.load(0x10, 0b010) == 26);
     emulator.tick();//Execute the lw
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0xC);
@@ -418,12 +418,12 @@ int verify_jzjcoresoftware_sbtest() {
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
-    assert(memory_ref.r(0xC, 0b010) == 0x89ABCDEF);
+    assert(memory_ref.load(0xC, 0b010) == 0x89ABCDEF);
     emulator.tick();//Execute the sb
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x4);
-    assert(memory_ref.r(0xC, 0b000) == 0x00);
-    assert(memory_ref.r(0xC, 0b010) == 0x89ABCD00);
+    assert(memory_ref.load(0xC, 0b000) == 0x00);
+    assert(memory_ref.load(0xC, 0b010) == 0x89ABCD00);
     emulator.tick();//Execute the lw
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);
@@ -442,12 +442,12 @@ int verify_jzjcoresoftware_sbtest2() {
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
-    assert(memory_ref.r(0xC, 0b010) == 0x89ABCDEF);
+    assert(memory_ref.load(0xC, 0b010) == 0x89ABCDEF);
     emulator.tick();//Execute the sb
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x4);
-    assert(memory_ref.r(0xD, 0b000) == 0x00);
-    assert(memory_ref.r(0xC, 0b010) == 0x89AB00EF);
+    assert(memory_ref.load(0xD, 0b000) == 0x00);
+    assert(memory_ref.load(0xC, 0b010) == 0x89AB00EF);
     emulator.tick();//Execute the lw
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);
@@ -466,12 +466,12 @@ int verify_jzjcoresoftware_shtest() {
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
-    assert(memory_ref.r(0x10, 0b010) == 0x89abcdef);
+    assert(memory_ref.load(0x10, 0b010) == 0x89abcdef);
     emulator.tick();//Execute the sh
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x4);
-    assert(memory_ref.r(0x10, 0b001) == 0x0000);
-    assert(memory_ref.r(0x10, 0b010) == 0x89AB0000);
+    assert(memory_ref.load(0x10, 0b001) == 0x0000);
+    assert(memory_ref.load(0x10, 0b010) == 0x89AB0000);
     emulator.tick();//Execute the first lhu 
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x8);

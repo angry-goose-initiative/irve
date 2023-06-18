@@ -28,7 +28,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t(int imagec, char** imagev):
+emulator::emulator_t::emulator_t(int imagec, const char** imagev):
         m_CSR(),
         m_memory(imagec, imagev, m_CSR),
         m_cpu_state(m_CSR) {
