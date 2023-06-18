@@ -55,7 +55,7 @@ int _close(int) {
 __attribute__((noreturn))
 void _exit(int) {
     //FIXME don't use legacy shutdown request
-    __asm__ volatile (
+    __asm__ volatile (//It is okay that we clobber a7 because we are exiting
         "li a7, 0x08\n"
         "ecall"
     );
@@ -99,23 +99,27 @@ int _read(int, char*, int) {
 
 int _write(int, char* str, int len) {
     //FIXME don't use legacy console putchar
-    /*
-    __asm__ volatile (
-        "li a7, 0x08\n"
-        "ecall"
+    long error;
+    long value;
+    __asm__ volatile (//sbi_debug_console_write()
+        "li a7, 0x4442434E\n"
+        "li a6, 0\n"
+        "mv a0, %[num_bytes]\n"
+        "mv a1, %[base_addr_lo]\n"
+        "li a2, 0\n"//We only have a 32-bit address space
+        "ecall\n"
+        "mv %[error], a0\n"
+        "mv %[value], a1\n"
+        ""
+        : [error] "=r" (error), [value] "=r" (value)
+        : [num_bytes] "r" (len), [base_addr_lo] "r" (str)
+        : "a7", "a6", "a0", "a1", "a2"
     );
-    */
 
-    //TODO implement with SBI call
-    //NOTE: file is ignored since we only support stdout
-    /*for (int i = 0; i < len; ++i) {
-        IRVE_MMODE_DEBUG_ADDR = str[i];
-    }
-
-    return len;
-    */
-    for (int i = 0; i < len; ++i) {
-        *((volatile char*)(0xFFFFFFFF)) = str[i];//TESTING
+    if (error) {
+        //TODO handle an error
+    } else {
+        return value;
     }
 
     return len;

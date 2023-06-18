@@ -93,6 +93,10 @@ is_smode_ecall:
     #In this way we give return_from_exception what it expects
     sw a0, 36(sp)
     sw a1, 40(sp)
+    #Also increment the S-Mode PC by 4 to skip past the ECALL instruction
+    csrr t0, mepc
+    addi t0, t0, 4
+    csrw mepc, t0
 
 return_from_exception:
     #Preserve the M-Mode global and thread pointers again
