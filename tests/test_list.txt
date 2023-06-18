@@ -51,7 +51,7 @@ add_unit_test(reg_file_reg_file_t)
 
 add_integration_test(about)
 #add_integration_test(emulator_t_init)#TODO
-#add_integration_test(emulator_t_sanity)
+add_integration_test(emulator_t_sanity)
 add_integration_test(logging)
 
 ####################################################################################################
