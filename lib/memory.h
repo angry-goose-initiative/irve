@@ -31,6 +31,8 @@
 
 // Virtual address translation
 
+// FIXME move macros to cpp file
+
 // A RISC-V page size is 4 KiB
 #define PAGESIZE        0x1000
 
@@ -56,14 +58,15 @@
 // Full physical page number field of the page table entry
 #define pte_PPN         (uint64_t)pte.bits(31, 10).u
 // Upper part of the page number field of the page table entry
-#define pte_PPN1        pte.bits(31, 20).u
+#define pte_PPN1        (uint64_t)pte.bits(31, 20).u
 // Lower part of the page number field of the page table entry
 #define pte_PPN0        pte.bits(19, 10).u
 // Page dirty bit
 #define pte_D           pte.bit(7).u
 // Page accessed bit
 #define pte_A           pte.bit(6).u
-// TODO global bit needed here?
+// Global mapping bit
+#define pte_G           pte.bit(5).u
 // Page is accessible in U-mode bit
 #define pte_U           pte.bit(4).u
 // Page is executable bit
@@ -82,7 +85,7 @@
                             ((access_type == AT_STORE) && (pte_W != 1)) || \
                             /* Access is a load but the page is either not marked as readable or the \
                                page is marked as exectuable but executable pages cannot be read */ \
-                            (((access_type == AT_LOAD) && (pte_R != 1)) || ((pte_X == 1) && (mstatus_MXR == 0))) || \
+                            ((access_type == AT_LOAD) && ((pte_R != 1) || ((pte_X == 1) && (mstatus_MXR == 0)))) || \
                             /* Either the current privilege mode is S or the effective privilege mode is S with \
                                the access being a load or a store (not an instruction) and S-mode can't access \
                                U-mode pages and the page is markes as accessible in U-mode */ \
@@ -173,6 +176,12 @@ namespace irve::internal::memory {
     */
     class memory_t {
     public:
+
+        /**
+         * @brief The constructor
+         * @param CSR_ref A reference to the CSRs
+        */
+        memory_t(CSR::CSR_t& CSR_ref);
 
         /**
          * @brief The constructor

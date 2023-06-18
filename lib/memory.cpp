@@ -95,6 +95,12 @@ void memory::pmemory_t::check_writable_byte(uint64_t addr) {
 
 /* `memory_t` Function Implementations */
 
+memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
+        m_mem(),
+        m_CSR_ref(CSR_ref) {
+    irvelog(1, "Created new Memory instance");
+}
+
 memory::memory_t::memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
@@ -111,17 +117,19 @@ memory::memory_t::memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref):
 word_t memory::memory_t::instruction(word_t addr) {
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
+    word_t data = read_physical(machine_addr, DT_WORD);
+
     // Throw an exception if the PC is not aligned to a word boundary
-    // TODO priority of this exception vs. others?
     if ((machine_addr % 4) != 0) {
         invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
     }
 
-    return read_physical(machine_addr, DT_WORD);
+    return data;
 }
 
 word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
     assert((data_type <= 0b111) && "Invalid funct3");
+    assert((data_type != 0b110) && "Invalid funct3");
 
     uint64_t machine_addr = translate_address(addr, AT_LOAD);
 
@@ -137,7 +145,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
-    if(satp_MODE == 0) {
+    if(satp_MODE == 0) { // TODO check the condition
         // No address translation
         return (uint64_t)untranslated_addr.u;
     }
@@ -151,9 +159,10 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     // where i is the level of the page table
 
     // STEP 1
+    // a is the PPN left shifted to its position in the pte
     uint64_t a = satp_PPN * PAGESIZE;
     uint64_t pte_addr;
-    word_t pte = 0;
+    word_t pte;
 
     int i = 1;
     while(1) {
@@ -162,6 +171,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         // This access may raise an access-fault exception
         // TODO ensure this exeption corresponds to the original access type
         pte = read_physical(pte_addr, DT_WORD);
+
+        assert(pte_G == 0 && "Global bit was set by software (but we haven't implemented it)");
 
         // STEP 3
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
@@ -183,7 +194,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     }
 
     // STEP 5
-    if(ACCESS_NOT_ALLOWED) { // FIXME supervisor mode undefined
+    if(ACCESS_NOT_ALLOWED) {
         invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
     }
 
