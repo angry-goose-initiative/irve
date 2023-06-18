@@ -14,6 +14,17 @@
 
 #include <cstdint>
 
+/* Constants and Defines */
+
+// DT prefix stands for 'data type'
+#define DT_BYTE                0b000
+#define DT_HALFWORD            0b001
+#define DT_WORD                0b010
+#define DT_SIGNED_BYTE         0b000
+#define DT_SIGNED_HALFWORD     0b001
+#define DT_UNSIGNED_BYTE       0b100
+#define DT_UNSIGNED_HALFWORD   0b101
+
 /* Types */
 
 namespace irve::internal {//Exception: Not irve::internal::common since it is, after all, "common"

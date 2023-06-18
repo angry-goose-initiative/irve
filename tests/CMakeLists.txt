@@ -4,8 +4,6 @@
 #
 # CMake configuration file for irve tests
 #
-# NOTE: Unlike the testfiles directory this is NOT a seperate project
-#
 # Based on CMakeLists.txt from rv32esim
 #
 
@@ -14,4 +12,6 @@ cmake_minimum_required(VERSION 3.16.3)
 include(CTest)
 add_subdirectory(unit)
 add_subdirectory(integration)
-add_subdirectory(testfiles)
+if (IRVE_USE_RVSW)
+    add_subdirectory(rvsw)
+endif()

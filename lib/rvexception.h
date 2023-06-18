@@ -15,10 +15,53 @@
 /* Includes */
 
 #include <stdexcept>
+#include <cassert>
 
 #include "common.h"
 
 /* Macros */
+
+//FIXME add doxygen comments
+#define invoke_rv_interrupt_by_num(the_cause) do { \
+    irve::internal::rvexception::cause_t enum_cause = (irve::internal::rvexception::cause_t) (the_cause); \
+    switch (enum_cause) { \
+        case irve::internal::rvexception::cause_t::SUPERVISOR_SOFTWARE_INTERRUPT: \
+        case irve::internal::rvexception::cause_t::MACHINE_SOFTWARE_INTERRUPT: \
+        case irve::internal::rvexception::cause_t::SUPERVISOR_TIMER_INTERRUPT: \
+        case irve::internal::rvexception::cause_t::MACHINE_TIMER_INTERRUPT: \
+        case irve::internal::rvexception::cause_t::SUPERVISOR_EXTERNAL_INTERRUPT: \
+        case irve::internal::rvexception::cause_t::MACHINE_EXTERNAL_INTERRUPT: \
+            break; \
+        default: \
+            assert(false && "Attempt to invoke interrupt with unsupported cause!"); \
+    } \
+    throw irve::internal::rvexception::rvinterrupt_t(enum_cause); \
+} while (0)
+
+//FIXME add doxygen comments
+#define invoke_rv_exception_by_num(the_cause) do { \
+    irve::internal::rvexception::cause_t enum_cause = (irve::internal::rvexception::cause_t) (the_cause); \
+    switch (enum_cause) { \
+        case irve::internal::rvexception::cause_t::INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::INSTRUCTION_ACCESS_FAULT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::ILLEGAL_INSTRUCTION_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::BREAKPOINT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::UMODE_ECALL_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::SMODE_ECALL_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::MMODE_ECALL_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::INSTRUCTION_PAGE_FAULT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::LOAD_PAGE_FAULT_EXCEPTION: \
+        case irve::internal::rvexception::cause_t::STORE_OR_AMO_PAGE_FAULT_EXCEPTION: \
+            break; \
+        default: \
+            assert(false && "Attempt to invoke exception with unsupported cause!"); \
+    } \
+    throw irve::internal::rvexception::rvexception_t(enum_cause); \
+} while (0)
 
 /**
  * @brief Invoke a RISC-V interrupt (more concise than using throw)

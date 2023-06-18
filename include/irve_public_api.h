@@ -33,19 +33,6 @@ namespace irve {//NOT irve::internal
     namespace emulator { class emulator_t; }
 
     /**
-     * @brief Contains functions to load binaries into the emulator's memory from a file
-    */
-    namespace loader {
-        /**
-         * @brief Loads a RISC-V binary into the emulator's memory (in the Verilog format, 32-bits wide, big-endian)
-         * @param emulator A reference to the emulator to load the binary into
-         * @param filename The name of the file to load
-         * @return True if the binary was loaded successfully, false otherwise
-        */
-        void load_verilog_32(emulator::emulator_t& emulator, const char* filename);//TODO return false if this fails
-    }
-
-    /**
      * @brief Contains functions to log messages to the console
     */
     namespace logging {
@@ -152,10 +139,14 @@ namespace irve {//NOT irve::internal
         */
         class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
         public:
+            emulator_t() = delete;
+
             /**
              * @brief Construct a new emulator_t
+             * @param imagec The number of images to load into memory
+             * @param imagev The names of the images to load into memory (array of char*)
             */
-            emulator_t();
+            emulator_t(int imagec, const char** imagev);
 
             /**
              * @brief Destroy an emulator_t and free up its resources
@@ -182,22 +173,7 @@ namespace irve {//NOT irve::internal
             */
             uint64_t get_inst_count() const;
 
-            /**
-             * @brief Read a byte from memory
-             * @param addr The address to read from
-             * @return The byte at the given address
-            */
-            uint8_t mem_read_byte(uint32_t addr) const;
-
-            /**
-             * @brief Write a byte to memory
-             * @param addr The address to write to
-             * @param data The byte to write
-            */
-            void mem_write_byte(uint32_t addr, uint8_t data);
         private:
-            friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
-
             /**
              * @brief The pointer to the internal emulator_t
              *

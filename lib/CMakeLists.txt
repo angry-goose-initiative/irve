@@ -32,8 +32,6 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.h
     ${CMAKE_CURRENT_SOURCE_DIR}/irve_public_api.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/loader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/loader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/logging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/logging.h
     ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
