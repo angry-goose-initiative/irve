@@ -78,6 +78,13 @@
 // Page table entry valid bit
 #define pte_V           pte.bit(0).u
 
+// The current privilege mode
+#define CURR_PMODE      m_CSR_ref.get_privilege_mode()
+
+// The conditions for no address translation
+#define NO_TRANSLATION  (CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || \
+                        ((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) && (satp_MODE == 0))
+
 // The page cannot be accessed if one of the following conditions is met:
                             /* Fetching an instruction but the page is not marked as executable */
 #define ACCESS_NOT_ALLOWED  ((access_type == AT_INSTRUCTION) && (pte_X != 1)) || \
@@ -89,7 +96,7 @@
                             /* Either the current privilege mode is S or the effective privilege mode is S with \
                                the access being a load or a store (not an instruction) and S-mode can't access \
                                U-mode pages and the page is markes as accessible in U-mode */ \
-                            (((m_CSR_ref.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
+                            (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
                                 ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) && \
                                 (mstatus_SUM == 0) && (pte_U == 1))
 

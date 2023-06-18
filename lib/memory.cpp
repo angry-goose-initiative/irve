@@ -145,7 +145,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
-    if(satp_MODE == 0) { // TODO check the condition
+    if(NO_TRANSLATION) { // TODO check the condition
         // No address translation
         return (uint64_t)untranslated_addr.u;
     }
