@@ -23,7 +23,7 @@
 #define DATA_WIDTH_MASK 0b11
 
 // Emulator memory size is 64 MiB
-#define RAMSIZE         0x0400000
+#define RAMSIZE         0x04000000
 
 // RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
 // when a newline is encountered)

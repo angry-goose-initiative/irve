@@ -153,7 +153,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     // STEP 1
     uint64_t a = satp_PPN * PAGESIZE;
     uint64_t pte_addr;
-    word_t pte;
+    word_t pte = 0;
 
     int i = 1;
     while(1) {
@@ -216,7 +216,7 @@ word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)(spow(2, data_type & DATA_WIDTH_MASK) - 1);
 
-    word_t data;
+    word_t data = 0;
 
     for(; byte > -1; --byte) {
         data |= this->m_mem.read_byte(addr + byte) << (byte * 8);
@@ -308,9 +308,7 @@ void memory::memory_t::load_verilog_32(std::string image_path) {
         }
         else { // New data word (32-bit, could be an instruction or data)
             if (token.length() != 8) {
-                irvelog(1, "Error: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long).");
-                irvelog(1, "This is likely an objcopy bug");
-                throw std::exception();
+                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long). This is likely an objcopy bug. Continuing anyway...");
             }
             
             // The data word this token represents

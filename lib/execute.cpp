@@ -233,8 +233,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     
     //try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
+        irvelog(3, "Storing 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
         memory.store(r1.u + imm.u, funct3, r2.s);
-        irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
     /*}
     catch(...) {
         assert(false && "TODO");// TODO what happens when we access invalid memory?
