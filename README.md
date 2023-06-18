@@ -1,5 +1,7 @@
 # irve
 
+<img src="logo.jpg" width=400>
+
 [![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
 [![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
 [![IRVE Integration Tests](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml)
