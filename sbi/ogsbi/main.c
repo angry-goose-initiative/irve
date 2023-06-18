@@ -10,7 +10,8 @@
 
 //const static st:
 #define HART_ID 0//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
-#define KERNEL_ADDR 0xC0000000
+//#define KERNEL_ADDR 0xC0000000
+#define KERNEL_ADDR 0x02000000//TEMPORARY until memory-things are ready
 #define DTB_ADDR 0xDEADBEEF//TODO
 
 /* Includes */
