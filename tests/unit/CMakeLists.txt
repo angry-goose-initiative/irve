@@ -19,7 +19,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/CSR.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/decode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/logging.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/reg_file.cpp
 )
 

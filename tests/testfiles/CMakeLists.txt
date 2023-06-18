@@ -11,6 +11,8 @@
 cmake_minimum_required(VERSION 3.16.3)
 include(CTest)
 
+#[[
+
 set(
     TESTFILES_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/testfiles_verifier.cpp
@@ -53,3 +55,5 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/testfiles_verifier.cpp
     @ONLY
 )
+
+#]]

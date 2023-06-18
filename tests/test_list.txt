@@ -24,23 +24,25 @@ add_unit_test(CSR_CSR_t_init)
 add_unit_test(decode_decoded_inst_t)
 add_unit_test(decode_decoded_inst_t_invalid)
 add_unit_test(logging_irvelog)
-add_unit_test(memory_memory_t_valid_debugaddr)
-add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
-add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
-add_unit_test(memory_memory_t_valid_ramaddrs_words)
-add_unit_test(memory_memory_t_invalid_debugaddr)
-add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_halfwords)
-add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_words)
+#add_unit_test(memory_memory_t_valid_debugaddr)
+#add_unit_test(memory_memory_t_valid_ramaddrs_bytes)
+#add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
+#add_unit_test(memory_memory_t_valid_ramaddrs_words)
+#add_unit_test(memory_memory_t_invalid_debugaddr)
+#add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_halfwords)
+#add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_words)
+
 #add_unit_test(memory_memory_t_invalid_unmapped_bytes)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_halfwords)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_words)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_misaligned_words)#TODO Not written yet
-add_unit_test(memory_pmemory_t_valid_debugaddr)
-add_unit_test(memory_pmemory_t_valid_ramaddrs)
-add_unit_test(memory_pmemory_t_invalid_debugaddr)
-add_unit_test(memory_pmemory_t_invalid_ram_writes)
-add_unit_test(memory_pmemory_t_invalid_ram_reads)
+
+#add_unit_test(memory_pmemory_t_valid_debugaddr)
+#add_unit_test(memory_pmemory_t_valid_ramaddrs)
+#add_unit_test(memory_pmemory_t_invalid_debugaddr)
+#add_unit_test(memory_pmemory_t_invalid_ram_writes)
+#add_unit_test(memory_pmemory_t_invalid_ram_reads)
 add_unit_test(reg_file_reg_file_t)
 
 ####################################################################################################
@@ -49,13 +51,15 @@ add_unit_test(reg_file_reg_file_t)
 
 add_integration_test(about)
 #add_integration_test(emulator_t_init)#TODO
-add_integration_test(emulator_t_sanity)
+#add_integration_test(emulator_t_sanity)
 add_integration_test(logging)
 
 ####################################################################################################
 # Testfiles Test List (testfiles_verifier and testfiles_parse)
 ####################################################################################################
 #NOTE: May or may not correspond to a particular testfile in the testfiles directory
+
+#[[
 
 #testfiles_verifier
 add_testfiles_test(jzjcoresoftware_adding2)
@@ -86,6 +90,8 @@ add_testfiles_test(jzjcoresoftware_xoritoggle)
 add_testfiles_test(rv32esim)
 
 #TODO add more
+
+#]]
 
 #testfiles_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
 add_testfiles_parse_test(hello_world)

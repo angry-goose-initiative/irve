@@ -30,9 +30,16 @@ namespace irve::internal::emulator {
     class emulator_t {
     public:
         /**
-         * @brief Construct a new emulator_t
+         * The default constructor is deleted since the emulator is useless without a memory image
+         * file loaded
         */
-        emulator_t();
+        emulator_t() = delete;
+
+        /**
+         * @brief The constructor
+         * @param imagev TODO
+        */
+        emulator_t(int imagec, char** imagev);
 
         /**
          * @brief Emulate one instruction
@@ -53,29 +60,32 @@ namespace irve::internal::emulator {
          * @return minstret
         */
         uint64_t get_inst_count() const;
-
-        /**
-         * @brief Read a byte from memory
-         * @param addr The address to read from
-         * @return The byte at the given address
-        */
-        int8_t mem_read_byte(word_t addr) const;
-
-        /**
-         * @brief Write a byte to memory
-         * @param addr The address to write to
-         * @param data The byte to write
-        */
-        void mem_write(word_t addr, uint8_t size, word_t data);
-
     private:
         
         //TODO document these as well
 
-        word_t fetch() const;
+        /**
+         * @brief TODO
+         * @return TODO
+        */
+        word_t fetch();
+
+        /**
+         * @brief TODO
+         * @param decoded_inst TODO
+        */
         void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
 
+        /**
+         * @brief TODO
+         * @param cause TODO
+        */
         void handle_interrupt(rvexception::cause_t cause);
+
+        /**
+         * @brief TODO
+         * @param cause TODO
+        */
         void handle_exception(rvexception::cause_t cause);
         
         CSR::CSR_t m_CSR;
