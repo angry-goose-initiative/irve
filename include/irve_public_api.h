@@ -75,7 +75,6 @@ namespace irve {//NOT irve::internal
 
             //TODO how to best expose CPU state to the user for them to modify/read? (particularly for integration testing)
         private:
-            friend void irve::loader::load_verilog_32(emulator_t& emulator, const char* filename);
             irve::internal::emulator::emulator_t* m_emulator_ptr;
         };
     }

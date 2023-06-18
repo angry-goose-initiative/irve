@@ -15,18 +15,19 @@
 
 #include "config.h"
 #include "emulator.h"
-#include "loader.h"
 
 #define INST_COUNT 0
 #include "logging.h"
 
-//NO using statements here to make it obvious if we are refering to the internal namespace or the public namespace
+// NO using statements here to make it obvious if we are refering to the internal namespace or the
+// public namespace
 
 /* Function Implementations */
 
 //Namepace: irve::emulator
 
-irve::emulator::emulator_t::emulator_t() : m_emulator_ptr(new irve::internal::emulator::emulator_t()) {}
+irve::emulator::emulator_t::emulator_t(int imagec, char** imagev):
+        m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
 
 irve::emulator::emulator_t::~emulator_t() {
     delete this->m_emulator_ptr;
@@ -43,20 +44,6 @@ void irve::emulator::emulator_t::run_until(uint64_t inst_count) {
 
 uint64_t irve::emulator::emulator_t::get_inst_count() const {
     return this->m_emulator_ptr->get_inst_count();
-}
-
-uint8_t irve::emulator::emulator_t::mem_read_byte(uint32_t addr) const {
-    return (uint8_t)this->m_emulator_ptr->mem_read_byte(addr);
-}
-
-void irve::emulator::emulator_t::mem_write_byte(uint32_t addr, uint8_t data) {
-    this->m_emulator_ptr->mem_write(addr, 0b000, (uint32_t)data);//FIXME why isn't this orthogonal in the internal API?
-}
-
-//Namepace: irve::loader
-
-void irve::loader::load_verilog_32(irve::emulator::emulator_t& emulator, const char* filename) {
-    irve::internal::loader::load_verilog_32(*(emulator.m_emulator_ptr), filename);
 }
 
 //Namepace: irve::logging
