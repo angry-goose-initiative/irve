@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     try {
         irvelog_always(0, "Initializing emulator...");
         
-        irve::emulator::emulator_t emulator{argc, argv};//FIXME do argc - 1, &(argv[1])
+        irve::emulator::emulator_t emulator{argc - 1, &(argv[1])};
 
         auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
 

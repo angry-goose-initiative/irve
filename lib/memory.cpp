@@ -284,15 +284,9 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
 }
 
 void memory::memory_t::load_memory_image_files(int imagec, char** imagev) {
-    //FIXME don't handle the first argument of argv here, assume it has already been cut off
 
-    // Ensure that a memory file image was specified
-    /* if(imagec == 1) {
-        irvelog_always(0, "Error: No memory image file specified!");
-        throw std::exception();
-    }*/
     // Load each memory file
-    for(int i = 1; i < imagec; ++i) {
+    for(int i = 0; i < imagec; ++i) {
         std::string path = imagev[i];
         if (path.find("/") == std::string::npos) {
             path = TESTFILES_DIR + path;
