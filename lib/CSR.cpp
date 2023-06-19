@@ -47,9 +47,9 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         //case address::STVEC:            return this->stvec;
         //case address::SCOUNTEREN:       return ;//TODO
         //case address::SENVCFG:          return ;//TODO
-        //case address::SSCRATCH:         return this->sscratch;//TODO
+        case address::SSCRATCH:         return this->sscratch;
         case address::SEPC:             return this->sepc;//TODO is this correct?
-        //case address::SCAUSE:           return this->scause;//TODO
+        case address::SCAUSE:           return this->scause;
         case address::STVAL:            return this->stval;
         case address::SIP:              return this->sip;
         case address::SATP:             return this->satp;
@@ -57,11 +57,12 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MISA:             return 0;
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
-        //case address::MIE:              return this->mie;//TODO
+        case address::MIE:              return this->mie;
         case address::MTVEC:            return MTVEC_CONTENTS;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg & 0b1;
         case address::MSTATUSH:         return this->mstatush;
+        //case address::MENVCFGH:         //TODO
         case address::MCOUNTINHIBIT:    return 0;
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
@@ -71,7 +72,6 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MCAUSE:           return this->mcause;
         case address::MTVAL:            return this->mtval;
         case address::MIP:              return this->mip;
-        //case address::MTINST:           return this->mtinst;//TODO
         //TODO the PMP CSRs
         //case address::SATP:             return this->satp;//TODO figure out which satp is which
         case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
@@ -101,9 +101,9 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         //case address::STVEC:            //TODO
         //case address::SCOUNTEREN:       //TODO
         //case address::SENVCFG:          //TODO
-        //case address::SSCRATCH:         //TODO
+        case address::SSCRATCH:         this->sscratch = data; return;
         case address::SEPC:             this->sepc = data; return;//TODO is this correct?
-        //case address::SCAUSE:           //TODO
+        case address::SCAUSE:           this->scause = data; return;
         case address::STVAL:            this->stval = data; return;
         case address::SIP:              this->sip = data; return;
         case address::SATP:             this->satp = data; return;
@@ -111,9 +111,10 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
         case address::MEDELEG:          this->medeleg = data; return;
         case address::MIDELEG:          this->mideleg = data; return;
-        //case address::MIE:              //TODO
+        case address::MIE:              this->mie = data; return;
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;
         case address::MSTATUSH:         this->mstatush = data; return;
+        //case address::MENVCFGH:         //TODO
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
@@ -123,7 +124,6 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MCAUSE:           this->mcause = data; return;
         case address::MTVAL:            this->mtval = data; return;
         case address::MIP:              this->mip = data; return;
-        //case address::MTINST:           //TODO
         //TODO the PMP CSRs
         case address::MCYCLE:           this->mcycle    = (this->mcycle   & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;
         case address::MINSTRET:         this->minstret  = (this->minstret & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;

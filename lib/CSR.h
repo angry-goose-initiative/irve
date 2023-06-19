@@ -179,16 +179,15 @@ namespace irve::internal::CSR {
         reg_t medeleg;
         reg_t mideleg;
         reg_t mie;
-        reg_t mtvec;
+        //mtvec is NOT here
         reg_t menvcfg;
         reg_t mstatush;
-        reg_t menvcfgh;
+        //menvcfgh is NOT here
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
         reg_t mtval;
         reg_t mip;
-        reg_t mtinst;
         //TODO the PMP CSRs
         //reg_t satp;
 
@@ -196,7 +195,7 @@ namespace irve::internal::CSR {
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
-        uint64_t time;//Handles both time and timeh
+        //uint64_t time;//Handles both time and timeh//TODO actually use
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };
