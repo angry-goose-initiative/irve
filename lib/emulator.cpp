@@ -36,9 +36,8 @@ emulator::emulator_t::emulator_t(int imagec, const char** imagev):
 }
 
 bool emulator::emulator_t::tick() {
-    //FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
-    this->m_CSR.implicit_write(CSR::address::MINSTRET,  this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
-    this->m_CSR.implicit_write(CSR::address::MCYCLE,    this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
+    this->m_CSR.implicit_write(CSR::address::MINSTRET, this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
+    this->m_CSR.implicit_write(CSR::address::MCYCLE,   this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
