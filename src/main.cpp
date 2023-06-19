@@ -28,7 +28,7 @@ static void print_startup_message();
 
 /* Function Implementations */
 
-int main(int argc, const char** argv) {
+int main(int argc, const char* const * argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
 
     print_startup_message();
@@ -52,8 +52,7 @@ int main(int argc, const char** argv) {
         irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000.0));
 
         irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
-    }
-    catch (...) {
+    } catch (...) {
         irvelog_always(0, "Failed to initialize the emulator!");
     }
     

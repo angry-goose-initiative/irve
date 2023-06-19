@@ -26,7 +26,7 @@
 
 //Namepace: irve::emulator
 
-irve::emulator::emulator_t::emulator_t(int imagec, const char** imagev):
+irve::emulator::emulator_t::emulator_t(int imagec, const char* const * imagev):
         m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
 
 irve::emulator::emulator_t::~emulator_t() {

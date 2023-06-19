@@ -146,7 +146,7 @@ namespace irve {//NOT irve::internal
              * @param imagec The number of images to load into memory
              * @param imagev The names of the images to load into memory (array of char*)
             */
-            emulator_t(int imagec, const char** imagev);
+            emulator_t(int imagec, const char* const * imagev);
 
             /**
              * @brief Destroy an emulator_t and free up its resources

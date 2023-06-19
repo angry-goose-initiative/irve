@@ -10,7 +10,7 @@
 #Config options
 set(IRVE_DISABLE_LOGGING 0)#TODO make this enabled by default in release builds#TODO rename to disable verbose logging
 set(IRVE_ASYNC_LOGGING 0)
-set(IRVE_SANITIZE 1)
+set(IRVE_SANITIZE 0)
 set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
 set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
 
