@@ -67,7 +67,12 @@ namespace irve::internal::CSR {
         const uint16_t MIP                  = 0x344;
         const uint16_t MTINST               = 0x34A;
         const uint16_t MTVAL2               = 0x34B;
-        //TODO the PMP CSRs
+        
+        const uint16_t PMPCFG_START         = 0x3A0;//Inclusive
+        const uint16_t PMPCFG_END           = 0x3AF;//Inclusive
+        const uint16_t PMPADDR_START        = 0x3B0;//Inclusive
+        const uint16_t PMPADDR_END          = 0x3EF;//Inclusive
+        
         const uint16_t MCYCLE               = 0xB00;
         const uint16_t MINSTRET             = 0xB02;
 
@@ -168,6 +173,9 @@ namespace irve::internal::CSR {
         bool current_privilege_mode_can_explicitly_write(uint16_t csr) const;
 
         reg_t sie;
+        reg_t stvec;
+        reg_t scounteren;
+        reg_t senvcfg;
         reg_t sscratch;
         reg_t sepc;
         reg_t scause;
@@ -189,7 +197,6 @@ namespace irve::internal::CSR {
         reg_t mtval;
         reg_t mip;
         //TODO the PMP CSRs
-        //reg_t satp;
 
         //TODO add CSRs HERE
 

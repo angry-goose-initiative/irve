@@ -44,9 +44,9 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
     switch (csr) {
         case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
         case address::SIE:              return this->sie;
-        //case address::STVEC:            return this->stvec;
-        //case address::SCOUNTEREN:       return ;//TODO
-        //case address::SENVCFG:          return ;//TODO
+        case address::STVEC:            return this->stvec;
+        case address::SCOUNTEREN:       return this->scounteren;
+        case address::SENVCFG:          return this->senvcfg & 0b1;//TODO is this correct?
         case address::SSCRATCH:         return this->sscratch;
         case address::SEPC:             return this->sepc;//TODO is this correct?
         case address::SCAUSE:           return this->scause;
@@ -62,7 +62,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg & 0b1;
         case address::MSTATUSH:         return this->mstatush;
-        //case address::MENVCFGH:         //TODO
+        case address::MENVCFGH:         return 0;
         case address::MCOUNTINHIBIT:    return 0;
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
@@ -73,7 +73,6 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MTVAL:            return this->mtval;
         case address::MIP:              return this->mip;
         //TODO the PMP CSRs
-        //case address::SATP:             return this->satp;//TODO figure out which satp is which
         case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
         case address::MINSTRET:         return (uint32_t)(this->minstret & 0xFFFFFFFF);
 
@@ -98,9 +97,9 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
     switch (csr) {
         case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
         case address::SIE:              this->sie = data; return;
-        //case address::STVEC:            //TODO
-        //case address::SCOUNTEREN:       //TODO
-        //case address::SENVCFG:          //TODO
+        case address::STVEC:            this->stvec = data; return;
+        case address::SCOUNTEREN:       this->scounteren = data; return;
+        case address::SENVCFG:          this->senvcfg = data & 0b1; return;//TODO is this correct?
         case address::SSCRATCH:         this->sscratch = data; return;
         case address::SEPC:             this->sepc = data; return;//TODO is this correct?
         case address::SCAUSE:           this->scause = data; return;
@@ -114,7 +113,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MIE:              this->mie = data; return;
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;
         case address::MSTATUSH:         this->mstatush = data; return;
-        //case address::MENVCFGH:         //TODO
+        case address::MENVCFGH:         return;//We simply ignore writes to MENVCFGH, NOT throw an exception
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
 
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions

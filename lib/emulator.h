@@ -13,9 +13,9 @@
 
 #include "common.h"
 #include "cpu_state.h"
-#include "memory.h"
 #include "decode.h"
-
+#include "gdbserver.h"
+#include "memory.h"
 #include "rvexception.h"
 
 /* Types */
@@ -39,7 +39,7 @@ namespace irve::internal::emulator {
          * @brief The constructor
          * @param imagev TODO
         */
-        emulator_t(int imagec, const char* const * imagev);
+        emulator_t(int imagec, const char* const* imagev);
 
         /**
          * @brief Emulate one instruction
@@ -54,6 +54,13 @@ namespace irve::internal::emulator {
          *
         */
         void run_until(uint64_t inst_count);
+
+        /**
+         * @brief Run a GDB server on the given port
+         * @param port The port to listen on
+         *
+        */
+        void run_gdbserver(uint16_t port);
 
         /**
          * @brief Get the current instruction count
@@ -93,6 +100,8 @@ namespace irve::internal::emulator {
         cpu_state::cpu_state_t m_cpu_state;
 
         //TODO other things
+
+        friend void irve::internal::gdbserver::start(emulator_t& emulator, uint16_t port);
     };
 }
 

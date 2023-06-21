@@ -17,6 +17,7 @@
 #include "cpu_state.h"
 #include "CSR.h"
 #include "decode.h"
+#include "gdbserver.h"
 #include "execute.h"
 #include "memory.h"
 #include "rvexception.h"
@@ -28,7 +29,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t(int imagec, const char* const * imagev):
+emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
         m_CSR(),
         m_memory(imagec, imagev, m_CSR),
         m_cpu_state(m_CSR) {
@@ -79,6 +80,10 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
         //The only exit criteria is an exit request
         while (this->tick());
     }
+}
+
+void emulator::emulator_t::run_gdbserver(uint16_t port) {
+    gdbserver::start(*this, port);
 }
 
 uint64_t emulator::emulator_t::get_inst_count() const {

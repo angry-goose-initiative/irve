@@ -28,7 +28,7 @@ static void print_startup_message();
 
 /* Function Implementations */
 
-int main(int argc, const char* const * argv) {
+int main(int argc, const char* const* argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
 
     print_startup_message();

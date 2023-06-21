@@ -26,7 +26,7 @@
 
 //Namepace: irve::emulator
 
-irve::emulator::emulator_t::emulator_t(int imagec, const char* const * imagev):
+irve::emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
         m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
 
 irve::emulator::emulator_t::~emulator_t() {
@@ -40,6 +40,10 @@ bool irve::emulator::emulator_t::tick() {
 
 void irve::emulator::emulator_t::run_until(uint64_t inst_count) {
     this->m_emulator_ptr->run_until(inst_count);
+}
+
+void irve::emulator::emulator_t::run_gdbserver(uint16_t port) {
+    this->m_emulator_ptr->run_gdbserver(port);
 }
 
 uint64_t irve::emulator::emulator_t::get_inst_count() const {
