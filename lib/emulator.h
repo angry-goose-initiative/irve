@@ -20,11 +20,15 @@
 
 /* Types */
 
+/**
+ * @brief The namespace containing the actual emulator_t class (internal)
+*/
 namespace irve::internal::emulator {
+    /**
+     * @brief The main IRVE emulator class (internal)
+    */
     class emulator_t {
     public:
-
-        // TODO how to document this?
         /**
          * The default constructor is deleted since the emulator is useless without a memory image
          * file loaded
@@ -35,28 +39,30 @@ namespace irve::internal::emulator {
          * @brief The constructor
          * @param imagev TODO
         */
-        emulator_t(int imagec, char** imagev);
+        emulator_t(int imagec, const char** imagev);
 
         /**
-         * @brief TODO
-         * @return True as long as the emulator should continue running
+         * @brief Emulate one instruction
         */
-        bool tick();
-        
+        bool tick();//Returns true if the emulator should continue running
+         
         /**
-         * @brief Runs the emulator until the given instruction count is reached or an exit request is made.
-         *        For dynamic linking to libirve, this is more efficient than calling tick() in a loop.
-         * @param inst_count TODO
+         * @brief Repeatedly emulate instructions
+         * @param inst_count The value of minstret at which to stop
+         * Runs the emulator until the given instruction count is reached or an exit request is made
+         * For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+         *
         */
         void run_until(uint64_t inst_count);
 
         /**
-         * @brief TODO
-         * @return TODO
+         * @brief Get the current instruction count
+         * @return minstret
         */
         uint64_t get_inst_count() const;
-
     private:
+        
+        //TODO document these as well
 
         /**
          * @brief TODO

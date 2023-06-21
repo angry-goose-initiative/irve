@@ -43,15 +43,15 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
     //TODO handle WPRI in this function
     switch (csr) {
         case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
-        //case address::SIE:              return this->sie;//TODO
+        case address::SIE:              return this->sie;
         //case address::STVEC:            return this->stvec;
         //case address::SCOUNTEREN:       return ;//TODO
         //case address::SENVCFG:          return ;//TODO
         //case address::SSCRATCH:         return this->sscratch;//TODO
-        //case address::SEPC:             return this->sepc;//TODO
+        case address::SEPC:             return this->sepc;//TODO is this correct?
         //case address::SCAUSE:           return this->scause;//TODO
         case address::STVAL:            return this->stval;
-        //case address::SIP:              return this->sip;//TODO
+        case address::SIP:              return this->sip;
         case address::SATP:             return this->satp;
         case address::MSTATUS:          return this->mstatus;
         case address::MISA:             return 0;
@@ -97,15 +97,15 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
     //TODO handle WARL in this function
     switch (csr) {
         case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
-        //case address::SIE:              //TODO
+        case address::SIE:              this->sie = data; return;
         //case address::STVEC:            //TODO
         //case address::SCOUNTEREN:       //TODO
         //case address::SENVCFG:          //TODO
         //case address::SSCRATCH:         //TODO
-        //case address::SEPC:             //TODO
+        case address::SEPC:             this->sepc = data; return;//TODO is this correct?
         //case address::SCAUSE:           //TODO
         case address::STVAL:            this->stval = data; return;
-        //case address::SIP:              //TODO
+        case address::SIP:              this->sip = data; return;
         case address::SATP:             this->satp = data; return;
         case address::MSTATUS:          this->mstatus = data; return;
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception

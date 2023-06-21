@@ -102,7 +102,13 @@ void memory::pmemory_t::check_writable_byte(uint64_t addr) {
 
 /* `memory_t` Function Implementations */
 
-memory::memory_t::memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
+        m_mem(),
+        m_CSR_ref(CSR_ref) {
+    irvelog(1, "Created new Memory instance");
+}
+
+memory::memory_t::memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
     try {
@@ -118,17 +124,19 @@ memory::memory_t::memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref):
 word_t memory::memory_t::instruction(word_t addr) {
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
+    word_t data = read_physical(machine_addr, DT_WORD);
+
     // Throw an exception if the PC is not aligned to a word boundary
-    // TODO priority of this exception vs. others?
     if ((machine_addr % 4) != 0) {
         invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
     }
 
-    return read_physical(machine_addr, DT_WORD);
+    return data;
 }
 
 word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
     assert((data_type <= 0b111) && "Invalid funct3");
+    assert((data_type != 0b110) && "Invalid funct3");
 
     uint64_t machine_addr = translate_address(addr, AT_LOAD);
 
@@ -144,7 +152,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
-    if(satp_MODE == 0) {
+    if(NO_TRANSLATION) { // TODO check the condition
         // No address translation
         return (uint64_t)untranslated_addr.u;
     }
@@ -158,6 +166,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     // where i is the level of the page table
 
     // STEP 1
+    // a is the PPN left shifted to its position in the pte
     uint64_t a = satp_PPN * PAGESIZE;
     uint64_t pte_addr;
     word_t pte;
@@ -169,6 +178,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         // This access may raise an access-fault exception
         // TODO ensure this exeption corresponds to the original access type
         pte = read_physical(pte_addr, DT_WORD);
+
+        assert(pte_G == 0 && "Global bit was set by software (but we haven't implemented it)");
 
         // STEP 3
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
@@ -190,7 +201,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     }
 
     // STEP 5
-    if(ACCESS_NOT_ALLOWED) { // FIXME supervisor mode undefined
+    if(ACCESS_NOT_ALLOWED) {
         invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
     }
 
@@ -223,7 +234,7 @@ word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)(spow(2, data_type & DATA_WIDTH_MASK) - 1);
 
-    word_t data;
+    word_t data = 0;
 
     for(; byte > -1; --byte) {
         data |= this->m_mem.read_byte(addr + byte) << (byte * 8);
@@ -279,14 +290,10 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
     }
 }
 
-void memory::memory_t::load_memory_image_files(int imagec, char** imagev) {
-    // Ensure that a memory file image was specified
-    if(imagec == 1) {
-        irvelog_always(0, "Error: No memory image file specified!");
-        throw std::exception();
-    }
+void memory::memory_t::load_memory_image_files(int imagec, const char** imagev) {
+
     // Load each memory file
-    for(int i = 1; i < imagec; ++i) {
+    for(int i = 0; i < imagec; ++i) {
         std::string path = imagev[i];
         if (path.find("/") == std::string::npos) {
             path = TESTFILES_DIR + path;
@@ -313,9 +320,7 @@ void memory::memory_t::load_verilog_32(std::string image_path) {
         }
         else { // New data word (32-bit, could be an instruction or data)
             if (token.length() != 8) {
-                irvelog(1, "Error: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long).");
-                irvelog(1, "This is likely an objcopy bug");
-                throw std::exception();
+                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long). This is likely an objcopy bug. Continuing anyway...");
             }
             
             // The data word this token represents

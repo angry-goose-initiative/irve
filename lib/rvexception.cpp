@@ -42,5 +42,5 @@ rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) : rvexcept
 rvexception::irve_exit_request_t::irve_exit_request_t() {}
 
 const char* rvexception::irve_exit_request_t::what() const noexcept {
-    return "Uncaught IRVE exit request, you should never see this.";
+    return "\x1b[91mUncaught IRVE exit request, you should never see this.\x1b[0m";
 }

@@ -90,18 +90,22 @@ word_t& word_t::operator^=(const word_t& other) {
 }
 
 word_t word_t::operator<<(const word_t& other) const {
+    assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
     return word_t(this->u << other.u);
 }
 
 word_t& word_t::operator<<=(const word_t& other) {
+    assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
     return *this = *this << other;
 }
 
 word_t word_t::srl(const word_t& other) const {
+    assert((other.u < 32) && "Attempt to logically shift right by more than 32 bits!");
     return word_t(this->u >> other.u);
 }
 
 word_t word_t::sra(const word_t& other) const {
+    assert((other.u < 32) && "Attempt to arithmetically shift right by more than 32 bits!");
     //TODO ensure this is arithmetic shift
     return word_t(this->s >> other.s);
 }

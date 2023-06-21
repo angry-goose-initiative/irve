@@ -23,13 +23,15 @@
 #define DATA_WIDTH_MASK 0b11
 
 // Emulator memory size is 64 MiB
-#define RAMSIZE         0x0400000
+#define RAMSIZE         0x04000000
 
 // RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
 // when a newline is encountered)
 #define DEBUGADDR       0xFFFFFFFF
 
 // Virtual address translation
+
+// FIXME move macros to cpp file
 
 // A RISC-V page size is 4 KiB
 #define PAGESIZE        0x1000
@@ -56,14 +58,15 @@
 // Full physical page number field of the page table entry
 #define pte_PPN         (uint64_t)pte.bits(31, 10).u
 // Upper part of the page number field of the page table entry
-#define pte_PPN1        pte.bits(31, 20).u
+#define pte_PPN1        (uint64_t)pte.bits(31, 20).u
 // Lower part of the page number field of the page table entry
 #define pte_PPN0        pte.bits(19, 10).u
 // Page dirty bit
 #define pte_D           pte.bit(7).u
 // Page accessed bit
 #define pte_A           pte.bit(6).u
-// TODO global bit needed here?
+// Global mapping bit
+#define pte_G           pte.bit(5).u
 // Page is accessible in U-mode bit
 #define pte_U           pte.bit(4).u
 // Page is executable bit
@@ -75,6 +78,13 @@
 // Page table entry valid bit
 #define pte_V           pte.bit(0).u
 
+// The current privilege mode
+#define CURR_PMODE      m_CSR_ref.get_privilege_mode()
+
+// The conditions for no address translation
+#define NO_TRANSLATION  (CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || \
+                        ((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) && (satp_MODE == 0))
+
 // The page cannot be accessed if one of the following conditions is met:
                             /* Fetching an instruction but the page is not marked as executable */
 #define ACCESS_NOT_ALLOWED  ((access_type == AT_INSTRUCTION) && (pte_X != 1)) || \
@@ -82,11 +92,11 @@
                             ((access_type == AT_STORE) && (pte_W != 1)) || \
                             /* Access is a load but the page is either not marked as readable or the \
                                page is marked as exectuable but executable pages cannot be read */ \
-                            ((access_type == AT_LOAD) && (pte_R != 1) || ((pte_X == 1) && (mstatus_MXR == 0))) || \
+                            ((access_type == AT_LOAD) && ((pte_R != 1) || ((pte_X == 1) && (mstatus_MXR == 0)))) || \
                             /* Either the current privilege mode is S or the effective privilege mode is S with \
                                the access being a load or a store (not an instruction) and S-mode can't access \
                                U-mode pages and the page is markes as accessible in U-mode */ \
-                            (((m_CSR_ref.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
+                            (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
                                 ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) && \
                                 (mstatus_SUM == 0) && (pte_U == 1))
 
@@ -176,11 +186,17 @@ namespace irve::internal::memory {
 
         /**
          * @brief The constructor
+         * @param CSR_ref A reference to the CSRs
+        */
+        memory_t(CSR::CSR_t& CSR_ref);
+
+        /**
+         * @brief The constructor
          * @param imagec The number of memory images plus 1 (comes directly from argc in main)
          * @param imagev Vector of image files (comes directly from argv in main)
          * @param CSR_ref A reference to the CSRs
         */
-        memory_t(int imagec, char** imagev, CSR::CSR_t& CSR_ref);
+        memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref);
 
         /**
          * @brief Fetch instruction from memory (implicit read)
@@ -241,7 +257,7 @@ namespace irve::internal::memory {
          * @param imagec The number of memory images plus 1 (comes directly from argc in main)
          * @param imagev Vector of image files (comes directly from argv in main)
         */
-        void load_memory_image_files(int imagec, char** imagev);
+        void load_memory_image_files(int imagec, const char** imagev);
 
         /**
          * @brief Loads a Verilog file to memory

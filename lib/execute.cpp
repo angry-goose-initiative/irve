@@ -233,8 +233,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     
     //try {
         // Note this will throw an excepteion if the memory address isn't valid (TODO)
+        irvelog(3, "Storing 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
         memory.store(r1.u + imm.u, funct3, r2.s);
-        irvelog(3, "Stored 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
     /*}
     catch(...) {
         assert(false && "TODO");// TODO what happens when we access invalid memory?
@@ -744,11 +744,18 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
 
-    //The "link" part of jump and link
-    cpu_state.set_r(decoded_inst.get_rd(), cpu_state.get_pc() + 4);
+    word_t old_pc = cpu_state.get_pc();
 
     //Jump to the address in rs1 plus the immediate
-    cpu_state.set_pc(cpu_state.get_r(decoded_inst.get_rs1()).u + decoded_inst.get_imm().u);
+    word_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    word_t imm = decoded_inst.get_imm();
+    word_t destination_pc = rs1 + imm;
+    irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, imm.u, destination_pc);
+    cpu_state.set_pc(destination_pc);
+
+    //The "link" part of jump and link
+    //Critically this must be done after the jump to the destination_pc to avoid clobbering the register before it is used
+    cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
 void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
@@ -759,11 +766,13 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary
 
-    //The "link" part of jump and link
-    cpu_state.set_r(decoded_inst.get_rd(), cpu_state.get_pc() + 4);
+    word_t old_pc = cpu_state.get_pc();
 
     //Jump relative to the current PC
     cpu_state.set_pc(cpu_state.get_pc() + decoded_inst.get_imm().u);
+
+    //The "link" part of jump and link
+    cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
 void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, CSR::CSR_t& CSR) {
@@ -782,7 +791,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     CSR::privilege_mode_t privilege_mode = CSR.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
-        case 0b000://ECALL, EBREAK, WFI, MRET, or SRET
+        case 0b000://ECALL, EBREAK, WFI, MRET, SRET, or SFENCE.VMA
             //For all of these, the register fields rd and rs1 must be zero
             if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
@@ -810,9 +819,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             } else if (imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
                 invoke_rv_exception(BREAKPOINT);
-            } else if (imm == 0b000100000010) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
+            } else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
+                cpu_state.goto_next_sequential_pc();
             } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
@@ -845,6 +855,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //Return to the address in SEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
+            } else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
+                irvelog(3, "Mnemonic: SFENCE.VMA");
+                irvelog(4, "We don't have a TLB in IRVE, so this is a NOP");
+                cpu_state.goto_next_sequential_pc();
             } else {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }

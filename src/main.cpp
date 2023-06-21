@@ -47,7 +47,7 @@ void print_startup_message() {
     irvelog(0, "");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
 
     print_startup_message();
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     try {
         irvelog_always(0, "Initializing emulator...");
         
-        irve::emulator::emulator_t emulator{argc, argv};
+        irve::emulator::emulator_t emulator{argc - 1, &(argv[1])};
 
         auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
         irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     }
-    catch(...) {
+    catch (...) {
         irvelog_always(0, "Failed to initialize the emulator!");
     }
     

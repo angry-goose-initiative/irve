@@ -18,15 +18,25 @@
 
 /* Function/Class Declarations */
 
+/**
+ * @brief Namespace containing the register file implementation
+*/
 namespace irve::internal::reg_file {
 
+    /**
+     * @brief The register file class
+     *
+     * Makes it easier to work with registers (ex. handles the x0 hardwired to 0 case).
+     * Otherwise acts like an array of 32 reg_t
+     *
+    */
     class reg_file_t {
     private:
-        mutable irve::internal::reg_t regs[32];
+        mutable reg_t regs[32];
     public:
         reg_file_t();
-        irve::internal::reg_t& operator[](uint8_t i);
-        const irve::internal::reg_t& operator[](uint8_t i) const;
+        reg_t& operator[](uint8_t i);
+        const reg_t& operator[](uint8_t i) const;
     };
 
 }

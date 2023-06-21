@@ -28,7 +28,7 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t(int imagec, char** imagev):
+emulator::emulator_t::emulator_t(int imagec, const char** imagev):
         m_CSR(),
         m_memory(imagec, imagev, m_CSR),
         m_cpu_state(m_CSR) {
@@ -86,7 +86,8 @@ uint64_t emulator::emulator_t::get_inst_count() const {
     return INST_COUNT;
 }
 
-word_t emulator::emulator_t::fetch() {
+word_t emulator::emulator_t::fetch() /* const */ {//FIXME figure out why this can't be const
+    irvelog(1, "Fetching from 0x%08x", this->m_cpu_state.get_pc());
 
     //Read a word from memory at the PC
     //NOTE: It may throw an exception for various reasons
