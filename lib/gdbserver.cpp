@@ -12,7 +12,7 @@
 
 /* Constants And Defines */
 
-//TODO
+#define RECIEVE_BUFFER_SIZE 1024
 
 /* Includes */
 
@@ -42,23 +42,76 @@ using namespace irve::internal;
 
 /* Static Function Declarations */
 
-static int setup_socket(uint16_t port);
+static bool nicesend(int connection_file_descriptor, const std::string& message);
+static std::string nicerecv(int connection_file_descriptor);//If the string is empty, this means the client disconnected
+static int setup_server_socket(uint16_t port);
 static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
 /* Function Implementations */
 
 void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
-    /*int socket_file_descriptor = */setup_socket(port);
+    int socket_file_descriptor = setup_server_socket(port);
 
-    //TODO accept connections
-    assert(false && "TODO");
+    irvelog_always(0, "Alrighty, you can connect to port %d now! (Waiting for a connection...)", port);
 
-    irvelog_always(0, "Alrighty, you can connect to port %d now! (Waiting for connections...)", port);
+    //Loop trying to accept connections
+    while (true) {
+        struct sockaddr_storage client_addr;
+        socklen_t client_addr_size = sizeof(sockaddr_storage);
+        int connection_file_descriptor = accept(socket_file_descriptor, (struct sockaddr*)(&client_addr), &client_addr_size);
+        if (connection_file_descriptor == -1) {
+            irvelog(0, "Failed to accept a connection, retrying...");
+            continue;
+        }
+
+        irvelog_always(0, "Accepted a connection! Hello there! :)");
+
+        //Loop communicating with the client
+        while (true) {
+            //TESTING
+            if (!nicesend(connection_file_descriptor, "Hello there! :)\n")) {
+                irvelog(0, "Failed to send a message");
+                break;
+            }
+
+            //TESTING
+            std::string message = nicerecv(connection_file_descriptor);
+            if (message.empty()) {
+                break;
+            }
+            irvelog(0, "Got message: %s", message.c_str());
+
+            //TODO actually do GDB things
+
+        }
+
+        close(connection_file_descriptor);
+        irvelog_always(0, "Client disconnected. Cya later! (Waiting for another connection...)");
+    }
 }
 
 /* Static Function Implementations */
 
-static int setup_socket(uint16_t port) {
+static bool nicesend(int connection_file_descriptor, const std::string& message) {
+    return send(connection_file_descriptor, message.c_str(), message.size(), 0) != -1;//TODO handle the case where only part of the message was sent
+}
+
+static std::string nicerecv(int connection_file_descriptor) {//If the string is empty, this means the client disconnected
+    char buffer[RECIEVE_BUFFER_SIZE + 1];
+    //TODO handle the case where the message is larger than the buffer (we have to recieve, push to the string, and repeat)
+
+    int recv_result = recv(connection_file_descriptor, buffer, RECIEVE_BUFFER_SIZE, 0);
+    if ((!recv_result) || (recv_result == -1)) {
+        //The client disconnected or an error occured
+        return std::string();//An empty string means the client disconnected
+    }
+
+    buffer[recv_result] = '\0';//Null terminate the string
+
+    return std::string(buffer);
+}
+
+static int setup_server_socket(uint16_t port) {
     //Get the linked list of addrinfo structs to attempt to setup a socket for
     struct addrinfo* addrinfo_ll_ptr = get_addrinfo_ll_ptr(port);
 
@@ -73,7 +126,6 @@ static int setup_socket(uint16_t port) {
             ++attempt;
             continue;
         }
-        irvelog(0, "Opened a socket!");
 
         //If the port was already in use, try to reuse the address to avoid errors
         int we_indeed_want_to_reuse_the_address = 1;
@@ -81,6 +133,7 @@ static int setup_socket(uint16_t port) {
         if (setsockopt_result == -1) {
             irvelog(0, "Failed to set the SO_REUSEADDR socket option for addrinfo struct #%d, trying the next one...", attempt);
             close(socket_file_descriptor);
+            socket_file_descriptor = -1;
             ++attempt;
             continue;
         }
@@ -90,10 +143,11 @@ static int setup_socket(uint16_t port) {
         if (bind_result == -1) {
             irvelog(0, "Failed to bind to the socket for addrinfo struct #%d, trying the next one...", attempt);
             close(socket_file_descriptor);
+            socket_file_descriptor = -1;
             ++attempt;
             continue;
         } else {
-            irvelog(0, "Bound to a socket succesfully, we can move on! :)");
+            irvelog(0, "Created and bound to a socket succesfully, we can move on! :)");
             break;
         }
     }
