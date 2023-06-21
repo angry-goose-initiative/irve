@@ -5,7 +5,7 @@
  * Minimal GDB server implementation to ease debugging
  *
  * Thanks https://beej.us/guide/bgnet !!!
- *
+ * Also https://medium.com/@tatsuo.nomura/implement-gdb-remote-debug-protocol-stub-from-scratch ...
 */
 
 #ifdef __unix__
@@ -45,6 +45,7 @@ using namespace irve::internal;
 static bool send_packet(int connection_file_descriptor, const std::string& packet);//An empty string means the client disconnected
 static std::string recieve_packet(int connection_file_descriptor);//An empty string means the client disconnected
 static std::string compute_checksum(const std::string& packet);
+static std::string byte_2_string(uint8_t byte);
 
 static bool nicesend(int connection_file_descriptor, const std::string& message);
 static std::string nicerecv(int connection_file_descriptor);//If the string is empty, this means the client disconnected
@@ -53,7 +54,7 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
 /* Function Implementations */
 
-void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
+void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
     int socket_file_descriptor = setup_server_socket(port);
 
     irvelog_always(0, "Alrighty, you can connect to port %d now! (Waiting for a connection...)", port);
@@ -72,35 +73,54 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
 
         //Loop communicating with the client
         while (true) {
-            //TESTING
-            /*if (!nicesend(connection_file_descriptor, "Hello there! :)\n")) {
-                irvelog(0, "Failed to send a message");
-                break;
+            //Get a packet from the GDB client
+            std::string packet = recieve_packet(connection_file_descriptor);
+            if (packet.empty()) {
+                //FIXME how do we distinguish between a client disconnecting and nothing to recieve yet?
+                //break;//The client disconnected
+                continue;
             }
 
-            //TESTING
-            std::string message = nicerecv(connection_file_descriptor);
-            if (message.empty()) {
-                break;
-            }
-            irvelog(0, "Got message: %s", message.c_str());
-            */
+            if (packet == "?") {
+                //Make up a reason why we stopped
+                send_packet(connection_file_descriptor, "S03");//SIGQUIT
+            } else if (packet == "g") {//Read all registers
+                //This shows the order we must provide:
+                //https://android.googlesource.com/toolchain/gdb.git/+/76f55a3e2a750d666fbe2e296125b31b4e792461/gdb-9.1/gdb/riscv-tdep.c
+                
+                std::string contents_of_registers;
+                
+                //General purpose registers
+                for (size_t i = 0; i < 32; i++) {
+                    //Little endian
+                    word_t reg = emulator.m_cpu_state.get_r(i);
+                    contents_of_registers += byte_2_string((reg           & 0xFF).u);
+                    contents_of_registers += byte_2_string((reg.srl(8)    & 0xFF).u);
+                    contents_of_registers += byte_2_string((reg.srl(16)   & 0xFF).u);
+                    contents_of_registers += byte_2_string((reg.srl(24)   & 0xFF).u);
+                }
 
-            //Get a message from the GDB client
-            std::string message = recieve_packet(connection_file_descriptor);
-            if (message.empty()) {
-                break;//The client disconnected
-            }
+                //Then the PC (also little endian)
+                word_t pc = emulator.m_cpu_state.get_pc();
+                contents_of_registers += byte_2_string((pc           & 0xFF).u);
+                contents_of_registers += byte_2_string((pc.srl(8)    & 0xFF).u);
+                contents_of_registers += byte_2_string((pc.srl(16)   & 0xFF).u);
+                contents_of_registers += byte_2_string((pc.srl(24)   & 0xFF).u);
 
-
-            if (message == "r") {
-                assert(false && "TODO");
+                send_packet(connection_file_descriptor, contents_of_registers);
+            } else if (!packet.empty() && (packet.at(0) == 'G')) {//Write all registers
+                assert(false && "TODO");//TODO
+            } else if (!packet.empty() && (packet.at(0) == 'm')) {//Read memory
+                assert(false && "TODO");//TODO
+            } else if (!packet.empty() && (packet.at(0) == 'M')) {//Write memory
+                assert(false && "TODO");//TODO
+            } else if (!packet.empty() && (packet.at(0) == 'c')) {//Continue
+                assert(false && "TODO");//TODO
+            } else if (!packet.empty() && (packet.at(0) == 's')) {//Single step
+                assert(false && "TODO");//TODO
             } else {//Unknown/unimplemented command
                 send_packet(connection_file_descriptor, "");
             }
-
-            //TODO actually do GDB things
-
         }
 
         close(connection_file_descriptor);
@@ -132,17 +152,19 @@ static std::string recieve_packet(int connection_file_descriptor) {//An empty st
 }
 
 static std::string compute_checksum(const std::string& packet) {
-    //return "00";//TODO
-    //assert(false && "TODO");
     char accumulator = 0;
 
     for (size_t i = 0; i < packet.size(); i++) {
         accumulator += packet[i];
     }
 
-    uint8_t lower_nibble = accumulator & 0x0F;
+    return byte_2_string(accumulator);
+}
+
+static std::string byte_2_string(uint8_t byte) {
+    uint8_t lower_nibble = byte & 0x0F;
     char lower_char = (lower_nibble < 10) ? ('0' + lower_nibble) : ('a' + (lower_nibble - 10));
-    uint8_t upper_nibble = (accumulator >> 4) & 0x0F;
+    uint8_t upper_nibble = (byte >> 4) & 0x0F;
     char upper_char = (upper_nibble < 10) ? ('0' + upper_nibble) : ('a' + (upper_nibble - 10));
 
     return std::string{upper_char, lower_char};
