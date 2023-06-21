@@ -56,6 +56,13 @@ uint8_t memory::pmemory_t::read_byte(uint64_t addr) const {
 }
 
 void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
+    try {
+        check_writable_byte(addr);
+    }
+    catch(...) {
+        assert(false && "Call check_writable_byte() first!");
+    }
+
     //TODO other MMIO devices
 
     switch (addr) {
