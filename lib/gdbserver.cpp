@@ -92,7 +92,6 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
                 break;//The client disconnected
             }
 
-            irvelog(0, "GDB Says: %s", message.c_str());//TESTING
 
             if (message == "r") {
                 assert(false && "TODO");
@@ -113,11 +112,15 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
 
 static bool send_packet(int connection_file_descriptor, const std::string& packet) {
     std::string raw_message = std::string("+$") + packet + "#" + compute_checksum(packet);
+    irvelog(0, "\x1b[96mIRVE Replies\x1b[0m: \"\x1b[1m%s\x1b[0m\"", raw_message.c_str());
     return nicesend(connection_file_descriptor, raw_message);
 }
 
 static std::string recieve_packet(int connection_file_descriptor) {//An empty string means the client disconnected
     std::string raw_message = nicerecv(connection_file_descriptor);
+
+    irvelog(0, "\x1b[95mGDB Says\x1b[0m:     \"\x1b[1m%s\x1b[0m\"", raw_message.c_str());
+
     try {
         //TODO in the future actually validate the format/checksum of the packet
         raw_message = raw_message.substr(raw_message.find('$') + 1);//Remove the '$' at the beginning
@@ -128,16 +131,21 @@ static std::string recieve_packet(int connection_file_descriptor) {//An empty st
     }
 }
 
-static std::string compute_checksum(const std::string& /*packet*/) {
-    assert(false && "TODO");
-    /*char accumulator = 0;
+static std::string compute_checksum(const std::string& packet) {
+    //return "00";//TODO
+    //assert(false && "TODO");
+    char accumulator = 0;
 
     for (size_t i = 0; i < packet.size(); i++) {
         accumulator += packet[i];
     }
 
-    return std::string(1, accumulator);
-    */
+    uint8_t lower_nibble = accumulator & 0x0F;
+    char lower_char = (lower_nibble < 10) ? ('0' + lower_nibble) : ('a' + (lower_nibble - 10));
+    uint8_t upper_nibble = (accumulator >> 4) & 0x0F;
+    char upper_char = (upper_nibble < 10) ? ('0' + upper_nibble) : ('a' + (upper_nibble - 10));
+
+    return std::string{upper_char, lower_char};
 }
 
 static bool nicesend(int connection_file_descriptor, const std::string& message) {
