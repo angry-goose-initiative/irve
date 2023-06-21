@@ -20,9 +20,10 @@
 #include "irve_public_api.h"
 
 #include <cassert>
-#include <iostream>
-#include <string>
 #include <chrono>
+#include <iostream>
+#include <optional>
+#include <string>
 
 /* Static Function Declarations */
 
@@ -35,28 +36,32 @@ int main(int argc, const char* const* argv) {
 
     print_startup_message();
 
+    irvelog_always(0, "Initializing emulator...");
+
+    std::optional<irve::emulator::emulator_t> emulator;
     try {
-        irvelog_always(0, "Initializing emulator...");
-        
-        irve::emulator::emulator_t emulator{argc - 1, &(argv[1])};
-
-        auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
-
-        irvelog_always(0, "Initialized the emulator in %luus", init_time);
-
-        auto execution_start_time = std::chrono::steady_clock::now();
-        emulator.run_until(0);//Run the emulator until we get an exit request
-
-        auto execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - execution_start_time).count();
-        irvelog_always(0, "Emulation finished in %luus", execution_time_us);
-        irvelog_always(0, "%lu instructions were executed", emulator.get_inst_count());
-        auto average_ips = (((double)emulator.get_inst_count()) / ((double)execution_time_us)) * 1000000.0;
-        irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000.0));
-
-        irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
+        emulator.emplace(argc - 1, &(argv[1]));
     } catch (...) {
         irvelog_always(0, "Failed to initialize the emulator!");
+        return 1;
     }
+
+    auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
+
+    irvelog_always(0, "Initialized the emulator in %luus", init_time);
+
+    auto execution_start_time = std::chrono::steady_clock::now();
+
+    emulator->run_until(0);//Run the emulator until we get an exit request
+
+    auto execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - execution_start_time).count();
+
+    irvelog_always(0, "Emulation finished in %luus", execution_time_us);
+    irvelog_always(0, "%lu instructions were executed", emulator->get_inst_count());
+    auto average_ips = (((double)emulator->get_inst_count()) / ((double)execution_time_us)) * 1000000.0;
+    irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000.0));
+
+    irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     
     return 0;
 }

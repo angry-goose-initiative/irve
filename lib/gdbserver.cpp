@@ -42,6 +42,10 @@ using namespace irve::internal;
 
 /* Static Function Declarations */
 
+static bool send_packet(int connection_file_descriptor, const std::string& packet);//An empty string means the client disconnected
+static std::string recieve_packet(int connection_file_descriptor);//An empty string means the client disconnected
+static std::string compute_checksum(const std::string& packet);
+
 static bool nicesend(int connection_file_descriptor, const std::string& message);
 static std::string nicerecv(int connection_file_descriptor);//If the string is empty, this means the client disconnected
 static int setup_server_socket(uint16_t port);
@@ -69,7 +73,7 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
         //Loop communicating with the client
         while (true) {
             //TESTING
-            if (!nicesend(connection_file_descriptor, "Hello there! :)\n")) {
+            /*if (!nicesend(connection_file_descriptor, "Hello there! :)\n")) {
                 irvelog(0, "Failed to send a message");
                 break;
             }
@@ -80,6 +84,21 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
                 break;
             }
             irvelog(0, "Got message: %s", message.c_str());
+            */
+
+            //Get a message from the GDB client
+            std::string message = recieve_packet(connection_file_descriptor);
+            if (message.empty()) {
+                break;//The client disconnected
+            }
+
+            irvelog(0, "GDB Says: %s", message.c_str());//TESTING
+
+            if (message == "r") {
+                assert(false && "TODO");
+            } else {//Unknown/unimplemented command
+                send_packet(connection_file_descriptor, "");
+            }
 
             //TODO actually do GDB things
 
@@ -91,6 +110,35 @@ void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t port) {
 }
 
 /* Static Function Implementations */
+
+static bool send_packet(int connection_file_descriptor, const std::string& packet) {
+    std::string raw_message = std::string("+$") + packet + "#" + compute_checksum(packet);
+    return nicesend(connection_file_descriptor, raw_message);
+}
+
+static std::string recieve_packet(int connection_file_descriptor) {//An empty string means the client disconnected
+    std::string raw_message = nicerecv(connection_file_descriptor);
+    try {
+        //TODO in the future actually validate the format/checksum of the packet
+        raw_message = raw_message.substr(raw_message.find('$') + 1);//Remove the '$' at the beginning
+        raw_message.erase(raw_message.size() - 3);//Remove the checksum and '#' at the end
+        return raw_message;
+    } catch (std::out_of_range& e) {
+        return std::string();//An empty string means the client disconnected
+    }
+}
+
+static std::string compute_checksum(const std::string& /*packet*/) {
+    assert(false && "TODO");
+    /*char accumulator = 0;
+
+    for (size_t i = 0; i < packet.size(); i++) {
+        accumulator += packet[i];
+    }
+
+    return std::string(1, accumulator);
+    */
+}
 
 static bool nicesend(int connection_file_descriptor, const std::string& message) {
     return send(connection_file_descriptor, message.c_str(), message.size(), 0) != -1;//TODO handle the case where only part of the message was sent

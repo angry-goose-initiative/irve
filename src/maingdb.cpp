@@ -22,9 +22,10 @@
 #include "irve_public_api.h"
 
 #include <cassert>
-#include <iostream>
-#include <string>
 #include <chrono>
+#include <iostream>
+#include <optional>
+#include <string>
 
 /* Static Function Declarations */
 
@@ -37,22 +38,25 @@ int main(int argc, const char* const* argv) {
 
     print_startup_message();
 
+    irvelog_always(0, "Initializing emulator...");
+
+    std::optional<irve::emulator::emulator_t> emulator;
     try {
-        irvelog_always(0, "Initializing emulator...");
-        
-        irve::emulator::emulator_t emulator{argc - 1, &(argv[1])};
-
-        auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
-
-        irvelog_always(0, "Initialized the emulator in %luus", init_time);
-
-        irvelog_always(0, "Starting the IRVE GDB Server...");
-        emulator.run_gdbserver(12345);
-
-        irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
+        emulator.emplace(argc - 1, &(argv[1]));
     } catch (...) {
         irvelog_always(0, "Failed to initialize the emulator!");
+        return 1;
     }
+
+    auto init_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - irve_boot_time).count();
+
+    irvelog_always(0, "Initialized the emulator in %luus", init_time);
+
+    irvelog_always(0, "Starting the IRVE GDB Server...");
+
+    emulator->run_gdbserver(12345);
+
+    irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     
     return 0;
 }
