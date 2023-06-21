@@ -19,6 +19,15 @@ set(IRVE_SOURCES
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
 )
 
+set(IRVEGDB_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/maingdb.cpp
+    ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
+)
+
 add_executable(irve ${IRVE_SOURCES})
 target_include_directories(irve PRIVATE ${CMAKE_SOURCE_DIR}/include)#Just using the public API
 target_link_libraries(irve PRIVATE libirve_object)#TODO or should we make this static or shared instead?
+
+add_executable(irvegdb ${IRVEGDB_SOURCES})
+target_include_directories(irvegdb PRIVATE ${CMAKE_SOURCE_DIR}/include)#Just using the public API
+target_link_libraries(irvegdb PRIVATE libirve_object)#TODO or should we make this static or shared instead?
