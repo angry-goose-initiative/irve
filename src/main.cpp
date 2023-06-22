@@ -69,7 +69,7 @@ int main(int argc, const char* const* argv) {
 /* Static Function Implementations */
 
 static void print_startup_message() {
-    irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m (GDB Server Mode)");
+    irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m");
     irvelog_always(0, "\x1b[1m\x1b[94m ___ ______     _______ \x1b[0m");
     irvelog_always(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____|\x1b[0m");
     irvelog_always(0, "\x1b[1m\x1b[94m | || |_) \\ \\ / /|  _|  \x1b[0m"); 

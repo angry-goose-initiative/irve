@@ -225,7 +225,9 @@ static bool client_loop(
         send_packet(connection_file_descriptor, "OK");
 
         while (!emulator.test_and_clear_breakpoint_encountered_flag()) {
-            emulator.tick();//TODO what if it wants to exit?
+            if (!emulator.tick()) {//TODO what if it wants to exit? Is this what we should do?
+                break;
+            }
 
             //TODO check if GDB sent ctrl-c
         }
