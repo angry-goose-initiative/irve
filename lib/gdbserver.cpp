@@ -188,7 +188,7 @@ static bool client_loop(
     } else if (!packet_string.empty() && (packet_string.at(0) == 'm')) {//Read memory
         packet_string.erase(0, 1);//Remove the 'm' at the beginning
         packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
-        word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct is the address is > 8 bits?
+        word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
         packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
         word_t length = (uint32_t)std::strtol(packet_string.c_str(), nullptr, 16);
 
@@ -201,18 +201,39 @@ static bool client_loop(
 
         send_packet(connection_file_descriptor, memory_contents);
     } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
-        assert(false && "TODO");//TODO
+        packet_string.erase(0, 1);//Remove the 'M' at the beginning
+        packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
+        word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
+        packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
+        word_t length = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(":")).c_str(), nullptr, 16);//TODO is this correct if the length is > 8 bits?
+        packet_string.erase(0, packet_string.find_first_of(":") + 1);//Remove the length
+
+        for (word_t i = 0; i.u < length.u; ++i) {
+            word_t byte = (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
+            packet_string.erase(0, 2);
+            memory.store(address + i, 0b000, byte);
+        }
+
+        send_packet(connection_file_descriptor, "OK");
     } else if (!packet_string.empty() && (packet_string.at(0) == 'c')) {//Continue
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 'C')) {//Continue (with signal)
-        assert(false && "TODO");//TODO
+        //TODO handle arguments properly
+        //TODO handle interrupts from GDB, not just breakpoints
+        send_packet(connection_file_descriptor, "OK");
+
+        while (!emulator.test_and_clear_breakpoint_encountered_flag()) {
+            emulator.tick();//TODO what if it wants to exit?
+        }
+
+        send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else if (!packet_string.empty() && (packet_string.at(0) == 's')) {//Single step
         //TODO also set address if specified
-        emulator.tick();
+        emulator.tick();//TODO what if it wants to exit?
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else if (!packet_string.empty() && (packet_string.at(0) == 'S')) {//Single step (with signal)
         //TODO also set address if specified
-        emulator.tick();
+        emulator.tick();//TODO what if it wants to exit?
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else {//Unknown/unimplemented command
         send_packet(connection_file_descriptor, "");

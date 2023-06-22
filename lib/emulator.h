@@ -67,6 +67,12 @@ namespace irve::internal::emulator {
          * @return minstret
         */
         uint64_t get_inst_count() const;
+
+        /**
+         * @brief Determine if a breakpoint was encountered and clear the flag indicating so if it was
+         * @return True if a breakpoint was encountered
+        */
+        bool test_and_clear_breakpoint_encountered_flag();
     private:
         
         //TODO document these as well
@@ -98,6 +104,7 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+        bool m_encountered_breakpoint;
 
         //TODO other things
     };
