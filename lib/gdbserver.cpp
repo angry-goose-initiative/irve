@@ -104,7 +104,7 @@ void gdbserver::start(
 static bool client_loop(
     emulator::emulator_t& emulator,
     cpu_state::cpu_state_t& cpu_state,
-    memory::memory_t& /*memory*/,
+    memory::memory_t& memory,
     int connection_file_descriptor
 ) {//Returns false if it's time to accept a new connection
     //Get a packet from the GDB client
@@ -187,7 +187,19 @@ static bool client_loop(
         send_packet(connection_file_descriptor, "OK");
     } else if (!packet_string.empty() && (packet_string.at(0) == 'm')) {//Read memory
         packet_string.erase(0, 1);//Remove the 'm' at the beginning
-        assert(false && "TODO");//TODO
+        packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
+        word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct is the address is > 8 bits?
+        packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
+        word_t length = (uint32_t)std::strtol(packet_string.c_str(), nullptr, 16);
+
+        std::string memory_contents;
+
+        for (word_t i = 0; i.u < length.u; ++i) {
+            word_t byte = memory.load(address + i, 0b000);
+            memory_contents += byte_2_string(byte.bits( 7,  0).u);
+        }
+
+        send_packet(connection_file_descriptor, memory_contents);
     } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 'c')) {//Continue
@@ -195,11 +207,11 @@ static bool client_loop(
     } else if (!packet_string.empty() && (packet_string.at(0) == 'C')) {//Continue (with signal)
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 's')) {//Single step
-        //FIXME also set address if specified
+        //TODO also set address if specified
         emulator.tick();
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else if (!packet_string.empty() && (packet_string.at(0) == 'S')) {//Single step (with signal)
-        //FIXME also set address if specified
+        //TODO also set address if specified
         emulator.tick();
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else {//Unknown/unimplemented command
