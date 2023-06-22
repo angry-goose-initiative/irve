@@ -48,10 +48,6 @@ enum class special_packet_t {
 
 typedef std::variant<std::string, special_packet_t> packet_t;//You can tell I'm missing Rust
 
-/* Variables */
-
-//TODO
-
 /* Static Function Declarations */
 
 static bool client_loop(
@@ -386,6 +382,8 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port) {
 /* Includes */
 
 #include "emulator.h"
+#include "cpu_state.h"
+#include "memory.h"
 #include "gdbserver.h"
 
 #define INST_COUNT 0
@@ -393,7 +391,12 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port) {
 
 /* Function Implementations */
 
-void gdbserver::start(emulator::emulator_t& /*emulator*/, uint16_t /*port*/) {
+void gdbserver::start(
+    emulator::emulator_t&,
+    cpu_state::cpu_state_t&,
+    memory::memory_t&,
+    uint16_t
+) {
     irvelog_always(0, "The IRVE GDB server is not supported on this platform");
 }
 
