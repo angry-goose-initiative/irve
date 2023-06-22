@@ -100,8 +100,6 @@ namespace irve::internal::emulator {
         cpu_state::cpu_state_t m_cpu_state;
 
         //TODO other things
-
-        friend void irve::internal::gdbserver::start(emulator_t& emulator, uint16_t port);
     };
 }
 

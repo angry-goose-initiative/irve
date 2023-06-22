@@ -18,6 +18,8 @@ namespace irve::internal::emulator {
 
 #include "emulator.h"
 
+#include <cstdint>
+
 /* Function/Class Declarations */
 
 namespace irve::internal::gdbserver {
@@ -27,8 +29,12 @@ namespace irve::internal::gdbserver {
      * @param emulator The emulator to use
      * @param port The port to listen on
     */
-    void start(irve::internal::emulator::emulator_t& emulator, uint16_t port);
-
+    void start(
+        emulator::emulator_t& emulator,
+        cpu_state::cpu_state_t& cpu_state,
+        memory::memory_t& memory,
+        uint16_t port
+    );
 }
 
 #endif//GDBSERVER_H

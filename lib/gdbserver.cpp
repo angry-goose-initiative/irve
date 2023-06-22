@@ -73,7 +73,12 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
 /* Function Implementations */
 
-void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
+void gdbserver::start(
+    emulator::emulator_t& emulator,
+    cpu_state::cpu_state_t& cpu_state,
+    memory::memory_t& memory,
+    uint16_t port
+) {
     int socket_file_descriptor = setup_server_socket(port);
 
     irvelog_always(0, "Alrighty, you can connect to port %d now! (Waiting for a connection...)", port);
@@ -91,7 +96,7 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
         irvelog_always(0, "Accepted a connection! Hello there! :)");
 
         //Loop communicating with the client
-        while (client_loop(emulator, emulator.m_cpu_state, emulator.m_memory, connection_file_descriptor));
+        while (client_loop(emulator, cpu_state, memory, connection_file_descriptor));
 
         close(connection_file_descriptor);
         irvelog_always(0, "Client disconnected. Cya later! (Waiting for another connection...)");
@@ -101,7 +106,7 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
 /* Static Function Implementations */
 
 static bool client_loop(
-    emulator::emulator_t& /*emulator*/,
+    emulator::emulator_t& emulator,
     cpu_state::cpu_state_t& cpu_state,
     memory::memory_t& /*memory*/,
     int connection_file_descriptor
@@ -114,7 +119,7 @@ static bool client_loop(
     } else {//Is a special packet
         switch (std::get<special_packet_t>(packet)) {
             case special_packet_t::ACK:             return true;//We don't care about ACKs
-            case special_packet_t::NACK:            assert(false && "NACKs should never be recieved"); break;//TODO proper error handling
+            case special_packet_t::NACK:            return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::CORRUPT:         return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::MALFORMED:       return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::DISCONNECTED:    return false;//The client disconnected
@@ -122,7 +127,7 @@ static bool client_loop(
         }
     }
 
-    //We got a packet, now we need to handle it
+    //We got a regular packet, now we need to handle it
     if (packet_string == "?") {
         //Make up a reason why we stopped
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
@@ -185,13 +190,22 @@ static bool client_loop(
 
         send_packet(connection_file_descriptor, "OK");
     } else if (!packet_string.empty() && (packet_string.at(0) == 'm')) {//Read memory
+        packet_string.erase(0, 1);//Remove the 'm' at the beginning
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 'c')) {//Continue
         assert(false && "TODO");//TODO
-    } else if (!packet_string.empty() && (packet_string.at(0) == 's')) {//Single step
+    } else if (!packet_string.empty() && (packet_string.at(0) == 'C')) {//Continue (with signal)
         assert(false && "TODO");//TODO
+    } else if (!packet_string.empty() && (packet_string.at(0) == 's')) {//Single step
+        //FIXME also set address if specified
+        emulator.tick();
+        send_packet(connection_file_descriptor, "S03");//SIGQUIT
+    } else if (!packet_string.empty() && (packet_string.at(0) == 'S')) {//Single step (with signal)
+        //FIXME also set address if specified
+        emulator.tick();
+        send_packet(connection_file_descriptor, "S03");//SIGQUIT
     } else {//Unknown/unimplemented command
         send_packet(connection_file_descriptor, "");
     }

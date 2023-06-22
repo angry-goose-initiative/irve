@@ -83,7 +83,7 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
 }
 
 void emulator::emulator_t::run_gdbserver(uint16_t port) {
-    gdbserver::start(*this, port);
+    gdbserver::start(*this, this->m_cpu_state, this->m_memory, port);
 }
 
 uint64_t emulator::emulator_t::get_inst_count() const {
