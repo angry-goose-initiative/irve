@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <variant>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -36,7 +37,15 @@ using namespace irve::internal;
 
 /* Types */
 
-//TODO
+enum class special_packet_t {
+    ACK,
+    NACK,
+    CORRUPT,
+    MALFORMED,
+    DISCONNECTED
+};
+
+typedef std::variant<std::string, special_packet_t> packet_t;//You can tell I'm missing Rust
 
 /* Variables */
 
@@ -44,8 +53,8 @@ using namespace irve::internal;
 
 /* Static Function Declarations */
 
-static bool send_packet(int connection_file_descriptor, const std::string& packet);//An empty string means the client disconnected
-static std::string recieve_packet(int connection_file_descriptor);//An empty string means the client disconnected
+static bool send_packet(int connection_file_descriptor, const packet_t& packet);//An empty string means the client disconnected
+static packet_t recieve_packet(int connection_file_descriptor);//An empty string means the client disconnected
 static std::string compute_checksum(const std::string& packet);
 static std::string byte_2_string(uint8_t byte);
 
@@ -76,17 +85,32 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
         //Loop communicating with the client
         while (true) {
             //Get a packet from the GDB client
-            std::string packet = recieve_packet(connection_file_descriptor);
-            if (packet.empty()) {
-                //FIXME how do we distinguish between a client disconnecting and nothing to recieve yet?
-                //break;//The client disconnected
-                continue;
+            packet_t packet = recieve_packet(connection_file_descriptor);
+            std::string packet_string;
+            if (std::holds_alternative<std::string>(packet)) {
+                packet_string = std::get<std::string>(packet);
+            } else {//Is a special packet
+                bool accept_new_connection = false;
+
+                switch (std::get<special_packet_t>(packet)) {
+                    case special_packet_t::ACK:             continue;//We don't care about ACKs
+                    case special_packet_t::NACK:            assert(false && "NACKs should never be recieved"); break;//TODO proper error handling
+                    case special_packet_t::CORRUPT:         accept_new_connection = true; break;//Assume a disconnect//TODO should we actually retry in this case?
+                    case special_packet_t::MALFORMED:       accept_new_connection = true; break;//Assume a disconnect//TODO should we actually retry in this case?
+                    case special_packet_t::DISCONNECTED:    accept_new_connection = true; break;//The client disconnected
+                    default:                                assert(false && "Invalid special packet type"); break;
+                }
+
+                if (accept_new_connection) {
+                    break;
+                }
             }
 
-            if (packet == "?") {
+            //We got a packet, now we need to handle it
+            if (packet_string == "?") {
                 //Make up a reason why we stopped
                 send_packet(connection_file_descriptor, "S03");//SIGQUIT
-            } else if (packet == "g") {//Read all registers
+            } else if (packet_string == "g") {//Read all registers
                 //This shows the order we must provide:
                 //https://android.googlesource.com/toolchain/gdb.git/+/76f55a3e2a750d666fbe2e296125b31b4e792461/gdb-9.1/gdb/riscv-tdep.c
                 
@@ -110,8 +134,8 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
                 contents_of_registers += byte_2_string(pc.bits(31, 24).u);
 
                 send_packet(connection_file_descriptor, contents_of_registers);
-            } else if (!packet.empty() && (packet.at(0) == 'G')) {//Write all registers
-                packet.erase(0, 1);//Remove the 'G' at the beginning
+            } else if (!packet_string.empty() && (packet_string.at(0) == 'G')) {//Write all registers
+                packet_string.erase(0, 1);//Remove the 'G' at the beginning
 
                 //This shows the order we must accept:
                 //https://android.googlesource.com/toolchain/gdb.git/+/76f55a3e2a750d666fbe2e296125b31b4e792461/gdb-9.1/gdb/riscv-tdep.c
@@ -120,37 +144,37 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
                 for (std::size_t i = 0; i < 32; i++) {
                     //Little endian
                     word_t reg = 0;
-                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16));
-                    packet.erase(0, 2);
-                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 8);
-                    packet.erase(0, 2);
-                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 16);
-                    packet.erase(0, 2);
-                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 24);
-                    packet.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
+                    packet_string.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 8);
+                    packet_string.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 16);
+                    packet_string.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 24);
+                    packet_string.erase(0, 2);
                     emulator.m_cpu_state.set_r(i, reg);
                 }
                 
                 //Then the PC (also little endian)
                 word_t pc = 0;
-                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16));
-                packet.erase(0, 2);
-                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 8);
-                packet.erase(0, 2);
-                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 16);
-                packet.erase(0, 2);
-                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 24);
-                packet.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
+                packet_string.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 8);
+                packet_string.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 16);
+                packet_string.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 24);
+                packet_string.erase(0, 2);
                 emulator.m_cpu_state.set_pc(pc);
 
                 send_packet(connection_file_descriptor, "OK");
-            } else if (!packet.empty() && (packet.at(0) == 'm')) {//Read memory
+            } else if (!packet_string.empty() && (packet_string.at(0) == 'm')) {//Read memory
                 assert(false && "TODO");//TODO
-            } else if (!packet.empty() && (packet.at(0) == 'M')) {//Write memory
+            } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
                 assert(false && "TODO");//TODO
-            } else if (!packet.empty() && (packet.at(0) == 'c')) {//Continue
+            } else if (!packet_string.empty() && (packet_string.at(0) == 'c')) {//Continue
                 assert(false && "TODO");//TODO
-            } else if (!packet.empty() && (packet.at(0) == 's')) {//Single step
+            } else if (!packet_string.empty() && (packet_string.at(0) == 's')) {//Single step
                 assert(false && "TODO");//TODO
             } else {//Unknown/unimplemented command
                 send_packet(connection_file_descriptor, "");
@@ -164,24 +188,45 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
 
 /* Static Function Implementations */
 
-static bool send_packet(int connection_file_descriptor, const std::string& packet) {
-    std::string raw_message = std::string("+$") + packet + "#" + compute_checksum(packet);
+static bool send_packet(int connection_file_descriptor, const packet_t& packet) {
+    std::string raw_message;
+
+    if (std::holds_alternative<std::string>(packet)) {
+        std::string packet_string = std::get<std::string>(packet);
+        raw_message = std::string("+$") + packet_string + "#" + compute_checksum(packet_string);
+    } else {//Is a special packet
+        switch (std::get<special_packet_t>(packet)) {
+            case special_packet_t::ACK:     raw_message = "+"; break;
+            case special_packet_t::NACK:    raw_message = "-"; break;
+            default:                        assert(false && "Invalid special packet type to send"); break;
+        }
+    }
+
     irvelog(0, "\x1b[96mIRVE Replies\x1b[0m: \"\x1b[1m%s\x1b[0m\"", raw_message.c_str());
     return nicesend(connection_file_descriptor, raw_message);
 }
 
-static std::string recieve_packet(int connection_file_descriptor) {//An empty string means the client disconnected
+static packet_t recieve_packet(int connection_file_descriptor) {//An empty string means the client disconnected
     std::string raw_message = nicerecv(connection_file_descriptor);
-
     irvelog(0, "\x1b[95mGDB Says\x1b[0m:     \"\x1b[1m%s\x1b[0m\"", raw_message.c_str());
+
+    if (raw_message.empty()) {//The client disconnected
+        return special_packet_t::DISCONNECTED;
+    }
 
     try {
         //TODO in the future actually validate the format/checksum of the packet
         raw_message = raw_message.substr(raw_message.find('$') + 1);//Remove the '$' at the beginning
         raw_message.erase(raw_message.size() - 3);//Remove the checksum and '#' at the end
         return raw_message;
-    } catch (std::out_of_range& e) {
-        return std::string();//An empty string means the client disconnected
+    } catch (std::out_of_range& e) {//Not a regular packet
+        if (raw_message == "+") {
+            return special_packet_t::ACK;
+        } else if (raw_message == "-") {
+            return special_packet_t::NACK;
+        } else {
+            return special_packet_t::MALFORMED;
+        }
     }
 }
 
