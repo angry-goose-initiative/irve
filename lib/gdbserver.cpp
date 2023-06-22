@@ -41,6 +41,7 @@ using namespace irve::internal;
 enum class special_packet_t {
     ACK,
     NACK,
+    CTRLC,
     CORRUPT,
     MALFORMED,
     DISCONNECTED
@@ -116,6 +117,7 @@ static bool client_loop(
         switch (std::get<special_packet_t>(packet)) {
             case special_packet_t::ACK:             return true;//We don't care about ACKs
             case special_packet_t::NACK:            return false;//Assume a disconnect//TODO should we actually retry in this case?
+            case special_packet_t::CTRLC:           return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::CORRUPT:         return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::MALFORMED:       return false;//Assume a disconnect//TODO should we actually retry in this case?
             case special_packet_t::DISCONNECTED:    return false;//The client disconnected
@@ -224,6 +226,8 @@ static bool client_loop(
 
         while (!emulator.test_and_clear_breakpoint_encountered_flag()) {
             emulator.tick();//TODO what if it wants to exit?
+
+            //TODO check if GDB sent ctrl-c
         }
 
         send_packet(connection_file_descriptor, "S03");//SIGQUIT
@@ -278,6 +282,8 @@ static packet_t recieve_packet(int connection_file_descriptor) {//An empty strin
             return special_packet_t::ACK;
         } else if (raw_message == "-") {
             return special_packet_t::NACK;
+        } else if (raw_message == "\x03") {//Ctrl+C
+            return special_packet_t::CTRLC;
         } else {
             return special_packet_t::MALFORMED;
         }
