@@ -16,6 +16,7 @@
 
 /* Includes */
 
+#include "common.h"
 #include "emulator.h"
 #include "gdbserver.h"
 
@@ -23,6 +24,7 @@
 #include "logging.h"
 
 #include <cassert>
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -91,25 +93,57 @@ void gdbserver::start(emulator::emulator_t& emulator, uint16_t port) {
                 std::string contents_of_registers;
                 
                 //General purpose registers
-                for (size_t i = 0; i < 32; i++) {
+                for (std::size_t i = 0; i < 32; i++) {
                     //Little endian
                     word_t reg = emulator.m_cpu_state.get_r(i);
-                    contents_of_registers += byte_2_string((reg           & 0xFF).u);
-                    contents_of_registers += byte_2_string((reg.srl(8)    & 0xFF).u);
-                    contents_of_registers += byte_2_string((reg.srl(16)   & 0xFF).u);
-                    contents_of_registers += byte_2_string((reg.srl(24)   & 0xFF).u);
+                    contents_of_registers += byte_2_string(reg.bits( 7,  0).u);
+                    contents_of_registers += byte_2_string(reg.bits(15,  8).u);
+                    contents_of_registers += byte_2_string(reg.bits(23, 16).u);
+                    contents_of_registers += byte_2_string(reg.bits(31, 24).u);
                 }
 
                 //Then the PC (also little endian)
                 word_t pc = emulator.m_cpu_state.get_pc();
-                contents_of_registers += byte_2_string((pc           & 0xFF).u);
-                contents_of_registers += byte_2_string((pc.srl(8)    & 0xFF).u);
-                contents_of_registers += byte_2_string((pc.srl(16)   & 0xFF).u);
-                contents_of_registers += byte_2_string((pc.srl(24)   & 0xFF).u);
+                contents_of_registers += byte_2_string(pc.bits( 7,  0).u);
+                contents_of_registers += byte_2_string(pc.bits(15,  8).u);
+                contents_of_registers += byte_2_string(pc.bits(23, 16).u);
+                contents_of_registers += byte_2_string(pc.bits(31, 24).u);
 
                 send_packet(connection_file_descriptor, contents_of_registers);
             } else if (!packet.empty() && (packet.at(0) == 'G')) {//Write all registers
-                assert(false && "TODO");//TODO
+                packet.erase(0, 1);//Remove the 'G' at the beginning
+
+                //This shows the order we must accept:
+                //https://android.googlesource.com/toolchain/gdb.git/+/76f55a3e2a750d666fbe2e296125b31b4e792461/gdb-9.1/gdb/riscv-tdep.c
+                
+                //General purpose registers
+                for (std::size_t i = 0; i < 32; i++) {
+                    //Little endian
+                    word_t reg = 0;
+                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16));
+                    packet.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 8);
+                    packet.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 16);
+                    packet.erase(0, 2);
+                    reg |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 24);
+                    packet.erase(0, 2);
+                    emulator.m_cpu_state.set_r(i, reg);
+                }
+                
+                //Then the PC (also little endian)
+                word_t pc = 0;
+                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16));
+                packet.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 8);
+                packet.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 16);
+                packet.erase(0, 2);
+                pc |= (uint32_t)(std::strtol(packet.substr(0, 2).c_str(), nullptr, 16) << 24);
+                packet.erase(0, 2);
+                emulator.m_cpu_state.set_pc(pc);
+
+                send_packet(connection_file_descriptor, "OK");
             } else if (!packet.empty() && (packet.at(0) == 'm')) {//Read memory
                 assert(false && "TODO");//TODO
             } else if (!packet.empty() && (packet.at(0) == 'M')) {//Write memory
