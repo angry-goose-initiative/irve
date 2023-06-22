@@ -44,6 +44,7 @@ memory::pmemory_t::~pmemory_t() {
 }
 
 uint8_t memory::pmemory_t::read_byte(uint64_t addr) const {
+    assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
     //TODO add mtime and mtimecmp registers
 
     if (addr >= RAMSIZE) {
@@ -56,6 +57,7 @@ uint8_t memory::pmemory_t::read_byte(uint64_t addr) const {
 }
 
 void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
+    assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
     try {
         check_writable_byte(addr);
     }
@@ -88,6 +90,7 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
 }
 
 void memory::pmemory_t::check_writable_byte(uint64_t addr) {
+    assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
     switch (addr) {
         case DEBUGADDR:
             break;

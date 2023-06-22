@@ -8,6 +8,8 @@
 
 /* Includes */
 
+#define private public//Since we need to access internal emulator state for testing
+
 #include <cassert>
 #include "memory.h"
 #include "CSR.h"
@@ -338,6 +340,78 @@ int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
             break;
         }
     }
+
+    return 0;
+}
+
+int test_memory_memory_t_no_translation() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    // M-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // satp indicates SV32
+    CSR.implicit_write(CSR::address::SATP, (word_t)0x80000000);
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // Switch to S-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // satp incicates SV32 with PPN 1
+    CSR.implicit_write(CSR::address::SATP, (word_t)0x80000001);
+
+    // Translation should occur
+    bool threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
+
+    // Switch to U-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::USER_MODE);
+
+    // Translation should occur
+    threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // Translation should occur
+    threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
 
     return 0;
 }
