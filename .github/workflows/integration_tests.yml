@@ -2,9 +2,9 @@ name: IRVE Integration Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "staging", "personal/jzj/primary" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "staging", "personal/jzj/primary" ]
 
 jobs:
   debug:
