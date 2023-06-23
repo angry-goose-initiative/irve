@@ -1,10 +1,11 @@
 name: IRVE Unit Tests
 
+#Thanks https://stackoverflow.com/questions/57699839/github-actions-how-to-target-all-branches-except-master
 on:
   push:
-    branches: [ "*", "!legacy" ]
+    branches: [ "**", "!legacy" ]
   pull_request:
-    branches: [ "*", "!legacy" ]
+    branches: [ "**", "!legacy" ]
 
 jobs:
   debug:
