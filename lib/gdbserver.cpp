@@ -335,7 +335,7 @@ static int setup_server_socket(uint16_t port) {
     struct addrinfo* addrinfo_ll_ptr = get_addrinfo_ll_ptr(port);
 
     //Loop through the list and setup a socket for the first one we can
-    int attempt = 1;
+    [[maybe_unused]] int attempt = 1;//FIXME avoid warning about being unused when logging is disabled
     int socket_file_descriptor = -1;
     for (struct addrinfo* addrinfo_node_ptr = addrinfo_ll_ptr; addrinfo_node_ptr; addrinfo_node_ptr = addrinfo_node_ptr->ai_next) {
         //Attempt to create a socket based on this addrinfo struct
@@ -429,6 +429,8 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port) {
 
 #define INST_COUNT 0
 #include "logging.h"
+
+using namespace irve::internal;
 
 /* Function Implementations */
 
