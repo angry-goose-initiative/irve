@@ -8,7 +8,7 @@
  * Also https://medium.com/@tatsuo.nomura/implement-gdb-remote-debug-protocol-stub-from-scratch ...
 */
 
-#ifdef __unix__
+#if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
 
 /* Constants And Defines */
 

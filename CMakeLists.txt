@@ -41,7 +41,11 @@ if (IRVE_SANITIZE)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+if (NOT APPLE)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto")
+endif()
 
 #https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
 execute_process(
