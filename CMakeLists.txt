@@ -8,7 +8,7 @@
 #
 
 #Config options
-set(IRVE_DISABLE_LOGGING 1)#TODO make this enabled by default in release builds#TODO rename to disable verbose logging
+set(IRVE_DISABLE_LOGGING 1)#TODO rename to disable verbose logging
 set(IRVE_ASYNC_LOGGING 0)
 set(IRVE_SANITIZE 0)
 set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
