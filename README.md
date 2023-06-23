@@ -2,9 +2,9 @@
 
 <img src="logo.jpg" width=400>
 
-[![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
-[![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
-[![IRVE Integration Tests](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml)
+[![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
+[![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
+[![IRVE Integration Tests](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml)
 
 The Inextensible RISC-V Emulator
 
