@@ -2,9 +2,9 @@ name: IRVE Unit Tests
 
 on:
   push:
-    branches: [ "main", "staging", "personal/jzj/primary" ]
+    branches: [ "*", "!legacy" ]
   pull_request:
-    branches: [ "main", "staging", "personal/jzj/primary" ]
+    branches: [ "*", "!legacy" ]
 
 jobs:
   debug:
