@@ -179,7 +179,7 @@ namespace irve::internal::CSR {
         reg_t sscratch;
         reg_t sepc;
         reg_t scause;
-        reg_t stval;
+        //stval is NOT here
         reg_t sip;
         reg_t satp;
         reg_t mstatus;
@@ -194,11 +194,11 @@ namespace irve::internal::CSR {
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
-        reg_t mtval;
+        //mtval is NOT here
         reg_t mip;
-        //TODO the PMP CSRs
 
-        //TODO add CSRs HERE
+        reg_t pmpcfg[64];
+        reg_t pmpaddr[64];
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
