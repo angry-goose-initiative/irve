@@ -21,8 +21,32 @@ using namespace irve::internal;
 
 //TODO what should CSRs be initialized to?
 //See Volume 2 Section 3.4
-//FIXME also initialize ones that don't require it so that the assumptions of the implicit_read function is satasfied
-CSR::CSR_t::CSR_t() : mstatus(0), minstret(0), m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE) {}
+CSR::CSR_t::CSR_t() : 
+    sie(0),//Only needs to be initialized for implicit_read() guarantees
+    stvec(0),//Only needs to be initialized for implicit_read() guarantees
+    scounteren(0),//Only needs to be initialized for implicit_read() guarantees
+    senvcfg(0),//Only needs to be initialized for implicit_read() guarantees
+    //sscratch(),//We don't need to initialize this since all states are valid
+    sepc(0),//Only needs to be initialized for implicit_read() guarantees
+    scause(0),//Only needs to be initialized for implicit_read() guarantees
+    sip(0),//Only needs to be initialized for implicit_read() guarantees
+    //satp//FIXME must this be initialized?
+    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//TODO is this the correct starting value?
+    medeleg(0),//Only needs to be initialized for implicit_read() guarantees
+    mideleg(0),//Only needs to be initialized for implicit_read() guarantees
+    mie(0),//Only needs to be initialized for implicit_read() guarantees
+    menvcfg(0),
+    mstatush(0),//Only needs to be initialized for implicit_read() guarantees//TODO is this the correct starting value?
+    //mscratch(),//We don't need to initialize this since all states are valid
+    mepc(0),//Only needs to be initialized for implicit_read() guarantees
+    mcause(0),//Only needs to be initialized for implicit_read() guarantees
+    mip(0),//Only needs to be initialized for implicit_read() guarantees
+    minstret(0),//Implied it should be initialized according to the spec
+    mcycle(0),//Implied it should be initialized according to the spec
+    //mtime(0),//Implied it should be initialized according to the spec//TODO
+    //TODO mtimecmp too
+    m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE)//MUST BE INITIALIZED ACCORDING TO THE SPEC
+{}
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
@@ -62,7 +86,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MIE:              return this->mie;
         case address::MTVEC:            return MTVEC_CONTENTS;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
-        case address::MENVCFG:          return this->menvcfg & 0b1;//Only lowest bit is RW
+        case address::MENVCFG:          return this->menvcfg;
         case address::MSTATUSH:         return this->mstatush;
         case address::MENVCFGH:         return 0;
         case address::MCOUNTINHIBIT:    return 0;
@@ -138,11 +162,11 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
 #endif
 
-        case address::MSCRATCH:         this->mscratch  = data; return;
-        case address::MEPC:             this->sepc = data & 0xFFFFFFFC; return;//IALIGN=32
-        case address::MCAUSE:           this->mcause    = data; return;//FIXME WARL
-        case address::MTVAL:                                    return;//We simply ignore writes to MTVAL, NOT throw an exception
-        case address::MIP:              this->mip       = data; return;//FIXME WARL
+        case address::MSCRATCH:         this->mscratch  = data;                 return;
+        case address::MEPC:             this->mepc      = data & 0xFFFFFFFC;    return;//IALIGN=32
+        case address::MCAUSE:           this->mcause    = data;                 return;//FIXME WARL
+        case address::MTVAL:                                                    return;//We simply ignore writes to MTVAL, NOT throw an exception
+        case address::MIP:              this->mip       = data;                 return;//FIXME WARL
 
 #ifndef _MSC_VER//Not on MSVC
         case address::PMPCFG_START  ... address::PMPCFG_END:    this->pmpcfg [csr - address::PMPCFG_START]  = data; return;//FIXME WARL

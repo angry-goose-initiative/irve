@@ -202,7 +202,8 @@ namespace irve::internal::CSR {
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
-        //uint64_t time;//Handles both time and timeh//TODO actually use
+        //uint64_t mtime;//Handles both time and timeh//TODO actually use
+        //uint64_t mtimecmp;//Handles both time and timeh//TODO actually use
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };
