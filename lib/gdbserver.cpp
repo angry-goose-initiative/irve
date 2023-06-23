@@ -21,6 +21,11 @@
 #include "memory.h"
 #include "gdbserver.h"
 
+#if defined (__APPLE__) && defined (__MACH__)
+//macOS seems to have close() in unistd.h instead
+#include <unistd.h>
+#endif
+
 #define INST_COUNT 0
 #include "logging.h"
 

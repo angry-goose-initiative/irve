@@ -21,7 +21,7 @@ using namespace irve::internal;
 
 //TODO what should CSRs be initialized to?
 //See Volume 2 Section 3.4
-CSR::CSR_t::CSR_t() : mstatus(0), minstret(0), m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE) {}//FIXME this causes issues with MSVC
+CSR::CSR_t::CSR_t() : mstatus(0), minstret(0), m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE) {}
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
@@ -41,6 +41,7 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege
 
 reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
     //TODO handle WPRI in this function
+    //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
         case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
         case address::SIE:              return this->sie;
@@ -65,7 +66,9 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MENVCFGH:         return 0;
         case address::MCOUNTINHIBIT:    return 0;
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
+#endif
 
         case address::MSCRATCH:         return this->mscratch;
         case address::MEPC:             return this->mepc & 0xFFFFFFFC;
@@ -76,12 +79,16 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
         case address::MINSTRET:         return (uint32_t)(this->minstret & 0xFFFFFFFF);
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return 0;
+#endif
 
         case address::MCYCLEH:          return (uint32_t)((this->mcycle >> 32) & 0xFFFFFFFF);
         case address::MINSTRETH:        return (uint32_t)((this->minstret >> 32) & 0xFFFFFFFF);
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
+#endif
 
         case address::MVENDORID:        return 0;
         case address::MARCHID:          return 0; 
@@ -94,6 +101,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
     //TODO handle WARL in this function
+    //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
         case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
         case address::SIE:              this->sie = data; return;
@@ -116,7 +124,9 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MENVCFGH:         return;//We simply ignore writes to MENVCFGH, NOT throw an exception
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
+#endif
 
         case address::MSCRATCH:         this->mscratch = data; return;
         case address::MEPC:             this->mepc = data; return;//Masking handled on reads to make it easier to support IALIGN=16 in the future
@@ -127,12 +137,16 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MCYCLE:           this->mcycle    = (this->mcycle   & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;
         case address::MINSTRET:         this->minstret  = (this->minstret & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
+#endif
 
         case address::MCYCLEH:          this->mcycle    = (this->mcycle   & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32); return;
         case address::MINSTRETH:        this->minstret  = (this->minstret & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32); return;
 
+#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
+#endif
 
         default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
