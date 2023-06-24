@@ -67,7 +67,8 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege
 
 //We assume the CSRs within the class are "safe" for the purposes of reads
 reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
-    //TODO workaround MSVC not supporting non-standard case ranges
+    //FIXME workaround MSVC not supporting non-standard case ranges
+
     switch (csr) {
         case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
         case address::SIE:              return this->sie;
@@ -154,7 +155,8 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 
 //implicit_write must always ensure all CSRs in the class are legal
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
-    //TODO handle WARL in this function
+    //FIXME handle WARL in this function
+
     //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
         case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
