@@ -19,10 +19,6 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
-    #Set a large timeout for toolchain compilation
-    #FIXME only give this long timeout if there was a cache miss
-    timeout-minutes: 120
-
     steps:
       - uses: actions/checkout@v3
 
@@ -52,6 +48,7 @@ jobs:
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Compile RISC-V Toolchain
         working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        timeout-minutes: 120
         run: make -j
 
       - name: Add Toolchain Directory To Path
@@ -79,10 +76,6 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
-    #Set a large timeout for toolchain compilation
-    #FIXME only give this long timeout if there was a cache miss
-    timeout-minutes: 120
-
     steps:
       - uses: actions/checkout@v3
 
@@ -112,6 +105,7 @@ jobs:
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Compile RISC-V Toolchain
         working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        timeout-minutes: 120
         run: make -j
 
       - name: Add Toolchain Directory To Path
