@@ -37,6 +37,7 @@ jobs:
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Get RISC-V Toolchain Sources
+        working-directory: $HOME
         run: git clone https://github.com/riscv/riscv-gnu-toolchain
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
