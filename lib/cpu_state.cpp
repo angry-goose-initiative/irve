@@ -29,9 +29,6 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     m_CSR_ref(CSR_ref),
     m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
-    for (std::size_t i = 0; i < 31; ++i) {
-        this->m_regs[i] = 0;
-    }
     irvelog(1, "Created new cpu_state instance");
     this->log(2);
 }
