@@ -20,7 +20,6 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-//TODO what should CSRs be initialized to?
 //See Volume 2 Section 3.4
 CSR::CSR_t::CSR_t() : 
     sie(0),//Only needs to be initialized for implicit_read() guarantees
@@ -32,11 +31,11 @@ CSR::CSR_t::CSR_t() :
     scause(0),//Only needs to be initialized for implicit_read() guarantees
     sip(0),//Only needs to be initialized for implicit_read() guarantees
     satp(0),//Only needs to be initialized for implicit_read() guarantees
-    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//TODO is this the correct starting value?
+    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value?
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
-    menvcfg(0),
+    menvcfg(0),//Only needs to be initialized for implicit_read() guarantees
     //mscratch(),//We don't need to initialize this since all states are valid
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
     mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
@@ -46,6 +45,7 @@ CSR::CSR_t::CSR_t() :
     mtime(0),//Implied it should be initialized according to the spec
     mtimecmp(0xFFFFFFFFFFFFFFFF),//Implied it should be initialized according to the spec
     m_last_time_update(std::chrono::steady_clock::now()),
+    m_delay_update_counter(0),
     m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE)//MUST BE INITIALIZED ACCORDING TO THE SPEC
 {}
 
@@ -203,6 +203,12 @@ CSR::privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
 }
 
 void CSR::CSR_t::update_timer() {
+    //Only actually check if we should increment the timer every 65535 times this function is called
+    //This is since chrono is REALLY REALLY REALLY slow
+    ++m_delay_update_counter;
+    if (m_delay_update_counter) return;//Counter didn't overflow, so don't update the timer
+
+    //This is really, really slow. Like, we couldn't even run at 1MHz if we did this every time
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     double last_time_update_us = std::chrono::duration_cast<std::chrono::microseconds>(now - this->m_last_time_update).count();
     if (last_time_update_us > 1000) {//1ms

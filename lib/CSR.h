@@ -226,6 +226,7 @@ namespace irve::internal::CSR {
         uint64_t mtime;//Handles both time and timeh
         uint64_t mtimecmp;//Handles both time and timeh
         std::chrono::time_point<std::chrono::steady_clock> m_last_time_update;
+        uint16_t m_delay_update_counter;//Don't check how much time has passed each tick() (much too slow)
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };
