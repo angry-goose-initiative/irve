@@ -1,10 +1,11 @@
 name: IRVE Smoke Tests
 
+#Thanks https://stackoverflow.com/questions/57699839/github-actions-how-to-target-all-branches-except-master
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**", "!legacy" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**", "!legacy" ]
 
 jobs:
   debug:

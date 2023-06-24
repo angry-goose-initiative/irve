@@ -13,9 +13,9 @@
 
 #include "common.h"
 #include "cpu_state.h"
-#include "memory.h"
 #include "decode.h"
-
+#include "gdbserver.h"
+#include "memory.h"
 #include "rvexception.h"
 
 /* Types */
@@ -39,7 +39,7 @@ namespace irve::internal::emulator {
          * @brief The constructor
          * @param imagev TODO
         */
-        emulator_t(int imagec, const char** imagev);
+        emulator_t(int imagec, const char* const* imagev);
 
         /**
          * @brief Emulate one instruction
@@ -56,10 +56,23 @@ namespace irve::internal::emulator {
         void run_until(uint64_t inst_count);
 
         /**
+         * @brief Run a GDB server on the given port
+         * @param port The port to listen on
+         *
+        */
+        void run_gdbserver(uint16_t port);
+
+        /**
          * @brief Get the current instruction count
          * @return minstret
         */
         uint64_t get_inst_count() const;
+
+        /**
+         * @brief Determine if a breakpoint was encountered and clear the flag indicating so if it was
+         * @return True if a breakpoint was encountered
+        */
+        bool test_and_clear_breakpoint_encountered_flag();
     private:
         
         //TODO document these as well
@@ -80,7 +93,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @param cause TODO
         */
-        void handle_interrupt(rvexception::cause_t cause);
+        void check_and_handle_interrupts();
 
         /**
          * @brief TODO
@@ -91,6 +104,7 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+        bool m_encountered_breakpoint;
 
         //TODO other things
     };

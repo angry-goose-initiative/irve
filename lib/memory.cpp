@@ -101,7 +101,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
     irvelog(1, "Created new Memory instance");
 }
 
-memory::memory_t::memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
     try {
@@ -283,7 +283,7 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
     }
 }
 
-void memory::memory_t::load_memory_image_files(int imagec, const char** imagev) {
+void memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
 
     // Load each memory file
     for(int i = 0; i < imagec; ++i) {

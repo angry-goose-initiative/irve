@@ -799,6 +799,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
+
+                //ECALL dosn't actually retire, but we already incremented minstret, so we need to decrement it to compensate
+                CSR.implicit_write(CSR::address::MINSTRET, CSR.implicit_read(CSR::address::MINSTRET) - 1);
+
+                //Different exception case base on the current privilege mode
                 switch (privilege_mode) {
                     case CSR::privilege_mode_t::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
@@ -818,6 +823,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 }
             } else if (imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
+
+                //EBREAK dosn't actually retire, but we already incremented minstret, so we need to decrement it to compensate
+                CSR.implicit_write(CSR::address::MINSTRET, CSR.implicit_read(CSR::address::MINSTRET) - 1);
+
                 invoke_rv_exception(BREAKPOINT);
             } else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");

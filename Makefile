@@ -2,7 +2,7 @@
 # Copyright (C) 2023 John Jekel and Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 
-CPP_SOURCES = src/*.cpp lib/*.cpp
+CPP_SOURCES = src/main.cpp lib/*.cpp
 
 MAKEFLAGS += -j
 

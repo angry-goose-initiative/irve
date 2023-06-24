@@ -2,13 +2,10 @@ irve.bin
 .vscode/
 Info.plist
 a.out
-testfiles/build/
+build
 build/
 testfiles/.cache/
 .cache/
 lib/disassemble/target
-lib/disassemble/Cargo.lock
 src/irvers/target
 src/irvers/Cargo.lock
-testfiles/src/rust/target
-testfiles/src/rust/Cargo.lock

@@ -11,6 +11,14 @@
 
 /* Includes */
 
+#ifdef private//Unit tests define this but this dosn't play nicely with chrono
+#undef private
+#include <chrono>
+#define private public
+#else
+#include <chrono>
+#endif
+
 #include <cstdint>
 
 #include "common.h"
@@ -33,7 +41,6 @@ namespace irve::internal::CSR {
      * @brief CSR addresses implemented by IRVE
     */
     namespace address {
-        //TODO list of CSR addresses here
         const uint16_t SSTATUS              = 0x100;
         const uint16_t SIE                  = 0x104;
         const uint16_t STVEC                = 0x105;
@@ -57,8 +64,8 @@ namespace irve::internal::CSR {
         const uint16_t MENVCFGH             = 0x31A;
         const uint16_t MCOUNTINHIBIT        = 0x320;
 
-        const uint16_t MHPMEVENT_START       = 0x323;//Inclusive
-        const uint16_t MHPMEVENT_END         = 0x33F;//Inclusive
+        const uint16_t MHPMEVENT_START      = 0x323;//Inclusive
+        const uint16_t MHPMEVENT_END        = 0x33F;//Inclusive
 
         const uint16_t MSCRATCH             = 0x340;
         const uint16_t MEPC                 = 0x341;
@@ -67,7 +74,12 @@ namespace irve::internal::CSR {
         const uint16_t MIP                  = 0x344;
         const uint16_t MTINST               = 0x34A;
         const uint16_t MTVAL2               = 0x34B;
-        //TODO the PMP CSRs
+        
+        const uint16_t PMPCFG_START         = 0x3A0;//Inclusive
+        const uint16_t PMPCFG_END           = 0x3AF;//Inclusive
+        const uint16_t PMPADDR_START        = 0x3B0;//Inclusive
+        const uint16_t PMPADDR_END          = 0x3EF;//Inclusive
+        
         const uint16_t MCYCLE               = 0xB00;
         const uint16_t MINSTRET             = 0xB02;
 
@@ -79,6 +91,25 @@ namespace irve::internal::CSR {
 
         const uint16_t MHPMCOUNTERH_START   = 0xB83;//Inclusive
         const uint16_t MHPMCOUNTERH_END     = 0xB9F;//Inclusive
+
+        const uint16_t MTIME                = 0xBC0;//Custom
+        const uint16_t MTIMEH               = 0xBC4;//Custom
+        const uint16_t MTIMECMP             = 0xBD0;//Custom
+        const uint16_t MTIMECMPH            = 0xBD4;//Custom
+
+        const uint16_t CYCLE                = 0xC00;
+        const uint16_t TIME                 = 0xC01;
+        const uint16_t INSTRET              = 0xC02;
+
+        const uint16_t HPMCOUNTER_START     = 0xC03;//Inclusive
+        const uint16_t HPMCOUNTER_END       = 0xC1F;//Inclusive
+
+        const uint16_t CYCLEH               = 0xC80;
+        const uint16_t TIMEH                = 0xC81;
+        const uint16_t INSTRETH             = 0xC82;
+
+        const uint16_t HPMCOUNTERH_START    = 0xC83;//Inclusive
+        const uint16_t HPMCOUNTERH_END      = 0xC9F;//Inclusive
 
         const uint16_t MVENDORID            = 0xF11;
         const uint16_t MARCHID              = 0xF12;
@@ -150,8 +181,10 @@ namespace irve::internal::CSR {
         */
         privilege_mode_t get_privilege_mode() const;
 
-        //TODO add way to implicitly read/write CSRs so they won't cause exceptions (ex. for timers, etc.)
-
+        /**
+         * @brief Updates the RISC-V CPU's mtime timer; may also set a timer interrupt as pending in the mip CSR
+        */
+        void update_timer();
     private:
         /**
          * @brief Checks if the current privilege mode can read a CSR
@@ -168,10 +201,13 @@ namespace irve::internal::CSR {
         bool current_privilege_mode_can_explicitly_write(uint16_t csr) const;
 
         reg_t sie;
+        reg_t stvec;
+        reg_t scounteren;
+        reg_t senvcfg;
         reg_t sscratch;
         reg_t sepc;
         reg_t scause;
-        reg_t stval;
+        //stval is NOT here
         reg_t sip;
         reg_t satp;
         reg_t mstatus;
@@ -179,24 +215,29 @@ namespace irve::internal::CSR {
         reg_t medeleg;
         reg_t mideleg;
         reg_t mie;
-        reg_t mtvec;
+        //mtvec is NOT here
         reg_t menvcfg;
-        reg_t mstatush;
-        reg_t menvcfgh;
+        //mstatush is NOT here
+        //menvcfgh is NOT here
         reg_t mscratch;
         reg_t mepc;
         reg_t mcause;
-        reg_t mtval;
+        //mtval is NOT here
         reg_t mip;
-        reg_t mtinst;
-        //TODO the PMP CSRs
-        //reg_t satp;
 
-        //TODO add CSRs HERE
+        reg_t pmpcfg[64];
+        reg_t pmpaddr[64];
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
-        uint64_t time;//Handles both time and timeh
+
+        //NOTE: According to the spec, mtime and mtimecmp must be in memory, not in CSRs
+        //However, that would mean CSR_t needs a reference to memory, which is not ideal
+        //So instead we keep them here, and memory will have to redirect writes to their addresses into implicit writes to these CSRs
+        uint64_t mtime;//Handles both time and timeh
+        uint64_t mtimecmp;//Handles both time and timeh
+        std::chrono::time_point<std::chrono::steady_clock> m_last_time_update;
+        uint16_t m_delay_update_counter;//Don't check how much time has passed each tick() (much too slow)
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };

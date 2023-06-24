@@ -22,23 +22,6 @@
 /* Macros */
 
 //FIXME add doxygen comments
-#define invoke_rv_interrupt_by_num(the_cause) do { \
-    irve::internal::rvexception::cause_t enum_cause = (irve::internal::rvexception::cause_t) (the_cause); \
-    switch (enum_cause) { \
-        case irve::internal::rvexception::cause_t::SUPERVISOR_SOFTWARE_INTERRUPT: \
-        case irve::internal::rvexception::cause_t::MACHINE_SOFTWARE_INTERRUPT: \
-        case irve::internal::rvexception::cause_t::SUPERVISOR_TIMER_INTERRUPT: \
-        case irve::internal::rvexception::cause_t::MACHINE_TIMER_INTERRUPT: \
-        case irve::internal::rvexception::cause_t::SUPERVISOR_EXTERNAL_INTERRUPT: \
-        case irve::internal::rvexception::cause_t::MACHINE_EXTERNAL_INTERRUPT: \
-            break; \
-        default: \
-            assert(false && "Attempt to invoke interrupt with unsupported cause!"); \
-    } \
-    throw irve::internal::rvexception::rvinterrupt_t(enum_cause); \
-} while (0)
-
-//FIXME add doxygen comments
 #define invoke_rv_exception_by_num(the_cause) do { \
     irve::internal::rvexception::cause_t enum_cause = (irve::internal::rvexception::cause_t) (the_cause); \
     switch (enum_cause) { \
@@ -61,15 +44,6 @@
             assert(false && "Attempt to invoke exception with unsupported cause!"); \
     } \
     throw irve::internal::rvexception::rvexception_t(enum_cause); \
-} while (0)
-
-/**
- * @brief Invoke a RISC-V interrupt (more concise than using throw)
- * 
- * @param the_cause The cause of the interrupt
-*/
-#define invoke_rv_interrupt(the_cause) do { \
-    throw irve::internal::rvexception::rvinterrupt_t(irve::internal::rvexception::cause_t::the_cause ## _INTERRUPT); \
 } while (0)
 
 /**
@@ -121,19 +95,19 @@ namespace irve::internal::rvexception {
     /* Function/Class Declarations */
 
     /**
-     * @brief Base class for all RISC-V interrupts and exceptions
+     * @brief Exception thrown when an exception is invoked by the RISC-V system
      *
-     * Yes throwing excpetions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
+     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
      * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
     */
-    class rv_base_cpp_exception_t : public std::runtime_error {
+    class rvexception_t : public std::runtime_error {
     public:
         /**
-         * @brief Construct a new rv_base_cpp_exception_t
+         * @brief Construct a new rvexception_t
          * 
          * @param cause The cause of the interrupt/exception (see cause_t)
         */
-        rv_base_cpp_exception_t(cause_t cause);
+        rvexception_t(cause_t cause);
         
         /**
          * @brief Get the cause of the interrupt/exception
@@ -145,38 +119,6 @@ namespace irve::internal::rvexception {
 
         ///The cause of the interrupt/exception
         cause_t m_cause;
-    };
-
-    /**
-     * @brief Exception thrown when an interrupt is invoked by the RISC-V system
-     *
-     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
-     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
-    */
-    class rvinterrupt_t : public rv_base_cpp_exception_t {
-    public:
-        /**
-         * @brief Construct a new rvinterrupt_t
-         * 
-         * @param cause The cause of the interrupt/exception (see cause_t)
-        */
-        rvinterrupt_t(cause_t cause);
-    };
-
-    /**
-     * @brief Exception thrown when an exception is invoked by the RISC-V system
-     *
-     * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working on our first emulator.
-     * We'll stop using exceptions when we do XRVE in Rust. (We'll use Results and the ? operator instead to make things nice and also fast)
-    */
-    class rvexception_t : public rv_base_cpp_exception_t {
-    public:
-        /**
-         * @brief Construct a new rvexception_t
-         * 
-         * @param cause The cause of the interrupt/exception (see cause_t)
-        */
-        rvexception_t(cause_t cause);
     };
 
     /**

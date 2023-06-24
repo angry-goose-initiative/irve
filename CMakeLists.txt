@@ -8,7 +8,7 @@
 #
 
 #Config options
-set(IRVE_DISABLE_LOGGING 0)#TODO make this enabled by default in release builds#TODO rename to disable verbose logging
+set(IRVE_DISABLE_LOGGING 1)#TODO rename to disable verbose logging
 set(IRVE_ASYNC_LOGGING 0)
 set(IRVE_SANITIZE 0)
 set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
@@ -31,7 +31,7 @@ set(GIT_EXECUTABLE git)
 
 set(CMAKE_CXX_FLAGS "")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /Wall /WX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /Wall")# /WX")#TODO in the future, given enough time, fix all warnings on MSVC
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -Wall -Wextra -Werror")
 endif()
@@ -41,7 +41,11 @@ if (IRVE_SANITIZE)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+if (NOT APPLE)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto")
+endif()
 
 #https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
 execute_process(
