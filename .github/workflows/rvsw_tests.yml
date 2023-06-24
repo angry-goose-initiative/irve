@@ -37,17 +37,17 @@ jobs:
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Get RISC-V Toolchain Sources
-        working-directory: ~/
+        working-directory: ${{github.workspace}}
         run: git clone https://github.com/riscv/riscv-gnu-toolchain
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Configure RISC-V Toolchain Sources
-        working-directory: ~/riscv-gnu-toolchain/
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
         run: ./configure --prefix=$HOME/.riscv --with-arch=rv32ima --with-abi=ilp32
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Compile RISC-V Toolchain
-        working-directory: ~/riscv-gnu-toolchain/
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
         run: make -j
 
       - name: Add Toolchain Directory To Path
