@@ -19,6 +19,10 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
+    #Set a large timeout for toolchain compilation
+    #FIXME only give this long timeout if there was a cache miss
+    timeout-minutes: 120
+
     steps:
       - uses: actions/checkout@v3
 
@@ -74,6 +78,10 @@ jobs:
         #os: [ubuntu-latest, macos-latest, windows-latest]#For now, we only do RVSW tests on linux
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
+
+    #Set a large timeout for toolchain compilation
+    #FIXME only give this long timeout if there was a cache miss
+    timeout-minutes: 120
 
     steps:
       - uses: actions/checkout@v3
