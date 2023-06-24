@@ -93,7 +93,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @param cause TODO
         */
-        void handle_interrupt(rvexception::cause_t cause);
+        void check_and_handle_interrupts();
 
         /**
          * @brief TODO

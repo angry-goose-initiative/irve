@@ -60,15 +60,7 @@ bool emulator::emulator_t::tick() {
 
     this->m_CSR.update_timer();
 
-    //TODO Each peripheral's tick() function should be called here
-    //Each must be wrapped ITS OWN UNIQUE try-catch block to catch any interrupts they throw
-    //while still ensuring all are ticked this major tick
-    try {
-        irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
-    } catch (const rvexception::rvinterrupt_t& e) {
-        this->handle_interrupt(e.cause());
-    }
-    //TODO One try-catch block per peripheral here...
+    this->check_and_handle_interrupts();
 
     irvelog(0, "Tick %lu ends", this->get_inst_count());
     return true;
@@ -175,9 +167,10 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     }
 }
 
-void emulator::emulator_t::handle_interrupt(rvexception::cause_t /* cause */) {
-    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+void emulator::emulator_t::check_and_handle_interrupts() {
+    //if interrupt occured
+    //this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+    //assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
 }
 
 void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {

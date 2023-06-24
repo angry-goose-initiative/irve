@@ -22,21 +22,15 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-rvexception::rv_base_cpp_exception_t::rv_base_cpp_exception_t(rvexception::cause_t cause) :
+rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) :
     std::runtime_error("Uncaught RISC-V interrupt/exception, you should never see this."),
     m_cause(cause)
-{}
-
-rvexception::cause_t rvexception::rv_base_cpp_exception_t::cause() const {
-    return this->m_cause;
-}
-
-rvexception::rvinterrupt_t::rvinterrupt_t(rvexception::cause_t cause) : rvexception::rv_base_cpp_exception_t(cause) {
-    assert((((uint32_t)cause) >= 0x80000000) && "Attempt to create rvinterrupt_t with exception cause");
-}
-
-rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) : rvexception::rv_base_cpp_exception_t(cause) {
+{
     assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
+}
+
+rvexception::cause_t rvexception::rvexception_t::cause() const {
+    return this->m_cause;
 }
 
 rvexception::irve_exit_request_t::irve_exit_request_t() {}
