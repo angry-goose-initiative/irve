@@ -11,6 +11,14 @@
 
 /* Includes */
 
+#ifdef private//Unit tests define this but this dosn't play nicely with chrono
+#undef private
+#include <chrono>
+#define private public
+#else
+#include <chrono>
+#endif
+
 #include <cstdint>
 
 #include "common.h"
@@ -85,6 +93,11 @@ namespace irve::internal::CSR {
         const uint16_t MHPMCOUNTERH_START   = 0xB83;//Inclusive
         const uint16_t MHPMCOUNTERH_END     = 0xB9F;//Inclusive
 
+        const uint16_t MTIME                = 0xBC0;//Custom
+        const uint16_t MTIMEH               = 0xBC4;//Custom
+        const uint16_t MTIMECMP             = 0xBD0;//Custom
+        const uint16_t MTIMECMPH            = 0xBD4;//Custom
+
         const uint16_t MVENDORID            = 0xF11;
         const uint16_t MARCHID              = 0xF12;
         const uint16_t MIMPID               = 0xF13;
@@ -157,6 +170,10 @@ namespace irve::internal::CSR {
 
         //TODO add way to implicitly read/write CSRs so they won't cause exceptions (ex. for timers, etc.)
 
+        /**
+         * @brief Ticks the RISC-V CPU's mtime timer; may also set a timer interrupt as pending in the mip CSR
+        */
+        void update_timer();
     private:
         /**
          * @brief Checks if the current privilege mode can read a CSR
@@ -189,7 +206,7 @@ namespace irve::internal::CSR {
         reg_t mie;
         //mtvec is NOT here
         reg_t menvcfg;
-        reg_t mstatush;
+        //mstatush is NOT here
         //menvcfgh is NOT here
         reg_t mscratch;
         reg_t mepc;
@@ -202,8 +219,13 @@ namespace irve::internal::CSR {
 
         uint64_t minstret;//Handles both minstret and minstreth
         uint64_t mcycle;//Handles both mcycle and mcycleh
-        //uint64_t mtime;//Handles both time and timeh//TODO actually use
-        //uint64_t mtimecmp;//Handles both time and timeh//TODO actually use
+
+        //NOTE: According to the spec, mtime and mtimecmp must be in memory, not in CSRs
+        //However, that would mean CSR_t needs a reference to memory, which is not ideal
+        //So instead we keep them here, and memory will have to redirect writes to their addresses into implicit writes to these CSRs
+        uint64_t mtime;//Handles both time and timeh
+        uint64_t mtimecmp;//Handles both time and timeh
+        std::chrono::time_point<std::chrono::steady_clock> m_last_time_update;
 
         privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
     };

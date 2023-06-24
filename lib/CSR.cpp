@@ -11,6 +11,7 @@
 #include "CSR.h"
 
 #include <cassert>
+#include <chrono>
 #include <cstddef>
 
 #include "rvexception.h"
@@ -30,21 +31,21 @@ CSR::CSR_t::CSR_t() :
     sepc(0),//Only needs to be initialized for implicit_read() guarantees
     scause(0),//Only needs to be initialized for implicit_read() guarantees
     sip(0),//Only needs to be initialized for implicit_read() guarantees
-    //satp//FIXME must this be initialized?
+    satp(0),//Only needs to be initialized for implicit_read() guarantees
     mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//TODO is this the correct starting value?
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
-    mie(0),//Only needs to be initialized for implicit_read() guarantees
+    mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
     menvcfg(0),
-    mstatush(0),//Only needs to be initialized for implicit_read() guarantees//TODO is this the correct starting value?
     //mscratch(),//We don't need to initialize this since all states are valid
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
-    mcause(0),//Only needs to be initialized for implicit_read() guarantees
+    mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     mip(0),//Only needs to be initialized for implicit_read() guarantees
     minstret(0),//Implied it should be initialized according to the spec
     mcycle(0),//Implied it should be initialized according to the spec
-    //mtime(0),//Implied it should be initialized according to the spec//TODO
-    //TODO mtimecmp too
+    mtime(0),//Implied it should be initialized according to the spec
+    mtimecmp(0xFFFFFFFFFFFFFFFF),//Implied it should be initialized according to the spec
+    m_last_time_update(std::chrono::steady_clock::now()),
     m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE)//MUST BE INITIALIZED ACCORDING TO THE SPEC
 {}
 
@@ -87,7 +88,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MTVEC:            return MTVEC_CONTENTS;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg;
-        case address::MSTATUSH:         return this->mstatush;
+        case address::MSTATUSH:         return 0;//We only support little-endian
         case address::MENVCFGH:         return 0;
         case address::MCOUNTINHIBIT:    return 0;
 
@@ -154,7 +155,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MIDELEG:          this->mideleg = data; return;//FIXME WARL
         case address::MIE:              this->mie = data; return;//FIXME WARL
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;//Only lowest bit is RW
-        case address::MSTATUSH:         this->mstatush = data; return;//FIXME WARL
+        case address::MSTATUSH:         return;//We simply ignore writes to MSTATUSH, NOT throw an exception
         case address::MENVCFGH:         return;//We simply ignore writes to MENVCFGH, NOT throw an exception
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
 
@@ -199,6 +200,18 @@ void CSR::CSR_t::set_privilege_mode(privilege_mode_t new_privilege_mode) {
 
 CSR::privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
     return this->m_privilege_mode;
+}
+
+void CSR::CSR_t::update_timer() {
+    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+    double last_time_update_us = std::chrono::duration_cast<std::chrono::microseconds>(now - this->m_last_time_update).count();
+    if (last_time_update_us > 1000) {//1ms
+        this->m_last_time_update = now;
+        ++(this->mtime);
+        if (this->mtime >= this->mtimecmp) {
+            this->mip |= 1 << 7;//Set the machine timer interrupt as pending
+        }
+    }
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {

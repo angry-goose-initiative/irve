@@ -58,6 +58,8 @@ bool emulator::emulator_t::tick() {
         return false;
     }
 
+    this->m_CSR.update_timer();
+
     //TODO Each peripheral's tick() function should be called here
     //Each must be wrapped ITS OWN UNIQUE try-catch block to catch any interrupts they throw
     //while still ensuring all are ticked this major tick
