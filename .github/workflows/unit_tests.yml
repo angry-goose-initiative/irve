@@ -25,7 +25,7 @@ jobs:
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
 
-      - name: Build
+      - name: Build unit_tester
         run: cmake --build ${{github.workspace}}/build --config Debug --target unit_tester
 
       - name: Test
@@ -50,7 +50,7 @@ jobs:
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build unit_tester
         run: cmake --build ${{github.workspace}}/build --config Release --target unit_tester
 
       - name: Test
