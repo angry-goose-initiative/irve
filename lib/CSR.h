@@ -41,7 +41,6 @@ namespace irve::internal::CSR {
      * @brief CSR addresses implemented by IRVE
     */
     namespace address {
-        //TODO list of CSR addresses here
         const uint16_t SSTATUS              = 0x100;
         const uint16_t SIE                  = 0x104;
         const uint16_t STVEC                = 0x105;
@@ -65,8 +64,8 @@ namespace irve::internal::CSR {
         const uint16_t MENVCFGH             = 0x31A;
         const uint16_t MCOUNTINHIBIT        = 0x320;
 
-        const uint16_t MHPMEVENT_START       = 0x323;//Inclusive
-        const uint16_t MHPMEVENT_END         = 0x33F;//Inclusive
+        const uint16_t MHPMEVENT_START      = 0x323;//Inclusive
+        const uint16_t MHPMEVENT_END        = 0x33F;//Inclusive
 
         const uint16_t MSCRATCH             = 0x340;
         const uint16_t MEPC                 = 0x341;
@@ -97,6 +96,20 @@ namespace irve::internal::CSR {
         const uint16_t MTIMEH               = 0xBC4;//Custom
         const uint16_t MTIMECMP             = 0xBD0;//Custom
         const uint16_t MTIMECMPH            = 0xBD4;//Custom
+
+        const uint16_t CYCLE                = 0xC00;
+        const uint16_t TIME                 = 0xC01;
+        const uint16_t INSTRET              = 0xC02;
+
+        const uint16_t HPMCOUNTER_START     = 0xC03;//Inclusive
+        const uint16_t HPMCOUNTER_END       = 0xC1F;//Inclusive
+
+        const uint16_t CYCLEH               = 0xC80;
+        const uint16_t TIMEH                = 0xC81;
+        const uint16_t INSTRETH             = 0xC82;
+
+        const uint16_t HPMCOUNTERH_START    = 0xC83;//Inclusive
+        const uint16_t HPMCOUNTERH_END      = 0xC9F;//Inclusive
 
         const uint16_t MVENDORID            = 0xF11;
         const uint16_t MARCHID              = 0xF12;
@@ -168,10 +181,8 @@ namespace irve::internal::CSR {
         */
         privilege_mode_t get_privilege_mode() const;
 
-        //TODO add way to implicitly read/write CSRs so they won't cause exceptions (ex. for timers, etc.)
-
         /**
-         * @brief Ticks the RISC-V CPU's mtime timer; may also set a timer interrupt as pending in the mip CSR
+         * @brief Updates the RISC-V CPU's mtime timer; may also set a timer interrupt as pending in the mip CSR
         */
         void update_timer();
     private:

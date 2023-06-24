@@ -107,18 +107,39 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::PMPADDR_START ... address::PMPADDR_END:   return this->pmpaddr[csr - address::PMPADDR_START];
 #endif
 
-        case address::MCYCLE:           return (uint32_t)(this->mcycle & 0xFFFFFFFF);
-        case address::MINSTRET:         return (uint32_t)(this->minstret & 0xFFFFFFFF);
+        case address::MCYCLE:           return (uint32_t)(this->mcycle      & 0xFFFFFFFF);
+        case address::MINSTRET:         return (uint32_t)(this->minstret    & 0xFFFFFFFF);
 
 #ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return 0;
 #endif
 
-        case address::MCYCLEH:          return (uint32_t)((this->mcycle >> 32) & 0xFFFFFFFF);
-        case address::MINSTRETH:        return (uint32_t)((this->minstret >> 32) & 0xFFFFFFFF);
+        case address::MCYCLEH:          return (uint32_t)((this->mcycle     >> 32) & 0xFFFFFFFF);
+        case address::MINSTRETH:        return (uint32_t)((this->minstret   >> 32) & 0xFFFFFFFF);
 
 #ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
+#endif
+
+        case address::MTIME:            return (uint32_t)(this->mtime               & 0xFFFFFFFF);//Custom
+        case address::MTIMEH:           return (uint32_t)((this->mtime      >> 32)  & 0xFFFFFFFF);//Custom
+        case address::MTIMECMP:         return (uint32_t)(this->mtimecmp            & 0xFFFFFFFF);//Custom
+        case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp   >> 32)  & 0xFFFFFFFF);//Custom
+
+        case address::CYCLE:            return this->implicit_read(address::MCYCLE);
+        case address::TIME:             return this->implicit_read(address::MTIME);
+        case address::INSTRET:          return this->implicit_read(address::MINSTRET);
+
+#ifndef _MSC_VER//Not on MSVC
+        case address::HPMCOUNTER_START ... address::HPMCOUNTER_END: return 0;
+#endif
+
+        case address::CYCLEH:           return this->implicit_read(address::MCYCLEH);
+        case address::TIMEH:            return this->implicit_read(address::MTIMEH);
+        case address::INSTRETH:         return this->implicit_read(address::MINSTRETH);
+
+#ifndef _MSC_VER//Not on MSVC
+        case address::HPMCOUNTERH_START ... address::HPMCOUNTERH_END: return 0;
 #endif
 
         case address::MVENDORID:        return 0;
@@ -126,8 +147,6 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MIMPID:           return 0; 
         case address::MHARTID:          return 0;
         case address::MCONFIGPTR:       return 0;
-
-        //TODO time, cycle, instret somewhere
 
         default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
@@ -188,7 +207,10 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
 #endif
 
-        //TODO time, cycle, instret somewhere
+        case address::MTIME:            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
+        case address::MTIMEH:           this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
+        case address::MTIMECMP:         this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
+        case address::MTIMECMPH:        this->mtimecmp  = (this->mtimecmp & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
 
         default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
@@ -221,6 +243,8 @@ void CSR::CSR_t::update_timer() {
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {
+    //TODO special checks for cycle, instret, time, and hpmcounters
+
     uint32_t min_privilege_required = (csr >> 8) & 0b11;
     return (uint32_t)(m_privilege_mode) >= min_privilege_required;
 }
