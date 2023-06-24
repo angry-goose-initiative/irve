@@ -28,7 +28,7 @@ jobs:
         env:
           cache-name: cache-riscv-toolchain
         with:
-          path: $HOME/.riscv
+          path: ~/.riscv
           key: ${{runner.os}}-build-${{env.cache-name}}
       
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
@@ -37,17 +37,17 @@ jobs:
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Get RISC-V Toolchain Sources
-        working-directory: $HOME
+        working-directory: ~/
         run: git clone https://github.com/riscv/riscv-gnu-toolchain
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Configure RISC-V Toolchain Sources
-        working-directory: $HOME/riscv-gnu-toolchain/
+        working-directory: ~/riscv-gnu-toolchain/
         run: ./configure --prefix=$HOME/.riscv --with-arch=rv32ima --with-abi=ilp32
 
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Compile RISC-V Toolchain
-        working-directory: $HOME/riscv-gnu-toolchain/
+        working-directory: ~/riscv-gnu-toolchain/
         run: make -j
 
       - name: Add Toolchain Directory To Path
