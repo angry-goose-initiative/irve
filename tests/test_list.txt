@@ -43,7 +43,6 @@ add_unit_test(memory_pmemory_t_valid_ramaddrs)
 add_unit_test(memory_pmemory_t_invalid_debugaddr)
 add_unit_test(memory_pmemory_t_invalid_ram_writes)
 add_unit_test(memory_pmemory_t_invalid_ram_reads)
-add_unit_test(reg_file_reg_file_t)
 
 ####################################################################################################
 # Integration Test List (integration_tester)

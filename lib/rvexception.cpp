@@ -23,7 +23,7 @@ using namespace irve::internal;
 /* Function Implementations */
 
 rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) :
-    std::runtime_error("Uncaught RISC-V interrupt/exception, you should never see this."),
+    std::runtime_error("Uncaught RISC-V exception, you should never see this."),
     m_cause(cause)
 {
     assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
