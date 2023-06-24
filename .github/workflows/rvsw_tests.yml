@@ -47,7 +47,7 @@ jobs:
       - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
         name: Compile RISC-V Toolchain
         working-directory: $HOME/riscv-gnu-toolchain/
-        run: make
+        run: make -j
 
       - name: Add Toolchain Directory To Path
         run: echo "$HOME/.riscv" >> $GITHUB_PATH
