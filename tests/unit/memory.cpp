@@ -415,3 +415,45 @@ int test_memory_memory_t_no_translation() {
 
     return 0;
 }
+
+int test_memory_memory_t_supervisor_loads_with_translation() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // First level page table starts at 0x00000000
+    word_t FIRST_LEVEL_PT_ADDR = 0x00000000;
+    // pte valid bit set
+    // pte.PPN = 0x1
+    word_t pte1 = 0x00000401;
+
+    // Second level page table starts at 0x00001F00
+    word_t SECOND_LEVEL_PT_ADDR = 0x00001F00;
+    // pte valid, readable, writable, accessed bit set
+    // pte.PPN = 0x4
+    word_t pte2 = 0x00001047;
+
+    // Only working with S-mode here
+    CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+    // Starts with bare address translation
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // Write first level pte to memory
+    memory.store(FIRST_LEVEL_PT_ADDR, DT_WORD, pte1);
+    // Write second level pte to memory
+    memory.store(SECOND_LEVEL_PT_ADDR, DT_WORD, pte2);
+
+    // Write the data that will be read after translation to memory
+    memory.store(0x00004FF0, DT_WORD, 0x1234ABCD);
+
+    // Switch to SV32 address translation
+    CSR.implicit_write(CSR::address::SATP, word_t(0x80000000));
+
+    // va.VPN[1] = 0x0
+    // va.VPN[0] = 0b1111000000  (0x3C0)
+    // va.offset = 0xFF0
+    word_t va = 0x003C0FF0;
+
+    assert(memory.load(va, DT_WORD).s == 0x1234ABCD);
+
+    return 0;
+}

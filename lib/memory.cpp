@@ -156,9 +156,10 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
     if(NO_TRANSLATION) { // TODO check the condition
-        // No address translation
+        irvelog(1, "No address translation");
         return (uint64_t)untranslated_addr.u;
     }
+    irvelog(1, "Translating address");
 
     // The untranslated address is a virtual address
     word_t va = untranslated_addr;
@@ -180,24 +181,28 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         pte_addr = a + (va_VPN(i) * 4);
         // This access may raise an access-fault exception
         // TODO ensure this exeption corresponds to the original access type
+        irvelog(1, "Accessing level %d pte at level at address %09X", i, pte_addr);
         pte = read_physical(pte_addr, DT_WORD);
+        irvelog(1, "pte found = 0x%08X", pte.u);
 
         assert(pte_G == 0 && "Global bit was set by software (but we haven't implemented it)");
 
         // STEP 3
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
-            // The pte is not valid or the page is writable and not readable
+            irvelog(1, "The pte is not valid or the page is writable and not readable");
             invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
         }
 
         // STEP 4
         if(pte_R == 1 || pte_X == 1) {
-            // Leaf pte found
+            irvelog(1, "Leaf pte found");
             break;
         }
         else {
+            a = pte_PPN * PAGESIZE;
             --i;
             if(i < 0) {
+                irvelog(1, "Leaf pte not found at the second level of the page table, throwing exception");
                 invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
             }
         }
@@ -205,12 +210,14 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
 
     // STEP 5
     if(ACCESS_NOT_ALLOWED) {
+        irvelog(1, "This access is not allowed, throwing exception");
         invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
     }
 
     // STEP 6
     if((i == 1) && (pte_PPN0 != 0)) {
         // Misaligned superpage
+        irvelog(1, "Misaligned superpage, throwing exception");
         invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
     }
 
