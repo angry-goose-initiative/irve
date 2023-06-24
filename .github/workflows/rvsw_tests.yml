@@ -30,15 +30,14 @@ jobs:
       run: mkdir build_toolchain
 
     - name: Get RISC-V Toolchain Sources
-      working-directory: ${{github.workspace}}/build_toolchain
       run: git clone https://github.com/riscv/riscv-gnu-toolchain
 
     - name: Configure RISC-V Toolchain Sources
-      working-directory: ${{github.workspace}}/build_toolchain
+      working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
       run: ./configure --prefix=${{github.workspace}}/toolchain --with-arch=rv32ima --with-abi=ilp32
 
     - name: Compile RISC-V Toolchain
-      working-directory: ${{github.workspace}}/build_toolchain
+      working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
       run: make
 
     - name: Add Toolchain Output To Path
