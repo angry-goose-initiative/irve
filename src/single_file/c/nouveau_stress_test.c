@@ -122,3 +122,8 @@ static uint64_t mandelbrot_iterations(double complex point) {
 
     assert(false && "We should never get here");
 }
+
+__attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handler___(void) {
+    assert(false && "We don't expect any exceptions to occur in this test program");
+    exit(1);
+}

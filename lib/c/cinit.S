@@ -63,7 +63,9 @@ ___rvsw_crt0___:
     #Setup Newlib code
     call __libc_init_array
     
-    #Jump to main
+    #Call main (No command-line arguments)
+    li a0, 0
+    li a1, 0
     call main
 
     #Post-main RVSW-specific cleanup in C

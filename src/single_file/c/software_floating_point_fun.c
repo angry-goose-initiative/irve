@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 /* Function Implementations */
 
@@ -37,4 +38,9 @@ int main() {
     printf("a / b is %f\n", a / b);
 
     return 0;
+}
+
+__attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handler___(void) {
+    assert(false && "We don't expect any exceptions to occur in this test program");
+    exit(1);
 }

@@ -49,6 +49,8 @@ int main() {
     dprintf("  DTB_ADDR:    0x%X\n", DTB_ADDR);
     dprintf("  KERNEL_ADDR: 0x%X\n", KERNEL_ADDR);
 
+    //TODO print the reset cause (simply mcause) here
+
     dputs("Delegating all interrupts and exceptions to M-Mode...");
     __asm__ volatile("csrrw zero, medeleg, zero");//All exceptions are handled in M-Mode
     __asm__ volatile("csrrw zero, mideleg, zero");//All interrupts are handled in M-Mode

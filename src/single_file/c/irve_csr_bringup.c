@@ -205,4 +205,5 @@ int main() {
 
 __attribute__ ((interrupt ("machine"))) void __riscv_synchronous_exception_and_user_mode_swi_handler(void) {
     assert(false && "We only access CSRs in a valid manner, so we should never get here");
+    exit(1);
 }

@@ -8,7 +8,10 @@
 
 /* Includes */
 
+#include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 /* Function Implementations */
 
@@ -54,4 +57,9 @@ int main() {
     //If we change that 000A to 0000000A, the problem goes away!
     //So we will work around this in our loader code
     return 0;
+}
+
+__attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handler___(void) {
+    assert(false && "We don't expect any exceptions to occur in this test program");
+    exit(1);
 }
