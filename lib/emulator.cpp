@@ -33,7 +33,7 @@ emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
         m_CSR(),
         m_memory(imagec, imagev, m_CSR),
         m_cpu_state(m_CSR),
-        m_encountered_breakpoint(false) {
+        m_intercept_breakpoints(false) {
     irvelog(0, "Created new emulator instance");
 }
 
@@ -78,6 +78,8 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
 }
 
 void emulator::emulator_t::run_gdbserver(uint16_t port) {
+    this->m_intercept_breakpoints = true;
+    this->m_encountered_breakpoint = false;
     gdbserver::start(*this, this->m_cpu_state, this->m_memory, port);
 }
 
@@ -182,13 +184,13 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
-    bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
-
-    if (exception_from_machine_mode && (cause == rvexception::cause_t::BREAKPOINT_EXCEPTION)) {
+    if (this->m_intercept_breakpoints && (cause == rvexception::cause_t::BREAKPOINT_EXCEPTION) && (this->m_CSR.get_privilege_mode() != CSR::privilege_mode_t::USER_MODE)) {
+        irvelog(1, "Breakpoint intercepted");
         this->m_encountered_breakpoint = true;
         return;
     }
 
+    bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
     bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) == 0;
 
     if (exception_from_machine_mode || exception_delegated_to_machine_mode) {//Exception should be handled in machine mode

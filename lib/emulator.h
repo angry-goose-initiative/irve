@@ -104,6 +104,7 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+        bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
 
         //TODO other things
