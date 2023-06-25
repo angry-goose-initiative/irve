@@ -6,6 +6,11 @@
  *
 */
 
+/* Constants and Defines */
+
+//Only some bits of mstatus are accessible in S-mode
+#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
+
 /* Includes */
 
 #include "CSR.h"
@@ -70,7 +75,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
     //FIXME workaround MSVC not supporting non-standard case ranges
 
     switch (csr) {
-        case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
+        case address::SSTATUS:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
         case address::SIE:              return this->sie;
         case address::STVEC:            return this->stvec;
         case address::SCOUNTEREN:       return this->scounteren;
@@ -159,7 +164,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
 
     //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
-        case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
+        case address::SSTATUS:          this->mstatus = (this->mstatus & ~SSTATUS_MASK) | (data & SSTATUS_MASK); return;//Only some parts of mstatus are writable from sstatus
         case address::SIE:              this->sie = data; return;//FIXME WARL
         case address::STVEC:            this->stvec = data; return;//FIXME WARL
         case address::SCOUNTEREN:       this->scounteren = data; return;//FIXME WARL
