@@ -60,6 +60,8 @@ bool emulator::emulator_t::tick() {
 
     this->m_CSR.update_timer();
 
+    //TODO also add a function to memory to update peripherals
+
     this->check_and_handle_interrupts();
 
     irvelog(0, "Tick %lu ends", this->get_inst_count());
@@ -170,6 +172,7 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
 }
 
 void emulator::emulator_t::check_and_handle_interrupts() {
+    
     //if interrupt occured
     //this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
     //assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
