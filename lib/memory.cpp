@@ -146,6 +146,8 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
         assert(false && "Call check_writable_byte() first!");
     }
 
+    //TODO add mtime and mtimecmp registers
+
     //TODO other MMIO devices
 
     switch (addr) {
@@ -192,7 +194,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
     irvelog(1, "Created new Memory instance");
 }
 
-memory::memory_t::memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
     try {
@@ -367,25 +369,25 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
         this->m_mem.check_writable_byte(addr + i);
     }
 
-    // If all bytes are writable, then write to each byte
+    // Check for misaligned access
+    // Note that this happens AFTER checking for writability to physical memory because access faults take priority
+    // over misaligned faults
+    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
+        // Misaligned halfword write
+        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+    }
+    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
+        // Misaligned word write
+        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+    }
+
+    // If all bytes are writable and the access is aligned, then write to each byte
     for(int i = 0; i<byte; ++i) {
         this->m_mem.write_byte(addr + i, (uint8_t)data.srl(8 * i).u);
     }
-
-    // Check for misaligned access
-    // Note that this happens AFTER writing to physical memory because access faults take priority
-    // over misaligned faults
-    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
-        // Misaligned halfword read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
-    }
-    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
-        // Misaligned word read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
-    }
 }
 
-void memory::memory_t::load_memory_image_files(int imagec, const char** imagev) {
+void memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
 
     // Load each memory file
     for(int i = 0; i < imagec; ++i) {

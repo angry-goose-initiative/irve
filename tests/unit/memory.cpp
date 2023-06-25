@@ -175,6 +175,8 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
+            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
         }
         try {
@@ -182,6 +184,8 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
+            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
@@ -189,6 +193,7 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
@@ -304,7 +309,7 @@ int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
@@ -324,13 +329,14 @@ int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {
-            pmemory.write_byte(i, 0xA5);
+            pmemory.check_writable_byte(i);
             assert(false);
+            pmemory.write_byte(i, 0xA5);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
             assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 

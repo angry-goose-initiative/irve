@@ -171,7 +171,7 @@ int verify_jzjcoresoftware_fenceecalltest() {
         }
         emulator.tick();//Execute the ecall
         assert(emulator.get_inst_count() == expected_inst_count);//Should NOT have been retired
-        assert(cpu_state_ref.get_pc() == 0x4);
+        assert(cpu_state_ref.get_pc() == 0x4);//Since this is where the exception handler is (based on IRVE's hardcoded MTVEC)
     }
     
     return 0;

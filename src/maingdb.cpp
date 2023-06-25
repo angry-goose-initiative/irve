@@ -1,16 +1,18 @@
-/* main.cpp
+/* maingdb.cpp
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * IRVE - The Inextensible RISC-V Emulator
+ * IRVE - The Inextensible RISC-V Emulator (GDB Server Version)
  *
  * Entry point
  *
 */
 
-//TODO better code reuse with this and maingdb.cpp
+//TODO better code reuse with this and main.cpp
 
 /* Constants and Defines */
+
+#define PORT 12345
 
 #define irvelog(...) irve::logging::log(__VA_ARGS__)
 #define irvelog_always(...) irve::logging::log_always(__VA_ARGS__)
@@ -50,16 +52,9 @@ int main(int argc, const char* const* argv) {
 
     irvelog_always(0, "Initialized the emulator in %luus", init_time);
 
-    auto execution_start_time = std::chrono::steady_clock::now();
+    irvelog_always(0, "Starting the IRVE GDB Server...");
 
-    emulator->run_until(0);//Run the emulator until we get an exit request
-
-    auto execution_time_us = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - execution_start_time).count();
-
-    irvelog_always(0, "Emulation finished in %luus", execution_time_us);
-    irvelog_always(0, "%lu instructions were executed", emulator->get_inst_count());
-    auto average_ips = (((double)emulator->get_inst_count()) / ((double)execution_time_us)) * 1000000.0;
-    irvelog_always(0, "Average of %f instructions per second (%fMHz)", average_ips, (average_ips / 1000000.0));
+    emulator->run_gdbserver(12345);
 
     irvelog_always(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
     
@@ -69,7 +64,7 @@ int main(int argc, const char* const* argv) {
 /* Static Function Implementations */
 
 static void print_startup_message() {
-    irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m");
+    irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m (GDB Server Mode)");
     irvelog_always(0, "\x1b[1m\x1b[94m ___ ______     _______ \x1b[0m");
     irvelog_always(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____|\x1b[0m");
     irvelog_always(0, "\x1b[1m\x1b[94m | || |_) \\ \\ / /|  _|  \x1b[0m"); 
