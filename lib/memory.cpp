@@ -77,7 +77,6 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
             break;
         default:
             // Not MMIO
-            assert((addr < RAMSIZE) && "Attempt to write out of bounds; did you call check_writable_byte() first?");
             this->m_ram[addr] = data;
             break;
     }
