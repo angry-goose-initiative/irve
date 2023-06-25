@@ -36,7 +36,7 @@ CSR::CSR_t::CSR_t() :
     scause(0),//Only needs to be initialized for implicit_read() guarantees
     sip(0),//Only needs to be initialized for implicit_read() guarantees
     satp(0),//Only needs to be initialized for implicit_read() guarantees
-    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value?
+    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value??
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
