@@ -173,8 +173,6 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            printf("cause: %d\n", (uint32_t)e.cause());
-            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
         }
         try {
@@ -182,8 +180,6 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            printf("cause: %d\n", (uint32_t)e.cause());
-            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
@@ -191,7 +187,6 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
-            printf("cause: %d\n", (uint32_t)e.cause());
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
