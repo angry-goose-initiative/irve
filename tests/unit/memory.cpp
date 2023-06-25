@@ -8,6 +8,8 @@
 
 /* Includes */
 
+#define private public//Since we need to access internal emulator state for testing
+
 #include <cassert>
 #include "memory.h"
 #include "CSR.h"
@@ -173,6 +175,8 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
+            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
         }
         try {
@@ -180,6 +184,8 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
+            fflush(stdout);
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
@@ -187,6 +193,7 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
+            printf("cause: %d\n", (uint32_t)e.cause());
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
@@ -302,7 +309,7 @@ int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
@@ -322,13 +329,14 @@ int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
     memory::pmemory_t pmemory;
 
     for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
         try {
-            pmemory.write_byte(i, 0xA5);
+            pmemory.check_writable_byte(i);
             assert(false);
+            pmemory.write_byte(i, 0xA5);
         } catch (const rvexception::rvexception_t& e) {
             //This should throw an exception of type rvexception_t
             assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
@@ -338,6 +346,120 @@ int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
             break;
         }
     }
+
+    return 0;
+}
+
+int test_memory_memory_t_no_translation() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    // M-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // satp indicates SV32
+    CSR.implicit_write(CSR::address::SATP, (word_t)0x80000000);
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // Switch to S-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // No translation should occur
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
+
+    // satp incicates SV32 with PPN 1
+    CSR.implicit_write(CSR::address::SATP, (word_t)0x80000001);
+
+    // Translation should occur
+    bool threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
+
+    // Switch to U-mode
+    CSR.set_privilege_mode(CSR::privilege_mode_t::USER_MODE);
+
+    // Translation should occur
+    threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
+
+    // satp indicates bare
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // Translation should occur
+    threwException = false;
+    try {
+        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
+    }
+    catch(...) {
+        threwException = true;
+    }
+    // An exception would only be thrown if the address was being translated
+    assert(threwException);
+
+    return 0;
+}
+
+int test_memory_memory_t_supervisor_loads_with_translation() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // First level page table starts at 0x00000000
+    word_t FIRST_LEVEL_PT_ADDR = 0x00000000;
+    // pte valid bit set
+    // pte.PPN = 0x1
+    word_t pte1 = 0x00000401;
+
+    // Second level page table starts at 0x00001F00
+    word_t SECOND_LEVEL_PT_ADDR = 0x00001F00;
+    // pte valid, readable, writable, accessed bit set
+    // pte.PPN = 0x4
+    word_t pte2 = 0x00001047;
+
+    // Only working with S-mode here
+    CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+    // Starts with bare address translation
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // Write first level pte to memory
+    memory.store(FIRST_LEVEL_PT_ADDR, DT_WORD, pte1);
+    // Write second level pte to memory
+    memory.store(SECOND_LEVEL_PT_ADDR, DT_WORD, pte2);
+
+    // Write the data that will be read after translation to memory
+    memory.store(0x00004FF0, DT_WORD, 0x1234ABCD);
+
+    // Switch to SV32 address translation
+    CSR.implicit_write(CSR::address::SATP, word_t(0x80000000));
+
+    // va.VPN[1] = 0x0
+    // va.VPN[0] = 0b1111000000  (0x3C0)
+    // va.offset = 0xFF0
+    word_t va = 0x003C0FF0;
+
+    assert(memory.load(va, DT_WORD).s == 0x1234ABCD);
 
     return 0;
 }

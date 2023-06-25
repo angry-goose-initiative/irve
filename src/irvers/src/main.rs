@@ -14,10 +14,6 @@ use irve::emulator::Emulator;
 
 use std::time::Instant;
 
-/* Constants */
-
-const TESTFILES_DIR: &str = "rvsw/compiled/";
-
 /* Functions */
 
 fn main() {
@@ -45,27 +41,8 @@ fn main() {
     irvelog!(0, "");
    
     irvelog_always!(0, "Initializing emulator...");
-    let mut emulator = Emulator::new();
-
-    let args: Vec<String> = std::env::args().collect();
-
-    if args.len() == 1 {
-        irvelog_always!(0, "No memory image file specified. Starting with empty memory.");
-    } else {
-        assert!(args.len() == 2, "Too many arguments for now");//TODO remove this if we need in the future
-
-        //Locate and the image file (guessing it if it is not a whole path for convenience)
-        let mem_file: String;
-        //A testfile name rather than a path, so prepend the testfiles directory
-        if args[1].contains("/") {
-            mem_file = args[1].clone();
-        } else {
-            mem_file = TESTFILES_DIR.to_owned() + &args[1];
-        }
-
-        irvelog_always!(0, "Loading memory image from file \"{}\"", mem_file);
-        emulator.load_verilog_32(&mem_file);
-    }
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let mut emulator = Emulator::new(&args);
 
     let init_time_us = irve_boot_time.elapsed().as_micros();
     irvelog_always!(0, "Initialized the emulator in {}us", init_time_us);

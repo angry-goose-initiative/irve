@@ -17,6 +17,7 @@
 #include "cpu_state.h"
 #include "CSR.h"
 #include "decode.h"
+#include "gdbserver.h"
 #include "execute.h"
 #include "memory.h"
 #include "rvexception.h"
@@ -28,17 +29,17 @@ using namespace irve::internal;
 
 /* Function Implementations */
 
-emulator::emulator_t::emulator_t(int imagec, const char** imagev):
+emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
         m_CSR(),
         m_memory(imagec, imagev, m_CSR),
-        m_cpu_state(m_CSR) {
+        m_cpu_state(m_CSR),
+        m_encountered_breakpoint(false) {
     irvelog(0, "Created new emulator instance");
 }
 
 bool emulator::emulator_t::tick() {
-    //FIXME EBREAK and ECALL should not increment this apparently (see section 3.3.1 of the RISC-V spec vol 2)
-    this->m_CSR.implicit_write(CSR::address::MINSTRET,  this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
-    this->m_CSR.implicit_write(CSR::address::MCYCLE,    this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
+    this->m_CSR.implicit_write(CSR::address::MINSTRET, this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
+    this->m_CSR.implicit_write(CSR::address::MCYCLE,   this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
@@ -57,15 +58,9 @@ bool emulator::emulator_t::tick() {
         return false;
     }
 
-    //TODO Each peripheral's tick() function should be called here
-    //Each must be wrapped ITS OWN UNIQUE try-catch block to catch any interrupts they throw
-    //while still ensuring all are ticked this major tick
-    try {
-        irvelog(1, "TODO tick peripherals here, and if they request an interrupt, they'll throw an exception which we'll catch");
-    } catch (const rvexception::rvinterrupt_t& e) {
-        this->handle_interrupt(e.cause());
-    }
-    //TODO One try-catch block per peripheral here...
+    this->m_CSR.update_timer();
+
+    this->check_and_handle_interrupts();
 
     irvelog(0, "Tick %lu ends", this->get_inst_count());
     return true;
@@ -82,8 +77,18 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
     }
 }
 
+void emulator::emulator_t::run_gdbserver(uint16_t port) {
+    gdbserver::start(*this, this->m_cpu_state, this->m_memory, port);
+}
+
 uint64_t emulator::emulator_t::get_inst_count() const {
     return INST_COUNT;
+}
+
+bool emulator::emulator_t::test_and_clear_breakpoint_encountered_flag() {
+    bool breakpoint_encountered = this->m_encountered_breakpoint;
+    this->m_encountered_breakpoint = false;
+    return breakpoint_encountered;
 }
 
 word_t emulator::emulator_t::fetch() /* const */ {//FIXME figure out why this can't be const
@@ -162,9 +167,10 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     }
 }
 
-void emulator::emulator_t::handle_interrupt(rvexception::cause_t /* cause */) {
-    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-    assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+void emulator::emulator_t::check_and_handle_interrupts() {
+    //if interrupt occured
+    //this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+    //assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
 }
 
 void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
@@ -177,6 +183,12 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
     bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
+
+    if (exception_from_machine_mode && (cause == rvexception::cause_t::BREAKPOINT_EXCEPTION)) {
+        this->m_encountered_breakpoint = true;
+        return;
+    }
+
     bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) == 0;
 
     if (exception_from_machine_mode || exception_delegated_to_machine_mode) {//Exception should be handled in machine mode

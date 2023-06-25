@@ -15,8 +15,7 @@
 
 //TODO put these into a namespace as regular C++ constants
 
-// The directory where test files are located
-#define TESTFILES_DIR   "rvsw/compiled/"
+// TODO determine which defines should be in the source file instead
 
 #define BYTE_MASK       0xFF
 
@@ -28,85 +27,6 @@
 // RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
 // when a newline is encountered)
 #define DEBUGADDR       0xFFFFFFFF
-
-// Virtual address translation
-
-// FIXME move macros to cpp file
-
-// A RISC-V page size is 4 KiB
-#define PAGESIZE        0x1000
-
-// Current address translation scheme
-// 0 = Bare (no address translation)
-// 1 = SV32
-#define satp_MODE       m_CSR_ref.implicit_read(0x180).bit(31).u
-// The physical page number field of the satp CSR
-#define satp_PPN        (uint64_t)m_CSR_ref.implicit_read(0x180).bits(21, 0).u
-
-// Make eXecutable readable field of the mstatus CSR
-#define mstatus_MXR     m_CSR_ref.implicit_read(300).bit(19).u
-// permit Superisor User Memory access field of the mstatus CSR
-#define mstatus_SUM     m_CSR_ref.implicit_read(300).bit(18).u
-// Modify PriVilege field of the mstatus CSR
-#define mstatus_MPRV    m_CSR_ref.implicit_read(300).bit(17).u
-// Pervious privilige mode field of the mstatus CSR
-#define mstatus_MPP     m_CSR_ref.implicit_read(300).bits(12, 11).u
-
-// The virtual page number (VPN) of a virtual address (va)
-#define va_VPN(i)       (uint64_t)va.bits(21 + 10 * i, 12 + 10 * i).u
-
-// Full physical page number field of the page table entry
-#define pte_PPN         (uint64_t)pte.bits(31, 10).u
-// Upper part of the page number field of the page table entry
-#define pte_PPN1        (uint64_t)pte.bits(31, 20).u
-// Lower part of the page number field of the page table entry
-#define pte_PPN0        pte.bits(19, 10).u
-// Page dirty bit
-#define pte_D           pte.bit(7).u
-// Page accessed bit
-#define pte_A           pte.bit(6).u
-// Global mapping bit
-#define pte_G           pte.bit(5).u
-// Page is accessible in U-mode bit
-#define pte_U           pte.bit(4).u
-// Page is executable bit
-#define pte_X           pte.bit(3).u
-// Page is writable bit
-#define pte_W           pte.bit(2).u
-// Page is readable bit
-#define pte_R           pte.bit(1).u
-// Page table entry valid bit
-#define pte_V           pte.bit(0).u
-
-// The current privilege mode
-#define CURR_PMODE      m_CSR_ref.get_privilege_mode()
-
-// The conditions for no address translation
-#define NO_TRANSLATION  (CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || \
-                        ((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) && (satp_MODE == 0))
-
-// The page cannot be accessed if one of the following conditions is met:
-                            /* Fetching an instruction but the page is not marked as executable */
-#define ACCESS_NOT_ALLOWED  ((access_type == AT_INSTRUCTION) && (pte_X != 1)) || \
-                            /* Access is a store but the page is not marked as writable */ \
-                            ((access_type == AT_STORE) && (pte_W != 1)) || \
-                            /* Access is a load but the page is either not marked as readable or the \
-                               page is marked as exectuable but executable pages cannot be read */ \
-                            ((access_type == AT_LOAD) && ((pte_R != 1) || ((pte_X == 1) && (mstatus_MXR == 0)))) || \
-                            /* Either the current privilege mode is S or the effective privilege mode is S with \
-                               the access being a load or a store (not an instruction) and S-mode can't access \
-                               U-mode pages and the page is markes as accessible in U-mode */ \
-                            (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
-                                ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) && \
-                                (mstatus_SUM == 0) && (pte_U == 1))
-
-// Access types
-#define AT_INSTRUCTION  0
-#define AT_LOAD         1
-#define AT_STORE        2
-
-#define PAGE_FAULT_BASE 12
-
 
 /* Includes */
 
@@ -196,7 +116,7 @@ namespace irve::internal::memory {
          * @param imagev Vector of image files (comes directly from argv in main)
          * @param CSR_ref A reference to the CSRs
         */
-        memory_t(int imagec, const char** imagev, CSR::CSR_t& CSR_ref);
+        memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
 
         /**
          * @brief Fetch instruction from memory (implicit read)
@@ -257,7 +177,7 @@ namespace irve::internal::memory {
          * @param imagec The number of memory images plus 1 (comes directly from argc in main)
          * @param imagev Vector of image files (comes directly from argv in main)
         */
-        void load_memory_image_files(int imagec, const char** imagev);
+        void load_memory_image_files(int imagec, const char* const* imagev);
 
         /**
          * @brief Loads a Verilog file to memory

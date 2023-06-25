@@ -13,7 +13,6 @@
 
 #include <cstdint>
 
-#include "reg_file.h"
 #include "CSR.h"
 #include "memory.h"
 
@@ -85,7 +84,7 @@ namespace irve::internal::cpu_state {
         void goto_next_sequential_pc();
     private:
         reg_t m_pc;
-        reg_file::reg_file_t m_regs;
+        reg_t m_regs[31];//We don't bother storing x0
         CSR::CSR_t& m_CSR_ref;
         bool m_atomic_reservation_set_valid;
     };

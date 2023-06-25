@@ -139,9 +139,23 @@ pub mod emulator {
     }
 
     impl Emulator {
-        pub fn new() -> Self {
+        pub fn new<P: AsRef<std::path::Path>>(images_to_load: &[P]) -> Self {
+            //TODO do this more efficiently (avoid copies, etc.)
+            let images_to_load_owned_c_strs: Vec<std::ffi::CString> = images_to_load.iter()
+                .map(|p| std::ffi::CString::new(
+                        p.as_ref()
+                        .to_str()
+                        .expect("Image paths should only contain valid UTF-8 characters")
+                    ).expect("Image paths should not contain null characters")
+                )
+                .collect();
+            let images_to_load_c_strs: Vec<*const std::ffi::c_char> = images_to_load_owned_c_strs.iter()
+                .map(|s| s.as_ptr())
+                .collect();
+
+            //TODO ensure len() is not too large for an i32
             Self {
-                actual_emulator: unsafe { ffi::irve_emulator_emulator_t::new() }
+                actual_emulator: unsafe { ffi::irve_emulator_emulator_t::new(images_to_load.len() as i32, images_to_load_c_strs.as_ptr()) }
             }
         }
 
@@ -155,21 +169,6 @@ pub mod emulator {
 
         pub fn get_inst_count(&self) -> u64 {
             unsafe { self.actual_emulator.get_inst_count() }
-        }
-
-        pub fn mem_read_byte(&self, addr: u32) -> u8 {
-            unsafe { self.actual_emulator.mem_read_byte(addr) }
-        }
-
-        pub fn mem_write_byte(&mut self, addr: u32, data: u8) {
-            unsafe { self.actual_emulator.mem_write_byte(addr, data) };
-        }
-
-        pub fn load_verilog_32(&mut self, filename: &str) {
-            let owned_filename_c_str = std::ffi::CString::new(filename)
-                .expect("Filename provided to irve::emulator::Emulator::load_verilog_32() should not contain null characters");
-            let filename_raw_str = owned_filename_c_str.into_raw();
-            unsafe { ffi::irve_loader_load_verilog_32(&mut self.actual_emulator, filename_raw_str) };
         }
     }
 
