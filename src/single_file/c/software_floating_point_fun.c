@@ -35,7 +35,7 @@ int main() {
     printf("b is %f\n", b);
     printf("0 is %f\n", zero);
     printf("pi is %f\n", pi);
-    printf("nan is %f\n", nan);
+    printf("nan contains %f\n", nan);
     printf("a + b is %f\n", a + b);
     printf("a - b is %f\n", a - b);
     printf("a * b is %f\n", a * b);

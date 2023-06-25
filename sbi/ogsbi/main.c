@@ -51,9 +51,16 @@ int main() {
 
     //TODO print the reset cause (simply mcause) here
 
-    dputs("Delegating all interrupts and exceptions to M-Mode...");
-    __asm__ volatile("csrrw zero, medeleg, zero");//All exceptions are handled in M-Mode
-    __asm__ volatile("csrrw zero, mideleg, zero");//All interrupts are handled in M-Mode
+    dputs("Delegating all interrupts and exceptions properly...");
+    __asm__ volatile (//sbi_debug_console_write()
+        "li t0, 0b00000000000000001011000100000000\n"//TODO are we sure these are the ones we want to delegate? (user-mode ecall and page fault so far)
+        "csrw medeleg, t0\n"
+        "li t0, 0b00000000000000000000001000100010\n"//All S-Mode interrupts -> S-Mode, and all M-Mode interrupts -> M-Mode
+        "csrw mideleg, t0\n"
+        : /* No output registers */
+        : /* No input registers */
+        : "t0", "t1"
+    );
 
     //TODO do other initialization stuff here
 

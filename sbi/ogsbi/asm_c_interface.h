@@ -40,7 +40,7 @@ typedef struct {
 
 /* Function/Class Declarations */
 
-void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr);
+void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr) __attribute__((noreturn));
 
 /* Function/Class Definitions For C code to implement */
 
