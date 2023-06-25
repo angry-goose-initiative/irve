@@ -8,11 +8,25 @@
 #
 
 #Config options
-set(IRVE_DISABLE_LOGGING 1)#TODO rename to disable verbose logging
-set(IRVE_ASYNC_LOGGING 0)
-set(IRVE_SANITIZE 0)
-set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
-set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
+if(NOT IRVE_DISABLE_LOGGING)
+    set(IRVE_DISABLE_LOGGING 1)#TODO rename to disable verbose logging
+endif()
+
+if(NOT IRVE_ASYNC_LOGGING)
+    set(IRVE_ASYNC_LOGGING 0)
+endif()
+
+if(NOT IRVE_SANITIZE)
+    set(IRVE_SANITIZE 0)
+endif()
+
+if(NOT IRVE_RUST)
+    set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
+endif()
+
+if(NOT IRVE_USE_RVSW)
+    set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
+endif()
 
 #################################################################################################################################
 
