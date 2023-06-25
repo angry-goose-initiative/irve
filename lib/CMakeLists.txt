@@ -75,6 +75,7 @@ if (IRVE_RUST)
         target_link_libraries(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target/release/libirve_disassemble.a)
     endif()
     target_link_libraries(libirve_object PRIVATE pthread)
+    target_link_libraries(libirve_object PRIVATE ${CMAKE_DL_LIBS})
 
     #TODO put the header in an include subdirectory in target perhaps?
     target_include_directories(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target)#To get access to the Bindgen generated header
