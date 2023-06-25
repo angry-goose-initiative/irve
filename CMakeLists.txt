@@ -31,7 +31,7 @@ set(GIT_EXECUTABLE git)
 
 set(CMAKE_CXX_FLAGS "")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++2a /Wall")# /WX")#TODO in the future, given enough time, fix all warnings on MSVC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /Wall")# /WX")#TODO in the future, given enough time, fix all warnings on MSVC
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Wextra -Werror")
 endif()
