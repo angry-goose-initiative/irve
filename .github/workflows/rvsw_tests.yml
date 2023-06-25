@@ -1,0 +1,129 @@
+name: IRVE RVSW Tests
+
+#Thanks https://stackoverflow.com/questions/57699839/github-actions-how-to-target-all-branches-except-master
+on:
+  push:
+    branches: [ "**", "!legacy" ]
+  pull_request:
+    branches: [ "**", "!legacy" ]
+
+jobs:
+  debug:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        #os: [ubuntu-latest, macos-latest, windows-latest]#For now, we only do RVSW tests on linux
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    #TESTING
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache RISC-V Toolchain
+        id: cache-riscv
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-riscv-toolchain
+        with:
+          path: ~/.riscv
+          key: ${{runner.os}}-build-${{env.cache-name}}
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Install RISC-V Toolchain Dependencies
+        run: sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ninja-build git cmake libglib2.0-dev
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Get RISC-V Toolchain Sources
+        working-directory: ${{github.workspace}}
+        run: git clone https://github.com/riscv/riscv-gnu-toolchain
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Configure RISC-V Toolchain Sources
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        run: ./configure --prefix=$HOME/.riscv --with-arch=rv32ima --with-abi=ilp32
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Compile RISC-V Toolchain
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        timeout-minutes: 120
+        run: make
+
+      - name: Add Toolchain Directory To Path
+        run: echo "$HOME/.riscv/bin" >> $GITHUB_PATH
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build All CMake Targets
+        run: cmake --build ${{github.workspace}}/build --config Debug
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+          #run: ctest -C Debug --verbose
+        run: ctest --tests-regex rvsw_
+
+  release:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        #os: [ubuntu-latest, macos-latest, windows-latest]#For now, we only do RVSW tests on linux
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    
+    #TESTING
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache RISC-V Toolchain
+        id: cache-riscv
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-riscv-toolchain
+        with:
+          path: ~/.riscv
+          key: ${{runner.os}}-build-${{env.cache-name}}
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Install RISC-V Toolchain Dependencies
+        run: sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ninja-build git cmake libglib2.0-dev
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Get RISC-V Toolchain Sources
+        working-directory: ${{github.workspace}}
+        run: git clone https://github.com/riscv/riscv-gnu-toolchain
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Configure RISC-V Toolchain Sources
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        run: ./configure --prefix=$HOME/.riscv --with-arch=rv32ima --with-abi=ilp32
+
+      - if: ${{ steps.cache-riscv.outputs.cache-hit != 'true' }}
+        name: Compile RISC-V Toolchain
+        working-directory: ${{github.workspace}}/riscv-gnu-toolchain/
+        timeout-minutes: 120
+        run: make
+
+      - name: Add Toolchain Directory To Path
+        run: echo "$HOME/.riscv/bin" >> $GITHUB_PATH
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build All CMake Targets
+        run: cmake --build ${{github.workspace}}/build --config Release
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+          #run: ctest -C Release --verbose
+        run: ctest --tests-regex rvsw_

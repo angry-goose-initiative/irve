@@ -19,13 +19,16 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Debug --target irve 
+      - name: Build irve
+        run: cmake --build ${{github.workspace}}/build --config Debug --target irve 
+
+      - name: Build irvegdb
+        run: cmake --build ${{github.workspace}}/build --config Debug --target irvegdb
 
   release:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
@@ -38,10 +41,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Release --target irve
+      - name: Build irve
+        run: cmake --build ${{github.workspace}}/build --config Release --target irve
+
+      - name: Build irvegdb
+        run: cmake --build ${{github.workspace}}/build --config Release --target irvegdb

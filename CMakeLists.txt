@@ -17,7 +17,7 @@ set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.5.0)
+project(irve VERSION 0.6.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
