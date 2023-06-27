@@ -426,14 +426,14 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    // First level page table starts at 0x00000000
-    word_t FIRST_LEVEL_PT_ADDR = 0x00000000;
+    // First level pte at 0x00000000
+    word_t FIRST_LEVEL_PTE_ADDR = 0x00000000;
     // pte valid bit set
     // pte.PPN = 0x1
     word_t pte1 = 0x00000401;
 
-    // Second level page table starts at 0x00001F00
-    word_t SECOND_LEVEL_PT_ADDR = 0x00001F00;
+    // Second level pte at 0x00001F00
+    word_t SECOND_LEVEL_PTE_ADDR = 0x00001F00;
     // pte valid, readable, writable, accessed bit set
     // pte.PPN = 0x4
     word_t pte2 = 0x00001047;
@@ -444,9 +444,9 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
 
     // Write first level pte to memory
-    memory.store(FIRST_LEVEL_PT_ADDR, DT_WORD, pte1);
+    memory.store(FIRST_LEVEL_PTE_ADDR, DT_WORD, pte1);
     // Write second level pte to memory
-    memory.store(SECOND_LEVEL_PT_ADDR, DT_WORD, pte2);
+    memory.store(SECOND_LEVEL_PTE_ADDR, DT_WORD, pte2);
 
     // Write the data that will be read after translation to memory
     memory.store(0x00004FF0, DT_WORD, 0x1234ABCD);
@@ -459,7 +459,36 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     // va.offset = 0xFF0
     word_t va = 0x003C0FF0;
 
-    assert(memory.load(va, DT_WORD).s == 0x1234ABCD);
+    assert(memory.load(va, DT_WORD).u == 0x1234ABCD);
+
+
+    // Loading a superpage
+
+    // First level pte at 0x0010A1F24 or 0b 00 0000 0001 0000 1010 0001 1111 0010 0100
+    FIRST_LEVEL_PTE_ADDR = 0x0010A1F24;
+    // pte valid, readable, accessed bit set (superpage)
+    // pte.PPN = 0x0
+    pte1 = 0x00000043;
+
+    // Return bare address translation
+    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+
+    // Write first level pte to memory
+    memory.store(FIRST_LEVEL_PTE_ADDR, DT_WORD, pte1);
+
+    // Write the data that will be read after translation to memory
+    memory.store(0x000E0960, DT_WORD, 0xABCD1234);
+
+    // Switch to SV32 address translation
+    // satp.PPN = 0x10A1
+    CSR.implicit_write(CSR::address::SATP, word_t(0x800010A1));
+
+    // va.VPN[1] = 0b0010100001
+    // va.VPN[0] = 0xE0
+    // va.offset = 0x960
+    va = 0xF24E0960;
+
+    assert(memory.load(va, DT_WORD).u == 0xABCD1234);
 
     return 0;
 }

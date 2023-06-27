@@ -266,7 +266,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         pte_addr = a + (va_VPN(i) * 4);
         // This access may raise an access-fault exception
         // TODO ensure this exeption corresponds to the original access type
-        irvelog(2, "Accessing level %d pte at level at address %09X", i, pte_addr);
+        irvelog(2, "Accessing level %d pte at level at address 0x%09X", i, pte_addr);
         pte = read_physical(pte_addr, DT_WORD);
         irvelog(2, "pte found = 0x%08X", pte.u);
 
