@@ -37,10 +37,10 @@
 
 //TODO remove the __attribute__((unused))s
 long handle_legacy_sbi_smode_ecall(
-    uint32_t a0  __attribute__((unused)), 
-    uint32_t a1  __attribute__((unused)),
-    uint32_t a2  __attribute__((unused)),
-    uint32_t a3  __attribute__((unused)),
+    uint32_t a0,
+    uint32_t a1 __attribute__((unused)),
+    uint32_t a2 __attribute__((unused)),
+    uint32_t a3 __attribute__((unused)),
     //No legacy SBI calls use a4 thru a6
     uint32_t /* a4 */,
     uint32_t /* a5 */,
@@ -60,7 +60,7 @@ long handle_legacy_sbi_smode_ecall(
     switch (EID) {
         case 0x00:
             dputs("LEGACY Function: sbi_set_timer()");
-            assert(false && "TODO implement");
+            assert(false && "TODO implement");//Write to mtimecmp
             break;
         case 0x01:
             dputs("LEGACY Function: sbi_console_putchar()");
@@ -75,23 +75,58 @@ long handle_legacy_sbi_smode_ecall(
             break;
         case 0x03:
             dputs("LEGACY Function: sbi_clear_ipi()");
-            assert(false && "TODO implement");
+            __asm__ volatile (//OGSBI only supports a single hart
+                "csrci mip, 0b00000000000000000000000000000010"//Clear the supervisor software interrupt pending bit
+                : /* No output registers */
+                : /* No source registers */
+                : /* No clobbered registers */
+            );
             break;
         case 0x04:
             dputs("LEGACY Function: sbi_send_ipi()");
-            assert(false && "TODO implement");
+            if ((*(const unsigned long*)a0) != 0b1) {
+                result = -1;     
+            } else {//OGSBI only supports a single hart
+                __asm__ volatile (
+                    "csrwi mip, 0b00000000000000000000000000000010"//Set the supervisor software interrupt pending bit
+                    : /* No output registers */
+                    : /* No source registers */
+                    : /* No clobbered registers */
+                );
+                result = 0;
+            }
             break;
         case 0x05:
             dputs("LEGACY Function: sbi_remote_fence_i()");
-            assert(false && "TODO implement");
+            if ((*(const unsigned long*)a0) != 0b1) {
+                result = -1;     
+            } else {//OGSBI only supports a single hart
+                __asm__ volatile (
+                    "fence.i"//Flush the instruction cache
+                    : /* No output registers */
+                    : /* No source registers */
+                    : /* No clobbered registers */
+                );
+                result = 0;
+            }
             break;
         case 0x06:
             dputs("LEGACY Function: sbi_remote_sfence_vma()");
-            assert(false && "TODO implement");
+            if ((*(const unsigned long*)a0) != 0b1) {
+                result = -1;     
+            } else {//OGSBI only supports a single hart
+                assert(false && "TODO implement");
+                result = 0;
+            }
             break;
         case 0x07:
             dputs("LEGACY Function: sbi_remote_sfence_vma_asid()");
-            assert(false && "TODO implement");
+            if ((*(const unsigned long*)a0) != 0b1) {
+                result = -1;     
+            } else {//OGSBI only supports a single hart
+                assert(false && "TODO implement");
+                result = 0;
+            }
             break;
         case 0x08:
             dputs("LEGACY Function: sbi_shutdown()");

@@ -38,13 +38,13 @@
 
 //TODO remove the __attribute__((unused))s
 sbiret_t handle_sbi_smode_ecall(
-    uint32_t a0  __attribute__((unused)), 
-    uint32_t a1  __attribute__((unused)),
-    uint32_t a2  __attribute__((unused)),
-    uint32_t a3  __attribute__((unused)),
-    uint32_t a4  __attribute__((unused)),
-    uint32_t a5  __attribute__((unused)),
-    uint32_t FID __attribute__((unused)),
+    uint32_t a0,
+    uint32_t a1,
+    uint32_t a2 __attribute__((unused)),
+    uint32_t a3 __attribute__((unused)),
+    uint32_t a4 __attribute__((unused)),
+    uint32_t a5 __attribute__((unused)),
+    uint32_t FID,
     uint32_t EID
 ) {
     dputs("Recieved S-Mode ECALL (SBI Call)");
@@ -90,7 +90,14 @@ sbiret_t handle_sbi_smode_ecall(
                     switch (a0) {
                         case 0x00 ... 0x08: result.value = 1; break;//All presently defined legacy functions are supported
                         case 0x10:          result.value = 1; break;//Base Extension
+                        case 0x48534D:      result.value = 1; break;//Hart State Management Extension
+                        case 0x504D55:      result.value = 1; break;//Performance Monitoring Unit Extension
+                        case 0x735049:      result.value = 1; break;//IPI Extension
                         case 0x4442434E:    result.value = 1; break;//Debug Console Extension
+                        case 0x52464E43:    result.value = 1; break;//RFENCE Extension
+                        case 0x53525354:    result.value = 1; break;//System Reset Extension
+                        case 0x53555350:    result.value = 1; break;//System Suspend Extension
+                        case 0x54494D45:    result.value = 1; break;//Timer Extension
                         default:            result.value = 0; break;//Unsupported or non-existent extension
                     }
                     dprintf("  Extension 0x%lX is %s", a0, (result.value == 1) ? "supported" : "unsupported");
@@ -134,6 +141,27 @@ sbiret_t handle_sbi_smode_ecall(
                     break;
             }
             break;
+        case 0x48534D:
+            dputs("Hart State Management Extension");
+            assert(false && "TODO implement");
+            break;
+        case 0x504D55:
+            dputs("Performance Monitoring Unit Extension");
+            assert(false && "TODO implement");
+            break;
+        case 0x735049:
+            dputs("IPI Extension");
+            switch (FID) {
+                case 0:
+                    dputs("Function: sbi_send_ipi()");
+                    assert(false && "TODO implement");
+                    break;
+                default:
+                    dputs("Invalid or unsupported IPI Extension function!");
+                    result.error = SBI_ERR_NOT_SUPPORTED;
+                    break;
+            }
+            break;
         case 0x4442434E:
             dputs("Debug Console Extension");
             switch (FID) {
@@ -163,7 +191,32 @@ sbiret_t handle_sbi_smode_ecall(
                     result.value = 0;
                     break;
                 default:
-                    dputs("Invalid or unsupported Base Extension function!");
+                    dputs("Invalid or unsupported Debug Console Extension function!");
+                    result.error = SBI_ERR_NOT_SUPPORTED;
+                    break;
+            }
+            break;
+        case 0x52464E43:
+            dputs("RFENCE Extension");
+            assert(false && "TODO implement");
+            break;
+        case 0x53525354:
+            dputs("System Reset Extension");
+            assert(false && "TODO implement");
+            break;
+        case 0x53555350:
+            dputs("System Suspend Extension");
+            assert(false && "TODO implement");
+            break;
+        case 0x54494D45:
+            dputs("Timer Extension");
+            switch (FID) {
+                case 0:
+                    dputs("Function: sbi_set_timer()");
+                    assert(false && "TODO implement");//Write to mtimecmp
+                    break;
+                default:
+                    dputs("Invalid or unsupported Timer Extension function!");
                     result.error = SBI_ERR_NOT_SUPPORTED;
                     break;
             }

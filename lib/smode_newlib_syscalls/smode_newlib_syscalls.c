@@ -98,7 +98,8 @@ int _read(int, char*, int) {
 }
 
 int _write(int, char* str, int len) {
-    //FIXME don't use legacy console putchar
+    //FIXME poll if the Debug Console Extension is present
+    //If it isn't, fallback on the legacy console putc
     long error;
     long value;
     __asm__ volatile (//sbi_debug_console_write()
