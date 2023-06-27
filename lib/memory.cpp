@@ -120,7 +120,7 @@ memory::pmemory_t::pmemory_t():
 
 memory::pmemory_t::~pmemory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRISC-V Remaining Debug At IRVE Exit:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRV Remaining Debug At IRVE Exit:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
     }
 }
 
@@ -154,11 +154,11 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
         case DEBUGADDR:
             //End of line; print the debug string
             if (data == '\n') {
-                irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+                irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
                 this->m_debugstr.clear();
             }
             else if (data == '\0') {
-                irvelog_always_stdout(0, "\x1b[92mRISC-V Says\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
+                irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
                 this->m_debugstr.clear();
             }
             else {

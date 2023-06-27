@@ -118,6 +118,10 @@ Same command as the regular C code section, but I DIDN'T USE irve_newlib.c
 
 Step 2: Objcopy the resulting a.out file to a 32-bit (4-byte) Verilog hex file with `/opt/riscv/bin/riscv32-unknown-elf-objcopy ./a.out -O verilog --verilog-data-width=4 path/to/result.txt`
 
+# Automated Testing
+
+We use Github Actions for our default IRVE configuration. Additionally I have a private Jenkins setup that tests some other configurations automatically (ex. with Rust enabled).
+
 # Licensing
 
 ## IRVE code 
