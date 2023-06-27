@@ -54,7 +54,7 @@ ___rvsw_exception_handler___:
     call restore_mmode_gp_tp
 
     #There are no other M-Mode registers to restore, since this is an entry back into M-mode.
-    #See jump2linux.s for more info
+    #See jump2linux.S for more info
 
     #Read mcause into t0. If it is 9 (an S-Mode ECALL), then jump to is_smode_ecall
     csrr t0, mcause
@@ -87,12 +87,31 @@ is_smode_ecall:
     #SBI arguments are already in S-Mode registers a0 thru a7, which are currently on the stack
     #However, they're also still in the M-Mode registers a0 thru a7, and we haven't clobbered them
     #So we can avoid a copy here and use the standard calling convention (since the SBI call info should be entirely contained in a0 thru a7)
-    call handle_smode_ecall
+
+    #We have to decide if this is a legacy or new SBI call in order to deal with whether a1 will be clobbered or not
+    #Every EID less that 0x10 (exclusive) is a legacy SBI call
+    li t0, 0x00000010
+    bgeu a7, t0, new_sbi
+    
+legacy_sbi:
+    call handle_legacy_sbi_smode_ecall
+    j wrapup_smode_ecall
+    #The result is in M-Mode register a0. However, we need to update the S-Mode register a0
+    #It is currently stored on the stack. So copy the new a0 there
+    #In this way we give return_from_exception what it expects
+    #sw a0, 36(sp)#Handled in wrapup_smode_ecall
+
+new_sbi:
+    call handle_sbi_smode_ecall
     #The result is in M-Mode registers a0 and a1. However, we need to update the S-Mode registers a0 and a1
     #These are currently stored on the stack. So copy the new a0 and a1 to the proper places on the stack
     #In this way we give return_from_exception what it expects
-    sw a0, 36(sp)
+    #sw a0, 36(sp)#Handled in wrapup_smode_ecall
     sw a1, 40(sp)
+
+wrapup_smode_ecall:
+    #Both legacy and new SBI calls update the S-Mode register a0
+    sw a0, 36(sp)
     #Also increment the S-Mode PC by 4 to skip past the ECALL instruction
     csrr t0, mepc
     addi t0, t0, 4

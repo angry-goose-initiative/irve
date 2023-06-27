@@ -44,7 +44,7 @@ void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr) __att
 
 /* Function/Class Definitions For C code to implement */
 
-sbiret_t handle_smode_ecall(
+sbiret_t handle_sbi_smode_ecall(
     uint32_t a0  __attribute__((unused)), 
     uint32_t a1  __attribute__((unused)),
     uint32_t a2  __attribute__((unused)),
@@ -52,7 +52,18 @@ sbiret_t handle_smode_ecall(
     uint32_t a4  __attribute__((unused)),
     uint32_t a5  __attribute__((unused)),
     uint32_t FID __attribute__((unused)),
-    uint32_t EID __attribute__((unused))
+    uint32_t EID
+);
+
+long handle_legacy_sbi_smode_ecall(
+    uint32_t a0  __attribute__((unused)), 
+    uint32_t a1  __attribute__((unused)),
+    uint32_t a2  __attribute__((unused)),
+    uint32_t a3  __attribute__((unused)),
+    uint32_t a4  __attribute__((unused)),
+    uint32_t a5  __attribute__((unused)),
+    uint32_t a6 __attribute__((unused)),
+    uint32_t EID
 );
 
 void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc);

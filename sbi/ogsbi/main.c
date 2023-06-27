@@ -70,7 +70,7 @@ int main() {
     assert(false && "We should never get here!");
 }
 
-sbiret_t handle_smode_ecall(
+sbiret_t handle_sbi_smode_ecall(
     uint32_t a0  __attribute__((unused)), 
     uint32_t a1  __attribute__((unused)),
     uint32_t a2  __attribute__((unused)),
@@ -78,9 +78,9 @@ sbiret_t handle_smode_ecall(
     uint32_t a4  __attribute__((unused)),
     uint32_t a5  __attribute__((unused)),
     uint32_t FID __attribute__((unused)),
-    uint32_t EID __attribute__((unused))
+    uint32_t EID
 ) {
-    dputs("Recieved S-Mode ECALL");
+    dputs("Recieved S-Mode ECALL (SBI Call)");
     dprintf("  a0:  0x%lX\n", a0);
     dprintf("  a1:  0x%lX\n", a1);
     dprintf("  a2:  0x%lX\n", a2);
@@ -92,11 +92,9 @@ sbiret_t handle_smode_ecall(
 
     sbiret_t result;
     switch (EID) {
-        //FIXME handle legacy functions where we can only clobber a0
-        case 0x08:
-            dputs("LEGACY Function: sbi_shutdown()");
-            dputs("  Shutting down, au revoir! ...");
-            exit(0);
+        case 0x00 ... 0x0F:
+            assert(false && "We should never get here (the legacy handler should have been called instead)!");
+            exit(1);
             break;
         case 0x10:
             dputs("Base Extension");
@@ -206,6 +204,42 @@ sbiret_t handle_smode_ecall(
         default:
             dputs("Invalid or unsupported SBI extension!");
             result.error = SBI_ERR_NOT_SUPPORTED;
+            break;
+    }
+
+    return result;
+}
+
+long handle_legacy_sbi_smode_ecall(
+    uint32_t a0  __attribute__((unused)), 
+    uint32_t a1  __attribute__((unused)),
+    uint32_t a2  __attribute__((unused)),
+    uint32_t a3  __attribute__((unused)),
+    uint32_t a4  __attribute__((unused)),
+    uint32_t a5  __attribute__((unused)),
+    uint32_t a6  __attribute__((unused)),
+    uint32_t EID
+) {
+    dputs("Recieved S-Mode ECALL (LEGACY SBI Call)");
+    dprintf("  a0:  0x%lX\n", a0);
+    dprintf("  a1:  0x%lX\n", a1);
+    dprintf("  a2:  0x%lX\n", a2);
+    dprintf("  a3:  0x%lX\n", a3);
+    dprintf("  a4:  0x%lX\n", a4);
+    dprintf("  a5:  0x%lX\n", a5);
+    dprintf("  a6:  0x%lX\n", a6);
+    dprintf("  EID: 0x%lX\n", EID);
+
+    long result;
+    switch (EID) {
+        case 0x08:
+            dputs("LEGACY Function: sbi_shutdown()");
+            dputs("  Shutting down, au revoir! ...");
+            exit(0);
+            break;
+        //TODO others
+        default:
+            assert(false && "We should never get here (the new handler should have been called instead)!");
             break;
     }
 
