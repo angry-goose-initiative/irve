@@ -17,6 +17,11 @@ set(OGSBI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/gp_tp_preserve_restore.s
     ${CMAKE_CURRENT_SOURCE_DIR}/jump2linux.S
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/legacy.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/other_exceptions.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/asm_c_interface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
 )
 
 macro(add_c_target NAME)
