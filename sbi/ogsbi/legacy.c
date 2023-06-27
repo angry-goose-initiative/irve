@@ -58,12 +58,50 @@ long handle_legacy_sbi_smode_ecall(
 
     long result;
     switch (EID) {
+        case 0x00:
+            dputs("LEGACY Function: sbi_set_timer()");
+            assert(false && "TODO implement");
+            break;
+        case 0x01:
+            dputs("LEGACY Function: sbi_console_putchar()");
+            result = (putc((char)a0, stdout) == EOF) ? -1 : 0;
+            break;
+        case 0x02:
+            dputs("LEGACY Function: sbi_console_getchar()");
+            result = (long)(getc(stdin));
+            if (result == EOF) {
+                result = -1;
+            }
+            break;
+        case 0x03:
+            dputs("LEGACY Function: sbi_clear_ipi()");
+            assert(false && "TODO implement");
+            break;
+        case 0x04:
+            dputs("LEGACY Function: sbi_send_ipi()");
+            assert(false && "TODO implement");
+            break;
+        case 0x05:
+            dputs("LEGACY Function: sbi_remote_fence_i()");
+            assert(false && "TODO implement");
+            break;
+        case 0x06:
+            dputs("LEGACY Function: sbi_remote_sfence_vma()");
+            assert(false && "TODO implement");
+            break;
+        case 0x07:
+            dputs("LEGACY Function: sbi_remote_sfence_vma_asid()");
+            assert(false && "TODO implement");
+            break;
         case 0x08:
             dputs("LEGACY Function: sbi_shutdown()");
             dputs("  Shutting down, au revoir! ...");
             exit(0);
             break;
-        //TODO others
+        case 0x09 ... 0x0F:
+            dputs("Invalid or unsupported LEGACY SBI extension!");
+            result = -1;//Best guess for an error code (not that we expect any more LEGACY SBI calls to be defined in the future)
+            break;
         default:
             assert(false && "We should never get here (the new handler should have been called instead)!");
             break;

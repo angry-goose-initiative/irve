@@ -8,7 +8,6 @@
 
 /* Constants And Defines */
 
-//const static st:
 #define HART_ID 0//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
 //#define KERNEL_ADDR 0xC0000000
 #define KERNEL_ADDR 0x02000000//TEMPORARY until memory-things are ready
@@ -65,6 +64,9 @@ int main() {
     );
 
     //TODO do other initialization stuff here
+
+    dputs("Protecting OGSBI's memory...");
+    dputs("TODO");//TODO
 
     dputs("Jumping to the kernel, cya later!");
     jump2linux(HART_ID, DTB_ADDR, KERNEL_ADDR);//Never returns

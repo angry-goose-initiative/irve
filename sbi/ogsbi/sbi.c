@@ -88,12 +88,12 @@ sbiret_t handle_sbi_smode_ecall(
                     dputs("Function: sbi_probe_extension()");
                     result.error = SBI_SUCCESS;
                     switch (a0) {
-                        case 0x08:          result.value = 1; break;//LEGACY Function: sbi_shutdown()
+                        case 0x00 ... 0x08: result.value = 1; break;//All presently defined legacy functions are supported
                         case 0x10:          result.value = 1; break;//Base Extension
                         case 0x4442434E:    result.value = 1; break;//Debug Console Extension
                         default:            result.value = 0; break;//Unsupported or non-existent extension
                     }
-                    dprintf("  Extension 0x%lX is %s", a0, result.value ? "supported" : "unsupported");
+                    dprintf("  Extension 0x%lX is %s", a0, (result.value == 1) ? "supported" : "unsupported");
                     break;
                 case 4:
                     dputs("Function: sbi_get_mvendorid()");
