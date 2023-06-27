@@ -60,7 +60,7 @@ long handle_legacy_sbi_smode_ecall(
     switch (EID) {
         case 0x00:
             dputs("LEGACY Function: sbi_set_timer()");
-            assert(false && "TODO implement");//Write to mtimecmp
+            assert(false && "TODO implement"); exit(1);//Write to mtimecmp
             break;
         case 0x01:
             dputs("LEGACY Function: sbi_console_putchar()");
@@ -122,7 +122,7 @@ long handle_legacy_sbi_smode_ecall(
         case 0x07:
             dputs("LEGACY Function: sbi_remote_sfence_vma_asid()");
             if ((*(const unsigned long*)a0) != 0b1) {
-                result = -1;     
+                result = -1;
             } else {//OGSBI only supports a single hart
                 assert(false && "TODO implement");
                 result = 0;
@@ -139,6 +139,7 @@ long handle_legacy_sbi_smode_ecall(
             break;
         default:
             assert(false && "We should never get here (the new handler should have been called instead)!");
+            exit(1);
             break;
     }
 
