@@ -123,7 +123,7 @@ namespace irve::internal::memory {
          * @param addr The address to fetch from (physical or virtual depending on operating mode)
          * @return The instruction from memory
         */
-        word_t instruction(word_t addr);
+        word_t instruction(word_t addr) const;
 
         /**
          * @brief Load data from memory

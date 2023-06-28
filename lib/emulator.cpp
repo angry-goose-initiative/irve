@@ -95,7 +95,7 @@ bool emulator::emulator_t::test_and_clear_breakpoint_encountered_flag() {
     return breakpoint_encountered;
 }
 
-word_t emulator::emulator_t::fetch() /* const */ {//FIXME figure out why this can't be const
+word_t emulator::emulator_t::fetch() const {
     irvelog(1, "Fetching from 0x%08x", this->m_cpu_state.get_pc());
 
     //Read a word from memory at the PC

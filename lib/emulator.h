@@ -81,7 +81,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @return TODO
         */
-        word_t fetch();
+        word_t fetch() const;
 
         /**
          * @brief TODO

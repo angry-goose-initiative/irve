@@ -207,7 +207,7 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
     irvelog(1, "Created new Memory instance");
 }
 
-word_t memory::memory_t::instruction(word_t addr) {
+word_t memory::memory_t::instruction(word_t addr) const {
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
     word_t data = read_physical(machine_addr, DT_WORD);
