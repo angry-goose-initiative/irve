@@ -127,10 +127,10 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
 #endif
 
-        case address::MTIME:            return (uint32_t)(this->mtime               & 0xFFFFFFFF);//Custom
-        case address::MTIMEH:           return (uint32_t)((this->mtime      >> 32)  & 0xFFFFFFFF);//Custom
-        case address::MTIMECMP:         return (uint32_t)(this->mtimecmp            & 0xFFFFFFFF);//Custom
-        case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp   >> 32)  & 0xFFFFFFFF);//Custom
+        case address::MTIME:            return (uint32_t)(this->mtime            & 0xFFFFFFFF);//Custom
+        case address::MTIMEH:           return (uint32_t)((this->mtime    >> 32) & 0xFFFFFFFF);//Custom
+        case address::MTIMECMP:         return (uint32_t)(this->mtimecmp         & 0xFFFFFFFF);//Custom
+        case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp >> 32) & 0xFFFFFFFF);//Custom
 
         case address::CYCLE:            return this->implicit_read(address::MCYCLE);
         case address::TIME:             return this->implicit_read(address::MTIME);
@@ -168,22 +168,22 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::SIE:              this->sie = data; return;//FIXME WARL
         case address::STVEC:            this->stvec = data; return;//FIXME WARL
         case address::SCOUNTEREN:       this->scounteren = data; return;//FIXME WARL
-        case address::SENVCFG:          this->senvcfg = data & 0b1; return;//TODO is this correct?
+        case address::SENVCFG:          this->senvcfg = data & 0b1; return;//Only lowest bit is RW
         case address::SSCRATCH:         this->sscratch = data; return;
         case address::SEPC:             this->sepc = data & 0xFFFFFFFC; return;//IALIGN=32
         case address::SCAUSE:           this->scause = data; return;//FIXME WARL
         case address::STVAL:            return;//We simply ignore writes to STVAL, NOT throw an exception
         case address::SIP:              this->sip = data; return;//FIXME WARL
         case address::SATP:             this->satp = data; return;//FIXME WARL
-        case address::MSTATUS:          this->mstatus = data; return;//FIXME WARL
+        case address::MSTATUS:          this->mstatus = data; return;//FIXME WARL (less critical assuming safe M-mode code)
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
-        case address::MEDELEG:          this->medeleg = data; return;//FIXME WARL
-        case address::MIDELEG:          this->mideleg = data; return;//FIXME WARL
-        case address::MIE:              this->mie = data; return;//FIXME WARL
+        case address::MEDELEG:          this->medeleg = data & 0b0000000000000000'1011001111111111; return;//Note it dosn't make sense to delegate ECALL from M-mode since we can never delagte to high levels
+        case address::MIDELEG:          this->mideleg = data & 0b00000000000000000000'1010'1010'1010; return;
+        case address::MIE:              this->mie     = data & 0b00000000000000000000'1010'1010'1010; return;
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;//Only lowest bit is RW
-        case address::MSTATUSH:         return;//We simply ignore writes to MSTATUSH, NOT throw an exception
-        case address::MENVCFGH:         return;//We simply ignore writes to MENVCFGH, NOT throw an exception
-        case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
+        case address::MSTATUSH:         return;//We simply ignore writes to mstatush, NOT throw an exception
+        case address::MENVCFGH:         return;//We simply ignore writes to menvcfgh, NOT throw an exception
+        case address::MCOUNTINHIBIT:    return;//We simply ignore writes to mcountinhibit, NOT throw an exception
 
 #ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
@@ -193,7 +193,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MEPC:             this->mepc      = data & 0xFFFFFFFC;    return;//IALIGN=32
         case address::MCAUSE:           this->mcause    = data;                 return;//FIXME WARL
         case address::MTVAL:                                                    return;//We simply ignore writes to MTVAL, NOT throw an exception
-        case address::MIP:              this->mip       = data;                 return;//FIXME WARL
+        case address::MIP:              this->mip       = data & 0b00000000000000000000'0010'0010'0010; return;//Note ALL interrupt pending bits for M-mode are READ ONLY
 
 #ifndef _MSC_VER//Not on MSVC
         case address::PMPCFG_START  ... address::PMPCFG_END:    this->pmpcfg [csr - address::PMPCFG_START]  = data; return;//FIXME WARL
@@ -216,8 +216,14 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
 
         case address::MTIME:            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
         case address::MTIMEH:           this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
-        case address::MTIMECMP:         this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
-        case address::MTIMECMPH:        this->mtimecmp  = (this->mtimecmp & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
+        case address::MTIMECMP://Custom
+            this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);
+            this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
+            return;
+        case address::MTIMECMPH://Custom
+            this->mtimecmp  = (this->mtimecmp & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);
+            this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
+            return;
 
         default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
