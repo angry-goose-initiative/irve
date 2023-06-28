@@ -256,7 +256,7 @@ void CSR::CSR_t::update_timer() {
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {
-    //TODO special checks for cycle, instret, time, and hpmcounters
+    //FIXME special checks for cycle, instret, time, and hpmcounters
 
     uint32_t min_privilege_required = (csr >> 8) & 0b11;
     return (uint32_t)(m_privilege_mode) >= min_privilege_required;
