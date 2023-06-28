@@ -115,7 +115,7 @@ using namespace irve::internal;
 memory::pmemory_t::pmemory_t():
         m_ram(new uint8_t[RAMSIZE]) {
     irvelog(1, "Created new physical memory instance");
-    std::memset(this->m_ram.get(), 0, RAMSIZE);
+    std::memset(this->m_ram.get(), 0xA5, RAMSIZE);
 }
 
 memory::pmemory_t::~pmemory_t() {

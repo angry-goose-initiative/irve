@@ -30,6 +30,12 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
     irvelog(1, "Created new cpu_state instance");
+
+    //Initialize all registers to 0 (just to prevent any sanitizers from complaining)
+    for (uint8_t i = 0; i < 31; ++i) {
+        this->m_regs[i] = 0;
+    }
+
     this->log(2);
 }
 
