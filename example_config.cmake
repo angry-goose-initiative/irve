@@ -29,6 +29,7 @@ set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code
 #.reset <- The cpu should begin execution at the first instruction of this section
 #.vector_table <- Needed only if vector table is hardwired
 #.text
+#.bss and .sbss MUST BOTH BE SURROUNDED BY ___rvsw_bss_start___ and ___rvsw_bss_end___ TO AVOID ISSUES WITH VARIABLES THAT ARE ZERO-INITIALIZED
 #TODO others
 
 #Required linker script defined symbols:

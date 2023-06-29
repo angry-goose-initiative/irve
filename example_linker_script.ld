@@ -37,6 +37,7 @@ SECTIONS
     .bss : {
         ___rvsw_bss_start___ = .;
         *(.bss*)
+        *(.sbss*)/* INCLUDING SBSS HERE TOO IS VITALLY IMPORTANT! */
         ___rvsw_bss_end___ = .;
     } > ram
 
