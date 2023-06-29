@@ -36,6 +36,8 @@ static void print_startup_message();
 int main(int argc, const char* const* argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
 
+    //srand(time(NULL));//Uncomment this to seed the random number generator that the emulator uses
+
     print_startup_message();
 
     irvelog_always(0, "Initializing emulator...");

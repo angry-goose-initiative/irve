@@ -31,9 +31,9 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
 {
     irvelog(1, "Created new cpu_state instance");
 
-    //Initialize all registers to 0 (just to prevent any sanitizers from complaining)
+    //Initialize all registers to a random number (just to prevent any sanitizers from complaining)
     for (uint8_t i = 0; i < 31; ++i) {
-        this->m_regs[i] = 0;
+        this->m_regs[i] = rand();
     }
 
     this->log(2);

@@ -375,6 +375,8 @@ int test_memory_memory_t_no_translation() {
     // satp incicates SV32 with PPN 1
     CSR.implicit_write(CSR::address::SATP, (word_t)0x80000001);
 
+    assert(false && "FIXME");//FIXME for proper testing, the page tables must be initialized
+
     // Translation should occur
     bool threwException = false;
     try {
