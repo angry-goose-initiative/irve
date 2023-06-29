@@ -74,8 +74,8 @@
 #define IRVE_INTERNAL_CONFIG_RUST                   IRVE_CMAKE_RUST
 #endif
 
-#ifndef IRVE_FUZZISH
-#define IRVE_FUZZISH                                IRVE_CMAKE_FUZZISH
+#ifndef IRVE_INTERNAL_CONFIG_FUZZISH
+#define IRVE_INTERNAL_CONFIG_FUZZISH                IRVE_CMAKE_FUZZISH
 #endif
 
 #elif defined(IRVE_RAW_MAKEFILE_BUILDSYSTEM)
@@ -139,8 +139,8 @@
 #define IRVE_INTERNAL_CONFIG_RUST                   0
 #endif
 
-#ifndef IRVE_FUZZISH
-#define IRVE_FUZZISH                                1
+#ifndef IRVE_INTERNAL_CONFIG_FUZZISH
+#define IRVE_INTERNAL_CONFIG_FUZZISH                1
 #endif
 
 #endif//CONFIG_H

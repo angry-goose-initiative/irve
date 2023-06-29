@@ -122,6 +122,9 @@ namespace irve {//NOT irve::internal
          * @return The compiler that libirve was built with (as a string)
         */
         const char* get_compiler_string();
+
+        //TODO doxygen
+        bool fuzzish_build();
     }
 
     //Things that depend on previous declarations

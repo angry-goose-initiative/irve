@@ -24,7 +24,7 @@
 
 /* Constants And Defines */
 
-#if IRVE_FUZZISH
+#if IRVE_INTERNAL_CONFIG_FUZZISH
 //TODO be more efficient (use all 32 bits)
 #define irve_fuzzish_meminit(ptr, size_bytes) do { \
     uint8_t* byte_ptr = (uint8_t*)ptr; \
@@ -32,7 +32,7 @@
         byte_ptr[i] = std::rand(); \
     } \
 } while (0)
-#define irve_fuzzish_rand(__VA_ARGS__) std::rand(__VA_ARGS__)
+#define irve_fuzzish_rand() std::rand()
 #else
 #define irve_fuzzish_meminit(ptr, size_bytes) do { std::memset(ptr, 0, size_bytes); } while (0)
 #define irve_fuzzish_rand() 0
