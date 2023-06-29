@@ -22,6 +22,8 @@
 
 #include "rvexception.h"
 
+#include "fuzzish.h"
+
 using namespace irve::internal;
 
 /* Function Implementations */
@@ -32,7 +34,7 @@ CSR::CSR_t::CSR_t() :
     stvec(0),//Only needs to be initialized for implicit_read() guarantees
     scounteren(0),//Only needs to be initialized for implicit_read() guarantees
     senvcfg(0),//Only needs to be initialized for implicit_read() guarantees
-    sscratch(rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    sscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     sepc(0),//Only needs to be initialized for implicit_read() guarantees
     scause(0),//Only needs to be initialized for implicit_read() guarantees
     sip(0),//Only needs to be initialized for implicit_read() guarantees
@@ -42,7 +44,7 @@ CSR::CSR_t::CSR_t() :
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
     menvcfg(0),//Only needs to be initialized for implicit_read() guarantees
-    mscratch(rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    mscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
     mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     mip(0),//Only needs to be initialized for implicit_read() guarantees

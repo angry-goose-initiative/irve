@@ -24,6 +24,7 @@
 
 #include "common.h"
 #include "rvexception.h"
+#include "fuzzish.h"
 
 #define INST_COUNT 0//We only log at init
 #include "logging.h"
@@ -115,12 +116,7 @@ using namespace irve::internal;
 
 memory::pmemory_t::pmemory_t():
         m_ram(new uint8_t[RAMSIZE]) {
-    //To try to catch bugs, we fill the RAM with random data
-    for (std::size_t i = 0; i < RAMSIZE; i++) {
-        //this->m_ram[i] = 0;
-        //this->m_ram[i] = 0xA5;
-        this->m_ram[i] = (uint8_t)rand();
-    }
+    irve_fuzzish_meminit(this->m_ram.get(), RAMSIZE);
 
     irvelog(1, "Created new physical memory instance");
 }

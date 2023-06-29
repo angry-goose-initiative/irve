@@ -20,6 +20,8 @@
 
 #include "rvexception.h"
 
+#include "fuzzish.h"
+
 using namespace irve::internal;
 
 /* Function Implementations */
@@ -33,7 +35,7 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
 
     //Initialize all registers to a random number (just to prevent any sanitizers from complaining)
     for (uint8_t i = 0; i < 31; ++i) {
-        this->m_regs[i] = rand();
+        this->m_regs[i] = irve_fuzzish_rand();
     }
 
     this->log(2);

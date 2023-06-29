@@ -31,6 +31,7 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/emulator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/fuzzish.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gdbserver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gdbserver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/irve_public_api.cpp

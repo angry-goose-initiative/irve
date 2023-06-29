@@ -8,24 +8,41 @@
 #
 
 #Config options
+
+#Disable verbose logging
 if(NOT DEFINED IRVE_DISABLE_LOGGING)
+    #set(IRVE_DISABLE_LOGGING 0)#TODO rename to disable verbose logging
     set(IRVE_DISABLE_LOGGING 1)#TODO rename to disable verbose logging
 endif()
 
+#Do logging on a separate thread
 if(NOT DEFINED IRVE_ASYNC_LOGGING)
     set(IRVE_ASYNC_LOGGING 0)
+    #set(IRVE_ASYNC_LOGGING 1)
 endif()
 
+#Enable ASAN, UBSAN, etc
 if(NOT DEFINED IRVE_SANITIZE)
     set(IRVE_SANITIZE 0)
+    #set(IRVE_SANITIZE 1)
 endif()
 
+#Optional to use most things, but notably required for pretty disassembly
 if(NOT DEFINED IRVE_RUST)
-    set(IRVE_RUST 0)#Optional to use most things, but notably required for pretty disassembly
+    set(IRVE_RUST 0)
+    #set(IRVE_RUST 1)
 endif()
 
+#If you want a collection of RISC-V software to mess with
 if(NOT DEFINED IRVE_USE_RVSW)
-    set(IRVE_USE_RVSW 1)#If you want a collection of RISC-V software to mess with
+    #set(IRVE_USE_RVSW 0)
+    set(IRVE_USE_RVSW 1)
+endif()
+
+#Enable pseudo-fuzzing
+if(NOT DEFINED IRVE_FUZZISH)
+    #set(IRVE_FUZZISH 0)
+    set(IRVE_FUZZISH 1)
 endif()
 
 #################################################################################################################################
