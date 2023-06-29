@@ -27,7 +27,7 @@ int main() {
 
     volatile double a = 12.34;
     volatile double b = 5.678;
-    volatile double zero;
+    volatile double zero = 0.0;
     volatile double pi = M_PI;
     volatile double nan = NAN;
 
