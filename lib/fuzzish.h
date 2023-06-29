@@ -28,7 +28,7 @@
 //TODO be more efficient (use all 32 bits)
 #define irve_fuzzish_meminit(ptr, size_bytes) do { \
     uint8_t* byte_ptr = (uint8_t*)ptr; \
-    for (size_t i = 0; i < size_bytes; i++) { \
+    for (size_t i = 0; i < size_bytes; ++i) { \
         byte_ptr[i] = std::rand(); \
     } \
 } while (0)

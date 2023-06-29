@@ -9,6 +9,14 @@
 
 #Config options
 
+#TODO when IRVE is complete, make these suitable for a release build by default
+
+#Build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+    #set(CMAKE_BUILD_TYPE Release)
+endif()
+
 #Disable verbose logging
 if(NOT DEFINED IRVE_DISABLE_LOGGING)
     #set(IRVE_DISABLE_LOGGING 0)#TODO rename to disable verbose logging
@@ -54,9 +62,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
 
 #https://stackoverflow.com/questions/41361631/optimize-in-cmake-by-default
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
 
 set(GIT_EXECUTABLE git)
 
