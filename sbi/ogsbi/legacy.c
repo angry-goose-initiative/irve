@@ -84,7 +84,7 @@ long handle_legacy_sbi_smode_ecall(
             break;
         case 0x04:
             dputs("LEGACY Function: sbi_send_ipi()");
-            if ((*(const unsigned long*)a0) != 0b1) {
+            if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;     
             } else {//OGSBI only supports a single hart
                 __asm__ volatile (
@@ -98,7 +98,7 @@ long handle_legacy_sbi_smode_ecall(
             break;
         case 0x05:
             dputs("LEGACY Function: sbi_remote_fence_i()");
-            if ((*(const unsigned long*)a0) != 0b1) {
+            if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;     
             } else {//OGSBI only supports a single hart
                 __asm__ volatile (
@@ -112,7 +112,7 @@ long handle_legacy_sbi_smode_ecall(
             break;
         case 0x06:
             dputs("LEGACY Function: sbi_remote_sfence_vma()");
-            if ((*(const unsigned long*)a0) != 0b1) {
+            if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;     
             } else {//OGSBI only supports a single hart
                 assert(false && "TODO implement");
@@ -121,7 +121,7 @@ long handle_legacy_sbi_smode_ecall(
             break;
         case 0x07:
             dputs("LEGACY Function: sbi_remote_sfence_vma_asid()");
-            if ((*(const unsigned long*)a0) != 0b1) {
+            if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;
             } else {//OGSBI only supports a single hart
                 assert(false && "TODO implement");

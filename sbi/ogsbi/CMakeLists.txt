@@ -13,15 +13,16 @@ cmake_minimum_required(VERSION 3.16.3)
 include(${PROJECT_SOURCE_DIR}/macros.cmake)
 
 set(OGSBI_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/asm_c_interface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/exception_entry.s
     ${CMAKE_CURRENT_SOURCE_DIR}/gp_tp_preserve_restore.s
     ${CMAKE_CURRENT_SOURCE_DIR}/jump2linux.S
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/legacy.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/other_exceptions.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/asm_c_interface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/virtual.S
 )
 
 macro(add_c_target NAME)

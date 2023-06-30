@@ -42,6 +42,16 @@ typedef struct {
 
 void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr) __attribute__((noreturn));
 
+uint8_t  virtual_read_byte           (const uint8_t*  virtual_addr);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+uint16_t virtual_read_halfword       (const uint16_t* virtual_addr);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+uint32_t virtual_read_word           (const uint32_t* virtual_addr);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+int8_t   virtual_read_signed_byte    (const int8_t*   virtual_addr);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+int16_t  virtual_read_signed_halfword(const int16_t*  virtual_addr);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+
+void virtual_write_byte    (uint8_t*  virtual_addr, uint8_t  value);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+void virtual_write_halfword(uint16_t* virtual_addr, uint16_t value);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+void virtual_write_word    (uint32_t* virtual_addr, uint32_t value);//NOT PHYSICAL (unless S-mode is Bare, but this is handled in the function)
+
 /* Function/Class Definitions For C code to implement */
 
 sbiret_t handle_sbi_smode_ecall(

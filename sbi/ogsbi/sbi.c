@@ -169,7 +169,8 @@ sbiret_t handle_sbi_smode_ecall(
                     dputs("Function: sbi_debug_console_write()");
                     //TODO handle the case where base_addr is not valid (including when base_addr_hi is any non-zero value)
                     for (size_t i = 0; i < a0; ++i) {
-                        putc(((char*)a1)[i], stdout);
+                        char c = virtual_read_byte(((unsigned char*)a1) + i);
+                        putc(c, stdout);
                     }
                     result.error = SBI_SUCCESS;
                     result.value = a0;
@@ -178,7 +179,8 @@ sbiret_t handle_sbi_smode_ecall(
                     dputs("Function: sbi_debug_console_read()");
                     //TODO handle the case where base_addr is not valid (including when base_addr_hi is any non-zero value)
                     for (size_t i = 0; i < a0; ++i) {
-                        ((char*)a1)[i] = getc(stdin);
+                        char c = getc(stdin);
+                        virtual_write_byte(((unsigned char*)a1) + i, c);
                     }
                     result.error = SBI_SUCCESS;
                     result.value = a0;
