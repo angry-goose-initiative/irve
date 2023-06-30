@@ -99,7 +99,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @param cause TODO
         */
-        void handle_exception(rvexception::cause_t cause);
+        void handle_trap(rvexception::cause_t cause);
         
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
