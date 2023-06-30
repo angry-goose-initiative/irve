@@ -56,11 +56,11 @@ long handle_legacy_sbi_smode_ecall(
     //No legacy SBI calls use a4 thru a6
     dprintf("  EID: 0x%lX", EID);
 
-    long result;
+    long result = -1;//Some compilers aren't smart enough to figure out this is always initialized below...
     switch (EID) {
         case 0x00:
             dputs("LEGACY Function: sbi_set_timer()");
-            assert(false && "TODO implement"); exit(1);//Write to mtimecmp
+            assert(false && "TODO implement");//TODO write to mtimecmp
             break;
         case 0x01:
             dputs("LEGACY Function: sbi_console_putchar()");

@@ -38,7 +38,7 @@ set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code
 #The linker script should also contain ENTRY(___rvsw_reset___) in the file
 
 
-set(RVSW_MARCH "rv32ima_zicsr")#Your -march=[...] here
+set(RVSW_MARCH "rv32ima_zicsr_zifencei")#Your -march=[...] here
 set(RVSW_MABI "ilp32")#Your -mabi=[...] here
 
 set(RVSW_EXIT_METHOD "SELF_JUMP")#One of: SELF_JUMP, CUSTOM_INSTRUCTION, FUNCTION_CALL, or potentially others in the future
@@ -58,5 +58,5 @@ set(RVSW_SMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/example_linker_script.ld")#Your 
 set(RVSW_STVEC_IS_HARDWIRED "VECTORED")#Uncomment if not hardwired, else "DIRECT" if direct, or "VECTORED" if vectored
 set(RVSW_SMODE_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C startup code to load the data segment before calling anything
 set(RVSW_SMODE_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
-set(RVSW_SMODE_MARCH "rv32ima_zicsr")#Your -march=[...] here (can be different from M-mode; ex if mmode code is emulating certain instructions)
+set(RVSW_SMODE_MARCH "rv32ima_zicsr_zifencei")#Your -march=[...] here (can be different from M-mode; ex if mmode code is emulating certain instructions)
 set(RVSW_SMODE_MABI "ilp32")#Your -mabi=[...] here (can be different from M-mode)
