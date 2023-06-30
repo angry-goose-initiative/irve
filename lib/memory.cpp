@@ -121,8 +121,7 @@ memory::pmemory_t::pmemory_t():
 
 memory::pmemory_t::~pmemory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV Remaining Debug At IRVE Exit:\x1b[0m: "
-                                 "\"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
     }
 }
 

@@ -63,7 +63,7 @@ bool emulator::emulator_t::tick() {
 
     this->m_CSR.update_timer();
 
-    //TODO also add a function to memory to update peripherals
+    //TODO also add a function to memory to update peripherals (they will set the relevant pending bit if needed, or we could have them return a bool indicating if we should set the external interrupt pending bit here)
 
     this->check_and_handle_interrupts();
 
@@ -258,6 +258,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     }
     //If we make it here, we have an interrupt to handle (specifically the one in `cause)
 
+    irvelog(1, "Handling interrupt: Cause: %u", (uint32_t)cause);
     this->handle_trap(cause);
 }
 
