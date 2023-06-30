@@ -36,10 +36,12 @@ using namespace irve::internal;
 // The directory where test files are located
 #define TESTFILES_DIR   "rvsw/compiled/"
 
-// A RISC-V page size is 4 KiB
-#define PAGESIZE        0x1000
+#define MPP_M_MODE      0b11
 
 // Virtual address translation
+
+// A RISC-V page size is 4 KiB
+#define PAGESIZE        0x1000
 
 // Current address translation scheme
 // 0 = Bare (no address translation)
@@ -54,7 +56,7 @@ using namespace irve::internal;
 #define mstatus_SUM     m_CSR_ref.implicit_read(CSR::address::MSTATUS).bit(18).u
 // Modify PriVilege field of the mstatus CSR
 #define mstatus_MPRV    m_CSR_ref.implicit_read(CSR::address::MSTATUS).bit(17).u
-// Pervious privilige mode field of the mstatus CSR
+// Previous privilige mode field of the mstatus CSR
 #define mstatus_MPP     m_CSR_ref.implicit_read(CSR::address::MSTATUS).bits(12, 11).u
 
 // The virtual page number (VPN) of a virtual address (va)
@@ -84,11 +86,7 @@ using namespace irve::internal;
 #define pte_V           pte.bit(0).u
 
 // The current privilege mode
-#define CURR_PMODE      m_CSR_ref.get_privilege_mode()
-
-// The conditions for no address translation
-#define NO_TRANSLATION  (CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || \
-                        ((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) && (satp_MODE == 0))
+#define CURR_PMODE      m_CSR_ref.get_privilege_mode()    
 
 // The page cannot be accessed if one of the following conditions is met:
                             /* Fetching an instruction but the page is not marked as executable */
@@ -123,7 +121,8 @@ memory::pmemory_t::pmemory_t():
 
 memory::pmemory_t::~pmemory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV Remaining Debug At IRVE Exit:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRV Remaining Debug At IRVE Exit:\x1b[0m: "
+                                 "\"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
     }
 }
 
@@ -241,7 +240,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
-    if(NO_TRANSLATION) { // TODO check the condition
+    if(no_address_translation(access_type)) {
         irvelog(1, "No address translation");
         return (uint64_t)untranslated_addr.u;
     }
@@ -328,6 +327,27 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     irvelog(2, "Translation resulted in address 0x%09X", machine_addr);
 
     return machine_addr;
+}
+
+bool memory::memory_t::no_address_translation(uint8_t access_type) const {
+    if(mstatus_MPRV && (access_type != AT_INSTRUCTION)) {
+        // The modify privilege mode flag is set and the access type is not instruction
+        if(mstatus_MPP == MPP_M_MODE || (satp_MODE == 0)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        if((CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || (satp_MODE == 0)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    assert(false && "Should never get here");
 }
 
 word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
