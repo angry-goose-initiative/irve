@@ -206,7 +206,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     }
     //If we reach this point, interrupts aren't globally disabled, so we need to check for them
 
-    //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for M-mode code to use
+    //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
     reg_t mip = this->m_CSR.implicit_read(CSR::address::MIP);
     reg_t mie = this->m_CSR.implicit_read(CSR::address::MIE);
 
@@ -221,14 +221,14 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //1. The interrupt is pending (mip/sip)
     //2. The interrupt is enabled (mie/sie)
     //3. The interrupt is delegated to the current or higher privilege level (mideleg/sideleg)
-    //Also sets delegated_to_smode properly for later use
+    //Also sets `delegated_to_smode` properly for later use
     auto is_interrupting = [&](uint8_t bit) {
-        assert((bit < 32) && "Invalid interrupting() bit!");
+        assert((bit < 32) && "Invalid is_interrupting() bit!");
         bool pending = mip.bit(bit) == 1;
         bool enabled = mie.bit(bit) == 1;
 
         //The only time we'd ignore an interrupt is if we're in M-mode and it's delegated to S-mode
-        delegated_to_smode = mideleg.bit(bit) == 1;
+        delegated_to_smode = mideleg.bit(bit) == 1;//This is useful for other things later too
         bool ignored_in_current_mode = (in_m_mode && delegated_to_smode);
 
         bool interrupting = pending && enabled && !ignored_in_current_mode;
@@ -248,7 +248,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
         cause = rvexception::cause_t::SUPERVISOR_SOFTWARE_INTERRUPT;
     } else if (is_interrupting( 5)) {//STI
         cause = rvexception::cause_t::SUPERVISOR_TIMER_INTERRUPT;
-    } else {//No interrupts "interrupting"
+    } else {
         irvelog(1, "No interrupts \"interrupting\" at this time.");
         return;
     }
@@ -256,12 +256,35 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
+    //TODO share code with handle_exception better
+
     if (delegated_to_smode) {
-        irvelog(1, "Interrupt with cause %u causing trap into S-mode", (uint32_t)cause);
+        irvelog(1, "Interrupt with cause %u is causing a trap into S-mode!", (uint32_t)cause);
+        //TODO share code with handle_exception better
+
         assert(false && "TODO"); (void)cause;
     } else {//Interrupt is going to M-mode
-        irvelog(1, "Interrupt with cause %u causing trap into M-mode", (uint32_t)cause);
-        assert(false && "TODO"); (void)cause;
+        irvelog(1, "Interrupt with cause %u is causing a trap into M-mode!", (uint32_t)cause);
+        //TODO share code with handle_exception better
+
+        //Manage the privilege stack
+        word_t mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
+        word_t mie = mstatus.bit(3);
+        mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, MPIE, and MIE bits
+        mstatus |= ((uint32_t)this->m_CSR.get_privilege_mode()) << 11;//Set the MPP bits to the current privilege mode
+        mstatus |= mie << 7;//Set MPIE to MIE
+        //MIE is set to 0
+        this->m_CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
+        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
+
+        //Write other CSRs to indicate information about the exception
+        this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
+        this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
+        this->m_CSR.implicit_write(CSR::address::MTVAL, 0);
+
+        //Jump to the exception handler
+        assert(false && "TODO"); (void)cause;//TODO since these are exceptions, the result will be vectored
+        //this->m_cpu_state.set_pc(this->m_CSR.implicit_read(CSR::address::MTVEC).bits(31, 2));
     }
 }
 
@@ -274,6 +297,7 @@ void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
     assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
     irvelog(1, "Handling exception: Cause: %u", raw_cause);
 
+    //We do this to support debugging with irvegdb. This will cause issues if anything other than GDB puts an EBREAK instruction in memory
     if (this->m_intercept_breakpoints && (cause == rvexception::cause_t::BREAKPOINT_EXCEPTION) && (this->m_CSR.get_privilege_mode() != CSR::privilege_mode_t::USER_MODE)) {
         irvelog(1, "Breakpoint intercepted");
         this->m_encountered_breakpoint = true;
