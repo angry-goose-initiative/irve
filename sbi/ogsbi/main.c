@@ -30,7 +30,7 @@
 
 /* Function Implementations */
 
-int main() {
+int main(int, const char**) {
     dputs("OGSBI is starting up...");
     dputs("  ___   ____ ____  ____ ___");
     dputs(" / _ \\ / ___/ ___|| __ )_ _|");

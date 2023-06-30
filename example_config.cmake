@@ -5,8 +5,9 @@
 # Example configuration file for rvsw
 #
 
-set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)  
 set(CMAKE_ASM_COMPILER riscv32-unknown-elf-gcc)
+set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)  
+set(CMAKE_CXX_COMPILER riscv32-unknown-elf-g++)
 set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
 
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")
