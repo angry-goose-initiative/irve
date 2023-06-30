@@ -354,6 +354,9 @@ int test_memory_memory_t_no_translation() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
+    // Ensure that the pte that's accessed when address translation happens is not valid
+    memory.write_physical(0x000001F00, DT_WORD, 0x00000000);
+
     // satp indicates bare
     CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
     // M-mode
