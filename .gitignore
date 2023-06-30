@@ -9,3 +9,4 @@ testfiles/.cache/
 lib/disassemble/target
 src/irvers/target
 src/irvers/Cargo.lock
+.DS_Store
