@@ -101,6 +101,8 @@ add_rvsw_parse_test(rv32esim src/single_file/c/rv32esim.vhex32)
 add_rvsw_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity.vhex32)
 add_rvsw_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun.vhex32)
 
+add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx.vhex32)
+
 #S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
 add_rvsw_smode_parse_test(hello_world src/single_file/c/hello_world_smode.vhex32)
 add_rvsw_smode_parse_test(irve_debugging_puts_weirdness src/single_file/c/irve_debugging_puts_weirdness_smode.vhex32)
@@ -108,3 +110,5 @@ add_rvsw_smode_parse_test(irve_stress_test src/single_file/c/irve_stress_test_sm
 add_rvsw_smode_parse_test(rv32esim src/single_file/c/rv32esim_smode.vhex32)
 add_rvsw_smode_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity_smode.vhex32)
 add_rvsw_smode_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun_smode.vhex32)
+
+add_rvsw_smode_parse_test(hello_cxx src/single_file/cxx/hello_cxx_smode.vhex32)

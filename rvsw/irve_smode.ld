@@ -42,6 +42,11 @@ SECTIONS
         *(.sbss*)/* INCLUDING SBSS HERE TOO IS VITALLY IMPORTANT! */
         ___rvsw_bss_end___ = .;
     } > ram
+    .init_array : {
+        ___rvsw_init_array_start___ = .;
+        *(.init_array*)
+        ___rvsw_init_array_end___ = .;
+    } > ram
 
     /* TODO sections for init and fini array: https://blog.thea.codes/the-most-thoroughly-commented-linker-script/ */
 
