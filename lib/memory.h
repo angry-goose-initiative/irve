@@ -155,6 +155,14 @@ namespace irve::internal::memory {
         uint64_t translate_address(word_t untranslated_addr, uint8_t access_type) const;
 
         /**
+         * @brief Checks if an address should be translated or not
+         * @param access_type Whether address translation happens or not may depend on whether the
+         *                    access type is instruction
+         * @return true for bare translation, false for sv32 translation
+        */
+        bool no_address_translation(uint8_t access_type) const;
+
+        /**
          * @brief Read the specified data type from memory
          * @param addr 34 bit machine address
          * @param data_type From funct3 of memory instructions, specifies data width and
@@ -174,13 +182,13 @@ namespace irve::internal::memory {
 
         /**
          * @brief Loads memory image files (only called by the constructor)
-         * @param imagec The number of memory images plus 1 (comes directly from argc in main)
-         * @param imagev Vector of image files (comes directly from argv in main)
+         * @param imagec The number of memory images plus
+         * @param imagev Vector of image files
         */
         void load_memory_image_files(int imagec, const char* const* imagev);
 
         /**
-         * @brief Loads a Verilog file to memory
+         * @brief Loads a Verilog hex file to memory
          * @param image_path The path to the memory image file
         */
         void load_verilog_32(std::string image_path);
