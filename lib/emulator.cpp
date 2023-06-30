@@ -172,15 +172,39 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
 }
 
 void emulator::emulator_t::check_and_handle_interrupts() {
-    //FIXME this may be wrong, read 3.1.6.1 to figure out what the hell is going on
-    //Also 4.1.3
-    
-    /*
+    //Section 3.1.6.1 describes when interrupts are globally enabled
+    //We will never be interrupted to a lower privilege level if we are currently executing in a higher privilege level
+    //Ex. if we're in M-mode, interrupts delegated to S-mode will never be triggered (will just stay pending)
+    //However it does work the other way around: if we're in S-mode or U-mode, interrupts delegated to M-mode will be triggered
+    //
+    //Now let's consider MIE and SIE.
+    //Critically these ONLY TAKE AFFECT IF WE'RE IN THE CORRESPONDING PRIVILEGE MODE
+    //So if we're in M-mode and MIE is clear, we will never be interrupted
+    //But if we're in S-mode and MIE is clear, we will still be interrupted to M-mode
+    //This is similar for SIE: if we're in S-mode and SIE is clear, we will never be interrupted, but if we're in U-mode and SIE is clear, we will still be interrupted to S-mode
+    //
+    //Finally, an interupts only occurs if it is pending (mip/sip) and enabled (mie/sie)
+    //
+    //Note: 4.1.3 may also be useful
+
+    irvelog(1, "Checking for interrupts...");
+
     reg_t mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
-    if (!mstatus.bit(3)) {//mstatus.MIE is not set, AKA interrupts are disabled globally for all privilege modes
-        return;
+    bool in_m_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
+    bool in_s_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE;
+    
+    if (in_m_mode) {
+        if (!mstatus.bit(3)) {//mstatus.MIE is not set, so since we're in M-mode, this means interrupts are disabled
+            irvelog(0, "Interrupts are currently disabled in M-mode");
+            return;
+        }
+    } else if (in_s_mode) {
+        if (!mstatus.bit(1)) {//mstatus.SIE is not set, so since we're in S-mode, this means interrupts are disabled
+            irvelog(0, "Interrupts are currently disabled in S-mode");
+            return;
+        }
     }
-    //If we reach this point, interrupts are enabled at least at the M-mode level
+    //If we reach this point, interrupts aren't globally disabled, so we need to check for them
 
     //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for M-mode code to use
     reg_t mip = this->m_CSR.implicit_read(CSR::address::MIP);
@@ -189,59 +213,56 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //Also mideleg will be useful
     reg_t mideleg = this->m_CSR.implicit_read(CSR::address::MIDELEG);
 
-    //Check if any interrupts are pending, and choose the one with the highest priority
-    //According to the spec, the order of priority is: MEI, MSI, MTI, SEI, SSI, STI
+    //Check if any interrupts are "interrupting", and choose the one with the highest priority
     rvexception::cause_t cause;
-    //bool m_mode_interrupt;
     bool delegated_to_smode;
-    if ((mip.bit(11) == 1) && (mie.bit(11) == 1)) {//MEI
-        //m_mode_interrupt = true;
+
+    //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
+    //1. The interrupt is pending (mip/sip)
+    //2. The interrupt is enabled (mie/sie)
+    //3. The interrupt is delegated to the current or higher privilege level (mideleg/sideleg)
+    //Also sets delegated_to_smode properly for later use
+    auto is_interrupting = [&](uint8_t bit) {
+        assert((bit < 32) && "Invalid interrupting() bit!");
+        bool pending = mip.bit(bit) == 1;
+        bool enabled = mie.bit(bit) == 1;
+
+        //The only time we'd ignore an interrupt is if we're in M-mode and it's delegated to S-mode
+        delegated_to_smode = mideleg.bit(bit) == 1;
+        bool ignored_in_current_mode = (in_m_mode && delegated_to_smode);
+
+        bool interrupting = pending && enabled && !ignored_in_current_mode;
+        return interrupting;
+    };
+
+    //According to the spec, the order of priority is: MEI, MSI, MTI, SEI, SSI, STI
+    if        (is_interrupting(11)) {//MEI
         cause = rvexception::cause_t::MACHINE_EXTERNAL_INTERRUPT;
-        delegated_to_smode = mideleg.bit(11) == 1;
-    } else if ((mip.bit(3) == 1) && (mie.bit(3) == 1)) {//MSI
-        //m_mode_interrupt = true;
+    } else if (is_interrupting( 3)) {//MSI
         cause = rvexception::cause_t::MACHINE_SOFTWARE_INTERRUPT;
-        delegated_to_smode = mideleg.bit(3) == 1;
-    } else if ((mip.bit(7) == 1) && (mie.bit(7) == 1)) {//MTI
-        //m_mode_interrupt = true;
+    } else if (is_interrupting( 7)) {//MTI
         cause = rvexception::cause_t::MACHINE_TIMER_INTERRUPT;
-        delegated_to_smode = mideleg.bit(7) == 1;
-    } else if ((mip.bit(9) == 1) && (mie.bit(9) == 1)) {//SEI
-        //m_mode_interrupt = false;
+    } else if (is_interrupting( 9)) {//SEI
         cause = rvexception::cause_t::SUPERVISOR_EXTERNAL_INTERRUPT;
-        delegated_to_smode = mideleg.bit(9) == 1;
-    } else if ((mip.bit(1) == 1) && (mie.bit(1) == 1)) {//SSI
-        //m_mode_interrupt = false;
+    } else if (is_interrupting( 1)) {//SSI
         cause = rvexception::cause_t::SUPERVISOR_SOFTWARE_INTERRUPT;
-        delegated_to_smode = mideleg.bit(1) == 1;
-    } else if ((mip.bit(5) == 1) && (mie.bit(5) == 1)) {//STI
-        //m_mode_interrupt = false;
+    } else if (is_interrupting( 5)) {//STI
         cause = rvexception::cause_t::SUPERVISOR_TIMER_INTERRUPT;
-        delegated_to_smode = midleg.bit(5) == 1;
-    } else {//No interrupts pending
+    } else {//No interrupts "interrupting"
+        irvelog(1, "No interrupts \"interrupting\" at this time.");
         return;
     }
-    //If we made it here, at least one interrupt is pending
-    //Also the details about the interrupt of highest priority are known
+    //If we make it here, we have an interrupt to handle, and the info is in `cause` and `delegated_to_smode`
 
-    //bool interrupt_while_in_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
-    assert(false && "TODO interrupts not yet handled");
-    */
+    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
-    /*
-    bool supervisor_software_interrupt_pending = mip.bit(1) == 1;
-    bool machine_software_interrupt_pending = mip.bit(3) == 1;
-    bool supervisor_timer_interrupt_pending = mip.bit(5) == 1;
-    bool machine_timer_interrupt_pending = mip.bit(7) == 1;
-    bool supervisor_external_interrupt_pending = mip.bit(9) == 1;
-    bool machine_external_interrupt_pending = mip.bit(11) == 1;
-
-
-    bool interrupt_while_in_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
-    */
-    //if interrupt occured
-    //this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-    //assert(false && "TODO interrupts not yet handled");//TODO handle interrupts
+    if (delegated_to_smode) {
+        irvelog(1, "Interrupt with cause %u causing trap into S-mode", (uint32_t)cause);
+        assert(false && "TODO"); (void)cause;
+    } else {//Interrupt is going to M-mode
+        irvelog(1, "Interrupt with cause %u causing trap into M-mode", (uint32_t)cause);
+        assert(false && "TODO"); (void)cause;
+    }
 }
 
 void emulator::emulator_t::handle_exception(rvexception::cause_t cause) {
