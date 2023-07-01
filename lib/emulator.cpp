@@ -283,7 +283,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
     if (is_interrupt) {//The cause was an interrupt
         //With interrupts, they don't "come" from a particular mode
         //We assume check_and_handle_interrupts() has already checked that the interrupt is "interrupting", so this should be enough
-        bool interrupt_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MIDELEG).bit(raw_cause) == 0;
+        bool interrupt_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MIDELEG).bit(raw_cause.bits(30, 0)) == 0;
         handle_in_m_mode = interrupt_delegated_to_machine_mode;
     } else {//The cause was an exception
         bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
