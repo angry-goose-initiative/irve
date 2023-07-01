@@ -418,7 +418,38 @@ void memory::memory_t::load_memory_image_files(int imagec, const char* const* im
             path = TESTFILES_DIR + path;
         }
         irvelog_always(0, "Loading memory image from file \"%s\"", path.c_str());
-        load_verilog_32(path);
+        if (path.find(".vhex8")) {
+            load_verilog_8(path);
+        } else {//Assume it's a 32-bit verilog file
+            load_verilog_32(path);
+        }
+    }
+}
+
+void memory::memory_t::load_verilog_8(std::string image_path) {
+    std::fstream fin = std::fstream(image_path);
+    assert(fin && "Failed to open memory image file");
+
+    // Read the file token by token
+    uint64_t addr = 0;
+    std::string token;
+    while (fin >> token) {
+        assert((token.length() != 0) && "This should never happen");
+        if (token.at(0) == '@') { // `@` indicates a new address (ASSUMING 32-BIT WORDS)
+            std::string new_addr_str = token.substr(1);
+            assert((new_addr_str.length() == 8) && "Memory image file is not formatted correctly (bad address)");
+            addr = std::stoul(new_addr_str, nullptr, 16);
+        }
+        else { // New data word (32-bit, could be an instruction or data)
+            assert((token.length() == 2) && "Memory image file is not formatted correctly (bad data)");
+            
+            // The data word this token represents
+            word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
+
+            // Write the data word to memory and increment the address to the next word
+            write_physical(addr, DT_BYTE, data_word);
+            ++addr;
+        }
     }
 }
 

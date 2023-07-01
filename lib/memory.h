@@ -188,7 +188,13 @@ namespace irve::internal::memory {
         void load_memory_image_files(int imagec, const char* const* imagev);
 
         /**
-         * @brief Loads a Verilog hex file to memory
+         * @brief Loads an 8-bit Verilog hex file to memory
+         * @param image_path The path to the memory image file
+        */
+        void load_verilog_8(std::string image_path);
+
+        /**
+         * @brief Loads a 32-bit Verilog hex file to memory
          * @param image_path The path to the memory image file
         */
         void load_verilog_32(std::string image_path);

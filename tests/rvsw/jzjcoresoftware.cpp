@@ -22,7 +22,7 @@
 /* Macros */
 
 #define setup_emulator_with_program(program_name) \
-    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex32"; \
+    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex8"; \
     irve::emulator::emulator_t emulator(1, &file_name_ptr); \
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
