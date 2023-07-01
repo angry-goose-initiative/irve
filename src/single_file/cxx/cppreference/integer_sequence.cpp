@@ -1,4 +1,5 @@
 //From https://en.cppreference.com/w/cpp/utility/integer_sequence
+#include <cassert>
 #include <tuple>
 #include <iostream>
 #include <array>

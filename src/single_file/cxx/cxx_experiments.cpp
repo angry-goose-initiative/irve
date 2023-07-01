@@ -38,7 +38,7 @@ int main(int, const char**) {
     //Not just a vector, but a vector that is itself on the heap
     std::vector<std::function<void()>>* test_vector = new std::vector<std::function<void()>>;
     test_vector->push_back([]() {
-        std::cout << "Here is a number in hex: 0x" << std::hex << 0x12345678 << std::endl;
+        std::cout << "Here is a number in hex: 0x" << std::hex << 0x12345678 << std::dec << std::endl;
     });
     test_vector->push_back([]() {
         std::cout << "But we did it! :)" << std::endl;
@@ -151,21 +151,12 @@ static void example_regex_code_from_cppreference() {
     auto words_begin = 
         std::sregex_iterator(s.begin(), s.end(), word_regex);
     auto words_end = std::sregex_iterator();
-    
-    /*
-    for (auto i = words_begin; i != words_end; ++i) {
-        std::smatch match = *i;
-        std::string match_str = match.str();
-        std::cout << match_str << '\n';
-    }
-    */
  
-    //FIXME why does this say 14 for us instead of 20?
-    //In testing, manually iterating from begin to end prints out 20 words
-    //Why is std::distance() not working?
     std::cout << "Found "
               << std::distance(words_begin, words_end)
               << " words\n";
+    
+    assert((std::distance(words_begin, words_end) == 20) && "We expect 20 words in the string");
  
     const int N = 6;
     std::cout << "Words longer than " << N << " characters:\n";
