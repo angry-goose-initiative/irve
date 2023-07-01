@@ -119,6 +119,9 @@ static volatile struct {
 int main() {
     puts("Exception Bringup Tests");
 
+    puts("Delegate all to machine mode");
+    __asm__ volatile ("csrw medeleg, zero");
+
     puts("Start with mstatus = 0x00000000");
     uint32_t zero = 0x00000000;
     csrrw(zero, mstatus, zero);
