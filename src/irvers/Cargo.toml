@@ -32,7 +32,8 @@ codegen-units = 1
 strip = true
 overflow-checks = false
 panic = "abort"
-lto = true
+#lto = true#FIXME this causes the error: "error: failed to get bitcode from object file for LTO (Bitcode section not found in object file)"
+lto = false
 
 [profile.release-with-debug]
 inherits = "release"

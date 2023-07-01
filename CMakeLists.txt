@@ -77,10 +77,14 @@ if (IRVE_SANITIZE)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
-if (NOT APPLE)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+if (IRVE_RUST)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")#FIXME irvers dosn't like to compile with lto enabled; though regular irve and irve_disassemble are fine
 else()
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto")
+    if (NOT APPLE)
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+    else()
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto")
+    endif()
 endif()
 
 #https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
