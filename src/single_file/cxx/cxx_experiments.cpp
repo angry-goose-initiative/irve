@@ -17,9 +17,11 @@
 #include <iostream>
 #include <iomanip>
 #include <functional>
+#include <list>
 #include <regex>
 #include <unordered_map>
 #include <vector>
+#include <queue>
 
 /* Types */
 
@@ -59,6 +61,8 @@ int main(int, const char**) {
     delete test_vector;
     test_vector = nullptr;
 
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+
     std::cout << "Let's play with a hash table of my favourite numbers!" << std::endl;
 
     std::unordered_map<std::string, double> test_map;
@@ -76,9 +80,42 @@ int main(int, const char**) {
 
     std::cout << "Notice how the numbers aren't in a particular order! Cool!" << std::endl;
 
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+
+    std::cout << "Copying all number out of the hash table into a list..." << std::endl;
+    std::list<double> test_list;
+    for (auto& i : test_map) {
+        test_list.push_back(i.second);
+    }
+    std::cout << "Sorting the list..." << std::endl;
+    test_list.sort();
+    std::cout << "Printing the list..." << std::endl;
+    for (auto& i : test_list) {
+        std::cout << std::setprecision(16) << i << std::endl;
+    }
+    std::cout << "The list is " << std::distance(test_list.begin(), test_list.end()) << " numbers long" << std::endl;
+
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+
+    std::cout << "Copying all number out of the hash table into a priority queue..." << std::endl;
+    std::priority_queue<double> test_queue;
+    for (auto& i : test_map) {
+        test_queue.push(i.second);
+    }
+    std::cout << "Printing the queue..." << std::endl;
+    while (!test_queue.empty()) {
+        std::cout << std::setprecision(16) << test_queue.top() << std::endl;
+        test_queue.pop();
+    }
+
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
+
+
     std::cout << "Trying out the example regex code from cppreference.com..." << std::endl;
     example_regex_code_from_cppreference();
     std::cout << "Finished trying out the example regex code" << std::endl;
+
+    std::cout << "------------------------------------------------------------------------------------------" << std::endl;
 
     std::cout << "Playing with exceptions now..." << std::endl;
     try {
