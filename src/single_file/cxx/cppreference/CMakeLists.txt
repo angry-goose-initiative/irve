@@ -31,8 +31,14 @@ macro(add_smode_cxx_target NAME)
     smode_workaround_add_needed_c_static_libs_for_target(src__single_file__cxx__cppreference__${NAME}_smode)#The workaround
 endmacro()
 
-#M-Mode Targets
-add_cxx_target(integer_sequence ${CMAKE_CURRENT_SOURCE_DIR}/integer_sequence.cpp)
+macro(add_double_target NAME)
+    add_cxx_target(${NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cpp)
+    add_smode_cxx_target(${NAME} ${CMAKE_CURRENT_SOURCE_DIR}/${NAME}.cpp)
+endmacro()
 
-#S-Mode Targets
-add_smode_cxx_target(integer_sequence ${CMAKE_CURRENT_SOURCE_DIR}/integer_sequence.cpp)
+#Targets
+add_double_target(dequeue)
+add_double_target(integer_sequence)
+add_double_target(map)
+add_double_target(string)
+add_double_target(tuple)
