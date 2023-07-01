@@ -27,8 +27,11 @@ macro(add_smode_cxx_target NAME)
 endmacro()
 
 #M-Mode Targets
+add_cxx_target(cxx_experiments ${CMAKE_CURRENT_SOURCE_DIR}/cxx_experiments.cpp)
 add_cxx_target(hello_cxx ${CMAKE_CURRENT_SOURCE_DIR}/hello_cxx.cpp)
 add_cxx_target(irve_interrupt_bringup ${CMAKE_CURRENT_SOURCE_DIR}/irve_interrupt_bringup.cpp)
 
+
 #S-Mode Targets
+add_smode_cxx_target(cxx_experiments ${CMAKE_CURRENT_SOURCE_DIR}/cxx_experiments.cpp)
 add_smode_cxx_target(hello_cxx ${CMAKE_CURRENT_SOURCE_DIR}/hello_cxx.cpp)

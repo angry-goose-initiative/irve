@@ -122,11 +122,13 @@ macro(add_target NAME)#M-Mode
     target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
     target_link_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_MMODE_COMMON_FLAGS})
 
+    #FIXME why are vhex16 and vhex32 so buggy?
+
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME ${NAME} SUFFIX ".elf")
     add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
-    add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
-    add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    #add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
+    #add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
     add_bin_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
     add_ihex_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
     add_srec_target(${FULLY_QUALIFIED_TARGET_NAME} ${NAME})
@@ -143,11 +145,13 @@ macro(add_smode_target NAME)
     target_compile_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
     target_link_options(${FULLY_QUALIFIED_TARGET_NAME} PRIVATE ${RVSW_SMODE_COMMON_FLAGS})
 
+    #FIXME why are vhex16 and vhex32 so buggy?
+
     #We output several different file formats for each target
     set_target_properties(${FULLY_QUALIFIED_TARGET_NAME} PROPERTIES OUTPUT_NAME "${NAME}_smode" SUFFIX ".elf")
     add_vhex8_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
-    add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
-    add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    #add_vhex16_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
+    #add_vhex32_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
     add_bin_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
     add_ihex_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
     add_srec_target(${FULLY_QUALIFIED_TARGET_NAME} "${NAME}_smode")
