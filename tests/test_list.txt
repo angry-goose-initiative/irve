@@ -101,6 +101,7 @@ add_rvsw_parse_test(rv32esim src/single_file/c/rv32esim)
 add_rvsw_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity)
 add_rvsw_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun)
 
+add_rvsw_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx)
 add_rvsw_parse_test(irve_interrupt_bringup src/single_file/cxx/irve_interrupt_bringup)
 
@@ -112,4 +113,5 @@ add_rvsw_smode_parse_test(rv32esim src/single_file/c/rv32esim_smode)
 add_rvsw_smode_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity_smode)
 add_rvsw_smode_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun_smode)
 
+add_rvsw_smode_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_smode_parse_test(hello_cxx src/single_file/cxx/hello_cxx_smode)
