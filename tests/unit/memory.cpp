@@ -406,16 +406,9 @@ int test_memory_memory_t_no_translation() {
     // satp indicates bare
     CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
 
-    // Translation should occur
-    threwException = false;
-    try {
-        assert(memory.translate_address(word_t(0xF000AAAA), 0) != 0x00000000F000AAAA);
-    }
-    catch(...) {
-        threwException = true;
-    }
-    // An exception would only be thrown if the address was being translated
-    assert(threwException);
+    //No translation should occur (We are making the assumption that the only time
+    //U-mode would do virtual addressing is if S-mode was too
+    assert(memory.translate_address(word_t(0xF000AAAA), 0) == 0x00000000F000AAAA);
 
     return 0;
 }
