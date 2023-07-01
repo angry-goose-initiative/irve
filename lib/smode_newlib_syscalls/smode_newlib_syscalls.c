@@ -125,3 +125,7 @@ int _write(int, char* str, int len) {
 
     return len;
 }
+
+int _open(const char*, int, int) {
+    return -1;
+}

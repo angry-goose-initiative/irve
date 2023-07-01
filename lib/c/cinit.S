@@ -71,13 +71,14 @@ ___rvsw_crt0___:
     #Call all functions pointers in the .init_array section (For C++)
     #From ___rvsw_init_array_start___ to ___rvsw_init_array_end___
     #Start at ___rvsw_init_array_start___ while less than ___rvsw_init_array_end___
-    la t0, ___rvsw_init_array_start___
-    la t1, ___rvsw_init_array_end___
+    #USE saved registers since we are calling functions and don't want them to be clobbered
+    la s0, ___rvsw_init_array_start___
+    la s1, ___rvsw_init_array_end___
 0:#Constructor-calling loop
-    bgeu t0, t1, 1f
-    lw t2, 0(t0)
-    jalr ra, t2, 0#Call the function pointer
-    addi t0, t0, 4
+    bgeu s0, s1, 1f
+    lw s2, 0(s0)
+    jalr ra, s2, 0#Call the function pointer
+    addi s0, s0, 4
     j 0b
 1:#End of constructor-calling loop
     
