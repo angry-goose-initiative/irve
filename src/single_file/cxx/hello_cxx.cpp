@@ -25,8 +25,6 @@ bool static_contructor_called = false;
 
 hello_world_t hello_world;
 
-void* __dso_handle = nullptr;//FIXME we shouldn't have to do this
-
 /* Function Implementations */
 
 int main(void) {

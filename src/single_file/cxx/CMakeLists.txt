@@ -15,12 +15,17 @@ include(${PROJECT_SOURCE_DIR}/macros.cmake)
 macro(add_cxx_target NAME)
     add_target(${NAME} ${ARGN})
 
+    target_link_libraries(src__single_file__cxx__${NAME} rvsw_cxx_runtime)
+
     #target_link_libraries(src__single_file__cxx__${NAME} rvswc)#TODO switch to this once we get it working
     workaround_add_needed_c_static_libs_for_target(src__single_file__cxx__${NAME})#The workaround
+    
 endmacro()
 
 macro(add_smode_cxx_target NAME)
     add_smode_target(${NAME} ${ARGN})
+
+    target_link_libraries(src__single_file__cxx__${NAME}_smode rvsw_cxx_runtime_smode)
 
     #target_link_libraries(src__single_file__cxx__${NAME}_smode rvswc)#TODO switch to this once we get it working
     smode_workaround_add_needed_c_static_libs_for_target(src__single_file__cxx__${NAME}_smode)#The workaround

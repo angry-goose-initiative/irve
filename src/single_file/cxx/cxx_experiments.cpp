@@ -1,4 +1,4 @@
-/* cxx_experiments.c
+/* cxx_experiments.cpp
  * Copyright (C) 2023 John Jekel
  * See the LICENSE file at the root of the project for licensing info.
  *
@@ -12,7 +12,8 @@
 
 /* Includes */
 
-#include <cstdio>
+//#include <iostream>
+//#include <cstdio>
 #include <functional>
 #include <vector>
 
@@ -22,7 +23,6 @@
 
 /* Variables */
 
-void* __dso_handle = nullptr;//FIXME we shouldn't have to do this
 
 /* Static Function Declarations */
 
@@ -31,11 +31,21 @@ void* __dso_handle = nullptr;//FIXME we shouldn't have to do this
 /* Function Implementations */
 
 int main(int, const char**) {
+    //*(volatile int*)0xFFFFFFFF = '\n';
+
     std::vector<std::function<void()>> test_vector;
     test_vector.push_back([]() {
+        //std::cout << "CXX Experiments :)" << std::endl;
         puts("CXX Experiments :)");
     });
-    test_vector.back()();
+
+    //*(volatile int*)0xFFFFFFFF = '\n';
+    //puts("Made it here");
+
+    while (!test_vector.empty()) {
+        test_vector.back()();
+        test_vector.pop_back();
+    }
 
     //TODO add more
 
