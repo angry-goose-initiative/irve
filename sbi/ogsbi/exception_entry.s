@@ -5,7 +5,7 @@
 # Entry point back into M mode upon recieving an exception
 #
 
-#TODO support DIRECT mode too
+#TODO support DIRECT mode too (not just vectored)
 
 .global ___rvsw_exception_handler___
 ___rvsw_exception_handler___:

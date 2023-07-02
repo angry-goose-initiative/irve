@@ -61,11 +61,13 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             break;
         case 2://ILLEGAL_INSTRUCTION_EXCEPTION
             dputs("Illegal Instruction Exception");
-            assert(false && "TODO implement (emulate some instructions)");
+            assert(false && "TODO implement (emulate some instructions, and delegate others to S-Mode)");
             break;
         case 3://BREAKPOINT_EXCEPTION
             dputs("Breakpoint Exception");
-            assert(false && "TODO implement (what to do for this?)");
+            dputs("  OGSBI does not support debugging S-Mode code.");
+            dputs("  I give up!");
+            exit(1);
             break;
         case 4://LOAD_ADDRESS_MISALIGNED_EXCEPTION
             dputs("Load Address Misaligned Exception");

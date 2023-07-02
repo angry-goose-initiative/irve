@@ -1,4 +1,4 @@
-/* irve_interrupt_bringup.c
+/* irve_interrupt_bringup.cpp
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *

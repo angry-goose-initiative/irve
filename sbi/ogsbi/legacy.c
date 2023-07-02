@@ -60,7 +60,12 @@ long handle_legacy_sbi_smode_ecall(
     switch (EID) {
         case 0x00:
             dputs("LEGACY Function: sbi_set_timer()");
-            assert(false && "TODO implement");//TODO write to mtimecmp
+            uint64_t stime_value = ((uint64_t)a0) | (((uint64_t)a1) << 32);
+            if (!set_timer_and_clear_pending_int(stime_value)) {
+                result = -1;
+            } else {
+                result = 0;
+            }
             break;
         case 0x01:
             dputs("LEGACY Function: sbi_console_putchar()");
@@ -115,7 +120,8 @@ long handle_legacy_sbi_smode_ecall(
             if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;     
             } else {//OGSBI only supports a single hart
-                assert(false && "TODO implement");
+                //TODO be more efficient and only flush the page table entries for the given address range
+                __asm__ volatile ("sfence.vma x0, x0");
                 result = 0;
             }
             break;
@@ -124,7 +130,8 @@ long handle_legacy_sbi_smode_ecall(
             if (virtual_read_word((const unsigned long*)a0) != 0b1) {
                 result = -1;
             } else {//OGSBI only supports a single hart
-                assert(false && "TODO implement");
+                //TODO be more efficient and only flush the page table entries for the given address range and ASID
+                __asm__ volatile ("sfence.vma x0, x0");
                 result = 0;
             }
             break;

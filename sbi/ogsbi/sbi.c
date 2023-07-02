@@ -2,7 +2,6 @@
  * Copyright (C) 2023 John Jekel
  * See the LICENSE file at the root of the project for licensing info.
  *
- *
  * Code to handle "new" SBI calls
  *
 */
@@ -215,7 +214,12 @@ sbiret_t handle_sbi_smode_ecall(
             switch (FID) {
                 case 0:
                     dputs("Function: sbi_set_timer()");
-                    assert(false && "TODO implement");//Write to mtimecmp
+                    uint64_t stime_value = ((uint64_t)a0) | (((uint64_t)a1) << 32);
+                    if (!set_timer_and_clear_pending_int(stime_value)) {
+                        result.error = SBI_ERR_FAILED;
+                    } else {
+                        result.error = SBI_SUCCESS;
+                    }
                     break;
                 default:
                     dputs("Invalid or unsupported Timer Extension function!");

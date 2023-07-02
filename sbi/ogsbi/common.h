@@ -11,7 +11,8 @@
 
 /* Includes */
 
-//TODO
+#include <stdbool.h>
+#include <stdint.h>
 
 /* Constants And Defines */
 
@@ -46,6 +47,6 @@
 
 /* Function/Class Declarations */
 
-//TODO
+bool set_timer_and_clear_pending_int(uint64_t stime_value);//Returns false if there was an error
 
 #endif//COMMON_H

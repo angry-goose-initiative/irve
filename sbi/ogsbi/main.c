@@ -52,9 +52,13 @@ int main(int, const char**) {
 
     //TODO print the reset cause (simply mcause) here
 
+    dputs("Protecting OGSBI's memory...");
+    dputs("TODO");//TODO
+
     dputs("Delegating all interrupts and exceptions properly...");
     __asm__ volatile (//sbi_debug_console_write()
         "li t0, 0b00000000000000001011000100000000\n"//TODO are we sure these are the ones we want to delegate? (user-mode ecall and page fault so far)
+        //"li t0, 0b00000000000000000000000000000000\n"//TESTING for some initial debugging / bringup stuff
         "csrw medeleg, t0\n"
         "li t0, 0b00000000000000000000001000100010\n"//All S-Mode interrupts -> S-Mode, and all M-Mode interrupts -> M-Mode
         "csrw mideleg, t0\n"
@@ -63,10 +67,10 @@ int main(int, const char**) {
         : "t0", "t1"
     );
 
-    //TODO do other initialization stuff here
-
-    dputs("Protecting OGSBI's memory...");
+    dputs("Clearing mip and enabling interrupts...");
     dputs("TODO");//TODO
+
+    //TODO do other initialization stuff here
 
     dputs("Jumping to the kernel, cya later!");
     jump2linux(HART_ID, DTB_ADDR, KERNEL_ADDR);//Never returns

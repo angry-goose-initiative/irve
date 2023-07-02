@@ -22,6 +22,7 @@ set(OGSBI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/other_exceptions.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sbi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/timers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual.S
 )
 
