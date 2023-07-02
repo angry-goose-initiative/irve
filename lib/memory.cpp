@@ -106,7 +106,8 @@ using namespace irve::internal;
 // Access types
 #define AT_INSTRUCTION  0
 #define AT_LOAD         1
-#define AT_STORE        2
+//2 is Reserved
+#define AT_STORE        3
 
 #define PAGE_FAULT_BASE 12
 
