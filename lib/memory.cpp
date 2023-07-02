@@ -93,9 +93,9 @@ using namespace irve::internal;
 #define ACCESS_NOT_ALLOWED  ((access_type == AT_INSTRUCTION) && (pte_X != 1)) || \
                             /* Access is a store but the page is not marked as writable */ \
                             ((access_type == AT_STORE) && (pte_W != 1)) || \
-                            /* Access is a load but the page is either not marked as readable or the \
-                               page is marked as exectuable but executable pages cannot be read */ \
-                            ((access_type == AT_LOAD) && ((pte_R != 1) || ((pte_X == 1) && (mstatus_MXR == 0)))) || \
+                            /* Access is a load but the page is either not marked as readable or mstatus.MXR is set \
+                               but the page isn't marked as executable */ \
+                            ((access_type == AT_LOAD) && ((pte_R != 1) && ((mstatus_MXR == 0) || (pte_X == 0)))) || \
                             /* Either the current privilege mode is S or the effective privilege mode is S with \
                                the access being a load or a store (not an instruction) and S-mode can't access \
                                U-mode pages and the page is markes as accessible in U-mode */ \
