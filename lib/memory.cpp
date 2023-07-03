@@ -126,66 +126,85 @@ memory::pmemory_t::~pmemory_t() {
     }
 }
 
-uint8_t memory::pmemory_t::read_byte(uint64_t addr) const {
+uint8_t memory::pmemory_t::read_byte(uint64_t addr, access_status_t &access_status) const {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
-    //TODO add mtime and mtimecmp registers
 
-    if (addr >= RAMSIZE) {
-        invoke_rv_exception(LOAD_ACCESS_FAULT);
+    // PMP check for reading from memory
+    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+        // RAM
+        access_status = AS_OKAY;
+        return this->m_ram[addr];
+    }
+    else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
+        // MMCSR
+        access_status = AS_OKAY;
+        assert(false && "This region isn't implemented yet"); // TODO
+        return 0;
+    }
+    else {
+        // Unreadable portion of memory
+        access_status = AS_VIOLATES_PMP;
+        return 0;
     }
 
-    //TODO add MMIO devices that provide data as things progress
-    
-    return this->m_ram[addr];
+    assert(false && "Should never reach here");
+    return 0;
 }
 
 void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
-    try {
-        check_writable_byte(addr);
+    assert((check_writable_byte(addr) == AS_OKAY) && "Call check_writable_byte() first!");
+
+    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+        // RAM
+        this->m_ram[addr] = data;
     }
-    catch(...) {
-        assert(false && "Call check_writable_byte() first!");
+    else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
+        // MMCSR
+        assert(false && "This region isn't implemented yet"); // TODO
     }
-
-    //TODO add mtime and mtimecmp registers
-
-    //TODO other MMIO devices
-
-    switch (addr) {
-        case DEBUGADDR:
-            //End of line; print the debug string
-            if (data == '\n') {
-                irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
-                this->m_debugstr.clear();
-            }
-            else if (data == '\0') {
-                irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
-                this->m_debugstr.clear();
-            }
-            else {
-                this->m_debugstr.push_back((char)data);
-            }
-            break;
-        default:
-            // Not MMIO
-            this->m_ram[addr] = data;
-            break;
+    else if(addr == MEM_MAP_ADDR_DEBUG) {
+        // Debug output
+        if (data == '\n') {
+            // End of line; print the debug string
+            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+            this->m_debugstr.clear();
+        }
+        else if (data == '\0') {
+            // Null terminator; print the debug string
+            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
+            this->m_debugstr.clear();
+        }
+        else {
+            this->m_debugstr.push_back((char)data);
+        }
     }
 }
 
-void memory::pmemory_t::check_writable_byte(uint64_t addr) {
+access_status_t memory::pmemory_t::check_writable_byte(uint64_t addr) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
-    switch (addr) {
-        case DEBUGADDR:
-            break;
-        default:
-            // Not MMIO
-            if (addr >= RAMSIZE) {
-                invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
-            }
-            break;
+
+    // PMP check for writing to memory
+    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+        // RAM
+        return AS_OKAY;
     }
+    else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
+        // MMCSR
+        assert(false && "This region isn't implemented yet"); // TODO
+        return AS_OKAY;
+    }
+    else if(addr == MEM_MAP_ADDR_DEBUG) {
+        // Debug output
+        return AS_OKAY;
+    }
+    else {
+        // Unwritable portion of memory
+        return AS_VIOLATES_PMP;
+    }
+
+    assert(false && "Should never reach here");
+    return AS_OKAY;
 }
 
 /* `memory_t` Function Implementations */
@@ -199,23 +218,25 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
 memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_mem(),
         m_CSR_ref(CSR_ref) {
-    try {
-        load_memory_image_files(imagec, imagev);
-    }
-    catch(...) {
-        // TODO make this more descriptive?
+    image_load_status_t load_status;
+    load_status = load_memory_image_files(imagec, imagev);
+    if(load_status == IL_FAIL) {
         throw std::exception();
     }
     irvelog(1, "Created new Memory instance");
 }
 
 word_t memory::memory_t::instruction(word_t addr) const {
+    access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
-    word_t data = read_physical(machine_addr, DT_WORD);
+    word_t data = read_physical(machine_addr, DT_WORD, access_status);
 
-    // Throw an exception if the PC is not aligned to a word boundary
-    if ((machine_addr % 4) != 0) {
+    if((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
+        invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
+    }
+
+    if(access_status == AS_MISALIGNED) {
         invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
     }
 
@@ -226,17 +247,37 @@ word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
     assert((data_type <= 0b111) && "Invalid funct3");
     assert((data_type != 0b110) && "Invalid funct3");
 
+    access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_LOAD);
 
-    return read_physical(machine_addr, data_type);
+    word_t data = read_physical(machine_addr, data_type, access_status);
+
+    if((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
+        invoke_rv_exception(LOAD_ACCESS_FAULT);
+    }
+
+    if(access_status == AS_MISALIGNED) {
+        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+    }
+
+    return data;
 }
 
 void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
     assert((data_type <= 0b010) && "Invalid funct3");
 
+    access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_STORE);
 
-    write_physical(machine_addr, data_type, data);
+    write_physical(machine_addr, data_type, data, access_status);
+
+    if((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
+        invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+    }
+
+    if(access_status == AS_MISALIGNED) {
+        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+    }
 }
 
 uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
@@ -245,6 +286,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         return (uint64_t)untranslated_addr.u;
     }
     irvelog(1, "Translating address");
+
+    access_status_t access_status;
 
     // The untranslated address is a virtual address
     word_t va = untranslated_addr;
@@ -266,10 +309,24 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     while(1) {
         // STEP 2
         pte_addr = a + (va_VPN(i) * 4);
-        // This access may raise an access-fault exception
-        // TODO ensure this exeption corresponds to the original access type
         irvelog(2, "Accessing level %d pte at level at address 0x%09X", i, pte_addr);
-        pte = read_physical(pte_addr, DT_WORD);
+        pte = read_physical(pte_addr, DT_WORD, access_status);
+        if(access_status != AS_OKAY) {
+            irvelog(2, "Accessing the pte violated a PMA or PMP check, raising an access fault exception");
+            switch(access_type) {
+                case AT_INSTRUCTION:
+                    invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
+                    break;
+                case AT_LOAD:
+                    invoke_rv_exception(LOAD_ACCESS_FAULT);
+                    break;
+                case AT_STORE:
+                    invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+                    break;
+                default:
+                    assert(false && "Should never get here");
+            }
+        }
         irvelog(2, "pte found = 0x%08X", pte.u);
 
         assert(pte_G == 0 && "Global bit was set by software (but we haven't implemented it)");
@@ -350,14 +407,18 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
     assert(false && "Should never get here");
 }
 
-word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
+word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type, access_status_t &access_status) const {
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)(spow(2, data_type & DATA_WIDTH_MASK) - 1);
 
     word_t data = 0;
 
     for(; byte > -1; --byte) {
-        data |= this->m_mem.read_byte(addr + byte) << (byte * 8);
+        data |= this->m_mem.read_byte(addr + byte, access_status) << (byte * 8);
+    }
+
+    if(access_status != AS_OKAY) {
+        return word_t(0);
     }
 
     // Perform sign extension if necessary
@@ -373,23 +434,28 @@ word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type) const {
     // priority over misaligned faults
     if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
         // Misaligned halfword read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+        access_status = AS_MISALIGNED;
+        return word_t(0);
     }
     else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
         // Misaligned word read
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+        access_status = AS_MISALIGNED;
+        return word_t(0);
     }
 
     return data;
 }
 
-void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t data) {
+void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t data, access_status_t &access_status) {
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)spow(2, data_type & DATA_WIDTH_MASK);
 
     // Check that all bytes are writable before any byte is written to
     for(int i = 0; i<byte; ++i) {
-        this->m_mem.check_writable_byte(addr + i);
+        access_status = this->m_mem.check_writable_byte(addr + i);
+        if(access_status != AS_OKAY) {
+            return;
+        }
     }
 
     // Check for misaligned access
@@ -410,7 +476,7 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
     }
 }
 
-void memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
+image_load_status_t memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
 
     // Load each memory file
     for(int i = 0; i < imagec; ++i) {
@@ -419,15 +485,20 @@ void memory::memory_t::load_memory_image_files(int imagec, const char* const* im
             path = TESTFILES_DIR + path;
         }
         irvelog_always(0, "Loading memory image from file \"%s\"", path.c_str());
+        image_load_status_t load_status;
         if (path.find(".vhex8")) {
-            load_verilog_8(path);
+            load_status = load_verilog_8(path);
         } else {//Assume it's a 32-bit verilog file
-            load_verilog_32(path);
+            load_status = load_verilog_32(path);
+        }
+        if(load_status == IL_FAIL) {
+            return IL_FAIL;
         }
     }
+    return IL_OKAY;
 }
 
-void memory::memory_t::load_verilog_8(std::string image_path) {
+image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     assert(fin && "Failed to open memory image file");
 
@@ -448,13 +519,18 @@ void memory::memory_t::load_verilog_8(std::string image_path) {
             word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
 
             // Write the data word to memory and increment the address to the next word
-            write_physical(addr, DT_BYTE, data_word);
+            access_status_t access_status;
+            write_physical(addr, DT_BYTE, data_word, access_status);
+            if(access_status != AS_OKAY) {
+                return IL_FAIL;
+            }
             ++addr;
         }
     }
+    return IL_OKAY;
 }
 
-void memory::memory_t::load_verilog_32(std::string image_path) {
+image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     assert(fin && "Failed to open memory image file");
 
@@ -478,8 +554,13 @@ void memory::memory_t::load_verilog_32(std::string image_path) {
             word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
 
             // Write the data word to memory and increment the address to the next word
-            write_physical(addr, DT_WORD, data_word);
+            access_status_t access_status;
+            write_physical(addr, DT_WORD, data_word, access_status);
+            if(access_status != AS_OKAY) {
+                return IL_FAIL;
+            }
             addr += 4;
         }
     }
+    return IL_OKAY;
 }

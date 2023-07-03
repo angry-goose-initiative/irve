@@ -25,11 +25,11 @@ int test_memory_memory_t_valid_debugaddr() {//None of these should throw an exce
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    memory.store(DEBUGADDR, 0b000, 'I');
-    memory.store(DEBUGADDR, 0b000, 'R');
-    memory.store(DEBUGADDR, 0b000, 'V');
-    memory.store(DEBUGADDR, 0b000, 'E');
-    memory.store(DEBUGADDR, 0b000, '\n');
+    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'I');
+    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'R');
+    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'V');
+    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'E');
+    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, '\n');
 
     return 0;
 }
@@ -96,7 +96,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
 
     //Invalid accesses at the debug address (some are also misaligned)
     try {
-        memory.load(DEBUGADDR, 0b000);
+        memory.load(MEM_MAP_ADDR_DEBUG, 0b000);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -104,7 +104,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.load(DEBUGADDR, 0b100);
+        memory.load(MEM_MAP_ADDR_DEBUG, 0b100);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -112,7 +112,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.load(DEBUGADDR, 0b001);
+        memory.load(MEM_MAP_ADDR_DEBUG, 0b001);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -122,7 +122,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.store(DEBUGADDR, 0b001, 54321);
+        memory.store(MEM_MAP_ADDR_DEBUG, 0b001, 54321);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -132,7 +132,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.load(DEBUGADDR, 0b101);
+        memory.load(MEM_MAP_ADDR_DEBUG, 0b101);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -142,7 +142,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.load(DEBUGADDR, 0b010);
+        memory.load(MEM_MAP_ADDR_DEBUG, 0b010);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -152,7 +152,7 @@ int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
     }
 
     try {
-        memory.store(DEBUGADDR, 0b010, 0xABCDEF01);
+        memory.store(MEM_MAP_ADDR_DEBUG, 0b010, 0xABCDEF01);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
         //This should throw an exception of type rvexception_t
@@ -267,53 +267,52 @@ int test_memory_memory_t_invalid_unmappedaddrs_misaligned_words() {
 int test_memory_pmemory_t_valid_debugaddr() {//None of these should throw an exception
     memory::pmemory_t pmemory;
 
-    pmemory.write_byte(DEBUGADDR, 'I');
-    pmemory.write_byte(DEBUGADDR, 'R');
-    pmemory.write_byte(DEBUGADDR, 'V');
-    pmemory.write_byte(DEBUGADDR, 'E');
-    pmemory.write_byte(DEBUGADDR, '\n');
+    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'I');
+    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'R');
+    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'V');
+    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'E');
+    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, '\n');
 
     return 0;
 }
 
-int test_memory_pmemory_t_valid_ramaddrs() {//None of these should throw an exception
+int test_memory_pmemory_t_valid_ramaddrs() {//None of these should fail
     memory::pmemory_t pmemory;
+    access_status_t access_status;
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
         pmemory.write_byte(i, (uint8_t)(i * 123));
     }
 
     for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        assert(pmemory.read_byte(i) == (uint8_t)(i * 123));
+        assert(pmemory.read_byte(i, access_status) == (uint8_t)(i * 123));
+        assert(access_status == AS_OKAY);
     }
 
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_debugaddr() {//This should throw an exception
+int test_memory_pmemory_t_invalid_debugaddr() {//This should fail
     memory::pmemory_t pmemory;
+    access_status_t access_status;
 
-    try {
-        pmemory.read_byte(DEBUGADDR);
-        assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+    pmemory.read_byte(MEM_MAP_ADDR_DEBUG, access_status);
+    
+    if(access_status == AS_OKAY) {
+        return 1;
     }
 
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_reads() {//These should fail
     memory::pmemory_t pmemory;
+    access_status_t access_status;
 
-    for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
-        try {
-            pmemory.read_byte(i);
-            assert(false);
-        } catch (const rvexception::rvexception_t& e) {
-            //This should throw an exception of type rvexception_t
-            assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+    for (uint32_t i = RAMSIZE; i < MEM_MAP_ADDR_DEBUG; i += 7919) {//Way too slow to do every byte (choose a prime number)
+        pmemory.read_byte(i, access_status);
+        if(access_status == AS_OKAY) {
+            return 1;
         }
 
         if ((i + 7919) < i) {//Overflow, thus end of test
@@ -324,17 +323,12 @@ int test_memory_pmemory_t_invalid_ram_reads() {//These should throw exceptions
     return 0;
 }
 
-int test_memory_pmemory_t_invalid_ram_writes() {//These should throw exceptions
+int test_memory_pmemory_t_invalid_ram_writes() {//These should fail
     memory::pmemory_t pmemory;
 
-    for (uint32_t i = RAMSIZE; i < DEBUGADDR; i += 7919) {//Way too slow to do every byte (choose a prime number)
-        try {
-            pmemory.check_writable_byte(i);
-            assert(false);
-            pmemory.write_byte(i, 0xA5);
-        } catch (const rvexception::rvexception_t& e) {
-            //This should throw an exception of type rvexception_t
-            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+    for (uint32_t i = RAMSIZE; i < MEM_MAP_ADDR_DEBUG; i += 7919) {//Way too slow to do every byte (choose a prime number)
+        if(pmemory.check_writable_byte(i) == AS_OKAY) {
+            return 1;
         }
 
         if ((i + 7919) < i) {//Overflow, thus end of test
