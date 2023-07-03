@@ -409,6 +409,8 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
 }
 
 word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type, access_status_t &access_status) const {
+    access_status = AS_OKAY; // Set here to avoid uninitialized warning
+
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)(spow(2, data_type & DATA_WIDTH_MASK) - 1);
 
