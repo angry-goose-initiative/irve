@@ -114,6 +114,7 @@ add_rvsw_smode_parse_test(software_floating_point_fun src/single_file/c/software
 add_rvsw_smode_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_smode_parse_test(hello_cxx src/single_file/cxx/hello_cxx_smode)
 add_rvsw_smode_parse_test(irve_vm_bringup src/single_file/cxx/irve_vm_bringup_smode)
+add_rvsw_smode_parse_test(morevm_smode src/single_file/cxx/morevm_smode)
 
 #Ones from cppreference
 #M-mode
