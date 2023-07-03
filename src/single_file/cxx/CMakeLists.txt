@@ -40,5 +40,6 @@ add_cxx_target(irve_interrupt_bringup ${CMAKE_CURRENT_SOURCE_DIR}/irve_interrupt
 add_smode_cxx_target(cxx_experiments ${CMAKE_CURRENT_SOURCE_DIR}/cxx_experiments.cpp)
 add_smode_cxx_target(hello_cxx ${CMAKE_CURRENT_SOURCE_DIR}/hello_cxx.cpp)
 add_smode_cxx_target(irve_vm_bringup ${CMAKE_CURRENT_SOURCE_DIR}/irve_vm_bringup.cpp)
+add_smode_cxx_target(morevm ${CMAKE_CURRENT_SOURCE_DIR}/morevm.cpp)
 
 add_subdirectory(cppreference)

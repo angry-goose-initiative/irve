@@ -16,7 +16,7 @@
 
 /* Static Variables */
 
-uint32_t root_page_table[1024] __attribute__((aligned(4096)));
+volatile uint32_t root_page_table[1024] __attribute__((aligned(4096)));
 
 /* Static Function Declarations */
 
@@ -52,7 +52,7 @@ static void setup_page_table() {
     //std::memset(root_page_table, 0, sizeof(root_page_table));
 
     //Just map all of memory to itself (pseudo-Bare mode)
-    for (uint32_t i = 0; i < 1024; i++) {
+    for (uint32_t i = 0; i < 1024; ++i) {
         //0x000000CF means R/W/X and valid (0xF), and Dirty + Accessed (0xC)
         //R/W/X and valid is self-explanatory
         //Dirty and Accessed is just to make sure we don't get any page faults (since the hardware cause
@@ -65,7 +65,7 @@ static void setup_page_table() {
 }
 
 static void enable_paging() {
-    uint32_t new_satp = 0x80000000 | (((uint32_t)root_page_table) >> 12);//ASID of 1 too
+    uint32_t new_satp = 0x80000000 | (((uint32_t)root_page_table) >> 12);//ASID of 0 too
     std::cout << "new_satp: " << std::hex << new_satp << std::dec << std::endl;
 
     __asm__ volatile (
@@ -73,7 +73,7 @@ static void enable_paging() {
         : /* No destination registers */
         : [rs1] "r" (new_satp)
         : /* No clobbered registers */
-    ); \
+    );
 
     __asm__ volatile ("sfence.vma x0, x0");
 }
