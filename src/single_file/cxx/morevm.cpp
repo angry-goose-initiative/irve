@@ -35,6 +35,7 @@ volatile struct {
 static void setup_paging();
 static void switch_to_partial_two_level_paging();
 static void swap_around_pages_abcd();
+static void make_everything_a();
 static std::pair<uint16_t, uint16_t> get_ppn_containing(volatile void* addr);
 
 /* Function Implementations */
@@ -88,15 +89,62 @@ int main(int, const char**) {
     swap_around_pages_abcd();
     std::cout << "Done!" << std::endl;
 
-    std::cout << "Finally, were the pages swapped correctly?" << std::endl;
+    std::cout << "Were the pages swapped correctly?" << std::endl;
     std::srand(seed);
     for (uint32_t i = 0; i < 4096; ++i) {
         uint32_t random_word = std::rand();
         //Trying to access a will give us b, b will give us c, c will give us d, and d will give us a
+        //This is despite the fact that the addresses haven't changed at all!
         assert(page.d[i] == (random_word & 0xFF));
         assert(page.a[i] == ((random_word >> 8) & 0xFF));
         assert(page.b[i] == ((random_word >> 16) & 0xFF));
         assert(page.c[i] == ((random_word >> 24) & 0xFF));
+    }
+    std::cout << "Yep!" << std::endl;
+
+    std::cout << "Let's make everything point to page a" << std::endl;
+    make_everything_a();
+    std::cout << "Done!" << std::endl;
+
+    std::cout << "Did that work?" << std::endl;
+    std::srand(seed);
+    for (uint32_t i = 0; i < 4096; ++i) {
+        uint32_t random_word = std::rand();
+        assert(page.a[i] == (random_word & 0xFF));
+        assert(page.b[i] == (random_word & 0xFF));
+        assert(page.c[i] == (random_word & 0xFF));
+        assert(page.d[i] == (random_word & 0xFF));
+    }
+    std::cout << "Yep!" << std::endl;
+
+    uint32_t new_seed = seed * 1234;
+    std::cout << "Overwriting page.c, which actually points to page a, with a new seed (0x" << std::hex << new_seed << std::dec << ")" << std::endl;
+    std::cout << "This also checks that, even though page.a is mapped as read only, since page.c is mapped RW, we can still write to it" << std::endl;
+    std::srand(new_seed);
+    for (uint32_t i = 0; i < 4096; ++i) {
+        uint32_t random_word = std::rand();
+        page.c[i] = random_word & 0xFF;
+    }
+    std::cout << "Done!" << std::endl;
+
+    std::cout << "Disabling paging" << std::endl;
+    __asm__ volatile ("csrw satp, zero");
+    __asm__ volatile ("sfence.vma");
+    std::cout << "Done!" << std::endl;
+
+    std::cout << "Ensuring that only page.a was overwritten, and all the other pages contain their original initialized contents" << std::endl;
+    std::srand(seed);
+    for (uint32_t i = 0; i < 4096; ++i) {
+        uint32_t random_word = std::rand();
+        //Not checking a yet since it was changed
+        assert(page.b[i] == ((random_word >> 8) & 0xFF));
+        assert(page.c[i] == ((random_word >> 16) & 0xFF));
+        assert(page.d[i] == ((random_word >> 24) & 0xFF));
+    }
+    std::srand(new_seed);
+    for (uint32_t i = 0; i < 4096; ++i) {
+        uint32_t random_word = std::rand();
+        assert(page.a[i] == (random_word & 0xFF));
     }
     std::cout << "Yep!" << std::endl;
 
@@ -188,6 +236,28 @@ static void swap_around_pages_abcd() {
     one_second_level_page_table[ppn_a.second] = (common_ppn1 << 20) | (ppn_b.second << 10) | 0x00000043;
     one_second_level_page_table[ppn_b.second] = (common_ppn1 << 20) | (ppn_c.second << 10) | 0x00000043;
     one_second_level_page_table[ppn_c.second] = (common_ppn1 << 20) | (ppn_d.second << 10) | 0x00000043;
+    one_second_level_page_table[ppn_d.second] = (common_ppn1 << 20) | (ppn_a.second << 10) | 0x00000043;
+
+    //After changing the page tables, we need to flush the TLB
+    __asm__ volatile ("sfence.vma x0, x0");
+}
+
+static void make_everything_a() {
+    auto ppn_a = get_ppn_containing(&page.a);
+    auto ppn_b = get_ppn_containing(&page.b);
+    auto ppn_c = get_ppn_containing(&page.c);
+    auto ppn_d = get_ppn_containing(&page.d);
+
+    //These should be guaranteed to be the same based on how we specified the alignment in the struct definition
+    assert(ppn_a.first == ppn_b.first);
+    assert(ppn_b.first == ppn_c.first);
+    assert(ppn_c.first == ppn_d.first);
+    uint32_t common_ppn1 = ppn_a.first;
+
+    //All of these pages are in the same superpage. We simply make ppn0 for all of them point to a
+    one_second_level_page_table[ppn_a.second] = (common_ppn1 << 20) | (ppn_a.second << 10) | 0x00000043;
+    one_second_level_page_table[ppn_b.second] = (common_ppn1 << 20) | (ppn_a.second << 10) | 0x00000043;
+    one_second_level_page_table[ppn_c.second] = (common_ppn1 << 20) | (ppn_a.second << 10) | 0x000000C7;//Make page.c writable and mark it as already dirty
     one_second_level_page_table[ppn_d.second] = (common_ppn1 << 20) | (ppn_a.second << 10) | 0x00000043;
 
     //After changing the page tables, we need to flush the TLB

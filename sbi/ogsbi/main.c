@@ -72,6 +72,15 @@ int main(int, const char**) {
 
     //TODO do other initialization stuff here
 
+    //Set stvec to point to just after the kernel entry point
+    //This is mostly to help out "nice" linker scripts that put the vector table right after the reset section
+    __asm__ volatile (
+        "csrw stvec, %[ADDR]\n"
+        : /* No output registers */
+        : [ADDR] "r" (KERNEL_ADDR + 4)//Just after the kernel entry point
+        : /* No clobbered registers */
+    );
+
     dputs("Jumping to the kernel, cya later!");
     jump2linux(HART_ID, DTB_ADDR, KERNEL_ADDR);//Never returns
 
