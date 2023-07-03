@@ -148,6 +148,7 @@ uint8_t memory::pmemory_t::read_byte(uint64_t addr, access_status_t &access_stat
     }
 
     assert(false && "Should never reach here");
+    access_status = AS_OKAY;
     return 0;
 }
 
