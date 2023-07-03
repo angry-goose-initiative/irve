@@ -130,7 +130,7 @@ uint8_t memory::pmemory_t::read_byte(uint64_t addr, access_status_t &access_stat
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
 
     // PMP check for reading from memory
-    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+    if(/*(addr >= MEM_MAP_REGION_START_RAM) && */(addr <= MEM_MAP_REGION_END_RAM)) {
         // RAM
         access_status = AS_OKAY;
         return this->m_ram[addr];
@@ -155,7 +155,7 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
     assert((check_writable_byte(addr) == AS_OKAY) && "Call check_writable_byte() first!");
 
-    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+    if(/*(addr >= MEM_MAP_REGION_START_RAM) && */(addr <= MEM_MAP_REGION_END_RAM)) {
         // RAM
         this->m_ram[addr] = data;
     }
@@ -185,7 +185,7 @@ access_status_t memory::pmemory_t::check_writable_byte(uint64_t addr) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
 
     // PMP check for writing to memory
-    if((addr >= MEM_MAP_REGION_START_RAM) && (addr <= MEM_MAP_REGION_END_RAM)) {
+    if(/*(addr >= MEM_MAP_REGION_START_RAM) && */(addr <= MEM_MAP_REGION_END_RAM)) {
         // RAM
         return AS_OKAY;
     }
