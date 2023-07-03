@@ -17,11 +17,12 @@
 #include <memory>
 
 #include "common.h"
+#include "memory_map.h"
 #include "CSR.h"
 
 /* Constants And Defines */
 
-//TODO put these into a namespace as regular C++ constants
+// TODO put these into a namespace as regular C++ constants
 
 // TODO determine which defines should be in the source file instead
 
@@ -31,19 +32,6 @@
 
 // Emulator memory size is 64 MiB
 #define RAMSIZE         0x04000000
-
-// TODO move these to a new memory map file
-#define MEM_MAP_REGION_START_RAM    0x00000000
-#define MEM_MAP_REGION_END_RAM      0x03FFFFFF
-#define MEM_MAP_REGION_START_MMCSR  0xFFFFFFE0
-#define MEM_MAP_ADDR_MTIME          0xFFFFFFE0
-#define MEM_MAP_ADDR_MTIMEH         0xFFFFFFE4
-#define MEM_MAP_ADDR_MTIMECMP       0xFFFFFFE8
-#define MEM_MAP_ADDR_MTIMECMPH      0xFFFFFFEC
-#define MEM_MAP_REGION_END_MMCSR    0xFFFFFFEF
-// RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
-// when a newline is encountered)
-#define MEM_MAP_ADDR_DEBUG          0xFFFFFFFF
 
 /* Types */
 
@@ -93,6 +81,7 @@ namespace irve::internal::memory {
          * @brief Write a byte to memory
          * @param addr 34 bit machine address
          * @param data The data to be written
+         * 
          * This function does NOT raise exceptions if the byte is not writable. To verify that the
          * byte is writable, `check_writable_byte` should always be called first.
         */
@@ -102,7 +91,8 @@ namespace irve::internal::memory {
          * @brief Check if a byte is writable
          * @param addr 34 bit machine address
          * @return the status of the access
-         * @note This function should always be used to check that a byte is writable before
+         * 
+         * This function should always be used to check that a byte is writable before
          * writing to the byte since `write_byte` assumes the byte is writable. Note that this only
          * checks if the byte is physically writable; privilege level checks and so on are handled
          * elsewhere.
@@ -138,8 +128,8 @@ namespace irve::internal::memory {
 
         /**
          * @brief The constructor
-         * @param imagec The number of memory images plus 1 (comes directly from argc in main)
-         * @param imagev Vector of image files (comes directly from argv in main)
+         * @param imagec The number of memory images
+         * @param imagev Vector of image files
          * @param CSR_ref A reference to the CSRs
         */
         memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
@@ -195,7 +185,8 @@ namespace irve::internal::memory {
          *                  signed/unsigned
          * @return 32 bit version of data that was read
         */
-        word_t read_physical(uint64_t addr, uint8_t data_type, access_status_t &access_status) const;
+        word_t read_physical(uint64_t addr, uint8_t data_type, access_status_t
+                             &access_status) const;
 
         /**
          * @brief Write data to memory
@@ -204,7 +195,8 @@ namespace irve::internal::memory {
          *                  signed/unsigned
          * @param data The data to be written to memory
         */
-        void write_physical(uint64_t addr, uint8_t data_type, word_t data, access_status_t &access_status);
+        void write_physical(uint64_t addr, uint8_t data_type, word_t data,
+                            access_status_t &access_status);
 
         /**
          * @brief Loads memory image files (only called by the constructor)

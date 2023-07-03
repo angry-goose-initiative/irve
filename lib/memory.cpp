@@ -86,7 +86,7 @@ using namespace irve::internal;
 #define pte_V           pte.bit(0).u
 
 // The current privilege mode
-#define CURR_PMODE      m_CSR_ref.get_privilege_mode()    
+#define CURR_PMODE      m_CSR_ref.get_privilege_mode()
 
 // The page cannot be accessed if one of the following conditions is met:
                             /* Fetching an instruction but the page is not marked as executable */
@@ -122,7 +122,8 @@ memory::pmemory_t::pmemory_t():
 
 memory::pmemory_t::~pmemory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+                                this->m_debugstr.c_str());
     }
 }
 
@@ -168,12 +169,14 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
         // Debug output
         if (data == '\n') {
             // End of line; print the debug string
-            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
+                                    this->m_debugstr.c_str());
             this->m_debugstr.clear();
         }
         else if (data == '\0') {
             // Null terminator; print the debug string
-            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
+            irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"",
+                                    this->m_debugstr.c_str());
             this->m_debugstr.clear();
         }
         else {
@@ -313,7 +316,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
         irvelog(2, "Accessing level %d pte at level at address 0x%09X", i, pte_addr);
         pte = read_physical(pte_addr, DT_WORD, access_status);
         if(access_status != AS_OKAY) {
-            irvelog(2, "Accessing the pte violated a PMA or PMP check, raising an access fault exception");
+            irvelog(2, "Accessing the pte violated a PMA or PMP check, raising an access fault    \
+                        exception");
             switch(access_type) {
                 case AT_INSTRUCTION:
                     invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
@@ -334,7 +338,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
 
         // STEP 3
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
-            irvelog(2, "The pte is not valid or the page is writable and not readable, raising exception");
+            irvelog(2, "The pte is not valid or the page is writable and not readable, raising    \
+                        exception");
             invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
         }
 
@@ -347,7 +352,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
             a = pte_PPN * PAGESIZE;
             --i;
             if(i < 0) {
-                irvelog(2, "Leaf pte not found at the second level of the page table, raising exception");
+                irvelog(2, "Leaf pte not found at the second level of the page table, raising     \
+                            exception");
                 invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
             }
         }
@@ -368,7 +374,8 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
 
     // STEP 7
     if((pte_A == 0) || ((access_type == AT_STORE) && (pte_D == 0))) {
-        irvelog(2, "Accessed bit not set or operation is a store and the dirty bit is not set, raising exception");
+        irvelog(2, "Accessed bit not set or operation is a store and the dirty bit is not set,    \
+                    raising exception");
         invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
     }
 
@@ -408,7 +415,8 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
     assert(false && "Should never get here");
 }
 
-word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type, access_status_t &access_status) const {
+word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type, access_status_t
+                                       &access_status) const {
     access_status = AS_OKAY; // Set here to avoid uninitialized warning
 
     // 2^(funct3[1:0]) is the number of bytes
@@ -449,7 +457,8 @@ word_t memory::memory_t::read_physical(uint64_t addr, uint8_t data_type, access_
     return data;
 }
 
-void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t data, access_status_t &access_status) {
+void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t data,
+                                      access_status_t &access_status) {
     // 2^(funct3[1:0]) is the number of bytes
     int8_t byte = (int8_t)spow(2, data_type & DATA_WIDTH_MASK);
 
@@ -462,8 +471,8 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
     }
 
     // Check for misaligned access
-    // Note that this happens AFTER checking for writability to physical memory because access faults take priority
-    // over misaligned faults
+    // Note that this happens AFTER checking for writability to physical memory because access
+    // faults take priority over misaligned faults
     if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
         // Misaligned halfword write
         invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
@@ -512,11 +521,13 @@ image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
         assert((token.length() != 0) && "This should never happen");
         if (token.at(0) == '@') { // `@` indicates a new address (ASSUMING 32-BIT WORDS)
             std::string new_addr_str = token.substr(1);
-            assert((new_addr_str.length() == 8) && "Memory image file is not formatted correctly (bad address)");
+            assert((new_addr_str.length() == 8) &&
+                    "Memory image file is not formatted correctly (bad address)");
             addr = std::stoul(new_addr_str, nullptr, 16);
         }
         else { // New data word (32-bit, could be an instruction or data)
-            assert((token.length() == 2) && "Memory image file is not formatted correctly (bad data)");
+            assert((token.length() == 2) &&
+                    "Memory image file is not formatted correctly (bad data)");
             
             // The data word this token represents
             word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
@@ -544,13 +555,16 @@ image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
         assert((token.length() != 0) && "This should never happen");
         if (token.at(0) == '@') { // `@` indicates a new address (ASSUMING 32-BIT WORDS)
             std::string new_addr_str = token.substr(1);
-            assert((new_addr_str.length() == 8) && "Memory image file is not formatted correctly (bad address)");
+            assert((new_addr_str.length() == 8) &&
+                    "Memory image file is not formatted correctly (bad address)");
             addr = std::stoul(new_addr_str, nullptr, 16);
             addr *= 4; // This is a word address, not a byte address, so multiply by 4
         }
         else { // New data word (32-bit, could be an instruction or data)
             if (token.length() != 8) {
-                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long). This is likely an objcopy bug. Continuing anyway...");
+                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data   \
+                            word is not 8 characters long). This is likely an objcopy bug.        \
+                            Continuing anyway...");
             }
             
             // The data word this token represents
