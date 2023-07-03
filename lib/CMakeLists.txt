@@ -31,6 +31,7 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/emulator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/execute.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/fuzzish.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gdbserver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gdbserver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/irve_public_api.cpp
@@ -74,7 +75,13 @@ if (IRVE_RUST)
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_link_libraries(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target/release/libirve_disassemble.a)
     endif()
+    target_link_libraries(libirve_object PRIVATE ${CMAKE_DL_LIBS})
+
     #TODO put the header in an include subdirectory in target perhaps?
     target_include_directories(libirve_object PRIVATE ${PROJECT_BINARY_DIR}/rust/target)#To get access to the Bindgen generated header
     add_dependencies(libirve_object libirve_disassemble)
+endif()
+
+if (IRVE_ASYNC_LOGGING OR IRVE_RUST)
+    target_link_libraries(libirve_object PRIVATE pthread)
 endif()

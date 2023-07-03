@@ -21,10 +21,6 @@
 #include "memory.h"
 #include "gdbserver.h"
 
-#if defined (__APPLE__) && defined (__MACH__)
-//macOS seems to have close() in unistd.h instead
-#include <unistd.h>
-#endif
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -35,6 +31,7 @@
 #include <string>
 #include <variant>
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -199,14 +196,19 @@ static bool client_loop(
         packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
         word_t length = (uint32_t)std::strtol(packet_string.c_str(), nullptr, 16);
 
-        std::string memory_contents;
+        try {
+            std::string memory_contents;
 
-        for (word_t i = 0; i.u < length.u; ++i) {
-            word_t byte = memory.load(address + i, 0b000);
-            memory_contents += byte_2_string(byte.bits( 7,  0).u);
+            for (word_t i = 0; i.u < length.u; ++i) {
+                word_t byte = memory.load(address + i, 0b000);
+                memory_contents += byte_2_string(byte.bits( 7,  0).u);
+            }
+
+            send_packet(connection_file_descriptor, memory_contents);
+        } catch (const rvexception::rvexception_t& e) {
+            //Let GDB know we failed to read memory
+            send_packet(connection_file_descriptor, "E00");
         }
-
-        send_packet(connection_file_descriptor, memory_contents);
     } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
         packet_string.erase(0, 1);//Remove the 'M' at the beginning
         packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
@@ -215,13 +217,18 @@ static bool client_loop(
         word_t length = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(":")).c_str(), nullptr, 16);//TODO is this correct if the length is > 8 bits?
         packet_string.erase(0, packet_string.find_first_of(":") + 1);//Remove the length
 
-        for (word_t i = 0; i.u < length.u; ++i) {
-            word_t byte = (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
-            packet_string.erase(0, 2);
-            memory.store(address + i, 0b000, byte);
-        }
+        try {
+            for (word_t i = 0; i.u < length.u; ++i) {
+                word_t byte = (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
+                packet_string.erase(0, 2);
+                memory.store(address + i, 0b000, byte);
+            }
 
-        send_packet(connection_file_descriptor, "OK");
+            send_packet(connection_file_descriptor, "OK");
+        } catch (const rvexception::rvexception_t& e) {
+            //Let GDB know we failed to read memory
+            send_packet(connection_file_descriptor, "E00");
+        }
     } else if (!packet_string.empty() && (packet_string.at(0) == 'c')) {//Continue
         assert(false && "TODO");//TODO
     } else if (!packet_string.empty() && (packet_string.at(0) == 'C')) {//Continue (with signal)

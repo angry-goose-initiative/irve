@@ -307,8 +307,8 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
          * @param bit The bit to extract. Must be between 0 and 31 inclusive.
          * @return A word_t containing the bit in the least significant position
         */
-        inline word_t bit(uint8_t bit) const {//TODO should we overload operator()
-            assert((bit < 32) && "Bad argument to bit()");
+        inline word_t bit(word_t bit) const {//TODO should we overload operator()
+            assert((bit.u < 32) && "Bad argument to bit()");
             return this->srl(bit) & 0b1;
         }
 

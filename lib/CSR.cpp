@@ -6,6 +6,11 @@
  *
 */
 
+/* Constants and Defines */
+
+//Only some bits of mstatus are accessible in S-mode
+#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
+
 /* Includes */
 
 #include "CSR.h"
@@ -13,8 +18,11 @@
 #include <cassert>
 #include <chrono>
 #include <cstddef>
+#include <cstdlib>
 
 #include "rvexception.h"
+
+#include "fuzzish.h"
 
 using namespace irve::internal;
 
@@ -26,17 +34,17 @@ CSR::CSR_t::CSR_t() :
     stvec(0),//Only needs to be initialized for implicit_read() guarantees
     scounteren(0),//Only needs to be initialized for implicit_read() guarantees
     senvcfg(0),//Only needs to be initialized for implicit_read() guarantees
-    //sscratch(),//We don't need to initialize this since all states are valid
+    sscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     sepc(0),//Only needs to be initialized for implicit_read() guarantees
     scause(0),//Only needs to be initialized for implicit_read() guarantees
     sip(0),//Only needs to be initialized for implicit_read() guarantees
     satp(0),//Only needs to be initialized for implicit_read() guarantees
-    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value?
+    mstatus(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value??
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
     menvcfg(0),//Only needs to be initialized for implicit_read() guarantees
-    //mscratch(),//We don't need to initialize this since all states are valid
+    mscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
     mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     mip(0),//Only needs to be initialized for implicit_read() guarantees
@@ -70,7 +78,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
     //FIXME workaround MSVC not supporting non-standard case ranges
 
     switch (csr) {
-        case address::SSTATUS:          return this->mstatus;//FIXME only some bits of mstatus are readable from sstatus
+        case address::SSTATUS:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
         case address::SIE:              return this->sie;
         case address::STVEC:            return this->stvec;
         case address::SCOUNTEREN:       return this->scounteren;
@@ -122,10 +130,10 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
 #endif
 
-        case address::MTIME:            return (uint32_t)(this->mtime               & 0xFFFFFFFF);//Custom
-        case address::MTIMEH:           return (uint32_t)((this->mtime      >> 32)  & 0xFFFFFFFF);//Custom
-        case address::MTIMECMP:         return (uint32_t)(this->mtimecmp            & 0xFFFFFFFF);//Custom
-        case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp   >> 32)  & 0xFFFFFFFF);//Custom
+        case address::MTIME:            return (uint32_t)(this->mtime            & 0xFFFFFFFF);//Custom
+        case address::MTIMEH:           return (uint32_t)((this->mtime    >> 32) & 0xFFFFFFFF);//Custom
+        case address::MTIMECMP:         return (uint32_t)(this->mtimecmp         & 0xFFFFFFFF);//Custom
+        case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp >> 32) & 0xFFFFFFFF);//Custom
 
         case address::CYCLE:            return this->implicit_read(address::MCYCLE);
         case address::TIME:             return this->implicit_read(address::MTIME);
@@ -159,26 +167,26 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
 
     //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
-        case address::SSTATUS:          this->mstatus = data; return;//FIXME only some parts of mstatus are writable from sstatus
+        case address::SSTATUS:          this->mstatus = (this->mstatus & ~SSTATUS_MASK) | (data & SSTATUS_MASK); return;//Only some parts of mstatus are writable from sstatus
         case address::SIE:              this->sie = data; return;//FIXME WARL
         case address::STVEC:            this->stvec = data; return;//FIXME WARL
         case address::SCOUNTEREN:       this->scounteren = data; return;//FIXME WARL
-        case address::SENVCFG:          this->senvcfg = data & 0b1; return;//TODO is this correct?
+        case address::SENVCFG:          this->senvcfg = data & 0b1; return;//Only lowest bit is RW
         case address::SSCRATCH:         this->sscratch = data; return;
         case address::SEPC:             this->sepc = data & 0xFFFFFFFC; return;//IALIGN=32
         case address::SCAUSE:           this->scause = data; return;//FIXME WARL
         case address::STVAL:            return;//We simply ignore writes to STVAL, NOT throw an exception
         case address::SIP:              this->sip = data; return;//FIXME WARL
         case address::SATP:             this->satp = data; return;//FIXME WARL
-        case address::MSTATUS:          this->mstatus = data; return;//FIXME WARL
+        case address::MSTATUS:          this->mstatus = data; return;//FIXME WARL (less critical assuming safe M-mode code)
         case address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
-        case address::MEDELEG:          this->medeleg = data; return;//FIXME WARL
-        case address::MIDELEG:          this->mideleg = data; return;//FIXME WARL
-        case address::MIE:              this->mie = data; return;//FIXME WARL
+        case address::MEDELEG:          this->medeleg = data & 0b0000000000000000'1011001111111111; return;//Note it dosn't make sense to delegate ECALL from M-mode since we can never delagte to high levels
+        case address::MIDELEG:          this->mideleg = data & 0b00000000000000000000'1010'1010'1010; return;
+        case address::MIE:              this->mie     = data & 0b00000000000000000000'1010'1010'1010; return;
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;//Only lowest bit is RW
-        case address::MSTATUSH:         return;//We simply ignore writes to MSTATUSH, NOT throw an exception
-        case address::MENVCFGH:         return;//We simply ignore writes to MENVCFGH, NOT throw an exception
-        case address::MCOUNTINHIBIT:    return;//We simply ignore writes to MCOUNTINHIBIT, NOT throw an exception
+        case address::MSTATUSH:         return;//We simply ignore writes to mstatush, NOT throw an exception
+        case address::MENVCFGH:         return;//We simply ignore writes to menvcfgh, NOT throw an exception
+        case address::MCOUNTINHIBIT:    return;//We simply ignore writes to mcountinhibit, NOT throw an exception
 
 #ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
@@ -188,7 +196,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MEPC:             this->mepc      = data & 0xFFFFFFFC;    return;//IALIGN=32
         case address::MCAUSE:           this->mcause    = data;                 return;//FIXME WARL
         case address::MTVAL:                                                    return;//We simply ignore writes to MTVAL, NOT throw an exception
-        case address::MIP:              this->mip       = data;                 return;//FIXME WARL
+        case address::MIP:              this->mip       = data & 0b00000000000000000000'0010'0010'0010; return;//Note ALL interrupt pending bits for M-mode are READ ONLY
 
 #ifndef _MSC_VER//Not on MSVC
         case address::PMPCFG_START  ... address::PMPCFG_END:    this->pmpcfg [csr - address::PMPCFG_START]  = data; return;//FIXME WARL
@@ -211,8 +219,14 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
 
         case address::MTIME:            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
         case address::MTIMEH:           this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
-        case address::MTIMECMP:         this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
-        case address::MTIMECMPH:        this->mtimecmp  = (this->mtimecmp & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
+        case address::MTIMECMP://Custom
+            this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);
+            this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
+            return;
+        case address::MTIMECMPH://Custom
+            this->mtimecmp  = (this->mtimecmp & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);
+            this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
+            return;
 
         default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
@@ -245,7 +259,7 @@ void CSR::CSR_t::update_timer() {
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {
-    //TODO special checks for cycle, instret, time, and hpmcounters
+    //FIXME special checks for cycle, instret, time, and hpmcounters
 
     uint32_t min_privilege_required = (csr >> 8) & 0b11;
     return (uint32_t)(m_privilege_mode) >= min_privilege_required;

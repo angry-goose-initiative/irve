@@ -33,12 +33,19 @@ SECTIONS
     .vector_table : { *(.vector_table*) } > ram
     .text : { *(.text*) } > ram
     .rodata : { *(.rodata*) } > ram
+    ___rvsw_global_pointer___$ = .; /* The global pointer points to the beginning of the SDATA section */
     .sdata : { *(.sdata*) } > ram
     .data : { *(.data*) } > ram
     .bss : {
         ___rvsw_bss_start___ = .;
         *(.bss*)
+        *(.sbss*)/* INCLUDING SBSS HERE TOO IS VITALLY IMPORTANT! */
         ___rvsw_bss_end___ = .;
+    } > ram
+    .init_array : {
+        ___rvsw_init_array_start___ = .;
+        *(.init_array*)
+        ___rvsw_init_array_end___ = .;
     } > ram
 
     /* TODO sections for init and fini array: https://blog.thea.codes/the-most-thoroughly-commented-linker-script/ */
@@ -47,6 +54,4 @@ SECTIONS
         end = .;/* We do this to tell Newlib's default sbrk implementation that here is the end of globals/ the beginning of the heap; see https://github.com/eblot/newlib/blob/master/libgloss/sbrk.c */
         *(.heap*)
     } > ram
-
-    ___rvsw_global_pointer___$ = .; /* The global pointer points to the beginning of the SDATA section */
 }

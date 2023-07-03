@@ -145,3 +145,7 @@ const char* irve::about::get_compile_target_string() {
 const char* irve::about::get_compiler_string() {
     return IRVE_INTERNAL_CONFIG_COMPILER_STRING;
 }
+
+bool irve::about::fuzzish_build() {
+    return IRVE_INTERNAL_CONFIG_FUZZISH == 1;
+}

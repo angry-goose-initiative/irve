@@ -22,7 +22,7 @@
 /* Macros */
 
 #define setup_emulator_with_program(program_name) \
-    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex32"; \
+    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex8"; \
     irve::emulator::emulator_t emulator(1, &file_name_ptr); \
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
@@ -37,6 +37,9 @@ static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator
 int verify_jzjcoresoftware_adding2() {
     //Load adding2 program
     setup_emulator_with_program("adding2");
+
+    //This testcase assumes x31 starts at 0 (it forgot to set it)
+    cpu_state_ref.set_r(31, 0);
 
     //Ensure all the adds are working
     for (uint32_t i = 0; i < 4096; ++i) {
@@ -125,6 +128,9 @@ int verify_jzjcoresoftware_callrettest() {
     setup_emulator_with_program("callrettest");
     uint64_t expected_inst_count = 0;
 
+    //This testcase assumes x31 starts at 0 (it forgot to set it)
+    cpu_state_ref.set_r(31, 0);
+
     //Checks things are as expected
     emulator.tick();//Execute the addi
     assert(emulator.get_inst_count() == ++expected_inst_count);
@@ -155,7 +161,7 @@ int verify_jzjcoresoftware_fenceecalltest() {
     setup_emulator_with_program("fenceecalltest");
     uint64_t expected_inst_count = 0;
     
-    //This verifier assumes the trap vector starts at 0x4
+    //This testcase assumes the trap vector starts at 0x4 (it forgot to set it)
     irve::internal::CSR::CSR_t& CSR_ref = emulator.m_emulator_ptr->m_CSR;
     assert((CSR_ref.implicit_read(irve::internal::CSR::address::MTVEC) & 0xFFFFFFFC) == (0x4 << 2));
 

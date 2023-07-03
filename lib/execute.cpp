@@ -724,7 +724,7 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
         // Target address on branches taken must be aligned on 4 byte boundary
         // (2 byte boundary if supporting compressed instructions)
         if (target_addr.u % 4) {
-            assert(0 && "TODO implement instruction-address-misaligned exception");
+            invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
         }
         else {
             cpu_state.set_pc(target_addr);

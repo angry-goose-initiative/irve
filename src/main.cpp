@@ -36,6 +36,12 @@ int main(int argc, const char* const* argv) {
 
     print_startup_message();
 
+    if (irve::about::fuzzish_build()) {
+        auto seed = time(NULL);
+        srand(seed);
+        irvelog_always(0, "Fuzzish Build: Set seed to %lu", seed);
+    }
+
     irvelog_always(0, "Initializing emulator...");
 
     std::optional<irve::emulator::emulator_t> emulator;

@@ -15,7 +15,14 @@ extern crate bindgen;
 
 fn main() {
     println!("cargo:rustc-link-lib=static=irve");
-    println!("cargo:rustc-link-lib=static=irve_disassemble");
+    
+    //FIXME workaround since we can't tell cargo where the irve_disassembly static library should go
+    match std::env::var("PROFILE").unwrap().as_str() {
+        "debug"   => { println!("cargo:rustc-link-lib=static=irve_disassemble"); }
+        "release" => { println!("cargo:rustc-link-lib=static=irve_disassemble_release"); }
+        _         => { panic!("Unknown build profile"); }
+    }
+
     println!("cargo:rustc-link-lib=stdc++");//TODO will this break if the system only has Clang's libc++ and not GNU's libstdc++?
     println!("cargo:rustc-link-search=./");
 
