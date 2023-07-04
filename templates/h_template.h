@@ -2,7 +2,7 @@
  * @file    TODO.h
  * @brief   TODO
  * 
- * @copyright Copyright (C) TODO John Jekel and Nick Chan
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO longer description
@@ -19,7 +19,7 @@
 //TODO
 
 /* ------------------------------------------------------------------------------------------------
- * Constants and Defines
+ * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
 //TODO
