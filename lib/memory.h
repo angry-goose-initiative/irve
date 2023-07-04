@@ -11,9 +11,18 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+/* Includes */
+
+#include <iostream>
+#include <memory>
+
+#include "common.h"
+#include "memory_map.h"
+#include "CSR.h"
+
 /* Constants And Defines */
 
-//TODO put these into a namespace as regular C++ constants
+// TODO put these into a namespace as regular C++ constants
 
 // TODO determine which defines should be in the source file instead
 
@@ -24,17 +33,19 @@
 // Emulator memory size is 64 MiB
 #define RAMSIZE         0x04000000
 
-// RISC-V code that writes a series of bytes to this address will print them to stdout (flushed
-// when a newline is encountered)
-#define DEBUGADDR       0xFFFFFFFF
+/* Types */
 
-/* Includes */
+typedef enum {
+    AS_OKAY = 0,
+    AS_VIOLATES_PMP = 1,
+    AS_VIOLATES_PMA = 2,
+    AS_MISALIGNED = 3
+} access_status_t;
 
-#include <iostream>
-#include <memory>
-
-#include "common.h"
-#include "CSR.h"
+typedef enum {
+    IL_OKAY,
+    IL_FAIL
+} image_load_status_t;
 
 /* Function/Class Declarations */
 
@@ -59,29 +70,34 @@ namespace irve::internal::memory {
         //TODO if/when we implement PMP, this will need an m_CSR_ref too
 
         /**
-         * @brief Read a byte from memory & throw exception if the byte is not readable
+         * @brief Read a byte from memory
          * @param addr 34 bit machine address
+         * @param access_status the status of the access
          * @return The byte read
         */
-        uint8_t read_byte(uint64_t addr) const;
+        uint8_t read_byte(uint64_t addr, access_status_t &access_status) const;
 
         /**
          * @brief Write a byte to memory
          * @param addr 34 bit machine address
          * @param data The data to be written
+         * 
          * This function does NOT raise exceptions if the byte is not writable. To verify that the
          * byte is writable, `check_writable_byte` should always be called first.
         */
         void write_byte(uint64_t addr, uint8_t data);
 
         /**
-         * @brief Throws an exception if the byte is not writable
+         * @brief Check if a byte is writable
          * @param addr 34 bit machine address
-         * This function should always be used to check that a byte is writable before writing to
-         * the byte since `write_byte` assumes the byte is writable. Note that this only checks if
-         * the byte is physically writable; privilege level checks and so on are handled elsewhere.
+         * @return the status of the access
+         * 
+         * This function should always be used to check that a byte is writable before
+         * writing to the byte since `write_byte` assumes the byte is writable. Note that this only
+         * checks if the byte is physically writable; privilege level checks and so on are handled
+         * elsewhere.
         */
-       void check_writable_byte(uint64_t addr);
+        access_status_t check_writable_byte(uint64_t addr);
 
     private:
 
@@ -112,8 +128,8 @@ namespace irve::internal::memory {
 
         /**
          * @brief The constructor
-         * @param imagec The number of memory images plus 1 (comes directly from argc in main)
-         * @param imagev Vector of image files (comes directly from argv in main)
+         * @param imagec The number of memory images
+         * @param imagev Vector of image files
          * @param CSR_ref A reference to the CSRs
         */
         memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
@@ -169,7 +185,8 @@ namespace irve::internal::memory {
          *                  signed/unsigned
          * @return 32 bit version of data that was read
         */
-        word_t read_physical(uint64_t addr, uint8_t data_type) const;
+        word_t read_physical(uint64_t addr, uint8_t data_type, access_status_t
+                             &access_status) const;
 
         /**
          * @brief Write data to memory
@@ -178,26 +195,30 @@ namespace irve::internal::memory {
          *                  signed/unsigned
          * @param data The data to be written to memory
         */
-        void write_physical(uint64_t addr, uint8_t data_type, word_t data);
+        void write_physical(uint64_t addr, uint8_t data_type, word_t data,
+                            access_status_t &access_status);
 
         /**
          * @brief Loads memory image files (only called by the constructor)
          * @param imagec The number of memory images plus
          * @param imagev Vector of image files
+         * @return status of the load
         */
-        void load_memory_image_files(int imagec, const char* const* imagev);
+        image_load_status_t load_memory_image_files(int imagec, const char* const* imagev);
 
         /**
          * @brief Loads an 8-bit Verilog hex file to memory
          * @param image_path The path to the memory image file
+         * @return status of the load
         */
-        void load_verilog_8(std::string image_path);
+        image_load_status_t load_verilog_8(std::string image_path);
 
         /**
          * @brief Loads a 32-bit Verilog hex file to memory
          * @param image_path The path to the memory image file
+         * @return status of the load
         */
-        void load_verilog_32(std::string image_path);
+        image_load_status_t load_verilog_32(std::string image_path);
 
         /**
          * @brief "physical" memory instance
