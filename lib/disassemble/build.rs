@@ -1,17 +1,27 @@
-/* build.rs
- * Copyright (C) 2023 John Jekel and Nick Chan
+/*
+ * File:    build.rs
+ * Brief:   Build script for libirve_disassemble
+ *
+ * Copyright: Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Build script for libirve_disassemble
- *
  * Based on cbindgen example
+ *
 */
 
-/* Imports */
+/*!
+ * TODO rustdoc for this file here
+*/
+
+/* ------------------------------------------------------------------------------------------------
+ * Uses
+ * --------------------------------------------------------------------------------------------- */
 
 extern crate cbindgen;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Functions
+ * --------------------------------------------------------------------------------------------- */
 
 fn main() {
     let crate_directory_path = std::env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -30,7 +40,9 @@ fn main() {
         .write_to_file(format!("{crate_directory_path_ref}/../../build/rust/target/irve_disassemble.h"));
 }
 
-/* Tests */
+/* ------------------------------------------------------------------------------------------------
+ * Tests
+ * --------------------------------------------------------------------------------------------- */
 
 #[cfg(test)]
 mod tests {

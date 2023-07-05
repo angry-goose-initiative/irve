@@ -1,19 +1,26 @@
-/* irve_mmode.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    irve_mmode.h
+ * @brief   MMIO/etc for RISC-V Machine Mode programs running on irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * MMIO/etc for RISC-V Machine Mode programs running on irve
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef IRVE_MMODE_H
 #define IRVE_MMODE_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdbool.h>
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //These only work in M-Mode
 
