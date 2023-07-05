@@ -39,8 +39,13 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/logging.h
     ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/memory_map.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/plic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/plic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/uart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/uart.h
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
 )
 

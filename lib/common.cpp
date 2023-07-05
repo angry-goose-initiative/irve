@@ -1,12 +1,17 @@
-/* common.cpp
- * Copyright (C) TODO John Jekel
+/**
+ * @file    common.cpp
+ * @brief   TODO
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Function implementations for common.h
+ * 
+ * TODO longer description
  *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "common.h"
 
@@ -18,7 +23,9 @@
 using namespace irve::internal;
 using irve::internal::word_t;//TODO avoid this (only use irve::internal)
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we overload operator()
     assert((top_bit >= bottom_bit) && "Bad arguments to bits()");

@@ -1,12 +1,17 @@
-/* emulator.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    emulator.cpp
+ * @brief   The main emulator class used to instantiate an instance of irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * The main emulator class used to instantiate an instance of irve
+ * 
+ * TODO longer description
  *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "emulator.h"
 
@@ -27,7 +32,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
         m_CSR(),

@@ -1,13 +1,19 @@
-/* decode.c
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    decode.cpp
+ * @brief   Code to decode RISC-V instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Code to decode RISC-V instructions
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
+ *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "decode.h"
 
@@ -30,7 +36,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),

@@ -1,16 +1,18 @@
-/* execute.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    execute.cpp
+ * @brief   Utility functions for executing instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Utility functions for executing instructions
+ * 
+ * TODO longer description
  *
  * Some inspiration from rv32esim
- *
 */
 
-//TODO transition to using word_t and reg_t
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "execute.h"
 
@@ -28,7 +30,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
