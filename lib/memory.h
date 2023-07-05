@@ -1,17 +1,20 @@
-/* memory.h
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * The classes for the memory of the emulator
- *
- * Manages virtual memory and physical memory
+/**
+ * @file    memory.h
+ * @brief   The classes for the memory of the emulator
  * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * Manages virtual memory and physical memory
+ *
 */
 
 #ifndef MEMORY_H
 #define MEMORY_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <iostream>
 #include <memory>
@@ -20,7 +23,9 @@
 #include "memory_map.h"
 #include "CSR.h"
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 // TODO put these into a namespace as regular C++ constants
 
@@ -31,9 +36,12 @@
 #define DATA_WIDTH_MASK 0b11
 
 // Emulator memory size is 64 MiB
+//FIXME move this to config.h
 #define RAMSIZE         0x04000000
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 typedef enum {
     AS_OKAY = 0,
@@ -46,8 +54,6 @@ typedef enum {
     IL_OKAY,
     IL_FAIL
 } image_load_status_t;
-
-/* Function/Class Declarations */
 
 namespace irve::internal::memory {
 

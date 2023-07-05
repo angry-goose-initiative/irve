@@ -1,22 +1,29 @@
-/* execute.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    execute.h
+ * @brief   Utility functions for executing instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Utility functions for executing instructions
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
 #include "CSR.h"
 
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 /**
  * @brief The internal irve namespace for executing RISC-V instructions

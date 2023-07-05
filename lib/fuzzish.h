@@ -1,16 +1,21 @@
-/* fuzzish.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    fuzzish.h
+ * @brief   TODO
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
+ * 
  * Facilities for random initialization of certain parts of the emulator
- * (depending on configuration options)
+ * (depending on configuration options) in order to help catch bugs
  *
 */
 
 #ifndef FUZZISH_H
 #define FUZZISH_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "config.h"
 
@@ -22,7 +27,9 @@
 #include <cstring>
 #endif
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 #if IRVE_INTERNAL_CONFIG_FUZZISH
 //TODO be more efficient (use all 32 bits)

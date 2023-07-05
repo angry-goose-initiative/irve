@@ -1,15 +1,22 @@
-/* logging.h
- * By: John Jekel
- *
- * Logging facilities for irve
+/**
+ * @file    logging.h
+ * @brief   Logging facilities for irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
+ *
 */
 
 #ifndef LOGGING_H
 #define LOGGING_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -17,7 +24,9 @@
 
 #include "config.h"
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 #ifndef INST_COUNT
 #error "INST_COUNT must be defined before including logging.h"
@@ -85,7 +94,9 @@
 
 #endif
 
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 namespace irve::internal::logging {
     /**

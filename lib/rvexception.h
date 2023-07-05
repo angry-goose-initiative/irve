@@ -1,8 +1,9 @@
-/* rvexception.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    rvexception.h
+ * @brief   C++ exceptions corresponding to RISC-V exceptions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * C++ exceptions corresponding to RISC-V exceptions
  *
  * This is HORRIBLY inefficient and should be replaced with something better
  * Which is why, when we do XRVE in Rust, we'll use Result<T, E> instead with a custom error enum
@@ -12,14 +13,18 @@
 #ifndef RVEXCEPTION_H
 #define RVEXCEPTION_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdexcept>
 #include <cassert>
 
 #include "common.h"
 
-/* Macros */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //FIXME add doxygen comments
 #define invoke_rv_exception_by_num(the_cause) do { \
@@ -64,7 +69,9 @@
 
 namespace irve::internal::rvexception {
 
-    /* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
     ///Possible contents of the mcause/scause registers, indicating the reason for the interrupt/exception
     enum class cause_t : uint32_t {

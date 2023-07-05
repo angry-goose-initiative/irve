@@ -1,15 +1,20 @@
-/* emulator.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    emulator.h
+ * @brief   The main emulator class used to instantiate an instance of irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * The main emulator class used to instantiate an instance of irve
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "common.h"
 #include "cpu_state.h"
@@ -18,7 +23,9 @@
 #include "memory.h"
 #include "rvexception.h"
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 /**
  * @brief The namespace containing the actual emulator_t class (internal)

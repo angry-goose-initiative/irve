@@ -1,8 +1,11 @@
-/* decode.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    decode.h
+ * @brief   Code to decode RISC-V instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Code to decode RISC-V instructions
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
  *
@@ -11,16 +14,20 @@
 #ifndef DECODE_H
 #define DECODE_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cstdint>
 #include <string>
 
 #include "common.h"
 
-namespace irve::internal::decode {
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
-    /* Types */
+namespace irve::internal::decode {
 
     /**
      * @brief RISC-V opcodes
@@ -44,8 +51,6 @@ namespace irve::internal::decode {
     enum class inst_format_t {
         R_TYPE = 0, I_TYPE = 1, S_TYPE = 2, B_TYPE = 3, U_TYPE = 4, J_TYPE = 5
     };
-
-    /* Function/Class Declarations */
 
     /**
      * @brief holds the results from decoding a RISC-V instruction

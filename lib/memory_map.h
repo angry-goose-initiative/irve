@@ -1,13 +1,20 @@
-/* memory_map.h
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * The memory map for IRVE
+/**
+ * @file    memory_map.h
+ * @brief   The memory map for IRVE
  * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * TODO longer description
+ *
 */
 
 #ifndef MEMORY_MAP_H
 #define MEMORY_MAP_H
+
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 // Region for main memory
 #define MEM_MAP_REGION_START_RAM    0x00000000
