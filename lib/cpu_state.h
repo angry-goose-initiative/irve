@@ -1,15 +1,20 @@
-/* cpu_state.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    cpu_state.h
+ * @brief   Holds a RISC-V hart's state including registers and the PC
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Holds a RISC-V hart's state including registers, PC, and CSRs
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef CPU_STATE_H
 #define CPU_STATE_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cstdint>
 
@@ -18,7 +23,9 @@
 
 #include "rvexception.h"
 
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 namespace irve::internal::cpu_state {
 

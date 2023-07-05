@@ -1,12 +1,17 @@
-/* irve_public_api.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Implementation of the public API for IRVE (sort of a ABI-compatibility wrapper)
+/**
+ * @file    irve_public_api.cpp
+ * @brief   Implementation of the public API for IRVE (sort of a ABI-compatibility wrapper)
  * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * TODO longer description
+ *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "irve_public_api.h"
 
@@ -22,7 +27,9 @@
 // NO using statements here to make it obvious if we are refering to the internal namespace or the
 // public namespace
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //Namepace: irve::emulator
 

@@ -1,15 +1,20 @@
-/* CSR.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    CSR.h
+ * @brief   Contains (mostly) CSRs for IRVE as well as methods to read and write them.
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Contains (mostly) CSRs for IRVE as well as methods to read and write them.
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef CSR_H
 #define CSR_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #ifdef private//Unit tests define this but this dosn't play nicely with chrono
 #undef private
@@ -24,7 +29,9 @@
 #include "common.h"
 #include "rvexception.h"
 
-/* Constants and Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
 //#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
@@ -34,8 +41,6 @@
 #define MTVEC_CONTENTS word_t((0x00000004 << 2) | 0b01)
 
 namespace irve::internal::CSR {
-
-    /* Constants */
 
     /**
      * @brief CSR addresses implemented by IRVE
@@ -118,7 +123,9 @@ namespace irve::internal::CSR {
         const uint16_t MCONFIGPTR           = 0xF15;
     };
 
-    /* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
     /**
      * @brief Privilege modes
@@ -128,8 +135,6 @@ namespace irve::internal::CSR {
         SUPERVISOR_MODE = 0b01,
         MACHINE_MODE    = 0b11
     };
-
-    /* Function/Class Declarations */
 
     /**
      * @brief Class containing RISC-V CSRs

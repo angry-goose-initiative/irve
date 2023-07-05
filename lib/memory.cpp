@@ -1,14 +1,17 @@
-/* memory.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * The classes for the memory of the emulator
- *
- * Manages virtual memory and physical memory
+/**
+ * @file    memory.cpp
+ * @brief   The classes for the memory of the emulator
  * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * Manages virtual memory and physical memory
+ *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "memory.h"
 
@@ -31,9 +34,12 @@
 
 using namespace irve::internal;
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 // The directory where test files are located
+//FIXME this should be moved to config.h
 #define TESTFILES_DIR   "rvsw/compiled/"
 
 #define MPP_M_MODE      0b11
@@ -110,6 +116,10 @@ using namespace irve::internal;
 #define AT_STORE        3
 
 #define PAGE_FAULT_BASE 12
+
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 /* `pmemory_t` Function Implementations */
 

@@ -1,13 +1,18 @@
-/* logging.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    logging.cpp
+ * @brief   Logging facilities for irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Logging facilities for irve
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "config.h"
 
@@ -30,11 +35,15 @@
 
 using namespace irve::internal;
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static void actual_log_function(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void logging::irvelog_internal_variadic_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...) {
     //TODO in async logging try to do this on the logging thread
@@ -123,7 +132,9 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
 #endif
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static void actual_log_function(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str) {
     assert(destination && "Attempt to log to null destination file");

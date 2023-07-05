@@ -1,15 +1,20 @@
-/* config.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    config.h
+ * @brief   Contains build-time configuration information for IRVE
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Contains build-time configuration information for IRVE
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef CONFIG_H
 #define CONFIG_H
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //Build system independent
 

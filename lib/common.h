@@ -1,21 +1,29 @@
-/* common.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    common.h
+ * @brief   Common things for irve code
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Common things for irve code
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
+ *
 */
 
 #ifndef COMMON_H
 #define COMMON_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdint>
 
-/* Constants and Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 // DT prefix stands for 'data type'
 #define DT_BYTE                0b000
@@ -26,12 +34,14 @@
 #define DT_UNSIGNED_BYTE       0b100
 #define DT_UNSIGNED_HALFWORD   0b101
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 namespace irve::internal {//Exception: Not irve::internal::common since it is, after all, "common"
 
     /**
-     * @brief A RISC-V 32-bit word class, containing abstractions that make operations more explicit and easier
+     * @brief A RISC-V 32-bit word union, containing abstractions that make operations more explicit and easier
      *
      * Ex. This protects us from accidental arithmetic shifts when we want logical shifts
      *
@@ -348,7 +358,9 @@ namespace irve::internal {//Exception: Not irve::internal::common since it is, a
     ///A register is just a word_t, but seeing it a reg_t can be more insightful in other code
     typedef word_t reg_t;
 
-    /* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
     //TODO make these constexpr too
     //TODO should these become part of word_t?
