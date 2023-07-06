@@ -5,17 +5,19 @@
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
+ * TODO longer description
+ *
  * This is HORRIBLY inefficient and should be replaced with something better
  * Which is why, when we do XRVE in Rust, we'll use Result<T, E> instead with a custom error enum
- * 
+ *
 */
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#include <stdexcept>
 #include <cassert>
+#include <stdexcept>
 
 #include "rvexception.h"
 #undef rvinterrupt_t
@@ -31,8 +33,7 @@ rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) :
     std::runtime_error("\x1b[91mUncaught RISC-V exception, you should never see this.\x1b[0m"),
     m_cause(cause)
 {
-    assert((((uint32_t)cause) < 0x80000000) &&
-            "Attempt to create rvexception_t with interrupt cause");
+    assert((((uint32_t)cause) < 0x80000000) && "Attempt to create rvexception_t with interrupt cause");
 }
 
 rvexception::cause_t rvexception::rvexception_t::cause() const {

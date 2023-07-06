@@ -9,12 +9,12 @@
  *
 */
 
+#ifndef MEMORY_MAP_H
+#define MEMORY_MAP_H
+
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
-
-#ifndef MEMORY_MAP_H
-#define MEMORY_MAP_H
 
 // Region for main memory
 #define MEM_MAP_REGION_START_RAM    0x00000000
