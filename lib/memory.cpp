@@ -26,6 +26,7 @@
 #include "CSR.h"
 
 #include "common.h"
+#include "memory_map.h"
 #include "rvexception.h"
 #include "fuzzish.h"
 
@@ -43,8 +44,6 @@ using namespace irve::internal;
 #define TESTFILES_DIR   "rvsw/compiled/"
 
 #define MPP_M_MODE      0b11
-
-// Virtual address translation
 
 // A RISC-V page size is 4 KiB
 #define PAGESIZE        0x1000
@@ -124,8 +123,8 @@ using namespace irve::internal;
 /* `pmemory_t` Function Implementations */
 
 memory::pmemory_t::pmemory_t():
-        m_ram(new uint8_t[RAMSIZE]) {
-    irve_fuzzish_meminit(this->m_ram.get(), RAMSIZE);
+        m_ram(new uint8_t[MEM_MAP_REGION_END_RAM - MEM_MAP_REGION_START_RAM + 1]) {
+    irve_fuzzish_meminit(this->m_ram.get(), MEM_MAP_REGION_END_RAM - MEM_MAP_REGION_START_RAM + 1);
 
     irvelog(1, "Created new physical memory instance");
 }
@@ -133,7 +132,7 @@ memory::pmemory_t::pmemory_t():
 memory::pmemory_t::~pmemory_t() {
     if (this->m_debugstr.size() > 0) {
         irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
-                                this->m_debugstr.c_str());
+                              this->m_debugstr.c_str());
     }
 }
 
@@ -195,7 +194,7 @@ void memory::pmemory_t::write_byte(uint64_t addr, uint8_t data) {
     }
 }
 
-access_status_t memory::pmemory_t::check_writable_byte(uint64_t addr) {
+memory::access_status_t memory::pmemory_t::check_writable_byte(uint64_t addr) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
 
     // PMP check for writing to memory
@@ -498,7 +497,7 @@ void memory::memory_t::write_physical(uint64_t addr, uint8_t data_type, word_t d
     }
 }
 
-image_load_status_t memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
+memory::image_load_status_t memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
 
     // Load each memory file
     for(int i = 0; i < imagec; ++i) {
@@ -520,7 +519,7 @@ image_load_status_t memory::memory_t::load_memory_image_files(int imagec, const 
     return IL_OKAY;
 }
 
-image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
+memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     assert(fin && "Failed to open memory image file");
 
@@ -554,7 +553,7 @@ image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
     return IL_OKAY;
 }
 
-image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
+memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     assert(fin && "Failed to open memory image file");
 

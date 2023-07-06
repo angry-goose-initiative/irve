@@ -1,6 +1,6 @@
 /**
  * @file    common.cpp
- * @brief   TODO
+ * @brief   Common things for IRVE code
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
@@ -17,7 +17,6 @@
 
 #include <cstdint>
 #include <cassert>
-
 #include <stdexcept>
 
 using namespace irve::internal;
@@ -43,7 +42,7 @@ word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we
     return intermediate & mask;
 }
 
-word_t word_t::sign_extend_from_bit_number(uint8_t bit) const {//Sign extend from a bit upward to 32 bits
+word_t word_t::sign_extend_from_bit_number(uint8_t bit) const {
     assert((bit < 32) && "Bad argument to sign_extend_from_bit_number()");
 
     uint8_t shift_amount = 31 - bit;
@@ -60,7 +59,7 @@ word_t word_t::sign_extend_from_size(uint8_t original_size) const {
     return this->sign_extend_from_bit_number(original_size - 1);
 }
 
-uint32_t irve::internal::upow(uint32_t base, uint32_t exponent) {//Unsigned integer power
+uint32_t irve::internal::upow(uint32_t base, uint32_t exponent) {
     uint32_t result = 1;
     while (exponent) {
         if (exponent & 0b1) {
@@ -72,7 +71,7 @@ uint32_t irve::internal::upow(uint32_t base, uint32_t exponent) {//Unsigned inte
     return result;
 }
 
-int32_t irve::internal::spow(int32_t base, int32_t exponent) {//Signed integer power
+int32_t irve::internal::spow(int32_t base, int32_t exponent) {
     if (exponent < 0) {
         int32_t denominator = spow(base, -exponent);
         if (!denominator) {
