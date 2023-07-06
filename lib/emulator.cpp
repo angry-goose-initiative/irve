@@ -100,6 +100,10 @@ bool emulator::emulator_t::test_and_clear_breakpoint_encountered_flag() {
     return breakpoint_encountered;
 }
 
+void emulator::emulator_t::flush_icache() {
+    this->m_icache.clear();
+}
+
 decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
     word_t pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
@@ -126,9 +130,9 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
         //TODO be more fine-grained about this
         //Note the icache is cleared on exceptions and interrupts, so that is already handled
         if (decoded_inst.get_opcode() == decode::opcode_t::MISC_MEM) {//To catch FENCE.i
-            this->m_icache.clear();
+            this->flush_icache();
         } else if (decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) {//To catch satp changes, SFENCE.VMA
-            this->m_icache.clear();
+            this->flush_icache();
         } else {//There is no need to clear the cache
             this->m_icache.emplace(pc.u, decoded_inst);
         }
@@ -290,7 +294,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 }
 
 void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
-    this->m_icache.clear();
+    this->flush_icache();
 
     //TODO better logging
 

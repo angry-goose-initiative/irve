@@ -229,6 +229,8 @@ static bool client_loop(
             send_packet(connection_file_descriptor, "E00");
         }
     } else if (!packet_string.empty() && (packet_string.at(0) == 'M')) {//Write memory
+        emulator.flush_icache();//In case GDB adds a breakpoint
+
         packet_string.erase(0, 1);//Remove the 'M' at the beginning
         packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
         word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?

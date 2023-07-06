@@ -34,6 +34,10 @@ using namespace irve::internal;
 //Only some bits of mstatus are accessible in S-mode
 #define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
 
+//TODO actually implement MISA and friends at some point
+//                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
+//#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
+
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
@@ -53,12 +57,13 @@ CSR::CSR_t::CSR_t() :
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
+    mtvec((0x00000004 << 2) | 0b01),//Doesn't need to be initialized, but this is convenient for RVSW
     menvcfg(0),//Only needs to be initialized for implicit_read() guarantees
     mscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
     mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     mip(0),//Only needs to be initialized for implicit_read() guarantees
-    //FIXME what about PMP registers?
+    //PMPCFG and PMPADDR registers done below
     minstret(0),//Implied it should be initialized according to the spec
     mcycle(0),//Implied it should be initialized according to the spec
     mtime(0),//Implied it should be initialized according to the spec
@@ -68,6 +73,9 @@ CSR::CSR_t::CSR_t() :
     m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE)//MUST BE INITIALIZED ACCORDING TO THE SPEC
 {
     std::memset(this->pmpcfg, 0x00, sizeof(this->pmpcfg));//We need the A and L bits to be 0
+
+    //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    irve_fuzzish_meminit(this->pmpaddr, sizeof(this->pmpaddr));
 }
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
@@ -107,7 +115,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MEDELEG:          return this->medeleg;
         case address::MIDELEG:          return this->mideleg;
         case address::MIE:              return this->mie;
-        case address::MTVEC:            return MTVEC_CONTENTS;
+        case address::MTVEC:            return this->mtvec;
         case address::MCOUNTEREN:       return 0;//Since we chose to make this 0, we don't need to implement any user-mode-facing counters
         case address::MENVCFG:          return this->menvcfg;
         case address::MSTATUSH:         return 0;//We only support little-endian
@@ -196,6 +204,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MEDELEG:          this->medeleg = data & 0b0000000000000000'1011001111111111; return;//Note it dosn't make sense to delegate ECALL from M-mode since we can never delagte to high levels
         case address::MIDELEG:          this->mideleg = data & 0b00000000000000000000'1010'1010'1010; return;
         case address::MIE:              this->mie     = data & 0b00000000000000000000'1010'1010'1010; return;
+        case address::MTVEC:            this->mtvec   = data; return;//FIXME WARL
         case address::MENVCFG:          this->menvcfg = data & 0b1; return;//Only lowest bit is RW
         case address::MSTATUSH:         return;//We simply ignore writes to mstatush, NOT throw an exception
         case address::MENVCFGH:         return;//We simply ignore writes to menvcfgh, NOT throw an exception

@@ -82,6 +82,8 @@ namespace irve::internal::emulator {
          * @return True if a breakpoint was encountered
         */
         bool test_and_clear_breakpoint_encountered_flag();
+
+        void flush_icache();
     private:
         
         //TODO document these as well

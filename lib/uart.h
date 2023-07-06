@@ -58,6 +58,7 @@ namespace irve::internal::uart {
         uart_t();
         ~uart_t();
         
+        //3-bit addresses, 8-bit data
         uint8_t read(uint8_t register_address);//NOT const since it could pop from the FIFO
         void write(uint8_t register_address, uint8_t data);
 

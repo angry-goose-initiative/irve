@@ -13,9 +13,9 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-//TODO
+#include "plic.h"
 
-//using namespace irve::internal;
+using namespace irve::internal;
 
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
@@ -39,7 +39,25 @@
  * Static Function Declarations
  * --------------------------------------------------------------------------------------------- */
 
-//TODO
+plic::plic_t::plic_t() {
+    //TODO
+}
+
+plic::plic_t::~plic_t() {
+    //TODO
+}
+
+word_t plic::plic_t::read(word_t register_address) {
+    assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
+    
+    assert(false && "TODO");
+}
+
+void plic::plic_t::write(word_t register_address, word_t /*data*/) {
+    assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
+
+    assert(false && "TODO");
+}
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
