@@ -19,6 +19,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdlib>
+#include <cstring>
 
 #include "rvexception.h"
 
@@ -57,6 +58,7 @@ CSR::CSR_t::CSR_t() :
     mepc(0),//Only needs to be initialized for implicit_read() guarantees
     mcause(0),//MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     mip(0),//Only needs to be initialized for implicit_read() guarantees
+    //FIXME what about PMP registers?
     minstret(0),//Implied it should be initialized according to the spec
     mcycle(0),//Implied it should be initialized according to the spec
     mtime(0),//Implied it should be initialized according to the spec
@@ -64,7 +66,9 @@ CSR::CSR_t::CSR_t() :
     m_last_time_update(std::chrono::steady_clock::now()),
     m_delay_update_counter(0),
     m_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE)//MUST BE INITIALIZED ACCORDING TO THE SPEC
-{}
+{
+    std::memset(this->pmpcfg, 0x00, sizeof(this->pmpcfg));//We need the A and L bits to be 0
+}
 
 reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
@@ -208,6 +212,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MIP:              this->mip       = data & 0b00000000000000000000'0010'0010'0010; return;//Note ALL interrupt pending bits for M-mode are READ ONLY
 
 #ifndef _MSC_VER//Not on MSVC
+        //FIXME when locked, ignore (not throw exception) on writes to the relevant PMP CSRs
         case address::PMPCFG_START  ... address::PMPCFG_END:    this->pmpcfg [csr - address::PMPCFG_START]  = data; return;//FIXME WARL
         case address::PMPADDR_START ... address::PMPADDR_END:   this->pmpaddr[csr - address::PMPADDR_START] = data; return;//FIXME WARL
 #endif

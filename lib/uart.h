@@ -65,12 +65,16 @@ namespace irve::internal::uart {
     private:
         bool dlab() const;
 
-        //TODO other registers
+        //No need for rhr and thr since they just go directly to stdin/stdout
+        uint8_t m_ier;//Interrupt Enable Register
         uint8_t m_isr;//Interrupt Status Register
+        uint8_t m_fcr;//FIFO Control Register
         uint8_t m_lcr;//Line Control Register
-        //TODO other registers
+        uint8_t m_mcr;//Modem Control Register
+        uint8_t m_lsr;//Line Status Register
+        uint8_t m_msr;//Modem Status Register
         uint8_t m_spr;//Scratch Pad Register
-        
+
         //Note: We expose these registers, but we completely ignore their contents
         //since the serial output is the terminal and there are no real "wires" to
         //run at a particular baud rate
@@ -81,11 +85,5 @@ namespace irve::internal::uart {
         std::string m_output_line_buffer;
     };
 }
-
-/* ------------------------------------------------------------------------------------------------
- * Function Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
 
 #endif//UART_H
