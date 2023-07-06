@@ -65,6 +65,11 @@ namespace irve::internal::decode {
         */
         decoded_inst_t(word_t instruction);
 
+        decoded_inst_t() = default;//FIXME remove this
+
+        decoded_inst_t(const decoded_inst_t& other) = default;
+        decoded_inst_t& operator=(const decoded_inst_t& other) = default;
+
         void log(uint8_t indent, uint64_t inst_count) const;
 
         //Check this before using the other getters
@@ -82,19 +87,19 @@ namespace irve::internal::decode {
 
     private:
         std::string disassemble() const;
-        const opcode_t m_opcode;//Bits [6:2]
+        opcode_t m_opcode;//Bits [6:2]
 
-        const uint8_t m_funct3;
-        const uint8_t m_funct5;
-        const uint8_t m_funct7;
-        const uint8_t m_rd;
-        const uint8_t m_rs1;
-        const uint8_t m_rs2;
-        const word_t m_imm_I;
-        const word_t m_imm_S;
-        const word_t m_imm_B;
-        const word_t m_imm_U;
-        const word_t m_imm_J;
+        uint8_t m_funct3;
+        uint8_t m_funct5;
+        uint8_t m_funct7;
+        uint8_t m_rd;
+        uint8_t m_rs1;
+        uint8_t m_rs2;
+        word_t m_imm_I;
+        word_t m_imm_S;
+        word_t m_imm_B;
+        word_t m_imm_U;
+        word_t m_imm_J;
 
         inst_format_t m_format;
     };
