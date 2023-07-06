@@ -104,10 +104,14 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
     word_t pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
 
+    //Note: Using exceptions instead to catch misses is (very slightly) faster when using the same few instructions over and over again
+    //(ex in nouveau_stress_test). But it tanks perf in other scenarios. So we do compare-and-branch instead
     if (this->m_icache.contains(pc.u)) {
         irvelog(1, "Cache hit");
-        return this->m_icache[pc.u];
+        return this->m_icache.at(pc.u);
     } else {
+        irvelog(1, "Cache miss");
+
         //Read a word from memory at the PC
         //NOTE: It may throw an exception for various reasons
         word_t inst = this->m_memory.instruction(pc);

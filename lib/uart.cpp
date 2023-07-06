@@ -16,6 +16,7 @@
 #include <cassert>
 #include <cstdint>
 #include <string>
+#include <cstdio>
 
 #include "uart.h"
 
@@ -69,7 +70,47 @@ uart::uart_t::~uart_t() {
 uint8_t uart::uart_t::read(uint8_t register_address) {
     assert((register_address <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
-        //TODO implement
+        case address::RHR: {//RHR or DLL (Never THR since that isn't readable)
+            if (this->dlab()) {//DLL
+                return this->m_dll;
+            } else {//RHR
+                return std::getchar();//TODO is the fact that this is blocking a problem?
+            }
+            break;
+        }
+        case address::IER: {//IER or DLM
+            if (this->dlab()) {//DLM
+                return this->m_dlm;
+            } else {//IER
+                assert(false && "TODO");//TODO
+            }
+            break;
+        }
+        case address::ISR: {//NOTE: Never FCR since that isn't readable
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::LCR: {
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::MCR: {
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::LSR: {//NOTE: Never PSD since that isn't readable
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::MSR: {
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::SPR: {
+            return this->m_spr;
+            break;
+        }
+
         default: assert(false && "We should never get here!"); return 0;
     }
 }
@@ -77,7 +118,7 @@ uint8_t uart::uart_t::read(uint8_t register_address) {
 void uart::uart_t::write(uint8_t register_address, uint8_t data) {
     assert((register_address <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
-        case uart::address::THR: {//THR or DLL
+        case address::THR: {//THR or DLL (Never RHR since that isn't writable)
             if (this->dlab()) {//DLL
                 this->m_dll = data;
             } else {//THR
@@ -96,7 +137,7 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
             }
             break;
         }
-        case uart::address::IER: {//IER or DLM
+        case address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
                 this->m_dlm = data;
             } else {//IER
@@ -104,31 +145,29 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
             }
             break;
         }
-        case uart::address::FCR: {
+        case address::FCR: {//NOTE: Never ISR since that isn't writable
             assert(false && "TODO");//TODO
             break;
         }
-        case uart::address::LCR: {//LCR or PSD
-            if (this->dlab()) {//PSD
-                this->m_psd = data;
-            } else {//LCR
-                assert(false && "TODO");//TODO
-            }
-            break;
-        }
-        case uart::address::MCR: {
+        case address::LCR: {
             assert(false && "TODO");//TODO
             break;
         }
+        case address::MCR: {
+            assert(false && "TODO");//TODO
+            break;
+        }
+        case address::PSD://NOTE: Never LSR since that isn't writable
+            assert(this->dlab() && "TODO software was mean");//TODO
+            this->m_psd = data;
+            break;
+        case address::MSR://NOTE: Should never be written to by software
+            assert(false && "TODO software was mean");//TODO
+            break;
         case uart::address::SPR: {
             this->m_spr = data;
             break;
         }
-        case uart::address::LSR:
-        case uart::address::MSR:
-            //These registers aren't writable, but for simplicity, we'll ignore the write
-            //instead of adding infastructure to report an error to the user
-            break;
         default: assert(false && "We should never get here!");
     }
 }

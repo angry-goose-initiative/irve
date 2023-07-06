@@ -43,13 +43,13 @@ namespace irve::internal::uart {
         //When LCR.DLAP == 1
         const uint8_t DLL = 0b000;//Divisor Latch LSB
         const uint8_t DLM = 0b001;//Divisor Latch MSB
-        const uint8_t PSD = 0b010;//Prescaler Division
+        const uint8_t PSD = 0b101;//Prescaler Division
     }
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
-    //TODO
+
     /**
      * @brief The IRVE 16550 UART
     */
