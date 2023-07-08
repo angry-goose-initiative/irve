@@ -51,12 +51,7 @@ bool emulator::emulator_t::tick() {
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
     try {
-        word_t inst = this->fetch();
-
-        irvelog(1, "Decoding instruction 0x%08X", inst);
-        decode::decoded_inst_t decoded_inst(inst);
-        decoded_inst.log(2, this->get_inst_count());
-
+        decode::decoded_inst_t decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
     } catch (const rvexception::rvexception_t& e) {
         uint32_t raw_cause = (uint32_t)e.cause();
@@ -105,16 +100,45 @@ bool emulator::emulator_t::test_and_clear_breakpoint_encountered_flag() {
     return breakpoint_encountered;
 }
 
-word_t emulator::emulator_t::fetch() const {
-    irvelog(1, "Fetching from 0x%08x", this->m_cpu_state.get_pc());
+void emulator::emulator_t::flush_icache() {
+    this->m_icache.clear();
+}
 
-    //Read a word from memory at the PC
-    //NOTE: It may throw an exception for various reasons
-    word_t inst = this->m_memory.instruction(this->m_cpu_state.get_pc());
+decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
+    word_t pc = this->m_cpu_state.get_pc();
+    irvelog(1, "Fetching from 0x%08x", pc);
 
-    //Log what we fetched and return it
-    irvelog(1, "Fetched 0x%08x from 0x%08x", inst, this->m_cpu_state.get_pc());
-    return inst;
+    //Note: Using exceptions instead to catch misses is (very slightly) faster when using the same few instructions over and over again
+    //(ex in nouveau_stress_test). But it tanks perf in other scenarios. So we do compare-and-branch instead
+    if (this->m_icache.contains(pc.u)) {
+        irvelog(1, "Cache hit");
+        return this->m_icache.at(pc.u);
+    } else {
+        irvelog(1, "Cache miss");
+
+        //Read a word from memory at the PC
+        //NOTE: It may throw an exception for various reasons
+        word_t inst = this->m_memory.instruction(pc);
+
+        //Log what we fetched and return it
+        irvelog(1, "Fetched 0x%08x from 0x%08x", inst, pc);
+
+        irvelog(1, "Decoding instruction 0x%08X", inst);
+        decode::decoded_inst_t decoded_inst(inst);
+        decoded_inst.log(2, this->get_inst_count());
+
+        //TODO be more fine-grained about this
+        //Note the icache is cleared on exceptions and interrupts, so that is already handled
+        if (decoded_inst.get_opcode() == decode::opcode_t::MISC_MEM) {//To catch FENCE.i
+            this->flush_icache();
+        } else if (decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) {//To catch satp changes, SFENCE.VMA
+            this->flush_icache();
+        } else {//There is no need to clear the cache
+            this->m_icache.emplace(pc.u, decoded_inst);
+        }
+
+        return decoded_inst;
+    }
 }
 
 //TODO move this to a separate file maybe?
@@ -270,6 +294,8 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 }
 
 void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
+    this->flush_icache();
+
     //TODO better logging
 
     //We do this to support debugging with irvegdb. This will cause issues if anything other than GDB puts an EBREAK instruction in memory

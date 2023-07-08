@@ -1,12 +1,21 @@
-/* main.rs
- * Copyright (C) 2023 John Jekel and Nick Chan
+/*
+ * File:    main.rs
+ * Brief:   Entry point for irvers
+ *
+ * Copyright: Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Entry point for irvers
+ * TODO longer description
  *
 */
 
-/* Imports */
+/*!
+ * TODO rustdoc for this file here
+*/
+
+/* ------------------------------------------------------------------------------------------------
+ * Uses
+ * --------------------------------------------------------------------------------------------- */
 
 use irve::logging::irvelog;
 use irve::logging::irvelog_always;
@@ -14,7 +23,9 @@ use irve::emulator::Emulator;
 
 use std::time::Instant;
 
-/* Functions */
+/* ------------------------------------------------------------------------------------------------
+ * Functions
+ * --------------------------------------------------------------------------------------------- */
 
 fn main() {
     let irve_boot_time = Instant::now();
@@ -59,7 +70,9 @@ fn main() {
     irvelog_always!(0, "\x1b[1mIRVE is shutting down. Bye bye!\x1b[0m");
 }
 
-/* Tests */
+/* ------------------------------------------------------------------------------------------------
+ * Tests
+ * --------------------------------------------------------------------------------------------- */
 
 #[cfg(test)]
 mod tests {

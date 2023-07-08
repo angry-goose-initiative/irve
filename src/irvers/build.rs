@@ -1,17 +1,29 @@
-/* build.rs
- * Copyright (C) 2023 John Jekel and Nick Chan
+/*
+ * File:    build.rs
+ * Brief:   Build script for irvers
+ *
+ * Copyright: Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Build script for irver
- *
+ * TODO longer description
+ * 
  * Based on cbindgen and bindgen examples
+ *
 */
 
-/* Imports */
+/*!
+ * TODO rustdoc for this file here
+*/
+
+/* ------------------------------------------------------------------------------------------------
+ * Uses
+ * --------------------------------------------------------------------------------------------- */
 
 extern crate bindgen;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Functions
+ * --------------------------------------------------------------------------------------------- */
 
 fn main() {
     println!("cargo:rustc-link-lib=static=irve");
@@ -42,7 +54,9 @@ fn main() {
         .expect("bindgen should sucessfully write bindings to disk");
 }
 
-/* Tests */
+/* ------------------------------------------------------------------------------------------------
+ * Tests
+ * --------------------------------------------------------------------------------------------- */
 
 #[cfg(test)]
 mod tests {

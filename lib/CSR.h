@@ -33,13 +33,6 @@
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-//                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-//#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
-
-//TODO move this somewhere else
-//MTVEC hardcoded to start at 0x00000004 and be vectored
-#define MTVEC_CONTENTS word_t((0x00000004 << 2) | 0b01)
-
 namespace irve::internal::CSR {
 
 /**
@@ -222,7 +215,7 @@ private:
     reg_t medeleg;
     reg_t mideleg;
     reg_t mie;
-    //mtvec is NOT here
+    reg_t mtvec;
     reg_t menvcfg;
     //mstatush is NOT here
     //menvcfgh is NOT here

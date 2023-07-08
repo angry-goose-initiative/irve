@@ -16,12 +16,16 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#include <cstdint>
+
 #include "common.h"
 #include "cpu_state.h"
 #include "decode.h"
 #include "gdbserver.h"
 #include "memory.h"
 #include "rvexception.h"
+
+#include <unordered_map>
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -80,6 +84,8 @@ namespace irve::internal::emulator {
          * @return True if a breakpoint was encountered
         */
         bool test_and_clear_breakpoint_encountered_flag();
+
+        void flush_icache();
     private:
         
         //TODO document these as well
@@ -88,7 +94,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @return TODO
         */
-        word_t fetch() const;
+        decode::decoded_inst_t fetch_and_decode();
 
         /**
          * @brief TODO
@@ -111,6 +117,7 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for word_t
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
 

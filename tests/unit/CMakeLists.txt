@@ -13,13 +13,14 @@ include(CTest)
 
 set(
     UNIT_TESTER_SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/unit_tester.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu_state.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CSR.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/decode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/logging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/uart.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/unit_tester.cpp
 )
 
 add_executable(unit_tester ${UNIT_TESTER_SOURCES})

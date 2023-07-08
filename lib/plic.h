@@ -16,7 +16,9 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-//TODO
+#include <cstdint>
+
+#include "common.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
@@ -34,10 +36,18 @@
 namespace irve::internal::plic {
     //TODO
     /**
-     * @brief The IRVE 16550 UART
+     * @brief The IRVE RISC-V PLIC
     */
-    class plic {
-    //TODO
+    class plic_t {
+    public:
+        plic_t();
+        ~plic_t();
+
+        //26-bit addresses, 32-bit data
+        word_t read(word_t register_address);//NOT const since it could pop from the FIFO
+        void write(word_t register_address, word_t data);
+
+        //TODO other functions to check for MEI and SEI (if they should be set)
     };
 }
 

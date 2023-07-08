@@ -1,16 +1,20 @@
-/* irve_newlib.c
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    irve_newlib.c
+ * @brief   Implementation of Newlib syscalls and setup/teardown for IRVE Machine Mode programs
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Implementation of Newlib syscalls and setup/teardown for IRVE Machine Mode programs
  *
  * Useful resources (partially based on):
  * https://sourceware.org/newlib/libc.html#Syscalls
  * https://www.embecosm.com/appnotes/ean9/ean9-howto-newlib-1.0.html#sec_syscalls
  * https://interrupt.memfault.com/blog/boostrapping-libc-with-newlib#implementing-our-own-c-standard-library
+ *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <errno.h>
 #include <sys/stat.h>
@@ -21,12 +25,16 @@
 
 #include "irve_mmode.h"
 
-/* Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Global Variables
+ * --------------------------------------------------------------------------------------------- */
 
 #undef errno
 extern int errno;
 
-/* Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 extern void __libc_init_array(void);
 
@@ -43,7 +51,9 @@ int _lseek(int file, int ptr, int dir);
 int _read(int file, char* str, int len);
 int _write(int file, char* str, int len);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 /*void __pre_main(void) {
     //Initialize the C library
