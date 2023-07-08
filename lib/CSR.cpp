@@ -1,17 +1,17 @@
-/* CSR.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    CSR.cpp
+ * @brief   Contains (mostly) CSRs for IRVE as well as methods to read and write them.
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Contains (mostly) CSRs for IRVE as well as methods to read and write them.
+ * 
+ * TODO longer description
  *
 */
 
-/* Constants and Defines */
-
-//Only some bits of mstatus are accessible in S-mode
-#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "CSR.h"
 
@@ -26,7 +26,16 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
+
+//Only some bits of mstatus are accessible in S-mode
+#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
+
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //See Volume 2 Section 3.4
 CSR::CSR_t::CSR_t() : 

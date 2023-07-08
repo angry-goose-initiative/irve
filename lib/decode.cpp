@@ -1,13 +1,19 @@
-/* decode.c
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    decode.cpp
+ * @brief   Code to decode RISC-V instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Code to decode RISC-V instructions
+ * 
+ * TODO longer description
  *
  * Based on code from rv32esim
+ *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "decode.h"
 
@@ -30,7 +36,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
@@ -196,13 +204,16 @@ decode::opcode_t decode::decoded_inst_t::get_opcode() const {
 //FIXME all these assertions cause problems for the SYSTEM instructions
 
 uint8_t decode::decoded_inst_t::get_funct3() const {
-    assert((this->get_format() != inst_format_t::U_TYPE) && "Attempt to get funct3 of U-type instruction!");
-    assert((this->get_format() != inst_format_t::J_TYPE) && "Attempt to get funct3 of J-type instruction!");
+    assert((this->get_format() != inst_format_t::U_TYPE) &&
+            "Attempt to get funct3 of U-type instruction!");
+    assert((this->get_format() != inst_format_t::J_TYPE) &&
+            "Attempt to get funct3 of J-type instruction!");
     return this->m_funct3;
 }
 
 uint8_t decode::decoded_inst_t::get_funct5() const {
-    assert((this->get_opcode() == opcode_t::AMO) && "Attempt to get funct5 of non-AMO instruction!");
+    assert((this->get_opcode() == opcode_t::AMO) &&
+            "Attempt to get funct5 of non-AMO instruction!");
     return this->m_funct5;
 }
 
@@ -213,14 +224,18 @@ uint8_t decode::decoded_inst_t::get_funct7() const {
 }
 
 uint8_t decode::decoded_inst_t::get_rd() const {
-    assert((this->get_format() != inst_format_t::S_TYPE) && "Attempt to get rd of S-type instruction!");
-    assert((this->get_format() != inst_format_t::B_TYPE) && "Attempt to get rd of B-type instruction!");
+    assert((this->get_format() != inst_format_t::S_TYPE) &&
+            "Attempt to get rd of S-type instruction!");
+    assert((this->get_format() != inst_format_t::B_TYPE) &&
+            "Attempt to get rd of B-type instruction!");
     return this->m_rd;
 }
 
 uint8_t decode::decoded_inst_t::get_rs1() const {
-    assert((this->get_format() != inst_format_t::U_TYPE) && "Attempt to get rs1 of U-type instruction!");
-    assert((this->get_format() != inst_format_t::J_TYPE) && "Attempt to get rs1 of J-type instruction!");
+    assert((this->get_format() != inst_format_t::U_TYPE) &&
+            "Attempt to get rs1 of U-type instruction!");
+    assert((this->get_format() != inst_format_t::J_TYPE) &&
+            "Attempt to get rs1 of J-type instruction!");
     return this->m_rs1;
 }
 

@@ -1,6 +1,6 @@
 /**
- * @file    TODO.cpp
- * @brief   TODO
+ * @file    uart.cpp
+ * @brief   16550 UART implementation
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.

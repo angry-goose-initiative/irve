@@ -1,26 +1,31 @@
-/* gdbserver.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    gdbserver.cpp
+ * @brief   Minimal GDB server implementation to ease debugging
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Minimal GDB server implementation to ease debugging
+ * 
+ * TODO longer description
  *
  * Thanks https://beej.us/guide/bgnet !!!
  * Also https://medium.com/@tatsuo.nomura/implement-gdb-remote-debug-protocol-stub-from-scratch ...
+ *
 */
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Constants And Defines */
-
-#define RECIEVE_BUFFER_SIZE 1024
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "common.h"
 #include "emulator.h"
 #include "memory.h"
 #include "gdbserver.h"
-
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -38,7 +43,15 @@
 
 using namespace irve::internal;
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
+
+#define RECIEVE_BUFFER_SIZE 4096
+
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 enum class special_packet_t {
     ACK,
@@ -51,7 +64,9 @@ enum class special_packet_t {
 
 typedef std::variant<std::string, special_packet_t> packet_t;//You can tell I'm missing Rust
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static bool client_loop(
     emulator::emulator_t& emulator,
@@ -70,7 +85,9 @@ static std::string nicerecv(int connection_file_descriptor);//If the string is e
 static int setup_server_socket(uint16_t port);
 static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void gdbserver::start(
     emulator::emulator_t& emulator,
@@ -102,7 +119,9 @@ void gdbserver::start(
     }
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static bool client_loop(
     emulator::emulator_t& emulator,
@@ -430,9 +449,15 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #else//Not on Unix
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "emulator.h"
 #include "cpu_state.h"
@@ -444,7 +469,9 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port) {
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void gdbserver::start(
     emulator::emulator_t&,
@@ -455,4 +482,8 @@ void gdbserver::start(
     irvelog_always(0, "The IRVE GDB server is not supported on this platform");
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #endif
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
