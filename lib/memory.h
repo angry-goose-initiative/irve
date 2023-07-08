@@ -5,7 +5,7 @@
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
- * Manages virtual memory and physical memory
+ * TODO longer description
  *
 */
 
@@ -129,7 +129,7 @@ private:
     word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
     // TODO documentation
-    word_t read_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    word_t read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
     
     // TODO documentation
     word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
@@ -146,7 +146,7 @@ private:
     void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
     // TODO documentation
-    void write_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
     
     // TODO documentation
     void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
@@ -187,9 +187,9 @@ private:
     std::unique_ptr<uint8_t[]> m_user_ram;
 
     /**
-     * @brief Pointer to kernal ram
+     * @brief Pointer to kernel ram
     */
-    std::unique_ptr<uint8_t[]> m_kernal_ram;
+    std::unique_ptr<uint8_t[]> m_kernel_ram;
 
     /**
      * @brief TODO

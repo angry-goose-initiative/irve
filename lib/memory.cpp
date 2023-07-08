@@ -5,7 +5,7 @@
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
- * Manages virtual memory and physical memory
+ * TODO longer description
  *
 */
 
@@ -128,7 +128,7 @@ using namespace irve::internal;
 memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernal_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNAL_RAM]),
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
         m_debugstr() {
 
     // Check endianness of host (only little-endian hosts are supported)
@@ -137,7 +137,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
 
     // Initialize all ram to random values
     irve_fuzzish_meminit(this->m_user_ram.get(), MEM_MAP_REGION_SIZE_USER_RAM);
-    irve_fuzzish_meminit(this->m_kernal_ram.get(), MEM_MAP_REGION_SIZE_KERNAL_RAM);
+    irve_fuzzish_meminit(this->m_kernel_ram.get(), MEM_MAP_REGION_SIZE_KERNEL_RAM);
 
     irvelog(1, "Created new Memory instance");
 }
@@ -145,7 +145,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
 memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernal_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNAL_RAM]),
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
         m_debugstr() {
 
     // Check endianness of host (only little-endian hosts are supported)
@@ -154,7 +154,7 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
 
     // Initialize all ram to random values
     irve_fuzzish_meminit(this->m_user_ram.get(), MEM_MAP_REGION_SIZE_USER_RAM);
-    irve_fuzzish_meminit(this->m_kernal_ram.get(), MEM_MAP_REGION_SIZE_KERNAL_RAM);
+    irve_fuzzish_meminit(this->m_kernel_ram.get(), MEM_MAP_REGION_SIZE_KERNEL_RAM);
 
     // Load memory images and throw an exception if an error occured
     image_load_status_t load_status;
@@ -367,8 +367,8 @@ word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_st
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         data = read_memory_region_user_ram(addr, data_type, access_status);
     }
-    else if((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) {
-        data = read_memory_region_kernal_ram(addr, data_type, access_status);
+    else if((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
+        data = read_memory_region_kernel_ram(addr, data_type, access_status);
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         data = read_memory_region_mmcsr(addr, data_type, access_status);
@@ -428,8 +428,8 @@ word_t memory::memory_t::read_memory_region_user_ram(uint64_t addr, uint8_t data
     return data;
 }
 
-word_t memory::memory_t::read_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
-    assert((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM) && "This should never happen");
+word_t memory::memory_t::read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+    assert((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM) && "This should never happen");
     assert(false && "Not implemented yet"); // TODO test read_memory_region_user_ram before implementing this
     
     // Just here to avoid compiler warnings for now
@@ -488,8 +488,8 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t dat
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         write_memory_region_user_ram(addr, data_type, data, access_status);
     }
-    else if((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) {
-        write_memory_region_kernal_ram(addr, data_type, data, access_status);
+    else if((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
+        write_memory_region_kernel_ram(addr, data_type, data, access_status);
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         write_memory_region_mmcsr(addr, data_type, data, access_status);
@@ -535,8 +535,8 @@ void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_
     }
 }
 
-void memory::memory_t::write_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
-    assert(((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) && "This should never happen");
+void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
+    assert(((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) && "This should never happen");
     assert(false && "Not implemented yet"); // TODO
 
     // Just here to avoid compiler warnings for now

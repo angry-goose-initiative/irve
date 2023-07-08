@@ -13,7 +13,8 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#define private public//Since we need to access internal emulator state for testing
+// We do this so we can access internal emulator state for testing
+#define private public
 
 #include <cassert>
 #include "memory.h"
@@ -67,7 +68,23 @@ int test_memory_memory_t_user_ram_sign_extending() {
     return 0;
 }
 
-// Test that valid stores to the debug address don't cause exceptions
+// Test that valid accesses to user ram do not raise exceptions
+int test_memory_memory_t_user_ram_valid_byte_access() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // It's way too slow to check every byte so we choose a prime number
+    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+        memory.store((uint32_t)i, DT_BYTE, (uint8_t)(i * 123));
+    }
+    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+        assert(memory.load((uint32_t)i, DT_UNSIGNED_BYTE) == (uint8_t)(i * 123));
+    }
+
+    return 0;
+}
+
+// Test that valid stores to the debug address don't raise exceptions
 int test_memory_memory_t_valid_debugaddr() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
@@ -77,22 +94,6 @@ int test_memory_memory_t_valid_debugaddr() {
     memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'V');
     memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'E');
     memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, '\n');
-
-    return 0;
-}
-
-// "Byte writes", but anything reads (byte, halfword, word) are tested
-int test_memory_memory_t_valid_ramaddrs_bytes() {//None of these should throw an exception
-    CSR::CSR_t CSR;
-    memory::memory_t memory(CSR);
-
-    // It's way too slow to check every byte so we choose a prime number
-    for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 13) {
-        memory.store(i, DT_BYTE, (uint8_t)(i * 123));
-    }
-    for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 13) {
-        assert(memory.load(i, DT_UNSIGNED_BYTE) == (uint8_t)(i * 123));
-    }
 
     return 0;
 }
@@ -130,8 +131,6 @@ int test_memory_memory_t_valid_ramaddrs_words() {//None of these should throw an
     }
     for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 4); i += 4 * 13) {
         assert(memory.load(i, DT_WORD) == (uint32_t)(i * 987654321));
-        //TODO test little endianness here (byte accesses, halfword accesses)
-        //TODO test load signed here too
     }
 
     return 0;
