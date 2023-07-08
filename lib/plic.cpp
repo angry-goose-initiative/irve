@@ -50,7 +50,7 @@ plic::plic_t::~plic_t() {
 word_t plic::plic_t::read(word_t register_address) {
     assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
     
-    assert(false && "TODO");
+    return 0; assert(false && "TODO");
 }
 
 void plic::plic_t::write(word_t register_address, word_t /*data*/) {
