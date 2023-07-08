@@ -1,24 +1,27 @@
-/* common.h
- * Copyright (C) 2023 John Jekel
+/**
+ * @file    common.h
+ * @brief   Common things for OGSBI
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Common things for OGSBI
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef COMMON_H
 #define COMMON_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Constants And Defines */
-
-//TODO
-
-/* Macros */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 #ifndef NDEBUG
 
@@ -37,15 +40,9 @@
 #define dprintf(...) do {} while (0)
 #endif
 
-/* Types */
-
-//TODO
-
-/* Global Variables */
-
-//TODO
-
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 bool set_timer_and_clear_pending_int(uint64_t stime_value);//Returns false if there was an error
 

@@ -1,16 +1,17 @@
-/* other_exceptions.c
- * Copyright (C) 2023 John Jekel
+/**
+ * @file    other_exceptions.c
+ * @brief   Code to handle non-S-Mode ECALL exceptions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Code to handle non-S-Mode ECALL exceptions
+ * 
+ * TODO longer description
  *
 */
 
-/* Constants And Defines */
-
-//TODO
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "asm_c_interface.h"
 #include "common.h"
@@ -21,19 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
-
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc) {
     dputs("Recieved a non-S-Mode-ECALL exception");
@@ -126,7 +117,3 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             break;
     }
 }
-
-/* Static Function Implementations */
-
-//TODO

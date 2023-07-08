@@ -1,19 +1,17 @@
-/* main.c
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    main.c
+ * @brief   Entry point into the OGSBI (originally IRVE SBI/Firmware)
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Entry point into the OGSBI (originally IRVE SBI/Firmware)
+ * 
+ * TODO longer description
  *
 */
 
-/* Constants And Defines */
-
-#define HART_ID 0//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
-//#define KERNEL_ADDR 0xC0000000
-#define KERNEL_ADDR 0x02000000//TEMPORARY until memory-things are ready
-#define DTB_ADDR 0xDEADBEEF//TODO
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "asm_c_interface.h"
 #include "common.h"
@@ -24,11 +22,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
-//TODO
+#define HART_ID 0//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
+//#define KERNEL_ADDR 0xC0000000
+#define KERNEL_ADDR 0x02000000//TEMPORARY until memory-things are ready
+#define DTB_ADDR 0xDEADBEEF//TODO
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int, const char**) {
     dputs("OGSBI is starting up...");
@@ -87,8 +92,3 @@ int main(int, const char**) {
     assert(false && "We should never get here!");
     exit(1);
 }
-
-
-/* Static Function Implementations */
-
-//TODO

@@ -1,41 +1,28 @@
-/* timers.c
- * Copyright (C) 2023 John Jekel
+/**
+ * @file    timers.c
+ * @brief   Timer-related code
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Timer-related code
+ * 
+ * TODO longer description
  *
 */
 
-/* Constants And Defines */
-
-//TODO
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "common.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
-
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 bool set_timer_and_clear_pending_int(uint64_t /*stime_value*/) {
     //TODO write to mtimecmp and clear the machine / (also supervisor?) timer interrupt pending bit(s)
     return false;//TODO
 }
-
-/* Static Function Implementations */
-
-//TODO

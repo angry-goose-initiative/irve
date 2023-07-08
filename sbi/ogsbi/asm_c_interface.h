@@ -1,19 +1,26 @@
-/* asm_c_interface.h
- * Copyright (C) 2023 John Jekel
+/**
+ * @file    asm_c_interface.h
+ * @brief   Assembly things exposed to C code
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Assembly things exposed to C code
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef ASM_C_INTERFACE_H
 #define ASM_C_INTERFACE_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdint.h>
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //SBI Constants
 #define SBI_SUCCESS                 0
@@ -27,18 +34,18 @@
 #define SBI_ERR_ALREADY_STOPPED     -8
 #define SBI_ERR_INVALID_HART_ID     -9
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Types
+ * --------------------------------------------------------------------------------------------- */
 
 typedef struct {
     long error;//a0
     long value;//a1
 } sbiret_t;
 
-/* Global Variables */
-
-//TODO
-
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 void jump2linux(uint32_t hart_id, uint32_t dtb_addr, uint32_t kernel_addr) __attribute__((noreturn));
 

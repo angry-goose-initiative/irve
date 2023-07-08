@@ -1,16 +1,17 @@
-/* legacy.c
- * Copyright (C) 2023 John Jekel
+/**
+ * @file    legacy.c
+ * @brief   Code to handle legacy SBI calls
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Code to handle legacy SBI calls
+ * 
+ * TODO longer description
  *
 */
 
-/* Constants And Defines */
-
-//TODO
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "asm_c_interface.h"
 #include "common.h"
@@ -21,19 +22,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//TODO
-
-/* Static Function Declarations */
-
-//TODO
-
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //TODO remove the __attribute__((unused))s
 long handle_legacy_sbi_smode_ecall(
@@ -152,7 +143,3 @@ long handle_legacy_sbi_smode_ecall(
 
     return result;
 }
-
-/* Static Function Implementations */
-
-//TODO
