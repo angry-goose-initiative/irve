@@ -5,7 +5,7 @@
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
- * Manages virtual memory and physical memory
+ * TODO longer description
  *
 */
 
@@ -68,7 +68,7 @@ using namespace irve::internal;
 #define mstatus_MPP     m_CSR_ref.implicit_read(CSR::address::MSTATUS).bits(12, 11).u
 
 // The virtual page number (VPN) of a virtual address (va)
-#define va_VPN(i)       (uint64_t)va.bits(21 + 10 * i, 12 + 10 * i).u
+#define va_VPN(i)       (uint64_t)va.bits(21 + (10 * i), 12 + (10 * i)).u
 
 // Full physical page number field of the page table entry
 #define pte_PPN         (uint64_t)pte.bits(31, 10).u
@@ -96,20 +96,22 @@ using namespace irve::internal;
 // The current privilege mode
 #define CURR_PMODE      m_CSR_ref.get_privilege_mode()
 
-// The page cannot be accessed if one of the following conditions is met:
-                            /* Fetching an instruction but the page is not marked as executable */
-#define ACCESS_NOT_ALLOWED  ((access_type == AT_INSTRUCTION) && (pte_X != 1)) || \
-                            /* Access is a store but the page is not marked as writable */ \
-                            ((access_type == AT_STORE) && (pte_W != 1)) || \
-                            /* Access is a load but the page is either not marked as readable or mstatus.MXR is set \
-                               but the page isn't marked as executable */ \
-                            ((access_type == AT_LOAD) && ((pte_R != 1) && ((mstatus_MXR == 0) || (pte_X == 0)))) || \
-                            /* Either the current privilege mode is S or the effective privilege mode is S with \
-                               the access being a load or a store (not an instruction) and S-mode can't access \
-                               U-mode pages and the page is markes as accessible in U-mode */ \
-                            (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) || \
-                                ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) && \
-                                (mstatus_SUM == 0) && (pte_U == 1))
+// True if a virtual memory access is not allowed
+#define ACCESS_NOT_ALLOWED                                                                        \
+/* The page cannot be accessed if any of the following conditions is met: */                      \
+    /* 1. Fetching an instruction but the page is not marked as executable */                     \
+    ((access_type == AT_INSTRUCTION) && (pte_X != 1)) ||                                          \
+    /* 2. Access is a store but the page is not marked as writable */                             \
+    ((access_type == AT_STORE) && (pte_W != 1)) ||                                                \
+    /* 3. Access is a load but the page is either not marked as readable or mstatus.MXR is set */ \
+    /*    but the page isn't marked as executable */                                              \
+    ((access_type == AT_LOAD) && ((pte_R != 1) && ((mstatus_MXR == 0) || (pte_X == 0)))) ||       \
+    /* 4. Either the current privilege mode is S or the effective privilege mode is S with the */ \
+    /*    access being a load or a store (not an instruction) and S-mode can't access U-mode */   \
+    /*    pages and the page is markes as accessible in U-mode */                                 \
+    (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) ||                                   \
+        ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) &&     \
+        (mstatus_SUM == 0) && (pte_U == 1))
 
 // Access types
 #define AT_INSTRUCTION  0
@@ -125,56 +127,34 @@ using namespace irve::internal;
 
 memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
-        m_is_big_endian(),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernal_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNAL_RAM]),
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
         m_debugstr() {
 
-    // Check endianness of host
+    // Check endianness of host (only little-endian hosts are supported)
     const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
-    if(host_order.value == 0x03020100) {
-        m_is_big_endian = false;
-    }
-    else if(host_order.value == 0x00010203) {
-        m_is_big_endian = true;
-    }
-    else {
-        assert(false && "Host endianness not supported");
-    }
-
-    assert(!m_is_big_endian && "Big endian hosts not currently supported"); // TODO
+    assert((host_order.value == 0x03020100) && "Host endianness not supported");
 
     // Initialize all ram to random values
     irve_fuzzish_meminit(this->m_user_ram.get(), MEM_MAP_REGION_SIZE_USER_RAM);
-    irve_fuzzish_meminit(this->m_kernal_ram.get(), MEM_MAP_REGION_SIZE_KERNAL_RAM);
+    irve_fuzzish_meminit(this->m_kernel_ram.get(), MEM_MAP_REGION_SIZE_KERNEL_RAM);
 
     irvelog(1, "Created new Memory instance");
 }
 
 memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
-        m_is_big_endian(),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernal_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNAL_RAM]),
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
         m_debugstr() {
 
-    // Check endianness of host
+    // Check endianness of host (only little-endian hosts are supported)
     const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
-    if(host_order.value == 0x03020100) {
-        m_is_big_endian = false;
-    }
-    else if(host_order.value == 0x00010203) {
-        m_is_big_endian = true;
-    }
-    else {
-        assert(false && "Host endianness not supported");
-    }
-
-    assert(!m_is_big_endian && "Big endian hosts not currently supported"); // TODO
+    assert((host_order.value == 0x03020100) && "Host endianness not supported");
 
     // Initialize all ram to random values
     irve_fuzzish_meminit(this->m_user_ram.get(), MEM_MAP_REGION_SIZE_USER_RAM);
-    irve_fuzzish_meminit(this->m_kernal_ram.get(), MEM_MAP_REGION_SIZE_KERNAL_RAM);
+    irve_fuzzish_meminit(this->m_kernel_ram.get(), MEM_MAP_REGION_SIZE_KERNEL_RAM);
 
     // Load memory images and throw an exception if an error occured
     image_load_status_t load_status;
@@ -188,7 +168,8 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
 
 memory::memory_t::~memory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+                                this->m_debugstr.c_str());
     }
 }
 
@@ -386,8 +367,8 @@ word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_st
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         data = read_memory_region_user_ram(addr, data_type, access_status);
     }
-    else if((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) {
-        data = read_memory_region_kernal_ram(addr, data_type, access_status);
+    else if((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
+        data = read_memory_region_kernel_ram(addr, data_type, access_status);
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         data = read_memory_region_mmcsr(addr, data_type, access_status);
@@ -447,8 +428,8 @@ word_t memory::memory_t::read_memory_region_user_ram(uint64_t addr, uint8_t data
     return data;
 }
 
-word_t memory::memory_t::read_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
-    assert((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM) && "This should never happen");
+word_t memory::memory_t::read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+    assert((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM) && "This should never happen");
     assert(false && "Not implemented yet"); // TODO test read_memory_region_user_ram before implementing this
     
     // Just here to avoid compiler warnings for now
@@ -507,8 +488,8 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t dat
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         write_memory_region_user_ram(addr, data_type, data, access_status);
     }
-    else if((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) {
-        write_memory_region_kernal_ram(addr, data_type, data, access_status);
+    else if((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
+        write_memory_region_kernel_ram(addr, data_type, data, access_status);
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         write_memory_region_mmcsr(addr, data_type, data, access_status);
@@ -554,8 +535,8 @@ void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_
     }
 }
 
-void memory::memory_t::write_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
-    assert(((addr >= MEM_MAP_REGION_START_KERNAL_RAM) && (addr <= MEM_MAP_REGION_END_KERNAL_RAM)) && "This should never happen");
+void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
+    assert(((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) && "This should never happen");
     assert(false && "Not implemented yet"); // TODO
 
     // Just here to avoid compiler warnings for now
@@ -628,14 +609,6 @@ void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_typ
     else {
         this->m_debugstr.push_back(character);
     }
-}
-
-word_t memory::memory_t::flip_endian(word_t to_flip, uint8_t data_width) {
-    assert(false && "Not implemented yet"); // TODO
-
-    // Here to avoid compiler warnings for now
-    to_flip.u += data_width;
-    return to_flip;
 }
 
 memory::image_load_status_t memory::memory_t::load_memory_image_files(int imagec, const char* const* imagev) {
@@ -712,7 +685,9 @@ memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_
         }
         else { // New data word (32-bit, could be an instruction or data)
             if (token.length() != 8) {
-                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data word is not 8 characters long). This is likely an objcopy bug. Continuing anyway...");
+                irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data "
+                           "word is not 8 characters long). This is likely an objcopy bug. "
+                           "Continuing anyway...");
             }
             
             // The data word this token represents
