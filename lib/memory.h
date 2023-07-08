@@ -1,6 +1,6 @@
 /**
  * @file    memory.h
- * @brief   The classes for the memory of the emulator
+ * @brief   Handles the memory of the emulator
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
@@ -21,16 +21,6 @@
 
 #include "common.h"
 #include "CSR.h"
-
-/* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
-// TODO put these into a namespace as regular C++ constants
-
-// TODO determine which defines should be in the source file instead
-
-#define DATA_WIDTH_MASK 0b11
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -57,68 +47,7 @@ typedef enum {
 } image_load_status_t;
 
 /**
- * @brief Stores the 'physical' memory and handles memory mapped IO
-*/
-class pmemory_t {
-public:
-
-    /**
-     * @brief The constructor
-    */
-    pmemory_t();
-
-    /**
-     * @brief The destructor
-    */
-    ~pmemory_t();
-
-    //TODO if/when we implement PMP, this will need an m_CSR_ref too
-
-    /**
-     * @brief Read a byte from memory
-     * @param addr 34 bit machine address
-     * @param access_status the status of the access
-     * @return The byte read
-    */
-    uint8_t read_byte(uint64_t addr, access_status_t &access_status) const;
-
-    /**
-     * @brief Write a byte to memory
-     * @param addr 34 bit machine address
-     * @param data The data to be written
-     * 
-     * This function does NOT raise exceptions if the byte is not writable. To verify that the
-     * byte is writable, `check_writable_byte` should always be called first.
-    */
-    void write_byte(uint64_t addr, uint8_t data);
-
-    /**
-     * @brief Check if a byte is writable
-     * @param addr 34 bit machine address
-     * @return the status of the access
-     * 
-     * This function should always be used to check that a byte is writable before
-     * writing to the byte since `write_byte` assumes the byte is writable. Note that this only
-     * checks if the byte is physically writable; privilege level checks and so on are handled
-     * elsewhere.
-    */
-    access_status_t check_writable_byte(uint64_t addr);
-
-private:
-
-    /**
-     * @brief Pointer to the ram array
-    */
-    std::unique_ptr<uint8_t[]> m_ram;
-
-    /**
-     * @brief TODO
-    */
-    std::string m_debugstr;
-};
-
-/**
- * @brief A wrapper for physical memory
+ * @brief TODO
  * 
  * Facilitates address translation, memory protection, and loading the memory image file
 */
@@ -138,6 +67,11 @@ public:
      * @param CSR_ref A reference to the CSRs
     */
     memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
+
+    /**
+     * @brief The destructor
+    */
+    ~memory_t();
 
     /**
      * @brief Fetch instruction from memory (implicit read)
@@ -190,8 +124,13 @@ private:
      *                  signed/unsigned
      * @return 32 bit version of data that was read
     */
-    word_t read_physical(uint64_t addr, uint8_t data_type, access_status_t
-                            &access_status) const;
+    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+
+    word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+
+    word_t read_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    
+    word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
     /**
      * @brief Write data to memory
@@ -200,8 +139,23 @@ private:
      *                  signed/unsigned
      * @param data The data to be written to memory
     */
-    void write_physical(uint64_t addr, uint8_t data_type, word_t data,
-                        access_status_t &access_status);
+    void write_memory(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    void write_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    
+    void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    /**
+     * @brief Flips the endianness of a word
+     * @param to_flip The word to flip the endianness of
+     * @param data_width The width of the data that will be flipped
+     * @return The word with the flip
+    */
+    word_t flip_endian(word_t to_flip, uint8_t data_width); // TODO
 
     /**
      * @brief Loads memory image files (only called by the constructor)
@@ -226,16 +180,32 @@ private:
     image_load_status_t load_verilog_32(std::string image_path);
 
     /**
-     * @brief "physical" memory instance
-    */
-    pmemory_t m_mem;
-
-    /**
      * @brief Reference to the CSRs since memory operations depend on them
     */
     CSR::CSR_t& m_CSR_ref;
+
+    /**
+     * @brief True if the host is big-endian, false otherwise
+    */
+    bool m_is_big_endian; // FIXME make this const (but not sure this is possible)
+
+    /**
+     * @brief Pointer to user ram
+    */
+    std::unique_ptr<uint8_t[]> m_user_ram;
+
+    /**
+     * @brief Pointer to kernal ram
+    */
+    std::unique_ptr<uint8_t[]> m_kernal_ram;
+
+    /**
+     * @brief TODO
+    */
+    std::string m_debugstr;
+
 };
 
-}
+}//NAMESPACE//irve::internal::memory
 
 #endif//MEMORY_H

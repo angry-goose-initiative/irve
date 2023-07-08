@@ -40,12 +40,6 @@ add_unit_test(memory_memory_t_supervisor_loads_with_translation)
 #add_unit_test(memory_memory_t_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
 #add_unit_test(memory_memory_t_invalid_unmapped_misaligned_words)#TODO Not written yet
 
-add_unit_test(memory_pmemory_t_valid_debugaddr)
-add_unit_test(memory_pmemory_t_valid_ramaddrs)
-add_unit_test(memory_pmemory_t_invalid_debugaddr)
-add_unit_test(memory_pmemory_t_invalid_ram_writes)
-add_unit_test(memory_pmemory_t_invalid_ram_reads)
-
 ####################################################################################################
 # Integration Test List (integration_tester)
 ####################################################################################################
