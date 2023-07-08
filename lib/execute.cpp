@@ -797,9 +797,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL, EBREAK, WFI, MRET, SRET, or SFENCE.VMA
             //For all of these, the register fields rd and rs1 must be zero
-            if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
+            //FIXME this isn't correct (ex. SFENCE.VMA)
+            /*if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
+            */
 
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");

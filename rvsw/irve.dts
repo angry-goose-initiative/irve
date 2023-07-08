@@ -1,0 +1,26 @@
+/**
+ * File:    irve.dts
+ * Brief:   The IRVE Device Tree for the Linux kernel
+ * 
+ * Copyright (C) 2023 John Jekel and Nick Chan
+ * See the LICENSE file at the root of the project for licensing info.
+ * 
+ * TODO longer description
+ *
+ * Partialy based on https://github.com/cnlohr/mini-rv32ima/blob/master/configs/minimal.dts
+ *
+*/
+
+/dts-v1/;
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    memory@C0000000 {
+        device_type = "memory";
+        reg = <0xC0000000 0x3ffffff>;
+    };
+
+    /* TODO add other things we may need */
+};

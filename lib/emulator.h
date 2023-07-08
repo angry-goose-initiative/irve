@@ -16,6 +16,8 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#include <cstdint>
+
 #include "common.h"
 #include "cpu_state.h"
 #include "decode.h"

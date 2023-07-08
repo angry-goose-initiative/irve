@@ -67,13 +67,13 @@ namespace irve::internal::uart {
         bool dlab() const;
 
         //No need for rhr and thr since they just go directly to stdin/stdout
-        uint8_t m_ier;//Interrupt Enable Register
+        //uint8_t m_ier;//Interrupt Enable Register
         uint8_t m_isr;//Interrupt Status Register
-        uint8_t m_fcr;//FIFO Control Register
+        //uint8_t m_fcr;//FIFO Control Register
         uint8_t m_lcr;//Line Control Register
-        uint8_t m_mcr;//Modem Control Register
-        uint8_t m_lsr;//Line Status Register
-        uint8_t m_msr;//Modem Status Register
+        //uint8_t m_mcr;//Modem Control Register
+        //uint8_t m_lsr;//Line Status Register
+        //uint8_t m_msr;//Modem Status Register
         uint8_t m_spr;//Scratch Pad Register
 
         //Note: We expose these registers, but we completely ignore their contents
