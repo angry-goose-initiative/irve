@@ -120,42 +120,39 @@ private:
     /**
      * @brief Read the specified data type from memory
      * @param addr 34 bit machine address
-     * @param data_type From funct3 of memory instructions, specifies data width and
-     *                  signed/unsigned
+     * @param data_type Specifies data width and signed/unsigned
      * @return 32 bit version of data that was read
     */
     word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
+    // TODO documentation
     word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
+    // TODO documentation
     word_t read_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
     
+    // TODO documentation
     word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
     /**
      * @brief Write data to memory
      * @param addr 34 bit machine address
-     * @param data_type From funct3 of memory instrucitons, specifies data width and
-     *                  signed/unsigned
+     * @param data_type Specifies data width
      * @param data The data to be written to memory
     */
     void write_memory(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
+    // TODO documentation
     void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
+    // TODO documentation
     void write_memory_region_kernal_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
     
+    // TODO documentation
     void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
+    // TODO documentation
     void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-
-    /**
-     * @brief Flips the endianness of a word
-     * @param to_flip The word to flip the endianness of
-     * @param data_width The width of the data that will be flipped
-     * @return The word with the flip
-    */
-    word_t flip_endian(word_t to_flip, uint8_t data_width); // TODO
 
     /**
      * @brief Loads memory image files (only called by the constructor)
@@ -183,11 +180,6 @@ private:
      * @brief Reference to the CSRs since memory operations depend on them
     */
     CSR::CSR_t& m_CSR_ref;
-
-    /**
-     * @brief True if the host is big-endian, false otherwise
-    */
-    bool m_is_big_endian; // FIXME make this const (but not sure this is possible)
 
     /**
      * @brief Pointer to user ram
