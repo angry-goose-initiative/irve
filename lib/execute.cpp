@@ -1,16 +1,18 @@
-/* execute.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    execute.cpp
+ * @brief   Utility functions for executing instructions
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Utility functions for executing instructions
+ * 
+ * TODO longer description
  *
  * Some inspiration from rv32esim
- *
 */
 
-//TODO transition to using word_t and reg_t
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "execute.h"
 
@@ -28,7 +30,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
@@ -793,9 +797,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL, EBREAK, WFI, MRET, SRET, or SFENCE.VMA
             //For all of these, the register fields rd and rs1 must be zero
-            if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
+            //FIXME this isn't correct (ex. SFENCE.VMA)
+            /*if (decoded_inst.get_rs1() != 0 || decoded_inst.get_rd() != 0) {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
+            */
 
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");

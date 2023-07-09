@@ -1,15 +1,22 @@
-/* gdbserver.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    gdbserver.h
+ * @brief   Minimal GDB server implementation to ease debugging
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Minimal GDB server implementation to ease debugging
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef GDBSERVER_H
 #define GDBSERVER_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
+
+#include <cstdint>
 
 //Needed to deal with circular headers
 namespace irve::internal::emulator {
@@ -18,9 +25,9 @@ namespace irve::internal::emulator {
 
 #include "emulator.h"
 
-#include <cstdint>
-
-/* Function/Class Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 namespace irve::internal::gdbserver {
 

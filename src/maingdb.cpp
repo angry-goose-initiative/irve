@@ -1,23 +1,19 @@
-/* maingdb.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    maingdb.cpp
+ * @brief   IRVE - The Inextensible RISC-V Emulator (GDB Server Version)
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * IRVE - The Inextensible RISC-V Emulator (GDB Server Version)
- *
+ * 
  * Entry point
  *
 */
 
 //TODO better code reuse with this and main.cpp
 
-/* Constants and Defines */
-
-#define PORT 12345
-
-#define irvelog(...) irve::logging::log(__VA_ARGS__)
-#define irvelog_always(...) irve::logging::log_always(__VA_ARGS__)
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "irve_public_api.h"
 
@@ -27,11 +23,24 @@
 #include <optional>
 #include <string>
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
+
+#define PORT 12345
+
+#define irvelog(...) irve::logging::log(__VA_ARGS__)
+#define irvelog_always(...) irve::logging::log_always(__VA_ARGS__)
+
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static void print_startup_message();
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int argc, const char* const* argv) {
     auto irve_boot_time = std::chrono::steady_clock::now();
@@ -69,7 +78,9 @@ int main(int argc, const char* const* argv) {
     return 0;
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static void print_startup_message() {
     irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m (GDB Server Mode)");

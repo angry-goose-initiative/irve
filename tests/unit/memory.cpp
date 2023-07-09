@@ -1,194 +1,202 @@
-/* memory.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    memory.cpp
+ * @brief   Unit tests for IRVE's memory.h & memory.cpp
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's memory.h and memory.cpp
+ * 
+ * TODO longer description
  *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
-#define private public//Since we need to access internal emulator state for testing
+// We do this so we can access internal emulator state for testing
+#define private public
 
 #include <cassert>
 #include "memory.h"
 #include "CSR.h"
 #include "rvexception.h"
+#include "memory_map.h"
+#include "common.h"
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
-//TODO also test when it is in virtual memory mode (MMU tests)
-
-int test_memory_memory_t_valid_debugaddr() {//None of these should throw an exception
+// Test that user ram is little endian
+int test_memory_memory_t_user_ram_endianness() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
+    
+    // Check endianness for words
+    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_WORD, 0x00010203);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 0, DT_UNSIGNED_BYTE) == (uint32_t)0x03);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 1, DT_UNSIGNED_BYTE) == (uint32_t)0x02);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 2, DT_UNSIGNED_BYTE) == (uint32_t)0x01);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 3, DT_UNSIGNED_BYTE) == (uint32_t)0x00);
 
-    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'I');
-    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'R');
-    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'V');
-    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, 'E');
-    memory.store(MEM_MAP_ADDR_DEBUG, 0b000, '\n');
+    // Check endianness for halfwords
+    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_HALFWORD, 0x0000F0F1);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 0, DT_UNSIGNED_BYTE) == (uint32_t)0xF1);
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 1, DT_UNSIGNED_BYTE) == (uint32_t)0xF0);
 
     return 0;
 }
 
-//"Byte writes", but anything reads (byte, halfword, word) are tested
-int test_memory_memory_t_valid_ramaddrs_bytes() {//None of these should throw an exception
+// Test sign extending for user ram
+int test_memory_memory_t_user_ram_sign_extending() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        memory.store(i, 0b000, (uint8_t)(i * 123));
-    }
+    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_HALFWORD, 0x00008080);
 
-    for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        assert(memory.load(i, 0b100) == (uint8_t)(i * 123));
-        //TODO test little endianness here (halfword accesses, word accesses)
-        //TODO test load signed here too
+    // Unsigned byte load should zero extend
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_UNSIGNED_BYTE) == 0x00000080);
+    // Signed byte load should sign extend
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_SIGNED_BYTE) == 0xFFFFFF80);
+    // Unsigned halfword load should zero extend
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_UNSIGNED_HALFWORD) == 0x00008080);
+    // Signed halfword load should sign extend
+    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_SIGNED_HALFWORD) == 0xFFFF8080);
+
+    return 0;
+}
+
+// Test that valid accesses to user ram do not raise exceptions
+int test_memory_memory_t_user_ram_valid_byte_access() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    // It's way too slow to check every byte so we choose a prime number
+    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+        memory.store((uint32_t)i, DT_BYTE, (uint8_t)(i * 123));
+    }
+    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+        assert(memory.load((uint32_t)i, DT_UNSIGNED_BYTE) == (uint8_t)(i * 123));
     }
 
     return 0;
 }
 
-//"Halfword writes", but anything reads (byte, halfword, word) are tested
+// Test that valid stores to the debug address don't raise exceptions
+int test_memory_memory_t_valid_debugaddr() {
+    CSR::CSR_t CSR;
+    memory::memory_t memory(CSR);
+
+    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'I');
+    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'R');
+    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'V');
+    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'E');
+    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, '\n');
+
+    return 0;
+}
+
+// "Halfword writes", but anything reads (byte, halfword, word) are tested
 int test_memory_memory_t_valid_ramaddrs_halfwords() {//None of these should throw an exception
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    assert(RAMSIZE % 2 == 0);//RAMSIZE must be a multiple of 2
-    for (uint32_t i = 0; i < (RAMSIZE / 2); i += 2 * 13) {//Way too slow to do every byte (choose a prime number)
-        memory.store(i, 0b001, (uint16_t)(i * 12345));
-    }
+    // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 2
+    assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 2 == 0);
 
-    for (uint32_t i = 0; i < (RAMSIZE / 2); i += 2 * 13) {//Way too slow to do every byte (choose a prime number)
-        assert(memory.load(i, 0b101) == (uint16_t)(i * 12345));
-        //TODO test little endianness here (byte accesses, word accesses)
-        //TODO test load signed here too
+    // It's way too slow to check every byte so we choose a prime number
+    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 2); i += 2 * 13) {
+        memory.store(i, DT_HALFWORD, (uint16_t)(i * 12345));
+    }
+    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 2); i += 2 * 13) {
+        assert(memory.load(i, DT_UNSIGNED_HALFWORD) == (uint16_t)(i * 12345));
     }
 
     return 0;
 }
 
-//"Word writes", but anything reads (byte, halfword, word) are tested
+// "Word writes", but anything reads (byte, halfword, word) are tested
 int test_memory_memory_t_valid_ramaddrs_words() {//None of these should throw an exception
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    assert(RAMSIZE % 4 == 0);//RAMSIZE must be a multiple of 4
-    for (uint32_t i = 0; i < (RAMSIZE / 4); i += 4 * 13) {//Way too slow to do every byte (choose a prime number)
-        memory.store(i, 0b010, (uint32_t)(i * 987654321));
+    // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 4
+    assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 4 == 0);
+    
+    // It's way too slow to check every byte so we choose a prime number
+    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 4); i += 4 * 13) {
+        memory.store(i, DT_WORD, (uint32_t)(i * 987654321));
     }
-
-    for (uint32_t i = 0; i < (RAMSIZE / 4); i += 4 * 13) {//Way too slow to do every byte (choose a prime number)
-        assert(memory.load(i, 0b010) == (uint32_t)(i * 987654321));
-        //TODO test little endianness here (byte accesses, halfword accesses)
-        //TODO test load signed here too
+    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 4); i += 4 * 13) {
+        assert(memory.load(i, DT_WORD) == (uint32_t)(i * 987654321));
     }
 
     return 0;
 }
 
-int test_memory_memory_t_invalid_debugaddr() {//These should throw exceptions
+// Test that invalid accesses to the debug address throw exceptions
+int test_memory_memory_t_invalid_debugaddr() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    //Invalid accesses at the debug address (some are also misaligned)
+    // The debug address is write-only. Attempting to read from it violates PMA check and causes a
+    // load access-fault exception
     try {
-        memory.load(MEM_MAP_ADDR_DEBUG, 0b000);
+        memory.load((uint32_t)MEM_MAP_ADDR_DEBUG, DT_UNSIGNED_BYTE);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
         assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
+    // The debug address can only be accessed as a byte. Halfword and word access violates PMA
+    // check and causes an access-fault exception. Note that this is also a misaligned address, but
+    // access-fault exceptions take priority over address-misaligned exceptions according to page
+    // 40 of the RISC-V Spec Volume 2
     try {
-        memory.load(MEM_MAP_ADDR_DEBUG, 0b100);
+        memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_HALFWORD, 0xABCD);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
-    }
-
-    try {
-        memory.load(MEM_MAP_ADDR_DEBUG, 0b001);
-        assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
-        //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
-    }
-
-    try {
-        memory.store(MEM_MAP_ADDR_DEBUG, 0b001, 54321);
-        assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
-        //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
         assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
-        memory.load(MEM_MAP_ADDR_DEBUG, 0b101);
+        memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_WORD, 0xABCDEF01);
         assert(false);
     } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
-        //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
-    }
-
-    try {
-        memory.load(MEM_MAP_ADDR_DEBUG, 0b010);
-        assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
-        //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
-    }
-
-    try {
-        memory.store(MEM_MAP_ADDR_DEBUG, 0b010, 0xABCDEF01);
-        assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        //This should throw an exception of type rvexception_t
-        //NOTE the priority. This is a misaligned access too, but the exception should be a load access fault
-        //since that has a higher priority according to Page 40 of Volume 2 of the RISC-V spec
         assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     return 0;
 }
 
-int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned accesses in the middle of the RAM
+// Test that misaligned halfword accesses to user ram cause exceptions
+int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
-    for (uint32_t i = 0; i < RAMSIZE; i += 607) {//Way too slow to do every byte (choose a prime number)
-        uint32_t address = i | 0b1;//Misaligned intentionally
+    // It's way too slow to check every byte so we choose a prime number
+    for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 607) {
+        // Intentionally misalign the address
+        uint32_t address = i | 0b1;
+
         try {
-            memory.store(address, 0b001, (uint16_t)(i * 12345));
+            memory.store(address, DT_HALFWORD, (uint16_t)(i * 12345));
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
-            //This should throw an exception of type rvexception_t
-            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
-            memory.load(address, 0b101);
+            memory.load(address, DT_UNSIGNED_HALFWORD);
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
-            //This should throw an exception of type rvexception_t
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
-            memory.load(address, 0b001);
+            memory.load(address, DT_SIGNED_HALFWORD);
             assert(false);
         } catch (const rvexception::rvexception_t& e) {
-            //This should throw an exception of type rvexception_t
             assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
@@ -197,25 +205,25 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {//Misaligned a
 
 }
 
-int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {//Misaligned accesses in the middle of the RAM
+// Test that misaligned word accesses to user ram cause exceptions
+int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);
 
     for (uint32_t misalignment = 0b01; misalignment <= 0b11; ++misalignment) {
-        for (uint32_t i = 0; i < RAMSIZE; i += 607) {//Way too slow to do every byte (choose a prime number)
+        // It's way too slow to check every byte so we choose a prime number
+        for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 607) {
             uint32_t address = (i & ~0b11) | misalignment;//Misaligned intentionally
             try {
-                memory.store(address, 0b010, (uint32_t)(i * 12345));
+                memory.store(address, DT_WORD, (uint32_t)(i * 12345));
                 assert(false);
             } catch (const rvexception::rvexception_t& e) {
-                //This should throw an exception of type rvexception_t
                 assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
             }
             try {
-                memory.load(address, 0b010);
+                memory.load(address, DT_WORD);
                 assert(false);
             } catch (const rvexception::rvexception_t& e) {
-                //This should throw an exception of type rvexception_t
                 assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
             }
         }
@@ -264,81 +272,7 @@ int test_memory_memory_t_invalid_unmappedaddrs_misaligned_words() {
     return 0;
 }
 
-int test_memory_pmemory_t_valid_debugaddr() {//None of these should throw an exception
-    memory::pmemory_t pmemory;
-
-    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'I');
-    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'R');
-    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'V');
-    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, 'E');
-    pmemory.write_byte(MEM_MAP_ADDR_DEBUG, '\n');
-
-    return 0;
-}
-
-int test_memory_pmemory_t_valid_ramaddrs() {//None of these should fail
-    memory::pmemory_t pmemory;
-    access_status_t access_status;
-
-    for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        pmemory.write_byte(i, (uint8_t)(i * 123));
-    }
-
-    for (uint32_t i = 0; i < RAMSIZE; i += 13) {//Way too slow to do every byte (choose a prime number)
-        assert(pmemory.read_byte(i, access_status) == (uint8_t)(i * 123));
-        assert(access_status == AS_OKAY);
-    }
-
-    return 0;
-}
-
-int test_memory_pmemory_t_invalid_debugaddr() {//This should fail
-    memory::pmemory_t pmemory;
-    access_status_t access_status;
-
-    pmemory.read_byte(MEM_MAP_ADDR_DEBUG, access_status);
-    
-    if(access_status == AS_OKAY) {
-        return 1;
-    }
-
-    return 0;
-}
-
-int test_memory_pmemory_t_invalid_ram_reads() {//These should fail
-    memory::pmemory_t pmemory;
-    access_status_t access_status;
-
-    for (uint32_t i = RAMSIZE; i < MEM_MAP_ADDR_DEBUG; i += 7919) {//Way too slow to do every byte (choose a prime number)
-        pmemory.read_byte(i, access_status);
-        if(access_status == AS_OKAY) {
-            return 1;
-        }
-
-        if ((i + 7919) < i) {//Overflow, thus end of test
-            break;
-        }
-    }
-
-    return 0;
-}
-
-int test_memory_pmemory_t_invalid_ram_writes() {//These should fail
-    memory::pmemory_t pmemory;
-
-    for (uint32_t i = RAMSIZE; i < MEM_MAP_ADDR_DEBUG; i += 7919) {//Way too slow to do every byte (choose a prime number)
-        if(pmemory.check_writable_byte(i) == AS_OKAY) {
-            return 1;
-        }
-
-        if ((i + 7919) < i) {//Overflow, thus end of test
-            break;
-        }
-    }
-
-    return 0;
-}
-
+// Tests that the address translation scheme is being chosen correctly
 int test_memory_memory_t_translation_conditions() {
     CSR::CSR_t CSR;
     memory::memory_t memory(CSR);

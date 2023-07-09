@@ -1,15 +1,22 @@
-/* emulator.h
- * Copyright (C) 2023 John Jekel and Nick Chan
+/**
+ * @file    emulator.h
+ * @brief   The main emulator class used to instantiate an instance of irve
+ * 
+ * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- *
- * The main emulator class used to instantiate an instance of irve
+ * 
+ * TODO longer description
  *
 */
 
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
+
+#include <cstdint>
 
 #include "common.h"
 #include "cpu_state.h"
@@ -18,7 +25,11 @@
 #include "memory.h"
 #include "rvexception.h"
 
-/* Types */
+#include <unordered_map>
+
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 /**
  * @brief The namespace containing the actual emulator_t class (internal)
@@ -73,6 +84,8 @@ namespace irve::internal::emulator {
          * @return True if a breakpoint was encountered
         */
         bool test_and_clear_breakpoint_encountered_flag();
+
+        void flush_icache();
     private:
         
         //TODO document these as well
@@ -81,7 +94,7 @@ namespace irve::internal::emulator {
          * @brief TODO
          * @return TODO
         */
-        word_t fetch() const;
+        decode::decoded_inst_t fetch_and_decode();
 
         /**
          * @brief TODO
@@ -104,6 +117,7 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for word_t
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
 
