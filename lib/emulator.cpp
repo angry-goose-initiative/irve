@@ -26,6 +26,7 @@
 #include "execute.h"
 #include "memory.h"
 #include "rvexception.h"
+#include "semihosting.h"
 
 #define INST_COUNT this->m_CSR.implicit_read(CSR::address::MINSTRET).u
 #include "logging.h"
@@ -318,7 +319,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
                 //srai x0, x0, 0x7
                 if ((prev_inst == 0x01f01013) && (next_inst == 0x40705013)) {
                     irvelog(1, "Semihosting EBREAK detected");
-                    //TODO
+                    semihosting::handle(this->m_cpu_state, this->m_memory);
                 }
                 //Otherwise not a semihosting ebreak
             } catch (const rvexception::rvexception_t&) {
