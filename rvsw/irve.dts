@@ -5,7 +5,8 @@
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO longer description
+ * AFTER COMPILING THIS with `dtc`, IT IS IMPERATIVE IT IS PLACED IN MEMORY AT
+ * A LOCATION ALIGNED TO 8 BYTES. THIS TOOK ME FOREVER TO FIGURE OUT. DON'T BE ME.
  *
  * Partialy based on https://github.com/cnlohr/mini-rv32ima/blob/master/configs/minimal.dts
  *
@@ -21,6 +22,38 @@
         device_type = "memory";
         reg = <0xC0000000 0x3ffffff>;
     };
+
+    /*cpus {
+        #address-cells = <0x01>;
+		#size-cells = <0x00>;
+		timebase-frequency = <1000000>;
+
+		cpu@0 {
+			phandle = <0x01>;
+			device_type = "cpu";
+			reg = <0x00>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv32ima";
+			mmu-type = "riscv,none";
+
+			interrupt-controller {
+				#interrupt-cells = <0x01>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+				phandle = <0x02>;
+			};
+		};
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <0x01>;
+				};
+			};
+		};
+	};
+    */
 
     /* TODO add other things we may need */
 };
