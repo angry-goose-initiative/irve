@@ -61,7 +61,7 @@ uart::uart_t::~uart_t() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
-            "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+            "\x1b[92mRVUART:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
             this->m_output_line_buffer.c_str()
         );
     }
@@ -127,7 +127,7 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
                     //End of line; print the contents of the line buffer to stdout
                     irvelog_always_stdout(
                         0,
-                        "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
+                        "\x1b[92mRVUART\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
                         this->m_output_line_buffer.c_str()
                     );
                     this->m_output_line_buffer.clear();

@@ -168,7 +168,7 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
 
 memory::memory_t::~memory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+        irvelog_always_stdout(0, "\x1b[92mRVDEBUG:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
                                 this->m_debugstr.c_str());
     }
 }
@@ -598,12 +598,12 @@ void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_typ
     char character = (char)data.s;
     if (character == '\n') {
         // End of line; print the debug string
-        irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRVDEBUG\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
         this->m_debugstr.clear();
     }
     else if (character == '\0') {
         // Null terminator; print the debug string
-        irvelog_always_stdout(0, "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
+        irvelog_always_stdout(0, "\x1b[92mRVDEBUG\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
         this->m_debugstr.clear();
     }
     else {
