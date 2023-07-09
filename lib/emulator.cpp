@@ -320,6 +320,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
                 if ((prev_inst == 0x01f01013) && (next_inst == 0x40705013)) {
                     irvelog(1, "Semihosting EBREAK detected");
                     semihosting::handle(this->m_cpu_state, this->m_memory);
+                    return;
                 }
                 //Otherwise not a semihosting ebreak
             } catch (const rvexception::rvexception_t&) {

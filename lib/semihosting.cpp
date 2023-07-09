@@ -52,12 +52,21 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void semihosting::handle(cpu_state::cpu_state_t& cpu_state, memory::memory_t& /*memory*//*, const CSR::CSR_t& CSR*/) {
+void semihosting::handle(cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory/*, const CSR::CSR_t& CSR*/) {
+    //TODO don't use always stdout for everything
     switch (cpu_state.get_r(a0).u) {
-        case 0x03://SYS_WRITEC
+        case 0x03: {//SYS_WRITEC
             //TODO actually save this into some buffer and print out a whole line at a time
-            irvelog_always_stdout(0, "SYS_WRITEC: %c", cpu_state.get_r(a1));
+            word_t char_pointer = cpu_state.get_r(a1);
+            try {
+                char c = memory.load(char_pointer, 0b000).u;
+                //irvelog_always_stdout(0, "SYS_WRITEC: %c", c);
+                putchar(c);
+            } catch (const rvexception::rvexception_t&) {
+                irvelog_always_stdout(0, "SYS_WRITEC: Invalid address 0x%08x", char_pointer);
+            }
             break;
+        }
         default:
             irvelog_always_stdout(0, "Semihosting call 0x%08x not implemented\n", cpu_state.get_r(a0));//TODO should this be always?
             break;
