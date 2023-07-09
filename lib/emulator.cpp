@@ -325,18 +325,15 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
             } catch (const rvexception::rvexception_t&) {
                 //Not a semihosting ebreak
             }
-        }
-
-        //We do this to support debugging with irvegdb. This will cause issues if anything other than GDB puts an EBREAK instruction in memory
-        //Really though we should only do this for M-mode, and the firmware should simply forward EBREAKs from S-mode to M-mode somehow
-        //But this does work fine enough as-is
-        //We only intercept non-semihosting EBREAKs if we're in M-mode
-        if (this->m_intercept_breakpoints && (this->m_CSR.get_privilege_mode() != CSR::privilege_mode_t::USER_MODE)) {
+        } else if (this->m_intercept_breakpoints && (this->m_CSR.get_privilege_mode() != CSR::privilege_mode_t::USER_MODE)) {
+            //We do this to support debugging with irvegdb. This will cause issues if anything other than GDB puts an EBREAK instruction in memory
+            //Really though we should only do this for M-mode, and the firmware should simply forward EBREAKs from S-mode to M-mode somehow
+            //But this does work fine enough as-is
+            //We only intercept non-semihosting EBREAKs if we're in M-mode
             irvelog(1, "Breakpoint intercepted");
             this->m_encountered_breakpoint = true;
             return;
         }
-
     }
 
     this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
