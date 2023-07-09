@@ -128,8 +128,7 @@ using namespace irve::internal;
 memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
-        m_debugstr() {
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]) {
 
     // Check endianness of host (only little-endian hosts are supported)
     const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
@@ -145,8 +144,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
 memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
-        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
-        m_debugstr() {
+        m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]) {
 
     // Check endianness of host (only little-endian hosts are supported)
     const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
@@ -167,9 +165,12 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
 }
 
 memory::memory_t::~memory_t() {
-    if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRVDEBUG:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
-                                this->m_debugstr.c_str());
+    if (this->m_output_line_buffer.size() > 0) {
+        irvelog_always_stdout(
+            0,
+            "\x1b[92mRVDEBUGADDR:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+            this->m_output_line_buffer.c_str()
+        );
     }
 }
 
@@ -596,18 +597,28 @@ void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_typ
     }
 
     char character = (char)data.s;
-    if (character == '\n') {
-        // End of line; print the debug string
-        irvelog_always_stdout(0, "\x1b[92mRVDEBUG\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"", this->m_debugstr.c_str());
-        this->m_debugstr.clear();
-    }
-    else if (character == '\0') {
-        // Null terminator; print the debug string
-        irvelog_always_stdout(0, "\x1b[92mRVDEBUG\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"", this->m_debugstr.c_str());
-        this->m_debugstr.clear();
-    }
-    else {
-        this->m_debugstr.push_back(character);
+    switch (character) {
+        case '\n':
+            //End of line; print the contents of the line buffer and clear it
+            irvelog_always_stdout(
+                0,
+                "\x1b[92mRVDEBUGADDR\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
+                this->m_output_line_buffer.c_str()
+            );
+            this->m_output_line_buffer.clear();
+            break;
+        case '\0':
+            //Null terminator; print the contents of the line buffer and clear it
+            //(this has helped with debugging weird issues in the past)
+            irvelog_always_stdout(
+                0,
+                "\x1b[92mRVDEBUGADDR\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"",
+                this->m_output_line_buffer.c_str()
+            );
+            this->m_output_line_buffer.clear();
+            break;
+        case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
+        default:    this->m_output_line_buffer.push_back(character); break;
     }
 }
 

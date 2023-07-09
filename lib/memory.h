@@ -194,7 +194,7 @@ private:
     /**
      * @brief TODO
     */
-    std::string m_debugstr;
+    std::string m_output_line_buffer;
 
 };
 
