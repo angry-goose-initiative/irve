@@ -91,7 +91,7 @@ void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t m
             exit(1);
             break;
         case 11://MMODE_ECALL_EXCEPTION
-            assert(false && "We should never get here; The IRVE SBI never does ECALL!");
+            assert(false && "We should never get here; OGSBI SBI never does ECALL!");
             exit(1);
             break;
         case 12://INSTRUCTION_PAGE_FAULT_EXCEPTION
