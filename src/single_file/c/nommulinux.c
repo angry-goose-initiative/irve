@@ -13,33 +13,21 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#include "rvsw_asm.h"
+
 #include <stdio.h>
 
 /* ------------------------------------------------------------------------------------------------
- * Constants/Defines
+ * External Variables
  * --------------------------------------------------------------------------------------------- */
 
-#define HART_ID 0 //TODO
-#define DTB_ADDR 0x00001001 //TODO (misaligned so it is ignored, add logic to provide a proper address)
-#define KERNEL_ADDR 0xC0000000
-
-/* ------------------------------------------------------------------------------------------------
- * Type Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Static Variables
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
+extern const uint8_t dtb_start;
 
 /* ------------------------------------------------------------------------------------------------
  * Static Function Declarations
  * --------------------------------------------------------------------------------------------- */
 
-//TODO
+uint32_t mhartid(void);
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -58,9 +46,9 @@ int main (int, const char**) {
     puts("See the LICENSE file at the root of the project for licensing info.");
     putc('\n', stdout);
     puts("Configuration Info:");
-    printf("  HART_ID:     %d\n",   HART_ID);
-    printf("  DTB_ADDR:    0x%X\n", DTB_ADDR);
-    printf("  KERNEL_ADDR: 0x%X\n", KERNEL_ADDR);
+    printf("  RISC-V Hart ID:                %ld\n",   mhartid());
+    printf("  Device Tree Blob Address:      0x%lX\n", (uint32_t)&dtb_start);
+    printf("  S-Mode / Kernel Entry Address: 0x%X\n",  RVSW_SMODE_AND_KERNEL_ENTRY_ADDR);
     puts("------------------------------------------------------------------------");
     putc('\n', stdout);
 
@@ -71,7 +59,7 @@ int main (int, const char**) {
         "mv t0, %[kernel_addr]\n"
         "jr t0\n"//Cya!
         : /* No output registers */
-        : [hart_id] "r" (HART_ID), [dtb_addr] "r" (DTB_ADDR), [kernel_addr] "r" (KERNEL_ADDR)
+        : [hart_id] "r" (mhartid()), [dtb_addr] "r" ((uint32_t)&dtb_start), [kernel_addr] "r" (RVSW_SMODE_AND_KERNEL_ENTRY_ADDR)
         : "a0", "a1", "t0"//Not that it matters since we never return
     );
 
@@ -82,4 +70,25 @@ int main (int, const char**) {
  * Static Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-//TODO
+uint32_t mhartid(void) {
+    uint32_t value;
+    __asm__ volatile (
+        "csrr %[value], mhartid\n"
+        : [value] "=r" (value)
+        : /* No inputs */
+        : /* No clobbered registers */
+    );
+    return value;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Some end-of-file weirdness
+ * --------------------------------------------------------------------------------------------- */
+
+//NOTE: Including the dtb in this way must occur at the end of the file otherwise it would break all
+//code below it
+__asm__ (
+    ".align 8\n"//THIS IS VERY IMPORTANT
+    "dtb_start:\n"
+    ".incbin \"" RVSW_DTB_PATH "\""
+);

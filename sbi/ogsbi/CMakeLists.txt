@@ -15,6 +15,7 @@ include(${PROJECT_SOURCE_DIR}/macros.cmake)
 set(OGSBI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/asm_c_interface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dtb.S
     ${CMAKE_CURRENT_SOURCE_DIR}/exception_entry.s
     ${CMAKE_CURRENT_SOURCE_DIR}/gp_tp_preserve_restore.s
     ${CMAKE_CURRENT_SOURCE_DIR}/jump2linux.S

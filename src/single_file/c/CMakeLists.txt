@@ -49,3 +49,8 @@ add_smode_c_target(rv32esim ${CMAKE_CURRENT_SOURCE_DIR}/rv32esim.c)
 add_smode_c_target(rv32im_sanity ${CMAKE_CURRENT_SOURCE_DIR}/rv32im_sanity.c)
 add_smode_c_target(software_floating_point_fun ${CMAKE_CURRENT_SOURCE_DIR}/software_floating_point_fun.c)
 #TODO others
+
+
+
+#Additional special things
+target_include_directories(src__single_file__c__nommulinux PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h

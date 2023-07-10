@@ -85,4 +85,10 @@ long handle_legacy_sbi_smode_ecall(
 
 void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc);
 
+/* ------------------------------------------------------------------------------------------------
+ * External Variables
+ * --------------------------------------------------------------------------------------------- */
+
+extern const uint8_t dtb_start;
+
 #endif//ASM_C_INTERFACE_H

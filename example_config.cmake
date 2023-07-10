@@ -10,6 +10,8 @@ set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)
 set(CMAKE_CXX_COMPILER riscv32-unknown-elf-g++)
 set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
 
+set(RVSW_DTB_PATH "/dev/null")#Your dtb path here (must be precompiled)
+
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")
 set(RVSW_MMODE_COMMON_FLAGS "")
 set(RVSW_SMODE_COMMON_FLAGS "")
@@ -38,6 +40,7 @@ set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code
 
 #The linker script should also contain ENTRY(___rvsw_reset___) in the file
 
+set(RVSW_SMODE_AND_KERNEL_ENTRY_ADDR 0xC0000000)#Your entry address here
 
 set(RVSW_MARCH "rv32ima_zicsr_zifencei")#Your -march=[...] here
 set(RVSW_MABI "ilp32")#Your -mabi=[...] here

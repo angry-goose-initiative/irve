@@ -13,6 +13,7 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#include "rvsw_asm.h"
 #include "asm_c_interface.h"
 #include "common.h"
 
@@ -23,13 +24,10 @@
 #include <stdlib.h>
 
 /* ------------------------------------------------------------------------------------------------
- * Constants/Defines
+ * Static Function Declarations
  * --------------------------------------------------------------------------------------------- */
 
-#define HART_ID 0//TODO instead of just assuming the hart id is 0, actually pass the contents of mhartid
-//#define KERNEL_ADDR 0xC0000000
-#define KERNEL_ADDR 0x02000000//TEMPORARY until memory-things are ready
-#define DTB_ADDR 0xDEADBEEF//TODO
+uint32_t mhartid(void);
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -48,9 +46,9 @@ int main(int, const char**) {
     dputs("See the LICENSE file at the root of the project for licensing info.");
     dputc('\n');
     dputs("Configuration Info:");
-    dprintf("  HART_ID:     %d",   HART_ID);
-    dprintf("  DTB_ADDR:    0x%X", DTB_ADDR);
-    dprintf("  KERNEL_ADDR: 0x%X", KERNEL_ADDR);
+    dprintf("  RISC-V Hart ID:                %ld",   mhartid());
+    dprintf("  Device Tree Blob Address:      0x%lX", (uint32_t)&dtb_start);
+    dprintf("  S-Mode / Kernel Entry Address: 0x%X",  RVSW_SMODE_AND_KERNEL_ENTRY_ADDR);
     dputs("------------------------------------------------------------------------");
     dputc('\n');
     dputc('\n');
@@ -82,13 +80,28 @@ int main(int, const char**) {
     __asm__ volatile (
         "csrw stvec, %[ADDR]\n"
         : /* No output registers */
-        : [ADDR] "r" (KERNEL_ADDR + 4)//Just after the kernel entry point
+        : [ADDR] "r" (RVSW_SMODE_AND_KERNEL_ENTRY_ADDR + 4)//Just after the kernel entry point
         : /* No clobbered registers */
     );
 
     dputs("Jumping to the kernel, cya later!");
-    jump2linux(HART_ID, DTB_ADDR, KERNEL_ADDR);//Never returns
+    jump2linux(mhartid(), (uint32_t)&dtb_start, RVSW_SMODE_AND_KERNEL_ENTRY_ADDR);//Never returns
 
     assert(false && "We should never get here!");
     exit(1);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
+
+uint32_t mhartid(void) {
+    uint32_t value;
+    __asm__ volatile (
+        "csrr %[value], mhartid\n"
+        : [value] "=r" (value)
+        : /* No inputs */
+        : /* No clobbered registers */
+    );
+    return value;
 }

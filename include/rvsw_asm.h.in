@@ -59,6 +59,9 @@
 #undef VECTORED
 #undef RVSW_MTVEC_IS_HARDWIRED
 
+#define RVSW_DTB_PATH "@RVSW_DTB_PATH@"
+#define RVSW_SMODE_AND_KERNEL_ENTRY_ADDR @RVSW_SMODE_AND_KERNEL_ENTRY_ADDR@
+
 //Deal with the need/lack of need to initialize sections
 
 #if @RVSW_BSS_SEGMENT_ALREADY_ZEROED@ == 1
