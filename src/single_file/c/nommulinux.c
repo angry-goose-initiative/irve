@@ -46,11 +46,20 @@ int main (int, const char**) {
     puts("See the LICENSE file at the root of the project for licensing info.");
     putc('\n', stdout);
     puts("Configuration Info:");
-    printf("  RISC-V Hart ID:                %ld\n",   mhartid());
-    printf("  Device Tree Blob Address:      0x%lX\n", (uint32_t)&dtb_start);
-    printf("  S-Mode / Kernel Entry Address: 0x%X\n",  RVSW_SMODE_AND_KERNEL_ENTRY_ADDR);
+    printf("  RISC-V Hart ID:                    %ld\n",   mhartid());
+    printf("  Device Tree Blob Address:          0x%lX\n", (uint32_t)&dtb_start);
+    printf("  New M-Mode / Kernel Entry Address: 0x%X\n",  RVSW_SMODE_AND_KERNEL_ENTRY_ADDR);
     puts("------------------------------------------------------------------------");
     putc('\n', stdout);
+
+    //Set mtvec to point to just after the kernel entry point
+    //This is mostly to help out "nice" linker scripts that put the vector table right after the reset section
+    __asm__ volatile (
+        "csrw mtvec, %[ADDR]\n"
+        : /* No output registers */
+        : [ADDR] "r" (RVSW_SMODE_AND_KERNEL_ENTRY_ADDR + 4)//Just after the kernel entry point
+        : /* No clobbered registers */
+    );
 
     puts("Alrighty, well off to the kernel with you then!");
     __asm__ volatile (
