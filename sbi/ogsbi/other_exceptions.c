@@ -26,7 +26,8 @@
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void handle_other_exceptions(uint32_t registers[31], uint32_t mcause, uint32_t mepc) {
+//TODO get rid of the unused attributes
+void handle_other_exceptions(__attribute__((unused)) uint32_t registers[31], __attribute__((unused)) uint32_t mcause, __attribute__((unused)) uint32_t mepc) {
     dputs("Recieved a non-S-Mode-ECALL exception");
     for (int i = 0; i < 31; ++i) {
         dprintf("  x%d:\t0x%lX", i + 1, registers[i]);
