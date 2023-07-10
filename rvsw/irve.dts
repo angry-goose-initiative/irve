@@ -8,6 +8,8 @@
  * AFTER COMPILING THIS with `dtc`, IT IS IMPERATIVE IT IS PLACED IN MEMORY AT
  * A LOCATION ALIGNED TO 8 BYTES. THIS TOOK ME FOREVER TO FIGURE OUT. DON'T BE ME.
  *
+ * Compile with `dtc ./irve.dts -o ./irve.dtb`
+ *
  * Partialy based on https://github.com/cnlohr/mini-rv32ima/blob/master/configs/minimal.dts
  *
 */
