@@ -352,6 +352,7 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
         }
     }
     assert(false && "Should never get here");
+    return true;
 }
 
 word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
@@ -363,7 +364,7 @@ word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_st
 
     word_t data = 0;
 
-    // All portions of readable memory should be covered
+    // All regions that contain readable memory should be covered
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         data = read_memory_region_user_ram(addr, data_type, access_status);
     }
@@ -372,6 +373,9 @@ word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_st
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         data = read_memory_region_mmcsr(addr, data_type, access_status);
+    }
+    else if((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART)) {
+        data = read_memory_region_uart(addr, data_type, access_status);
     }
     else {
         access_status = AS_VIOLATES_PMA;
@@ -387,8 +391,6 @@ word_t memory::memory_t::read_memory(uint64_t addr, uint8_t data_type, access_st
 
 word_t memory::memory_t::read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
     assert((addr <= MEM_MAP_REGION_END_USER_RAM) && "This should never happen");
-
-    // TODO PMP check for user ram access
 
     // Check for misaligned access
     if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
@@ -422,7 +424,7 @@ word_t memory::memory_t::read_memory_region_user_ram(uint64_t addr, uint8_t data
             data = (int32_t)(*(int8_t*)mem_ptr);
             break;
         default:
-            assert(false && "This should never happen");
+            assert(false && "This should never be reached");
     }
 
     return data;
@@ -430,11 +432,43 @@ word_t memory::memory_t::read_memory_region_user_ram(uint64_t addr, uint8_t data
 
 word_t memory::memory_t::read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
     assert((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM) && "This should never happen");
-    assert(false && "Not implemented yet"); // TODO test read_memory_region_user_ram before implementing this
     
-    // Just here to avoid compiler warnings for now
-    access_status = AS_OKAY;
-    return word_t((uint32_t(addr) + data_type));
+    // Check for misaligned access
+    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
+        // Misaligned halfword read
+        access_status = AS_MISALIGNED;
+        return word_t(0);
+    }
+    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
+        // Misaligned word read
+        access_status = AS_MISALIGNED;
+        return word_t(0);
+    }
+
+    word_t data;
+    uint64_t mem_index = addr - MEM_MAP_REGION_START_KERNEL_RAM;
+    void* mem_ptr = &(m_user_ram[mem_index]);
+    switch(data_type) {
+        case DT_WORD:
+            data = *(uint32_t*)mem_ptr;
+            break;
+        case DT_UNSIGNED_HALFWORD:
+            data = (uint32_t)(*(uint16_t*)mem_ptr);
+            break;
+        case DT_SIGNED_HALFWORD:
+            data = (int32_t)(*(int16_t*)mem_ptr);
+            break;
+        case DT_UNSIGNED_BYTE:
+            data = (uint32_t)(*(uint8_t*)mem_ptr);
+            break;
+        case DT_SIGNED_BYTE:
+            data = (int32_t)(*(int8_t*)mem_ptr);
+            break;
+        default:
+            assert(false && "This should never be reached");
+    }
+
+    return data;
 }
 
 word_t memory::memory_t::read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
@@ -446,10 +480,7 @@ word_t memory::memory_t::read_memory_region_mmcsr(uint64_t addr, uint8_t data_ty
         return word_t(0);
     }
 
-    // TODO PMP checks for mmcsr
-
-    // Check for misaligned access. We only check for a misaligned word since at this point, the
-    // data width has to be a word.
+    // Check for misaligned word access
     if((addr & 0b11) != 0) {
         // Misaligned word
         access_status = AS_MISALIGNED;
@@ -477,6 +508,25 @@ word_t memory::memory_t::read_memory_region_mmcsr(uint64_t addr, uint8_t data_ty
     return m_CSR_ref.implicit_read(csr_num);
 }
 
+word_t memory::memory_t::read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+    assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) && "This should never happen");
+
+    assert(false && "Region not implemented yet");
+
+    // Only byte accesses allowed
+    if((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
+        access_status = AS_VIOLATES_PMA;
+        return word_t(0);
+    }
+
+    word_t data;
+    switch(addr) {
+        default:
+            assert(false && "This should never be reached");
+    }
+    return data;
+}
+
 void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t data, access_status_t &access_status) {
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
     
@@ -484,7 +534,7 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t dat
 
     access_status = AS_OKAY; // Set here to avoid uninitialized warning
 
-    // All portions of writable memory should be covered
+    // All regions that contain writable memory should be covered
     if(addr <= MEM_MAP_REGION_END_USER_RAM) {
         write_memory_region_user_ram(addr, data_type, data, access_status);
     }
@@ -493,6 +543,9 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t dat
     }
     else if((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
         write_memory_region_mmcsr(addr, data_type, data, access_status);
+    }
+    else if((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART)) {
+
     }
     else if(addr == MEM_MAP_ADDR_DEBUG) {
         write_memory_region_debug(addr, data_type, data, access_status);
@@ -531,17 +584,37 @@ void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_
             *(uint8_t*)mem_ptr = (uint8_t)data.u;
             break;
         default:
-            assert(false && "This should never happen");
+            assert(false && "This should never be reached");
     }
 }
 
 void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
     assert(((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) && "This should never happen");
-    assert(false && "Not implemented yet"); // TODO
 
-    // Just here to avoid compiler warnings for now
-    if(data_type || addr || data.u) {
-        access_status = AS_OKAY;
+    // Check for misaligned access
+    if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
+        // Misaligned halfword write
+        access_status = AS_MISALIGNED;
+    }
+    else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
+        // Misaligned word write
+        access_status = AS_MISALIGNED;
+    }
+
+    uint64_t mem_index = addr - MEM_MAP_REGION_START_KERNEL_RAM;
+    void* mem_ptr = &(m_user_ram[mem_index]);
+    switch(data_type) {
+        case DT_WORD:
+            *(uint32_t*)mem_ptr = data.u;
+            break;
+        case DT_HALFWORD:
+            *(uint16_t*)mem_ptr = (uint16_t)data.u;
+            break;
+        case DT_BYTE:
+            *(uint8_t*)mem_ptr = (uint8_t)data.u;
+            break;
+        default:
+            assert(false && "This should never be reached");
     }
 }
     
@@ -584,6 +657,24 @@ void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_typ
     }
 
     m_CSR_ref.implicit_write(csr_num, data);
+}
+
+void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {
+    assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) && "This should never happen");
+
+    assert(false && "Region not implemented yet");
+
+    // Only byte accesses allowed
+    if((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
+        access_status = AS_VIOLATES_PMA;
+        return;
+    }
+
+    switch(addr) {
+        default:
+            assert(false && "This should never be reached");
+            break;
+    }
 }
 
 void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status) {

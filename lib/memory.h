@@ -134,6 +134,9 @@ private:
     // TODO documentation
     word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
+    // TODO documentation
+    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+
     /**
      * @brief Write data to memory
      * @param addr 34 bit machine address
@@ -150,6 +153,9 @@ private:
     
     // TODO documentation
     void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    // TODO documentation
+    void write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
     // TODO documentation
     void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
