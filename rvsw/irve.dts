@@ -11,6 +11,8 @@
  * Compile with `dtc ./irve.dts -o ./irve.dtb`
  *
  * Partialy based on https://github.com/cnlohr/mini-rv32ima/blob/master/configs/minimal.dts
+ * Also useful: https://github.com/riscv-non-isa/riscv-device-tree-doc/blob/master/bindings/riscv/cpus.txt
+ * https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/Documentation/devicetree/bindings/interrupt-controller/riscv%2Ccpu-intc.txt
  *
 */
 
@@ -25,37 +27,38 @@
         reg = <0xC0000000 0x3ffffff>;
     };
 
-    /*cpus {
+    cpus {
         #address-cells = <0x01>;
-		#size-cells = <0x00>;
-		timebase-frequency = <1000000>;
+        #size-cells = <0x00>;
+        timebase-frequency = <1000>;//mtime ticks at 1kHz
 
-		cpu@0 {
-			phandle = <0x01>;
-			device_type = "cpu";
-			reg = <0x00>;
-			status = "okay";
-			compatible = "riscv";
-			riscv,isa = "rv32ima";
-			mmu-type = "riscv,none";
+        cpu@0 {
+            /* phandle = <0x01>; */
+            device_type = "cpu";
+            reg = <0x00000000>;/* mhartid is 0 */
+            status = "okay";/* The CPU begins online */
+            compatible = "riscv";
+            riscv,isa = "rv32ima";/* TODO do we need to specify zicsr, zifencei, etc as well? */
+            mmu-type = "riscv,sv32";
 
-			interrupt-controller {
-				#interrupt-cells = <0x01>;
-				interrupt-controller;
-				compatible = "riscv,cpu-intc";
-				phandle = <0x02>;
-			};
-		};
+            /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
+            interrupt-controller {
+                #interrupt-cells = <0x01>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+                /* phandle = <0x02>; */
+            };
+        };
 
-		cpu-map {
-			cluster0 {
-				core0 {
-					cpu = <0x01>;
-				};
-			};
-		};
-	};
-    */
+        /* cpu-map {
+            cluster0 {
+                core0 {
+                    cpu = <0x01>;
+                };
+            };
+        };
+        */
+    };
 
     /* TODO add other things we may need */
 };
