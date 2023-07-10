@@ -42,7 +42,7 @@ int main (int, const char**) {
     puts("|_| |_|\\___/|_| |_| |_|_| |_| |_|\\__,_|_|_|_| |_|\\__,_/_/\\_\\");
     putc('\n', stdout);
     puts("A simple nommu Linux bootloader for RISC-V");
-    puts("Copyright (C) 2023 John Jekel and Nick Chan");
+    puts("Copyright (C) 2023 John Jekel");
     puts("See the LICENSE file at the root of the project for licensing info.");
     putc('\n', stdout);
     puts("Configuration Info:");
@@ -97,7 +97,8 @@ uint32_t mhartid(void) {
 //NOTE: Including the dtb in this way must occur at the end of the file otherwise it would break all
 //code below it
 __asm__ (
-    ".align 8\n"//THIS IS VERY IMPORTANT
+    ".section .rodata\n"
+    ".align 3\n"//THIS IS VERY IMPORTANT (must align to 8 bytes, or 2^3)
     "dtb_start:\n"
     ".incbin \"" RVSW_DTB_PATH "\""
 );

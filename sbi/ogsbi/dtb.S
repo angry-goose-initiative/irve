@@ -6,7 +6,8 @@
 # 
 
 #include "rvsw_asm.h"
-.align 8 #THIS IS VERY IMPORTANT
+.section .rodata
+.align 3 #THIS IS VERY IMPORTANT (must align to 8 bytes, or 2^3)
 .global dtb_start
 dtb_start:
 .incbin RVSW_DTB_PATH
