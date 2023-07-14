@@ -57,7 +57,7 @@ CSR::CSR_t::CSR_t() :
     medeleg(0),//Only needs to be initialized for implicit_read() guarantees
     mideleg(0),//Only needs to be initialized for implicit_read() guarantees
     mie(0),//Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
-    mtvec((0x00000004 << 2) | 0b01),//Doesn't need to be initialized, but this is convenient for RVSW
+    mtvec(0x00000004 | 0b01),//Doesn't need to be initialized, but this is convenient for RVSW
     menvcfg(0),//Only needs to be initialized for implicit_read() guarantees
     mscratch(irve_fuzzish_rand()),//We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     mepc(0),//Only needs to be initialized for implicit_read() guarantees

@@ -385,9 +385,9 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         word_t mtvec = this->m_CSR.implicit_read(CSR::address::MTVEC);
         bool vectored = mtvec.bits(1, 0) == 0b01;
         if (vectored && is_interrupt) {
-            this->m_cpu_state.set_pc(mtvec.bits(31, 2) + (raw_cause.bits(30, 0).u * 4));
+            this->m_cpu_state.set_pc((mtvec & 0xFFFFFFFC) + (raw_cause.bits(30, 0).u * 4));
         } else {
-            this->m_cpu_state.set_pc(mtvec.bits(31, 2));
+            this->m_cpu_state.set_pc(mtvec & 0xFFFFFFFC);
         }
     } else {//Exception should be handled by supervisor mode
         //Manage the privilege stack
@@ -409,9 +409,9 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         word_t stvec = this->m_CSR.implicit_read(CSR::address::STVEC);
         bool vectored = stvec.bits(1, 0) == 0b01;
         if (vectored && is_interrupt) {
-            this->m_cpu_state.set_pc(stvec.bits(31, 2) + (raw_cause.bits(30, 0).u * 4));
+            this->m_cpu_state.set_pc((stvec & 0xFFFFFFFC) + (raw_cause.bits(30, 0).u * 4));
         } else {
-            this->m_cpu_state.set_pc(stvec.bits(31, 2));
+            this->m_cpu_state.set_pc(stvec & 0xFFFFFFFC);
         }
     }
 }
