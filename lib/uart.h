@@ -85,6 +85,9 @@ public:
 
 private:
 
+    /**
+     * @brief Divisor latch access bit
+    */
     bool dlab() const;
 
     //No need for rhr and thr since they just go directly to stdin/stdout
