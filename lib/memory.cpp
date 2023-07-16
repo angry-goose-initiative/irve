@@ -28,6 +28,7 @@
 #include "memory_map.h"
 #include "rvexception.h"
 #include "fuzzish.h"
+#include "uart.h"
 
 #define INST_COUNT 0 // We only log at init
 #include "logging.h"
@@ -43,6 +44,8 @@ using namespace irve::internal;
 #define TESTFILES_DIR   "rvsw/compiled/"
 
 #define DATA_WIDTH_MASK 0b11
+
+#define DATA_SIGN_MASK  0b100
 
 #define WORD_ADDR_MASK  (~(uint64_t)0b11)
 
@@ -120,6 +123,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
+        m_uart(),
         m_debugstr() {
 
     // Check endianness of host (only little-endian hosts are supported)
@@ -137,6 +141,7 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
+        m_uart(),
         m_debugstr() {
 
     // Check endianness of host (only little-endian hosts are supported)
@@ -159,12 +164,15 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CS
 
 memory::memory_t::~memory_t() {
     if (this->m_debugstr.size() > 0) {
-        irvelog_always_stdout(0, "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
-                                this->m_debugstr.c_str());
+        irvelog_always_stdout(
+            0,
+            "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+            this->m_debugstr.c_str()
+        );
     }
 }
 
-word_t memory::memory_t::instruction(word_t addr) const {
+word_t memory::memory_t::instruction(word_t addr) {
     access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
@@ -218,7 +226,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
     }
 }
 
-uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) const {
+uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) {
     if(no_address_translation(access_type)) {
         irvelog(1, "No address translation");
         return (uint64_t)untranslated_addr.u;
@@ -352,7 +360,7 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
 }
 
 word_t memory::memory_t::read_memory(
-        uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+        uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
 
@@ -515,7 +523,7 @@ word_t memory::memory_t::read_memory_region_mmcsr(
 }
 
 word_t memory::memory_t::read_memory_region_uart(
-        uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+        uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
             "This should never happen");
@@ -528,11 +536,18 @@ word_t memory::memory_t::read_memory_region_uart(
         return word_t(0);
     }
 
+    uint8_t uart_addr = (uint8_t)(addr - MEM_MAP_REGION_START_UART);
+
     word_t data;
-    switch (addr) {
-        default:
-            assert(false && "This should never be reached");
+    
+    // TODO uart read should also update access_status?
+    if (data_type & DATA_SIGN_MASK) {
+        data.u = (uint32_t)this->m_uart.read(uart_addr);
     }
+    else {
+        data.s = (int32_t)this->m_uart.read(uart_addr);
+    }
+    
     return data;
 }
 
@@ -556,7 +571,7 @@ void memory::memory_t::write_memory(
         write_memory_region_mmcsr(addr, data_type, data, access_status);
     }
     else if ((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART)) {
-
+        write_memory_region_uart(addr, data_type, data, access_status);
     }
     else if (addr == MEM_MAP_ADDR_DEBUG) {
         write_memory_region_debug(addr, data_type, data, access_status);
@@ -645,8 +660,6 @@ void memory::memory_t::write_memory_region_mmcsr(
         return;
     }
 
-    // TODO PMP checks for mmcsr
-
     // Check for misaligned access. We only check for a misaligned word since at this point, the
     // data width has to be a word.
     if ((addr & 0b11) != 0) {
@@ -691,11 +704,11 @@ void memory::memory_t::write_memory_region_uart(
         return;
     }
 
-    switch (addr) {
-        default:
-            assert(false && "This should never be reached");
-            break;
-    }
+    uint8_t uart_addr = (uint8_t)(addr - MEM_MAP_REGION_START_UART);
+    uint8_t uart_data = (uint8_t)data.u;
+
+    // TODO uart write can update access_status?
+    this->m_uart.write(uart_addr, uart_data);
 }
 
 void memory::memory_t::write_memory_region_debug(

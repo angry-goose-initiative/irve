@@ -21,6 +21,7 @@
 
 #include "common.h"
 #include "CSR.h"
+#include "uart.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -78,7 +79,7 @@ public:
      * @param addr The address to fetch from (physical or virtual depending on operating mode)
      * @return The instruction from memory
     */
-    word_t instruction(word_t addr) const;
+    word_t instruction(word_t addr);
 
     /**
      * @brief Load data from memory
@@ -107,7 +108,7 @@ private:
      *                    depending on the acces type
      * @return 34 bit machine address
     */
-    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type) const;
+    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type);
 
     /**
      * @brief Checks if an address should be translated or not
@@ -123,7 +124,7 @@ private:
      * @param data_type Specifies data width and signed/unsigned
      * @return 32 bit version of data that was read
     */
-    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     // TODO documentation
     word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
@@ -135,7 +136,7 @@ private:
     word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
 
     // TODO documentation
-    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     /**
      * @brief Write data to memory
@@ -196,6 +197,11 @@ private:
      * @brief Pointer to kernel ram
     */
     std::unique_ptr<uint8_t[]> m_kernel_ram;
+
+    /**
+     * @brief TODO
+    */
+    uart::uart_t m_uart;
 
     /**
      * @brief TODO
