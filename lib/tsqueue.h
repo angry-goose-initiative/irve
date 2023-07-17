@@ -5,7 +5,8 @@
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO longer description
+ * TODO make this lock-free?
+ * TODO should we use mutexes instead of atomic spinlocks?
  *
 */
 

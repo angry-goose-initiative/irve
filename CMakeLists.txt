@@ -25,8 +25,8 @@ endif()
 
 #Do logging on a separate thread
 if(NOT DEFINED IRVE_ASYNC_LOGGING)
-    set(IRVE_ASYNC_LOGGING 0)
-    #set(IRVE_ASYNC_LOGGING 1)
+    #set(IRVE_ASYNC_LOGGING 0)
+    set(IRVE_ASYNC_LOGGING 1)
 endif()
 
 #Enable ASAN, UBSAN, etc
