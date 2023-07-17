@@ -79,7 +79,7 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
             std::thread m_thread;
         public:
             AsyncLogger() : m_queue_busy(false), m_thread_running(true), m_thread([&]() {
-                std::setbuf(stdout, NULL);//Disable stdout buffering since we're using multiple threads anyways
+                std::setbuf(stdout, NULL);//Disable stdout buffering since we're using multiple threads anyways//TODO should we really be doing this?
                 //Main logging loop
                 while (true) {
                     //Continually try to reserve the queue

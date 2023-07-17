@@ -44,6 +44,9 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/plic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tsqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.h
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h

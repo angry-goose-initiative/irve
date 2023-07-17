@@ -501,7 +501,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             assert(false && "Invalid funct5 for AMO instruction, but we already checked this!");
             break;
     }
-    memory.store(r1, DT_WORD, word_to_write.s);
+    memory.store(r1, DT_WORD, word_to_write);
 
     cpu_state.goto_next_sequential_pc();
 }
@@ -549,7 +549,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 irvelog(3, "Mnemonic: MULHSU");
 
                 //TODO ensure casting to int64_t actually performs sign extension ONLY WHEN CASTING rs1.s since it is signed
-                result = (uint32_t)((((int64_t)r1.s) * ((int64_t)r2.u)) >> 32);
+                result = (uint32_t)((((int64_t)r1.s) * ((int64_t)((uint64_t)r2.u))) >> 32);
 
                 irvelog(
                     3,
