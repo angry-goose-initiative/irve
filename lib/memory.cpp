@@ -458,7 +458,7 @@ word_t memory::memory_t::read_memory_region_kernel_ram(
 
     word_t data;
     uint64_t mem_index = addr - MEM_MAP_REGION_START_KERNEL_RAM;
-    void* mem_ptr = &(m_user_ram[mem_index]);
+    void* mem_ptr = &(m_kernel_ram[mem_index]);
     switch (data_type) {
         case DT_WORD:
             data = *(uint32_t*)mem_ptr;
