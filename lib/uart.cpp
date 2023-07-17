@@ -20,6 +20,8 @@
 
 #include "uart.h"
 
+#include "tsqueue.h"
+
 #define INST_COUNT 0
 #include "logging.h"
 
