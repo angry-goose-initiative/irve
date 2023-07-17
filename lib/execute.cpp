@@ -37,8 +37,14 @@ using namespace irve::internal;
 void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::LOAD) && "load instruction must have opcode LOAD");
-    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "load instruction must be I_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::LOAD) &&
+        "load instruction must have opcode LOAD"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        "load instruction must be I_TYPE"
+    );
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -84,20 +90,33 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& /* cpu_state */, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::CUSTOM_0) && "custom-0 instruction must have opcode CUSTOM_0");
-    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "custom-0 instruction must be R_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::CUSTOM_0) &&
+        "custom-0 instruction must have opcode CUSTOM_0"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+        "custom-0 instruction must be R_TYPE"
+    );
 
     //All other fields being zero means emulator exit request
-    if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() && !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
+    if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() &&
+        !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
         irvelog(3, "Mnemonic: IRVE.EXIT");
         if (CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
             invoke_polite_irve_exit_request();
-        } else {
-            irvelog(3, "The IRVE.EXIT instruction is only valid in machine mode; treating as an illegal instruction");
+        }
+        else {
+            irvelog(
+                3,
+                "The IRVE.EXIT instruction is only valid in machine mode; treating as an illegal "
+                "instruction"
+            );
             invoke_rv_exception(ILLEGAL_INSTRUCTION);
         }
-    } else {//Otherwise we don't implement any others for now
+    }
+    else {//Otherwise we don't implement any others for now
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
 }
@@ -122,8 +141,14 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
 void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) && "op_imm() instruction must have opcode OP-IMM");
-    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "op_imm() instruction must be I_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) &&
+        "op_imm() instruction must have opcode OP-IMM"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        "op_imm() instruction must be I_TYPE"
+    );
 
     //Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -256,8 +281,11 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
 
     //Sanity checks
-    assert((decoded_inst.get_opcode() == decode::opcode_t::AMO) && "amo instruction must have opcode AMO");
-    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "amo instruction must be R_TYPE");
+    assert((decoded_inst.get_opcode() == decode::opcode_t::AMO) && 
+            "amo instruction must have opcode AMO");
+    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+            "amo instruction must be R_TYPE");
+    
     if (decoded_inst.get_funct3() != 0b010) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     }
@@ -274,18 +302,24 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 
             //Check that the address is word-aligned
             if ((r1.u % 4) != 0) {
-                //NOTE: This exception has priority over access faults but not over the illegal instruction exception
-                //This is why we don't do this before the switch statement
+                // NOTE: This exception has priority over access faults but not over the illegal
+                // instruction exception. This is why we don't do this before the switch statement.
                 invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
             }
             
             //Load the word from memory at the address in rs1
             try {
-                loaded_word = memory.load(r1, 0b010);
-            } catch (const rvexception::rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+                loaded_word = memory.load(r1, DT_WORD);
+            } catch (const rvexception::rvexception_t& e) {
+                // If we get an exception, we need to rethrow a different one to indicate this is
+                // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
                     case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
-                        assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                        assert(
+                            false &&
+                            "Got a misaligned address exception when reading from memory, but we "
+                            "already checked that the address was aligned!"
+                        );
                         break;
                     case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
                         invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
@@ -314,8 +348,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             //Check that the address is word-aligned
             //TODO should we only check alignment if the reservation set is valid?
             if ((r1.u % 4) != 0) {
-                //NOTE: This exception has priority over access faults but not over the illegal instruction exception
-                //This is why we don't do this before the switch statement
+                // NOTE: This exception has priority over access faults but not over the illegal
+                // instruction exception. This is why we don't do this before the switch statement.
                 invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
             }
 
@@ -328,15 +362,22 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             }
             
             //If we get here, the reservation set is valid
-            cpu_state.invalidate_reservation_set();//We are now performing the store, so the reservation set is no longer valid
+            //We are now performing the store, so the reservation set is no longer valid
+            cpu_state.invalidate_reservation_set();
 
             //Attempt to store the value in rs2 to the address in rs1
             try {
                 memory.store(r1, DT_WORD, r2);
-            } catch (const rvexception::rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+            } catch (const rvexception::rvexception_t& e) {
+                // If we get an exception, we need to rethrow a different one to indicate this is
+                // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
                     case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
-                        assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                        assert(
+                            false &&
+                            "Got a misaligned address exception when reading from memory, but we "
+                            " already checked that the address was aligned!"
+                        );
                         break;
                     case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
                         invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
@@ -392,18 +433,24 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 
     //Check that the address is word-aligned
     if ((r1.u % 4) != 0) {
-        //NOTE: This exception has priority over access faults but not over the illegal instruction exception
-        //This is why we don't do this before the switch statement
+        // NOTE: This exception has priority over access faults but not over the illegal
+        // instruction exception. This is why we don't do this before the switch statement.
         invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
     }
 
     //Read the word at the address in rs1
     try {
         loaded_word = memory.load(r1, DT_WORD);
-    } catch (const rvexception::rvexception_t& e) {//If we get an exception, we need to rethrow a different one to indicate this is due to an AMO instruction
+    } catch (const rvexception::rvexception_t& e) {
+        // If we get an exception, we need to rethrow a different one to indicate this is due to an
+        // AMO instruction
         switch (e.cause()) {//TODO ensure this is correct
             case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
-                assert(false && "Got a misaligned address exception when reading from memory, but we already checked that the address was aligned!");
+                assert(
+                    false &&
+                    "Got a misaligned address exception when reading from memory, but we already "
+                    "checked that the address was aligned!"
+                );
                 break;
             case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
                 invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
@@ -462,8 +509,14 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::OP) && "op instruction must have opcode OP");
-    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "op instruction must be R_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::OP) &&
+        "op instruction must have opcode OP"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+        "op instruction must be R_TYPE"
+    );
 
     //Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -486,7 +539,11 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 //TODO ensure casting to int64_t actually performs sign extension
                 result = (uint32_t)((((int64_t)r1.s) * ((int64_t)r2.s)) >> 32);
 
-                irvelog(3, "0x%08X signed * 0x%08X signed upper half = 0x%08X", r1.s, r2.s, result);
+                irvelog(
+                    3,
+                    "0x%08X signed * 0x%08X signed upper half = 0x%08X",
+                    r1.s, r2.s, result
+                );
                 break;
             case 0b010://MULHSU
                 irvelog(3, "Mnemonic: MULHSU");
@@ -494,23 +551,34 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 //TODO ensure casting to int64_t actually performs sign extension ONLY WHEN CASTING rs1.s since it is signed
                 result = (uint32_t)((((int64_t)r1.s) * ((int64_t)((uint64_t)r2.u))) >> 32);
 
-                irvelog(3, "0x%08X signed * 0x%08X unsigned upper half = 0x%08X", r1.s, r2.u, result);
+                irvelog(
+                    3,
+                    "0x%08X signed * 0x%08X unsigned upper half = 0x%08X",
+                    r1.s, r2.u, result
+                );
                 break;
             case 0b011://MULHU
                 irvelog(3, "Mnemonic: MULHU");
 
                 result = (uint32_t)((((uint64_t)r1.u) * ((uint64_t)r2.u)) >> 32);
 
-                irvelog(3, "0x%08X unsigned * 0x%08X unsigned upper half = 0x%08X", r1.u, r2.u, result);
+                irvelog(
+                    3,
+                    "0x%08X unsigned * 0x%08X unsigned upper half = 0x%08X",
+                    r1.u, r2.u, result
+                );
                 break;
             case 0b100://DIV
                 irvelog(3, "Mnemonic: DIV");
 
                 if (!r2) {//Division by zero
                     result = 0xFFFFFFFF;
-                } else if ((r1 == 0x80000000) && (r2 == -1)) {//Overflow (division of the most negative number by -1)
+                }
+                else if ((r1 == 0x80000000) && (r2 == -1)) {
+                    // Overflow (division of the most negative number by -1)
                     result = 0x80000000;
-                } else {
+                }
+                else {
                     result = r1.s / r2.s;
                 }
 
@@ -521,7 +589,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 
                 if (!r2) {//Division by zero
                     result = 0xFFFFFFFF;
-                } else {
+                }
+                else {
                     result = r1.u / r2.u;
                 }
 
@@ -532,9 +601,12 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 
                 if (!r2) {//Division by zero
                     result = r1;
-                } else if ((r1 == 0x80000000) && (r2 == -1)) {//Overflow (division of the most negative number by -1)
+                }
+                else if ((r1 == 0x80000000) && (r2 == -1)) {
+                    // Overflow (division of the most negative number by -1)
                     result = 0;
-                } else {
+                }
+                else {
                     result = r1.s % r2.s;
                 }
 
@@ -545,7 +617,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 
                 if (!r2) {//Division by zero
                     result = r1;
-                } else {
+                }
+                else {
                     result = r1.u % r2.u;
                 }
 
@@ -555,18 +628,21 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 assert(false && "We should never get here");
                 break;
         }
-    } else {//Others (base spec)
+    }
+    else {//Others (base spec)
         switch (decoded_inst.get_funct3()) {
             case 0b000://ADD or SUB
                 if (decoded_inst.get_funct7() == 0b0000000) {//ADD
                     irvelog(3, "Mnemonic: ADD");
                     result = r1 + r2;
                     irvelog(3, "0x%08X + 0x%08X = 0x%08X", r1.u, r2.u, result);
-                } else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
+                }
+                else if (decoded_inst.get_funct7() == 0b0100000) {//SUB
                     irvelog(3, "Mnemonic: SUB");
                     result = r1 - r2;
                     irvelog(3, "0x%08X - 0x%08X = 0x%08X", r1.u, r2.u, result);
-                } else {
+                }
+                else {
                     invoke_rv_exception(ILLEGAL_INSTRUCTION);
                 }
                 break;
@@ -619,11 +695,13 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                     irvelog(3, "Mnemonic: SRL");
                     result = r1.srl(r2.bits(4, 0));
                     irvelog(3, "0x%08X >> 0x%08X logical = 0x%08X", r1.u, r2.u, result.u);
-                } else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
+                }
+                else if (decoded_inst.get_funct7() == 0b0100000) {//SRA
                     irvelog(3, "Mnemonic: SRA");
                     result = r1.sra(r2.bits(4, 0));
                     irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", r1.u, r2.u, result.u);
-                } else {
+                }
+                else {
                     invoke_rv_exception(ILLEGAL_INSTRUCTION);
                 }
                 break;
@@ -664,11 +742,20 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::LUI) && "lui instruction must have opcode LUI");
-    assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "lui instruction must be U_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::LUI) &&
+        "lui instruction must have opcode LUI"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::U_TYPE) &&
+        "lui instruction must be U_TYPE"
+    );
 
-    irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
-            cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm());
+    irvelog(
+        3,
+        "Overwriting 0x%08X currently in register x%u with 0x%08X",
+        cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), decoded_inst.get_imm()
+    );
     cpu_state.set_r(decoded_inst.get_rd(), decoded_inst.get_imm());
 
     cpu_state.goto_next_sequential_pc();
@@ -677,8 +764,14 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::BRANCH) && "branch instruction must have opcode BRANCH");
-    assert((decoded_inst.get_format() == decode::inst_format_t::B_TYPE) && "branch instruction must be B_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::BRANCH) &&
+        "branch instruction must have opcode BRANCH"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::B_TYPE) &&
+        "branch instruction must be B_TYPE"
+    );
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -686,8 +779,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     word_t imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
-    bool branch{};
-    switch(funct3) {
+    bool branch;
+    switch (funct3) {
         case 0b000://BEQ
             irvelog(3, "Mnemonic: BEQ");
             branch = (r1 == r2);
@@ -723,7 +816,7 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             break;
     }
 
-    if(branch) {
+    if (branch) {
         word_t target_addr = cpu_state.get_pc() + imm;
         // Target address on branches taken must be aligned on 4 byte boundary
         // (2 byte boundary if supporting compressed instructions)
@@ -743,8 +836,14 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::JALR) && "jalr instruction must have opcode JALR");
-    assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "jalr instruction must be I_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::JALR) &&
+        "jalr instruction must have opcode JALR"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        "jalr instruction must be I_TYPE"
+    );
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
 
@@ -765,8 +864,14 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::JAL) && "jal instruction must have opcode JAL");
-    assert((decoded_inst.get_format() == decode::inst_format_t::J_TYPE) && "jal instruction must be J_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::JAL) &&
+        "jal instruction must have opcode JAL"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::J_TYPE) &&
+        "jal instruction must be J_TYPE"
+    );
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary
 
@@ -782,8 +887,14 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, CSR::CSR_t& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) && "system instruction must have opcode SYSTEM");
-    // assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "system instruction must be I_TYPE"); //TODO SYSTEM can also be R-Type
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) &&
+        "system instruction must have opcode SYSTEM"
+    );
+    // assert(
+    //     (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+    //     "system instruction must be I_TYPE"
+    // ); //TODO SYSTEM can also be R-Type
     
     //TODO also handle supervisor mode instructions
 
@@ -806,8 +917,12 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             if (imm == 0b000000000000) {//ECALL
                 irvelog(3, "Mnemonic: ECALL");
 
-                //ECALL dosn't actually retire, but we already incremented minstret, so we need to decrement it to compensate
-                CSR.implicit_write(CSR::address::MINSTRET, CSR.implicit_read(CSR::address::MINSTRET) - 1);
+                // ECALL dosn't actually retire, but we already incremented minstret, so we need to
+                // decrement it to compensate
+                CSR.implicit_write(
+                    CSR::address::MINSTRET,
+                    CSR.implicit_read(CSR::address::MINSTRET) - 1
+                );
 
                 //Different exception case base on the current privilege mode
                 switch (privilege_mode) {
@@ -824,21 +939,31 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                         invoke_rv_exception(UMODE_ECALL);
                         break;
                     default:
-                        assert(false && "Currently in invalid privilege mode, this should never happen");
+                        assert(
+                            false &&
+                            "Currently in invalid privilege mode, this should never happen"
+                        );
                         break;
                 }
-            } else if (imm == 0b00000000001) {//EBREAK
+            }
+            else if (imm == 0b00000000001) {//EBREAK
                 irvelog(3, "Mnemonic: EBREAK");
 
-                //EBREAK dosn't actually retire, but we already incremented minstret, so we need to decrement it to compensate
-                CSR.implicit_write(CSR::address::MINSTRET, CSR.implicit_read(CSR::address::MINSTRET) - 1);
+                // EBREAK dosn't actually retire, but we already incremented minstret, so we need
+                // to decrement it to compensate
+                CSR.implicit_write(
+                    CSR::address::MINSTRET,
+                    CSR.implicit_read(CSR::address::MINSTRET) - 1
+                );
 
                 invoke_rv_exception(BREAKPOINT);
-            } else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
+            }
+            else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
                 irvelog(4, "It is legal \"to simply implement WFI as a NOP\", so we will do that");
                 cpu_state.goto_next_sequential_pc();
-            } else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
+            }
+            else if ((funct7 == 0b0011000) && (decoded_inst.get_rs2() == 0b00010)) {//MRET
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
                 //Manage the privilege stack
@@ -854,12 +979,18 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //Return to the address in MEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
-            } else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
+            }
+            else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 //TODO better logging
                 //Manage the privilege stack
                 word_t sstatus = CSR.implicit_read(CSR::address::SSTATUS);
-                CSR.set_privilege_mode((sstatus.bit(8) == 0b1) ? CSR::privilege_mode_t::SUPERVISOR_MODE : CSR::privilege_mode_t::USER_MODE);//Set the privilege mode based on the value in SPP
+                //Set the privilege mode based on the value in SPP
+                CSR.set_privilege_mode(
+                    (sstatus.bit(8) == 0b1) ? 
+                        CSR::privilege_mode_t::SUPERVISOR_MODE :
+                        CSR::privilege_mode_t::USER_MODE
+                );
                 word_t spie = sstatus.bit(5);
                 sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
                 //SPP is set to 0b0
@@ -870,11 +1001,13 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 //Return to the address in SEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
-            } else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
+            }
+            else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
                 irvelog(3, "Mnemonic: SFENCE.VMA");
                 irvelog(4, "We don't have a TLB in IRVE, so this is a NOP");
                 cpu_state.goto_next_sequential_pc();
-            } else {
+            }
+            else {
                 invoke_rv_exception(ILLEGAL_INSTRUCTION);
             }
             return;
@@ -945,7 +1078,10 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             }
             break;
         default:
-            assert(false && "We should have already caught illegal instructions, so we should never get here");
+            assert(
+                false &&
+                "We should have already caught illegal instructions, so we should never get here"
+            );
             break;
     }
 

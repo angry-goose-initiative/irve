@@ -38,6 +38,10 @@
 
 #define MEM_MAP_REGION_SIZE_MMCSR           (MEM_MAP_REGION_END_MMCSR - MEM_MAP_REGION_START_MMCSR + 1)
 
+// Region for 16550 UART
+#define MEM_MAP_REGION_START_UART           (uint64_t)0xFFFFFFF0
+#define MEM_MAP_REGION_END_UART             (uint64_t)0xFFFFFFF7
+
 // Debug output
 #define MEM_MAP_ADDR_DEBUG                  (uint64_t)0xFFFFFFFF
 
