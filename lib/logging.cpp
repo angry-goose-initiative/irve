@@ -78,12 +78,13 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
             std::thread m_thread;
         public:
             AsyncLogger() : m_thread_should_keep_running(true), m_thread([&]() {
-                std::setbuf(stdout, NULL);//Disable stdout buffering since we're using multiple threads anyways//TODO should we really be doing this?
                 //Main logging loop
                 while (true) {
                     if (this->m_queue.empty()) {
-                        //The queue is empty and will never be filled again (our backlog is empty forever)
-                        if (!this->m_thread_should_keep_running.load()) {
+                        if (this->m_thread_should_keep_running.load()) {
+                            //Yield so as to not absolutely burn CPU time
+                            std::this_thread::yield();
+                        } else {//The queue is empty and will never be filled again (our backlog is empty forever)
                             return;//So exit the thread
                         }
                     } else {//The queue is not empty
@@ -94,9 +95,6 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
                         //Log the popped element
                         actual_log_function(destination, inst_num, indent, str.c_str());
                     }
-                    
-                    //Yield so as to not absolutely burn CPU time
-                    std::this_thread::yield();
                 }
             })
             {}

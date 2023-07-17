@@ -7,6 +7,8 @@
  * 
  * TODO make this lock-free?
  * TODO should we use mutexes instead of atomic spinlocks?
+ * FIXME this isn't really usable if we have multiple readers since we don't provide a way to check if the queue is empty
+ *     at the same time as popping
  *
 */
 
