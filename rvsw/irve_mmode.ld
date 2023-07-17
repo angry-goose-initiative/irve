@@ -15,8 +15,7 @@
 MEMORY
 {
     /* Default memory size is 64M and starts at 0x00000000 */
-    /* ram : ORIGIN = 0x00000000, LENGTH = 64M */
-    ram : ORIGIN = 0x00000000, LENGTH = 32M /* Temporary until memory-things are ready */
+    ram : ORIGIN = 0x00000000, LENGTH = 64M
 }
 
 /* The arch is rv32 */
