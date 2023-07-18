@@ -22,6 +22,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <cstdio>
 
 #include "CSR.h"
 #include "common.h"
@@ -760,10 +761,11 @@ memory::image_load_status_t memory::memory_t::load_memory_image_files(
         irvelog_always(0, "Loading memory image from file \"%s\"", path.c_str());
         image_load_status_t load_status;
         if (path.find(".vhex8")) {
-            load_status = load_verilog_8(path);
-        }
-        else {//Assume it's a 32-bit verilog file
-            load_status = load_verilog_32(path);
+            load_status = this->load_verilog_8(path);
+        } else if (path.find(".vhex32")) {
+            load_status = this->load_verilog_32(path);
+        } else {//Assume it's a raw binary file
+            load_status = this->load_raw_bin(path, 0xC0000000);//TODO: Make this configurable (this is a sensible default since the Linux kernel produces a raw `Image` file)
         }
         if(load_status == IL_FAIL) {
             return IL_FAIL;
@@ -772,9 +774,49 @@ memory::image_load_status_t memory::memory_t::load_memory_image_files(
     return IL_OKAY;
 }
 
+memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_path, uint64_t start_addr) {
+    irvelog(0, "Loading memory image from file \"%s\"", filename);
+
+    //Open the file
+    const char* filename = image_path.c_str();
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        irvelog(0, "Failed to open memory image file \"%s\"", filename);
+        return IL_FAIL;
+    }
+
+    //Get the file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    rewind(file);
+    if (file_size < 0) {
+        irvelog(0, "Failed to get file size");
+        return IL_FAIL;
+    }
+    irvelog(1, "Memory image file size is %ld bytes", file_size);
+
+    //Read a file into the emulator byte-by-byte
+    //TODO do this more efficiently with fread
+    for (long i = 0; i < file_size; ++i) {
+        word_t data_byte = fgetc(file);
+        uint64_t addr = start_addr + (uint64_t)i;
+
+        access_status_t access_status;
+        write_memory(addr, DT_BYTE, data_byte, access_status);
+        if (access_status != AS_OKAY) {
+            return IL_FAIL;
+        }
+        ++addr;
+    }
+
+    return IL_OKAY;
+}
+
 memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
-    assert(fin && "Failed to open memory image file");
+    if (!fin) {
+        return IL_FAIL;
+    }
 
     // Read the file token by token
     uint64_t addr = 0;
@@ -788,8 +830,10 @@ memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_p
             addr = std::stoul(new_addr_str, nullptr, 16);
         }
         else { // New data word (32-bit, could be an instruction or data)
-            assert((token.length() == 2) &&
-                    "Memory image file is not formatted correctly (bad data)");
+            if (token.length() != 2) {
+                irvelog(0, "Memory image file is not formatted correctly (bad data)");
+                return IL_FAIL;
+            }
             
             // The data word this token represents
             word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
@@ -808,7 +852,9 @@ memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_p
 
 memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
-    assert(fin && "Failed to open memory image file");
+    if (!fin) {
+        return IL_FAIL;
+    }
 
     // Read the file token by token
     uint64_t addr = 0;
@@ -826,7 +872,7 @@ memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_
             if (token.length() != 8) {
                 irvelog(1, "Warning: 32-bit Verilog image file is not formatted correctly (data "
                            "word is not 8 characters long). This is likely an objcopy bug. "
-                           "Continuing anyway...");
+                           "Continuing anyway with assumed leading zeroes...");
             }
             
             // The data word this token represents

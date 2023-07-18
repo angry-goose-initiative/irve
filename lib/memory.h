@@ -170,6 +170,14 @@ private:
     image_load_status_t load_memory_image_files(int imagec, const char* const* imagev);
 
     /**
+     * @brief Loads a flat binary file to memory
+     * @param image_path The path to the memory image file
+     * @param start_addr The address to start loading the image at
+     * @return status of the load
+    */
+    image_load_status_t load_raw_bin(std::string image_path, uint64_t start_addr);
+
+    /**
      * @brief Loads an 8-bit Verilog hex file to memory
      * @param image_path The path to the memory image file
      * @return status of the load
