@@ -86,6 +86,7 @@ add_rvsw_test(jzjcoresoftware_uncondjumptest2)
 add_rvsw_test(jzjcoresoftware_xoritoggle)
 
 add_rvsw_test(rv32esim)
+add_rvsw_test(atomics)
 
 #TODO add more
 
