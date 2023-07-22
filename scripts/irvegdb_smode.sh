@@ -3,4 +3,4 @@
 trap "kill 0" EXIT
 ./irvegdb rvsw/compiled/sbi/ogsbi/ogsbi.vhex8 $@.vhex8 &
 sleep 1
-riscv32-unknown-elf-gdb --command=./irvegdb_smode_gdb_commands --symbols=$@.elf
+riscv32-unknown-elf-gdb -ex "set architecture riscv:rv32" -ex "target remote :12345" -ex "break *0xC0000000" -ex "continue" --symbols=$@.elf

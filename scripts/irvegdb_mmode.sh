@@ -3,4 +3,4 @@
 trap "kill 0" EXIT
 ./irvegdb $@.vhex8 &
 sleep 1
-riscv32-unknown-elf-gdb --command=./irvegdb_mmode_gdb_commands --symbols=$@.elf
+riscv32-unknown-elf-gdb -ex "set architecture riscv:rv32" -ex "target remote :12345" --symbols=$@.elf
