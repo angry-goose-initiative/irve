@@ -1,4 +1,5 @@
 #!/bin/bash
+#Just specify the path to the desired mmode rvsw binary without an extension as an argument
 trap "kill 0" EXIT
 ./irvegdb $@.vhex8 &
 sleep 1
