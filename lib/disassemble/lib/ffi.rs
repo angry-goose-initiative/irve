@@ -1,8 +1,11 @@
-/* ffi.rs
+/*
+ * File:    ffi.rs
+ * Brief:   Foreign function interface for libirve_disassemble (for use by libirve)
+ *
  * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
- * Foreign function interface for libirve_disassemble (for use by libirve)
+ * TODO longer description
  *
 */
 

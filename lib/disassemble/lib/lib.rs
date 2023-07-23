@@ -2,7 +2,7 @@
  * File:    lib.rs
  * Brief:   Root module for irve_disassemble
  *
- * Copyright: Copyright (C) 2023 John Jekel and Nick Chan
+ * Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
  *
  * TODO longer description
