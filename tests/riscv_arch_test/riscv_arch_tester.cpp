@@ -73,8 +73,11 @@ int main(int argc, const char* const* argv) {
 
     irvelog_always(0, "Signature start inclusive:  0x%08X", signature_start_addr_inclusive);
     irvelog_always(0, "Signature end exclusive:    0x%08X", signature_end_addr_exclusive);
-    irvelog_always(0, "Signature destination file: \"%s\"", signature_filename);
     assert(signature_start_addr_inclusive < signature_end_addr_exclusive);
+    assert((signature_start_addr_inclusive % 4) == 0);
+    assert((signature_end_addr_exclusive % 4) == 0);
+
+    irvelog_always(0, "Signature destination file: \"%s\"", signature_filename);
 
     irvelog_always(0, "Initializing emulator...");
     irve::emulator::emulator_t emulator(num_files_to_load, file_list);
@@ -84,12 +87,13 @@ int main(int argc, const char* const* argv) {
     emulator.run_until(0);
     irvelog_always(0, "Done!");
 
-    irvelog_always(0, "Dumping signature...");
+    irvelog_always(0, "Dumping signature to \"%s\"...", signature_filename);
     //https://github.com/riscv-non-isa/riscv-arch-test/blob/main/spec/TestFormatSpec.adoc#the-test-signature
     FILE* signature_file = fopen(signature_filename, "w");
     irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    //We are guaranteed 4 byte alignment which is nice :)
     for (uint32_t addr = signature_start_addr_inclusive; addr < signature_end_addr_exclusive; addr += 4) {
-        uint32_t signature_word = memory_ref.load(addr, 0b0100).u;
+        uint32_t signature_word = memory_ref.load(addr, 0b010).u;
         fprintf(signature_file, "%08x\n", signature_word);//This should match the way Spike outputs things (lowercase)
     }
     fclose(signature_file);
