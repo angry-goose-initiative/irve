@@ -777,7 +777,7 @@ memory::image_load_status_t memory::memory_t::load_memory_image_files(
 memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_path, uint64_t start_addr) {
     //Open the file
     const char* filename = image_path.c_str();
-    FILE *file = fopen(filename, "rb");
+    FILE* file = fopen(filename, "rb");
     if (!file) {
         irvelog(1, "Failed to open memory image file \"%s\"", filename);
         return IL_FAIL;
@@ -789,6 +789,7 @@ memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_pat
     rewind(file);
     if (file_size < 0) {
         irvelog(1, "Failed to get file size");
+        fclose(file);
         return IL_FAIL;
     }
     irvelog(1, "Memory image file size is %ld bytes", file_size);
@@ -802,11 +803,14 @@ memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_pat
         access_status_t access_status;
         write_memory(addr, DT_BYTE, data_byte, access_status);
         if (access_status != AS_OKAY) {
+            fclose(file);
             return IL_FAIL;
         }
         ++addr;
     }
 
+    //Close the file
+    fclose(file);
     return IL_OKAY;
 }
 
