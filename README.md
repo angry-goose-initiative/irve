@@ -73,7 +73,7 @@ Step 3: Perform the compile with `make`. For speed, you should probably do `make
 
 NOTE: If you just want to compile `irve` (ex. if you don't have a cross compiler), do `make irve` instead.
 
-### Run all of the things
+### Run all the things
 
 The `irve` front end (the one you likely care about) is placed in `build/src/irve`, but the symlink in the root of the project already links to this for your convenience.
 

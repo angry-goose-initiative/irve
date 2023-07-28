@@ -96,7 +96,7 @@ static void print_startup_message() {
     irvelog_always(0, "");
     irvelog_always(0, "\x1b[90mlibirve %s\x1b[0m", irve::about::get_version_string());
     irvelog_always(0, "\x1b[90mlibirve built at %s on %s\x1b[0m", irve::about::get_build_time_string(), irve::about::get_build_date_string());
-    irvelog_always(0, "\x1b[90mirve executable built at %s on %s\x1b[0m", __TIME__, __DATE__);
+    irvelog_always(0, "\x1b[90mirvegdb executable built at %s on %s\x1b[0m", __TIME__, __DATE__);
     irvelog(0, "\x1b[90mBuild System: %s\x1b[0m", irve::about::get_build_system_string());
     irvelog(0, "\x1b[90mBuilt from %s for %s\x1b[0m", irve::about::get_build_host_string(), irve::about::get_compile_target_string());
     irvelog(0, "\x1b[90mCompiler: %s\x1b[0m", irve::about::get_compiler_string());
