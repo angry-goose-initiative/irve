@@ -9,49 +9,71 @@
 
 The Inextensible RISC-V Emulator
 
-"Working our way up to stuff!"
+IRVE was intended as a "quick and dirty" emulator capable of running the Linux kernel. Since then it has become much more!
 
-IRVE is intended as a "quick and dirty" emulator capable of running the Linux kernel.
+## Lore
 
-The plan is to use it to better understand the RISC-V architecture (Volume 2 in particular).
+IRVE is the first step on our journey within an overarching project called AGI, the Angry Goose Initiative.
 
-Once we do, we can move on to a hardware implementation in SystemVerilog!
+The plan is to use it to better understand the RISC-V architecture (with a focus on Volume 2 in particular).
 
-Then later on we plan to continue XRVE which will be a much more extensible and powerful emulator written in Rust.
+Once we do, we can move on to a hardware implementation in SystemVerilog called [LETC](https://github.com/JZJisawesome/letc)!
 
-Our Journey: https://docs.google.com/document/d/1HeZ4l5OxooQuh2kdJ1o-uWJXWzGPsVntSPlf_ByFmWA/edit?usp=drivesdk 
+If you're reading this, as of writing we're in a transition period between wrapping up IRVE and beginning LETC. Exciting stuff!
 
-## Compiling
+We do a lot of our planning in [this semi-coherent Google Doc](https://docs.google.com/document/d/1HeZ4l5OxooQuh2kdJ1o-uWJXWzGPsVntSPlf_ByFmWA/edit?usp=drivesdk) if you're interested!
 
-### Using CMake
+(Also at some point we split IRVE test code off into a hardware-independent repo called [RVSW](https://github.com/JZJisawesome/rvsw).
 
-Step 0: Make a build directory in the root of the project with `mkdir build` (use the name "build" since the gitignore will ignore it then)
+## Okay enough backstory, I want to try this out!
 
-Step 1: Goto the build directory with `cd build`
+Awesome! We'll walk you through the steps!
 
-Step 2: Do `cmake ..` to setup CMake
+### Get all the things
 
-Step 3: Perform the compile with `make`. For speed, you should probably do `make -j` instead to use all of your host's threads
+We highly recommend doing all of this from a Linux system. We have had some success on macOS, but with the RISC-V toolchain in particular you might encounter issues.
 
-#### Additional Notes
+Ensure you have a modern G++ compiler installed than supports C++20. (Clang++ works too with some CMake variable tweaks).
 
-NOTE: If you just want to compile `irve` (ex. if you don't have a cross compiler), do `make irve` or `make -j irve` instead.
+You'll also want a cross compiler if you actually want something to *run on the emulator* (though you don't need it for the emulator itself).
 
-You can also use similar commands if you just want to compile a particular test.
+We use [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) for this.
 
-Do `make clean` to clean your build directory.
+It's imperative that you build the Newlib version (since the RVSW test programs don't use dynamic linking as they are bare-metal).
 
-For a release build (both irve and testcases), in step 2, do `cmake -DCMAKE_BUILD_TYPE=Release ..` instead.
+Also, since IRVE implements RV32IMA (and some other smaller extensions), you must append `--with-arch=rv32ima` and `--with-abi=ilp32` to the `./configure` command.
 
-Be sure to have the `riscv32-unknown-elf-gcc` and `riscv32-unknown-elf-objcopy` binaries in your PATH for testcases to be compiled properly.
+Lastly, in a directory of your choice, clone this repo:
 
-### Using make
+```
+$ git clone https://github.com/JZJisawesome/irve.git
+Cloning into 'irve'...
+remote: Enumerating objects: 4224, done.
+remote: Counting objects: 100% (659/659), done.
+remote: Compressing objects: 100% (277/277), done.
+remote: Total 4224 (delta 416), reused 476 (delta 377), pack-reused 3565
+Receiving objects: 100% (4224/4224), 931.98 KiB | 1.75 MiB/s, done.
+Resolving deltas: 100% (2891/2891), done.
+$
+```
 
-Step 0: Run `make` in the root of the repo. Does not compile testfiles, only `irve.bin` itself
+With that, you should be set to continue!
 
-Likely this method will be removed soon in favour of `cmake`
+### Compile all the things
 
-## Info About the IRVE RISC-V Environment
+We use CMake as our primary build system to compile both `libirve`, our two emulator frontends `irve` and `irvegdb`, and all of our RISC-V test code!
+
+Step 0: Make a build directory in the root of the project with `mkdir build`
+
+Step 1: Go to the build directory with `cd build`
+
+Step 2: Do `cmake ..` to setup CMake (or `cmake -DCMAKE_BUILD_TYPE=Release ..` for a **much faster** release build)
+
+Step 3: Perform the compile with `make`. For speed, you should probably do `make -j <Number of threads here>` instead to use all of your host's threads
+
+NOTE: If you just want to compile `irve` (ex. if you don't have a cross compiler), do `make irve` instead.
+
+## Info About the IRVE RISC-V Environment / Capabilities
 
 ### Memory Map
 
@@ -81,7 +103,6 @@ lib/irve_public_api.cpp should not contain a `using` statement at all to prevent
 
 ## How to cross compile manually
 
-Step 0: Install a cross compiler for RISC-V (it is easiest if you make it default to RV32IMA with `--with-arch=rv32ima` and `--with-abi=ilp32`
 
 ### Assembly
 
@@ -118,9 +139,21 @@ Same command as the regular C code section, but I DIDN'T USE irve_newlib.c
 
 Step 2: Objcopy the resulting a.out file to a 32-bit (4-byte) Verilog hex file with `/opt/riscv/bin/riscv32-unknown-elf-objcopy ./a.out -O verilog --verilog-data-width=4 path/to/result.txt`
 
-# Automated Testing
+## What's all this I've been hearing about XRVE?
 
-We use Github Actions for our default IRVE configuration. Additionally I have a private Jenkins setup that tests some other configurations automatically (ex. with Rust enabled).
+Originally the plan was to write an emulator in Rust called XRVE: The eXtensible RISC-V Emulator.
+
+I fr***ing LOVE Rust, but just wasn't up to fighting the borrow check this time around.
+
+At the moment, the plan is to do XRVE after LETC, though it likely would be seperate from AGI and quite a while in the future.
+
+In the end I think it was good to do it this way as, now that we've experimented with how to best lay out things for emulation in C/C++, we can better plan out the XRVE Rust code base in the future!
+
+## Automated Testing
+
+We use Github Actions for our default IRVE configuration.
+
+Additionally I have a private Jenkins setup that tests some other configurations automatically (ex. with Rust enabled). I run my Jenkins agents on several University of Waterloo engineering servers. It's great having access to those computing resources, so to whom it may concern, thanks a ton!
 
 # Licensing
 
@@ -132,15 +165,19 @@ See the LICENSE file for more info
 
 ### xrve
 
-Developed alongside/before/after xrve
+Developed alongside/before/after but mostly after eventually IRVE (that was a mouthful)
 
-Licensed in the same way
+Licensed in the same way :)
 
 ### rv32esim
 
 Based in part on JZJ's old rv32esim
 
 I (John Jekel) freely release that old code under the MIT License too!
+
+### Nick's Old Emulation Code
+
+This served as a good base for parts of IRVE. Thanks Nick!
 
 ### jzjcoresoftware
 
@@ -165,3 +202,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+### Others
+
+Any other bits of code from other places that didn't make it here will recieve attribution alongside where they're used! :)
+
+
+IRVE - "Working our way up to stuff!"
