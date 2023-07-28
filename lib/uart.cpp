@@ -20,6 +20,8 @@
 
 #include "uart.h"
 
+#include "tsqueue.h"
+
 #define INST_COUNT 0
 #include "logging.h"
 
@@ -61,7 +63,7 @@ uart::uart_t::~uart_t() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
-            "\x1b[92mRV:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
+            "\x1b[92mRVUARTTX:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
             this->m_output_line_buffer.c_str()
         );
     }
@@ -123,16 +125,29 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
                 this->m_dll = data;
             } else {//THR
                 //Note, because we "send" the character right away, the transmit fifo is always empty
-                if (((char)data) == '\n') {
-                    //End of line; print the contents of the line buffer to stdout
-                    irvelog_always_stdout(
-                        0,
-                        "\x1b[92mRV\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
-                        this->m_output_line_buffer.c_str()
-                    );
-                    this->m_output_line_buffer.clear();
-                } else {
-                    this->m_output_line_buffer.push_back((char)data);
+                char character = (char)data;
+                switch (character) {
+                    case '\n':
+                        //End of line; print the contents of the line buffer and clear it
+                        irvelog_always_stdout(
+                            0,
+                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
+                            this->m_output_line_buffer.c_str()
+                        );
+                        this->m_output_line_buffer.clear();
+                        break;
+                    case '\0':
+                        //Null terminator; print the contents of the line buffer and clear it
+                        //(this has helped with debugging weird issues in the past)
+                        irvelog_always_stdout(
+                            0,
+                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"",
+                            this->m_output_line_buffer.c_str()
+                        );
+                        this->m_output_line_buffer.clear();
+                        break;
+                    case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
+                    default:    this->m_output_line_buffer.push_back(character); break;
                 }
             }
             break;
@@ -179,9 +194,3 @@ bool uart::uart_t::interrupt_pending() const {
 bool uart::uart_t::dlab() const {
     return this->m_lcr & (1 << 7);
 }
-
-/* ------------------------------------------------------------------------------------------------
- * Static Function Implementations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO

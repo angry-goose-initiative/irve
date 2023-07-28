@@ -163,7 +163,7 @@ int verify_jzjcoresoftware_fenceecalltest() {
     
     //This testcase assumes the trap vector starts at 0x4 (it forgot to set it)
     irve::internal::CSR::CSR_t& CSR_ref = emulator.m_emulator_ptr->m_CSR;
-    assert((CSR_ref.implicit_read(irve::internal::CSR::address::MTVEC) & 0xFFFFFFFC) == (0x4 << 2));
+    assert((CSR_ref.implicit_read(irve::internal::CSR::address::MTVEC) & 0xFFFFFFFC) == 0x4);
 
     //Checks things are as expected
     emulator.tick();//Execute the fence

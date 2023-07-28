@@ -21,6 +21,7 @@
 
 #include "common.h"
 #include "CSR.h"
+#include "uart.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -78,7 +79,7 @@ public:
      * @param addr The address to fetch from (physical or virtual depending on operating mode)
      * @return The instruction from memory
     */
-    word_t instruction(word_t addr) const;
+    word_t instruction(word_t addr);
 
     /**
      * @brief Load data from memory
@@ -107,7 +108,7 @@ private:
      *                    depending on the acces type
      * @return 34 bit machine address
     */
-    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type) const;
+    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type);
 
     /**
      * @brief Checks if an address should be translated or not
@@ -123,7 +124,7 @@ private:
      * @param data_type Specifies data width and signed/unsigned
      * @return 32 bit version of data that was read
     */
-    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     // TODO documentation
     word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
@@ -133,6 +134,9 @@ private:
     
     // TODO documentation
     word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+
+    // TODO documentation
+    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     /**
      * @brief Write data to memory
@@ -152,6 +156,9 @@ private:
     void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
     // TODO documentation
+    void write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+
+    // TODO documentation
     void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
 
     /**
@@ -161,6 +168,14 @@ private:
      * @return status of the load
     */
     image_load_status_t load_memory_image_files(int imagec, const char* const* imagev);
+
+    /**
+     * @brief Loads a flat binary file to memory
+     * @param image_path The path to the memory image file
+     * @param start_addr The address to start loading the image at
+     * @return status of the load
+    */
+    image_load_status_t load_raw_bin(std::string image_path, uint64_t start_addr);
 
     /**
      * @brief Loads an 8-bit Verilog hex file to memory
@@ -194,7 +209,12 @@ private:
     /**
      * @brief TODO
     */
-    std::string m_debugstr;
+    uart::uart_t m_uart;
+
+    /**
+     * @brief TODO
+    */
+    std::string m_output_line_buffer;
 
 };
 

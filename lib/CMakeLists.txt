@@ -44,6 +44,9 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/plic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tsqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.h
     ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
@@ -87,6 +90,8 @@ if (IRVE_RUST)
     add_dependencies(libirve_object libirve_disassemble)
 endif()
 
-if (IRVE_ASYNC_LOGGING OR IRVE_RUST)
-    target_link_libraries(libirve_object PRIVATE pthread)
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if (IRVE_ASYNC_LOGGING OR IRVE_RUST)
+        target_link_libraries(libirve_object PRIVATE pthread)
+    endif()
 endif()

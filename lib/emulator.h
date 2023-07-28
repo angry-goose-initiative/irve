@@ -24,6 +24,7 @@
 #include "gdbserver.h"
 #include "memory.h"
 #include "rvexception.h"
+#include "semihosting.h"
 
 #include <unordered_map>
 
@@ -117,6 +118,8 @@ namespace irve::internal::emulator {
         CSR::CSR_t m_CSR;
         memory::memory_t m_memory;
         cpu_state::cpu_state_t m_cpu_state;
+
+        semihosting::handler_t m_semihosting_handler;
         std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for word_t
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
