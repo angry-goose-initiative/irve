@@ -74,7 +74,7 @@ class irve(pluginTemplate):
         # test-bench produced by a simulator (like verilator, vcs, incisive, etc). In case of an iss or
         # emulator, this variable could point to where the iss binary is located. If 'PATH variable
         # is missing in the config.ini we can hardcode the alternate here.
-        self.dut_exe = os.path.join(config['PATH'] if 'PATH' in config else "","irve")
+        self.dut_exe = os.path.join(config['PATH'] if 'PATH' in config else "","./riscv_arch_tester")
 
         # Number of parallel jobs that can be spawned off by RISCOF
         # for various actions performed in later functions, specifically to run the tests in
@@ -111,12 +111,13 @@ class irve(pluginTemplate):
        # test. Similarly the output elf name and compile macros will be assigned later in the
        # runTests function
        self.compile_cmd = 'riscv{1}-unknown-elf-gcc -march={0} \
-         -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -g\
+         -static -mcmodel=medany -mabi=ilp32 -fvisibility=hidden -nostdlib -nostartfiles -g\
          -T '+self.pluginpath+'/env/link.ld\
          -I '+self.pluginpath+'/env/\
-         -I ' + archtest_env + ' {2} -o {3} {4}'
-
+         -I ' + archtest_env + ' {2} -o {3} {4};\
+         riscv{1}-unknown-elf-objcopy -O verilog {3} my.vhex8'
        # add more utility snippets here
+       
 
     def build(self, isa_yaml, platform_yaml):
 
@@ -143,7 +144,8 @@ class irve(pluginTemplate):
 
       #TODO: The following assumes you are using the riscv-gcc toolchain. If
       #      not please change appropriately
-      self.compile_cmd = self.compile_cmd+' -mabi='+('lp64 ' if 64 in ispec['supported_xlen'] else 'ilp32 ')
+      #This breaks things the way we have it set up. Instead we'll hardcode ilp32 in initialize()
+      #self.compile_cmd = self.compile_cmd+' -mabi='+('lp64 ' if 64 in ispec['supported_xlen'] else 'ilp32 ')
 
     def runTests(self, testList):
 
@@ -172,7 +174,8 @@ class irve(pluginTemplate):
           test_dir = testentry['work_dir']
 
           # name of the elf file after compilation of the test
-          elf = 'my.elf'
+          elf   = 'my.elf'
+          vhex8 = 'my.vhex8'
 
           # name of the signature file as per requirement of RISCOF. RISCOF expects the signature to
           # be named as DUT-<dut-name>.signature. The below variable creates an absolute path of
