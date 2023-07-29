@@ -10,3 +10,4 @@ lib/disassemble/target
 src/irvers/target
 src/irvers/Cargo.lock
 .DS_Store
+__pycache__/

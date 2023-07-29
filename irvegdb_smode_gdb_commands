@@ -1,4 +1,0 @@
-set architecture riscv:rv32
-target remote :12345
-break *0x02000000
-continue

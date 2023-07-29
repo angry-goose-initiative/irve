@@ -19,6 +19,8 @@
 #define INST_COUNT this does not actually need to be defined with anything important before including logging.h in this case
 #include "logging.h"
 
+#include "tsqueue.h"
+
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
@@ -29,8 +31,6 @@
 #include <string>
 #include <thread>
 #include <atomic>
-#include <queue>
-#include <tuple>
 #endif
 
 using namespace irve::internal;
@@ -73,37 +73,24 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
 #if IRVE_INTERNAL_CONFIG_ASYNC_LOGGING
     class AsyncLogger {
         private:
-            std::queue<std::tuple<FILE*, uint64_t, uint8_t, std::string>> m_queue;
-            std::atomic<bool> m_queue_busy;
-            std::atomic<bool> m_thread_running;
+            tsqueue::tsqueue_t<std::tuple<FILE*, uint64_t, uint8_t, std::string>> m_queue;
+            std::atomic<bool> m_thread_should_keep_running;
             std::thread m_thread;
         public:
-            AsyncLogger() : m_queue_busy(false), m_thread_running(true), m_thread([&]() {
-                std::setbuf(stdout, NULL);//Disable stdout buffering since we're using multiple threads anyways//TODO should we really be doing this?
+            AsyncLogger() : m_thread_should_keep_running(true), m_thread([&]() {
                 //Main logging loop
                 while (true) {
-                    //Continually try to reserve the queue
-                    while (m_queue_busy.exchange(true)) {
-                        //Okay to yield here since in testing, the logging thread can't keep up with the main thread
-                        //anyways (so might as well be more efficient)
-                        std::this_thread::yield();
-                    }
-                    //At this point, the queue is reserved
-
-                    //If the queue is empty, release it and check if the thread should exit
-                    if (m_queue.empty()) {
-                        assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
-                        m_queue_busy.store(false);
-
-                        if (!m_thread_running.load()) {//The queue is empty and will never be filled again
+                    if (this->m_queue.empty()) {
+                        if (this->m_thread_should_keep_running.load()) {
+                            //Yield so as to not absolutely burn CPU time
+                            std::this_thread::yield();
+                        } else {//The queue is empty and will never be filled again (our backlog is empty forever)
                             return;//So exit the thread
                         }
-                    } else {//Otherwise, if the queue is not empty
-                        //Pop the front element and release the queue
+                    } else {//The queue is not empty
+                        //Pop the front element from the queue
                         auto [destination, inst_num, indent, str] = m_queue.front();
                         m_queue.pop();
-                        assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
-                        m_queue_busy.store(false);
 
                         //Log the popped element
                         actual_log_function(destination, inst_num, indent, str.c_str());
@@ -113,19 +100,16 @@ void logging::irvelog_internal_function_dont_use_this_directly(FILE* destination
             {}
 
             ~AsyncLogger() {
-                m_thread_running.store(false);
-                m_thread.join();
+                m_thread_should_keep_running.store(false);
+                m_thread.join();//Wait for the thread to finish its backlog
             }
 
             void enqueue_log_request(FILE* destination, uint64_t inst_num, uint8_t indent, std::string str) {
-                while (m_queue_busy.exchange(true));//Busy wait until the queue is free (NOT yeilding since this needs to be very fast)
                 m_queue.emplace(destination, inst_num, indent, str);
-                assert(m_queue_busy.load() && "Queue was not reserved when it should have been");
-                m_queue_busy.store(false);//Release the queue
             }
     };
 
-    static AsyncLogger async_logger;
+    static AsyncLogger async_logger;//We make this static so the thread lasts for the entirety of IRVE's execution
     async_logger.enqueue_log_request(destination, inst_num, indent, str);
 #else//Non-async logging
     actual_log_function(destination, inst_num, indent, str);
