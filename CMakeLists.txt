@@ -25,8 +25,8 @@ endif()
 
 #Do logging on a separate thread
 if(NOT DEFINED IRVE_ASYNC_LOGGING)
-    set(IRVE_ASYNC_LOGGING 0)
-    #set(IRVE_ASYNC_LOGGING 1)
+    #set(IRVE_ASYNC_LOGGING 0)
+    set(IRVE_ASYNC_LOGGING 1)
 endif()
 
 #Enable ASAN, UBSAN, etc
@@ -56,7 +56,7 @@ endif()
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.6.0)
+project(irve VERSION 0.8.0)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)

@@ -10,6 +10,8 @@ set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)
 set(CMAKE_CXX_COMPILER riscv32-unknown-elf-g++)
 set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
 
+set(RVSW_DTB_PATH "${PROJECT_SOURCE_DIR}/../irve.dtb")
+
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -ffreestanding -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")                          
 set(RVSW_COMMON_FLAGS_DEBUG "-O0 -g3")
 set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
@@ -29,6 +31,8 @@ set(RVSW_BSS_SEGMENT_ALREADY_ZEROED "0")
 set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify the name of the one you want to build)
 
 #TODO options for firmware
+
+set(RVSW_SMODE_AND_KERNEL_ENTRY_ADDR 0xC0000000)
 
 set(RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET "irve_rvsw_newlib_syscalls")
 
