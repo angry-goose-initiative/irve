@@ -121,15 +121,26 @@ int verify_atomics() {
     __attribute__((unused)) irve::internal::cpu_state::cpu_state_t& cpu_state_ref =
         emulator.m_emulator_ptr->m_cpu_state;
     __attribute__((unused)) uint64_t expected_inst_count = 0;
+    irve::internal::memory::access_status_t as;
 
-    emulator.tick(); // addi a0, zero, 0x00000010
+    emulator.tick(); // addi a0, zero, 0x00000100
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     emulator.tick(); // addi a1, zero, 0x00000123
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     emulator.tick(); // sw a1, (a0)
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     emulator.tick(); // lr.w t0, (a0)
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_r(5) == 0x00000123);
+    assert(cpu_state_ref.reservation_set_valid() == true);
+    emulator.tick(); // addi t2, zero, 0x00000321
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     emulator.tick(); // sc.w t1, t2, (a0)
+    assert(emulator.get_inst_count() == ++expected_inst_count);
+    assert(emulator.m_emulator_ptr->m_memory.read_memory(0x00000100, DT_WORD, as) == 0x00000321);
     assert(cpu_state_ref.get_r(6) == 0);
     emulator.tick(); // sc.w t1, t2, (a0)
+    assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_r(6) == 1);
 
     return 0;
