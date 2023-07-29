@@ -74,7 +74,7 @@ class irve(pluginTemplate):
         # test-bench produced by a simulator (like verilator, vcs, incisive, etc). In case of an iss or
         # emulator, this variable could point to where the iss binary is located. If 'PATH variable
         # is missing in the config.ini we can hardcode the alternate here.
-        self.dut_exe = os.path.join(config['PATH'] if 'PATH' in config else "","./riscv_arch_tester")
+        self.dut_exe = os.path.join(config['PATH'] if 'PATH' in config else "","riscv_arch_tester")
 
         # Number of parallel jobs that can be spawned off by RISCOF
         # for various actions performed in later functions, specifically to run the tests in
@@ -182,6 +182,9 @@ class irve(pluginTemplate):
           # signature file.
           sig_file = os.path.join(test_dir, self.name[:-1] + ".signature")
 
+          elf_file = os.path.join(test_dir, elf)
+          vhex8_file = os.path.join(test_dir, vhex8)
+
           # for each test there are specific compile macros that need to be enabled. The macros in
           # the testList node only contain the macros/values. For the gcc toolchain we need to
           # prefix with "-D". The following does precisely that.
@@ -191,12 +194,17 @@ class irve(pluginTemplate):
           # function
           cmd = self.compile_cmd.format(testentry['isa'].lower(), self.xlen, test, elf, compile_macros)
 
-	  # if the user wants to disable running the tests and only compile the tests, then
-	  # the "else" clause is executed below assigning the sim command to simple no action
-	  # echo statement.
+
+          get_signature_begin_cmd = "`riscv32-unknown-elf-objdump -t " + elf_file + " | grep -Po '[0-9a-fA-F]+(?=.*irve_begin_signature)' | head -1 | (echo -n 0x && cat)`"
+          get_signature_end_cmd = "`riscv32-unknown-elf-objdump -t " + elf_file + " | grep -Po '[0-9a-fA-F]+(?=.*irve_end_signature)' | head -1 | (echo -n 0x && cat)`"
+
+          # if the user wants to disable running the tests and only compile the tests, then
+          # the "else" clause is executed below assigning the sim command to simple no action
+          # echo statement.
           if self.target_run:
             # set up the simulation command. Template is for spike. Please change.
-            simcmd = self.dut_exe + ' --isa={0} +signature={1} +signature-granularity=4 {2}'.format(self.isa, sig_file, elf)
+            simcmd = self.dut_exe + ' {0} {1} {2} {3}'.format(get_signature_begin_cmd, get_signature_end_cmd, sig_file, vhex8_file)
+            #simcmd = self.dut_exe + ' --isa={0} +signature={1} +signature-granularity=4 {2}'.format(self.isa, sig_file, elf)
           else:
             simcmd = 'echo "NO RUN"'
 

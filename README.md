@@ -24,7 +24,7 @@ We do a lot of our planning in [this semi-coherent Google Doc](https://docs.goog
 
 (Also at some point we split IRVE test code off into a hardware-independent repo called [RVSW](https://github.com/JZJisawesome/rvsw)).
 
-Keep in mind that IRVE is slow, managing only about 10-20MHz on a modern Ryzen system even in release mode. The purpose of this was to learn the architecture, not knock the socks of QEMU or anything :)
+Keep in mind that IRVE is slow, managing only about 10-20MHz on a modern Ryzen system even in release mode. The purpose of this was to learn the architecture, not knock the socks off of QEMU or anything :)
 
 ## Okay enough backstory, I want to try this out!
 

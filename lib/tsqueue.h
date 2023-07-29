@@ -6,7 +6,6 @@
  * See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO make this lock-free?
- * TODO should we use mutexes instead of atomic spinlocks?
  * FIXME this isn't really usable if we have multiple readers since we don't provide a way to check if the queue is empty
  *     at the same time as popping
  *
@@ -19,10 +18,10 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#include <atomic>
 #include <cassert>
 #include <cstddef>
 #include <deque>
+#include <mutex>
 #include <queue>
 #include <thread>
 
@@ -35,7 +34,7 @@ namespace irve::internal::tsqueue {
 template<typename T, typename C = std::deque<T>>//Same as std::queue
 class tsqueue_t {
 public:
-    tsqueue_t() : m_queue_busy(false) {}
+    tsqueue_t() {}
 
     //Note: These return a copy of the value, not a reference since that simplifies thread safety
     T front() const;
@@ -52,7 +51,7 @@ public:
 
 private:
     std::queue<T, C> m_queue;
-    mutable std::atomic<bool> m_queue_busy;//Locking/unlocking is "logically" const since it doesn't change the queue
+    mutable std::mutex m_mutex;//Locking/unlocking is "logically" const since it doesn't change the queue
 
     //Locking/unlocking is "logically" const since it doesn't change the queue
     void lock() const;
@@ -119,17 +118,12 @@ void tsqueue_t<T, C>::pop() {
 
 template<typename T, typename C>
 void tsqueue_t<T, C>::lock() const {
-    //Wait until the queue is not busy, then set it to busy since we are going to use it
-    while (this->m_queue_busy.exchange(true)) {
-        std::this_thread::yield();
-    }
+    this->m_mutex.lock();
 }
 
 template<typename T, typename C>
 void tsqueue_t<T, C>::unlock() const {
-    assert(m_queue_busy.load() && "Attempted to unlock an unlocked queue!");
-    //Set the queue to not busy since we are done using it
-    this->m_queue_busy.store(false);
+    this->m_mutex.unlock();
 }
 
 }
