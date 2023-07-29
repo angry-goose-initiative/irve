@@ -118,17 +118,19 @@ int verify_atomics() {
     //Load atomics program
     const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/atomics.vhex8";
     __attribute__((unused)) irve::emulator::emulator_t emulator(1, &file_name_ptr);
-    __attribute__((unused)) irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
+    __attribute__((unused)) irve::internal::cpu_state::cpu_state_t& cpu_state_ref =
+        emulator.m_emulator_ptr->m_cpu_state;
     __attribute__((unused)) uint64_t expected_inst_count = 0;
 
-    //li x1, 1
-    emulator.tick();
-    assert(cpu_state_ref.get_r(1) == 1);
+    emulator.tick(); // addi a0, zero, 0x00000010
+    emulator.tick(); // addi a1, zero, 0x00000123
+    emulator.tick(); // sw a1, (a0)
+    emulator.tick(); // lr.w t0, (a0)
+    assert(cpu_state_ref.get_r(5) == 0x00000123);
+    emulator.tick(); // sc.w t1, t2, (a0)
+    assert(cpu_state_ref.get_r(6) == 0);
+    emulator.tick(); // sc.w t1, t2, (a0)
+    assert(cpu_state_ref.get_r(6) == 1);
 
-    //li x2, 2
-    emulator.tick();
-    assert(cpu_state_ref.get_r(2) == 2);
-
-    //TODO
     return 0;
 }
