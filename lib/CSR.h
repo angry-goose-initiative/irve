@@ -4,9 +4,6 @@
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
- *
 */
 
 #ifndef CSR_H
@@ -36,7 +33,7 @@
 namespace irve::internal::CSR {
 
 /**
- * @brief CSR addresses implemented by IRVE
+ * @brief       The addresses of the CSR's that are implemented by IRVE.
 */
 namespace address {
     const uint16_t SSTATUS              = 0x100;
@@ -121,7 +118,8 @@ namespace address {
  * --------------------------------------------------------------------------------------------- */
 
 /**
- * @brief Privilege modes
+ * @brief       RISC-V privilege modes.
+ * @note        0b10 is reserved.
 */
 enum class privilege_mode_t : uint8_t {
     USER_MODE       = 0b00,
@@ -130,73 +128,87 @@ enum class privilege_mode_t : uint8_t {
 };
 
 /**
- * @brief Class containing RISC-V CSRs
+ * @brief       Class containing RISC-V CSR's.
 */
 class CSR_t {
 public:
     /**
-     * @brief Default CSR_t constructor. Only guaranteed to initialize CSRs that must be
-     * according to the RISC-V spec.
+     * @brief       The default CSR_t constructor. 
+     * @note        Only guaranteed to initialize CSRs that must be according to the RISC-V spec.
     */
     CSR_t();
 
     /**
-     * @brief Reads a CSR explictly (checking for adequate privilege and readablity)
-     * @param csr The CSR to read
-     * @return The value of the CSR
+     * @brief       Reads a CSR explicitly (checks for adequate privilege and readablity).
+     * @note        Invokes an illegal instruction exception if the CSR cannot be explicitly read
+     *              from.
+     * @param[in]   csr The CSR to read from.
+     * @return      The value of the CSR.
     */
-    reg_t explicit_read(uint16_t csr) const;//Performs privilege checks
+    reg_t explicit_read(uint16_t csr) const;
 
     /**
-     * @brief Writes a CSR explictly (checking for adequate privilege and writability)
-     * @param csr The CSR to write
-     * @param data The data to write to the CSR
+     * @brief       Writes a CSR explicitly (checking for adequate privilege and writability).
+     * @note        Invokes an illegal instruction exception if the CSR cannot be explicitly
+     *              written to.
+     * @param[in]   csr The CSR to write to.
+     * @param[in]   data The data to write to the CSR.
     */
-    void explicit_write(uint16_t csr, word_t data);//Performs privilege checks
+    void explicit_write(uint16_t csr, word_t data);
 
     /**
-     * @brief Reads a CSR implicitly (without checking privilege; still checks readablity)
-     * @param csr The CSR to read
-     * @return The value of the CSR
+     * @brief       Reads a CSR implicitly (without checking privilege; still checks readablity).
+     * @note        If the CSR number is invalid, an illegal instruction exception is invoked.
+     *              Implicit CSR accesses should never be invalid; this exception is invoked since
+     *              explicit CSR accesses do not check for an invalid CSR number before calling
+     *              this function.
+     * @param[in]   csr The CSR to read from.
+     * @return      The value of the CSR.
     */
-    reg_t implicit_read(uint16_t csr) const;//Does not perform privilege checks
+    reg_t implicit_read(uint16_t csr) const;
 
     /**
-     * @brief Writes a CSR implicitly (without checking privilege; still checks writability)
-     * @param csr The CSR to write
-     * @param data The data to write to the CSR
+     * @brief       Writes a CSR implicitly (without checking privilege; still checks writability).
+     * @note        If the CSR number is invalid, an illegal instruction exception is invoked.
+     *              Implicit CSR accesses should never be invalid; this exception is invoked since
+     *              explicit CSR accesses do not check for an invalid CSR number before calling
+     *              this function.
+     * @param[in]   csr The CSR to write to.
+     * @param[in]   data The data to write to the CSR.
     */
     void implicit_write(uint16_t csr, word_t data);//Does not perform privilege checks
 
     /**
-     * @brief Sets the privilege mode of the RISC-V CPU
-     * @param new_privilege_mode The new privilege mode to use
+     * @brief       Sets the privilege mode of the RISC-V CPU.
+     * @param[in]   new_privilege_mode The new privilege mode to use.
     */
     void set_privilege_mode(privilege_mode_t new_privilege_mode);
 
     /**
-     * @brief Gets the privilege mode of the RISC-V CPU
-     * @return The current privilege mode
+     * @brief       Gets the privilege mode of the RISC-V CPU.
+     * @return      The current privilege mode.
     */
     privilege_mode_t get_privilege_mode() const;
 
     /**
-     * @brief Updates the RISC-V CPU's mtime timer; may also set a timer interrupt as pending
-     * in the mip CSR
+     * @brief       Updates the RISC-V CPU's mtime timer; may also set a timer interrupt as pending
+     *              in the mip CSR.
     */
     void update_timer();
+
 private:
+
     /**
-     * @brief Checks if the current privilege mode can read a CSR
-     * @param csr The CSR to check
-     * @return True if the current privilege mode can read the CSR, false otherwise
+     * @brief       Checks if the current privilege mode can read a CSR.
+     * @param[in]   csr The CSR to check.
+     * @return      True if the current privilege mode can read the CSR, false otherwise.
     */
     bool current_privilege_mode_can_explicitly_read(uint16_t csr) const;
 
     /**
-     * @brief Checks if the current privilege mode can write a CSR
-     * @param csr The CSR to check
-     * @return True if the current privilege mode can write the CSR, false otherwise
+     * @brief       Checks if the current privilege mode can write a CSR.
+     * @param[in]   csr The CSR to check.
+     * @return      True if the current privilege mode can write the CSR, false otherwise.
     */
     bool current_privilege_mode_can_explicitly_write(uint16_t csr) const;
 
@@ -231,15 +243,24 @@ private:
     uint64_t minstret;//Handles both minstret and minstreth
     uint64_t mcycle;//Handles both mcycle and mcycleh
 
-    //NOTE: According to the spec, mtime and mtimecmp must be in memory, not in CSRs
-    //However, that would mean CSR_t needs a reference to memory, which is not ideal
-    //So instead we keep them here, and memory will have to redirect writes to their addresses into implicit writes to these CSRs
+    //NOTE: According to the spec, mtime and mtimecmp must be in memory, not in CSR's. However,
+    //      that would mean CSR_t would need a reference to memory, which is not ideal. Instead we
+    //      keep them here, and memory will have to redirect writes to their addresses into
+    //      implicit writes to these CSR's.
+
     uint64_t mtime;//Handles both time and timeh
     uint64_t mtimecmp;//Handles both time and timeh
     std::chrono::time_point<std::chrono::steady_clock> m_last_time_update;
     uint16_t m_delay_update_counter;//Don't check how much time has passed each tick() (much too slow)
 
-    privilege_mode_t m_privilege_mode;//Not a CSR, but it is a register we need to access to determine if we can access a CSR (and it is also used in other places)
+    /**
+     * @brief       The current privilege mode of the hart.
+     * @note        This is not a CSR according to the spec, but it is used to determine if CSR's
+     *              can be accessed. It also makes sense for this to be stored here since the
+     *              current privilege mode logically fits under the umbrella of a "control status
+     *              register".
+    */
+    privilege_mode_t m_privilege_mode;
 };
 
 }

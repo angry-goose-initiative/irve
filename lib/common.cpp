@@ -4,9 +4,6 @@
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
- *
 */
 
 /* ------------------------------------------------------------------------------------------------
@@ -26,7 +23,7 @@ using irve::internal::word_t;//TODO avoid this (only use irve::internal)
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {//TODO should we overload operator()
+word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
     assert((top_bit >= bottom_bit) && "Bad arguments to bits()");
     assert((top_bit < 32) && "Bad arguments to bits()");
     assert((bottom_bit < 32) && "Bad arguments to bits()");

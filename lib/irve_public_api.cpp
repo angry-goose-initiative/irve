@@ -24,8 +24,8 @@
 #define INST_COUNT 0
 #include "logging.h"
 
-// NO using statements here to make it obvious if we are refering to the internal namespace or the
-// public namespace
+//NO using statements here to make it obvious if we are refering to the internal namespace or the
+//public namespace
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -34,7 +34,7 @@
 //Namepace: irve::emulator
 
 irve::emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
-        m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
+    m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
 
 irve::emulator::emulator_t::~emulator_t() {
     delete this->m_emulator_ptr;

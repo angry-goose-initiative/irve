@@ -1,12 +1,9 @@
 /**
  * @file    emulator.cpp
- * @brief   The main emulator class used to instantiate an instance of irve
+ * @brief   The main emulator class used to instantiate an instance of IRVE.
  * 
  * @copyright Copyright (C) 2023 John Jekel and Nick Chan
  * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
- *
 */
 
 /* ------------------------------------------------------------------------------------------------
@@ -38,10 +35,11 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
-        m_CSR(),
-        m_memory(imagec, imagev, m_CSR),
-        m_cpu_state(m_CSR),
-        m_intercept_breakpoints(false) {
+    m_CSR(),
+    m_memory(imagec, imagev, m_CSR),
+    m_cpu_state(m_CSR),
+    m_intercept_breakpoints(false)
+{
     irvelog(0, "Created new emulator instance");
 }
 
@@ -109,8 +107,9 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
     word_t pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
 
-    //Note: Using exceptions instead to catch misses is (very slightly) faster when using the same few instructions over and over again
-    //(ex in nouveau_stress_test). But it tanks perf in other scenarios. So we do compare-and-branch instead
+    //Note: Using exceptions instead to catch misses is (very slightly) faster when using the same
+    //      few instructions over and over again. (ex in nouveau_stress_test). But it tanks
+    //      performance in other scenarios so we do compare-and-branch instead.
     if (this->m_icache.contains(pc.u)) {
         irvelog(1, "Cache hit");
         return this->m_icache.at(pc.u);
