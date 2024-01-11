@@ -147,9 +147,7 @@ $
 
 ### Run the Linux kernel
 
-TODO explain how to compile and configure the kernel
-
-TODO explain how to run both the M-mode and S-mode kernel by using `nommulinux` or `ogsbi` and then specifiying the path to the kernel `Image`
+See the [Linux shenanigans](https://github.com/angry-goose-initiative/wiki/wiki/Linux-shenanigans) page.
 
 ## Info About the IRVE RISC-V Environment / Capabilities
 
