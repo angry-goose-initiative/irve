@@ -96,8 +96,6 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege
 
 //We assume the CSRs within the class are "safe" for the purposes of reads
 reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
-    //FIXME workaround MSVC not supporting non-standard case ranges
-
     switch (csr) {
         case address::SSTATUS:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
         case address::SIE:              return this->sie;
@@ -122,9 +120,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MENVCFGH:         return 0;
         case address::MCOUNTINHIBIT:    return 0;
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return 0;
-#endif
 
         case address::MSCRATCH:         return this->mscratch;
         case address::MEPC:             return this->mepc;
@@ -132,24 +128,18 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::MTVAL:            return 0;
         case address::MIP:              return this->mip;
 
-#ifndef _MSC_VER//Not on MSVC
         case address::PMPCFG_START  ... address::PMPCFG_END:    return this->pmpcfg [csr - address::PMPCFG_START];
         case address::PMPADDR_START ... address::PMPADDR_END:   return this->pmpaddr[csr - address::PMPADDR_START];
-#endif
 
         case address::MCYCLE:           return (uint32_t)(this->mcycle      & 0xFFFFFFFF);
         case address::MINSTRET:         return (uint32_t)(this->minstret    & 0xFFFFFFFF);
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return 0;
-#endif
 
         case address::MCYCLEH:          return (uint32_t)((this->mcycle     >> 32) & 0xFFFFFFFF);
         case address::MINSTRETH:        return (uint32_t)((this->minstret   >> 32) & 0xFFFFFFFF);
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
-#endif
 
         case address::MTIME:            return (uint32_t)(this->mtime            & 0xFFFFFFFF);//Custom
         case address::MTIMEH:           return (uint32_t)((this->mtime    >> 32) & 0xFFFFFFFF);//Custom
@@ -160,17 +150,13 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
         case address::TIME:             return this->implicit_read(address::MTIME);
         case address::INSTRET:          return this->implicit_read(address::MINSTRET);
 
-#ifndef _MSC_VER//Not on MSVC
         case address::HPMCOUNTER_START ... address::HPMCOUNTER_END: return 0;
-#endif
 
         case address::CYCLEH:           return this->implicit_read(address::MCYCLEH);
         case address::TIMEH:            return this->implicit_read(address::MTIMEH);
         case address::INSTRETH:         return this->implicit_read(address::MINSTRETH);
 
-#ifndef _MSC_VER//Not on MSVC
         case address::HPMCOUNTERH_START ... address::HPMCOUNTERH_END: return 0;
-#endif
 
         case address::MVENDORID:        return 0;
         case address::MARCHID:          return 0; 
@@ -186,7 +172,6 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
     //FIXME handle WARL in this function
 
-    //TODO workaround MSVC not supporting non-standard case ranges
     switch (csr) {
         case address::SSTATUS:          this->mstatus = (this->mstatus & ~SSTATUS_MASK) | (data & SSTATUS_MASK); return;//Only some parts of mstatus are writable from sstatus
         case address::SIE:              this->sie = data; return;//FIXME WARL
@@ -210,9 +195,7 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MENVCFGH:         return;//We simply ignore writes to menvcfgh, NOT throw an exception
         case address::MCOUNTINHIBIT:    return;//We simply ignore writes to mcountinhibit, NOT throw an exception
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMEVENT_START ... address::MHPMEVENT_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
-#endif
 
         case address::MSCRATCH:         this->mscratch  = data;                 return;
         case address::MEPC:             this->mepc      = data & 0xFFFFFFFC;    return;//IALIGN=32
@@ -220,25 +203,19 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
         case address::MTVAL:                                                    return;//We simply ignore writes to MTVAL, NOT throw an exception
         case address::MIP:              this->mip       = data & 0b00000000000000000000'0010'0010'0010; return;//Note ALL interrupt pending bits for M-mode are READ ONLY
 
-#ifndef _MSC_VER//Not on MSVC
         //FIXME when locked, ignore (not throw exception) on writes to the relevant PMP CSRs
         case address::PMPCFG_START  ... address::PMPCFG_END:    this->pmpcfg [csr - address::PMPCFG_START]  = data; return;//FIXME WARL
         case address::PMPADDR_START ... address::PMPADDR_END:   this->pmpaddr[csr - address::PMPADDR_START] = data; return;//FIXME WARL
-#endif
 
         case address::MCYCLE:           this->mcycle    = (this->mcycle   & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;
         case address::MINSTRET:         this->minstret  = (this->minstret & 0xFFFFFFFF00000000) | ((uint64_t) data.u); return;
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTER_START ... address::MHPMCOUNTER_END: return;//We simply ignore writes to the HPMCOUNTER CSRs, NOT throw exceptions
-#endif
 
         case address::MCYCLEH:          this->mcycle    = (this->mcycle   & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32); return;
         case address::MINSTRETH:        this->minstret  = (this->minstret & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32); return;
 
-#ifndef _MSC_VER//Not on MSVC
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
-#endif
 
         case address::MTIME:            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
         case address::MTIMEH:           this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom

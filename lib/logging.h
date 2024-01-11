@@ -81,17 +81,7 @@
 } while (0)
 
 #else//On MSVC
-
-//MSVC doesn't support __VA_OPT__ yet, so we have to use the inefficient logging function always
-
-#define irvelog_always(indent, str, ...) do { \
-    irve::internal::logging::irvelog_internal_variadic_function_dont_use_this_directly(stderr, INST_COUNT, indent, str, __VA_ARGS__); \
-} while (0)
-
-#define irvelog_always_stdout(indent, str, ...) do { \
-    irve::internal::logging::irvelog_internal_variadic_function_dont_use_this_directly(stdout, INST_COUNT, indent, str, __VA_ARGS__); \
-} while (0)
-
+#error "MSVC doesn't support __VA_OPT__ which is needed for logging"
 #endif
 
 /* ------------------------------------------------------------------------------------------------
