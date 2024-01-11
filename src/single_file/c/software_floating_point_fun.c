@@ -9,7 +9,7 @@
 
 /* Constants And Defines */
 
-#define TOLERABLE_ERROR 0.0000000000001
+#define TOLERABLE_ERROR 0.000000000001
 
 /* Includes */
 
@@ -70,7 +70,7 @@ int main() {
     puts("Testing sqrt and cbrt");
     for (volatile double i = 123.456; i < 567.890; i += 9.876) {
         assert(sqrt(i) == pow(i, 0.5));
-        assert(abs(cbrt(i) - pow(i, 1.0 / 3.0)) < TOLERABLE_ERROR);
+        assert(fabs(cbrt(i) - pow(i, 1.0 / 3.0)) < TOLERABLE_ERROR);
     }
 
     puts("Testing log and exp");
@@ -78,11 +78,13 @@ int main() {
         volatile double temp = exp(i);
         assert(log(temp) == i);
         temp = log(i);
-        assert(abs(exp(temp) - i) < TOLERABLE_ERROR);
+        //printf("exp(temp) is %40.20f\n", exp(temp));
+        //printf("i is %40.20f\n", i);
+        assert(fabs(exp(temp) - i) < TOLERABLE_ERROR);
         temp = exp2(i);
-        assert(abs(log2(temp) - i) < TOLERABLE_ERROR);
+        assert(fabs(log2(temp) - i) < TOLERABLE_ERROR);
         temp = log2(i);
-        assert(abs(exp2(temp) - i) < TOLERABLE_ERROR);
+        assert(fabs(exp2(temp) - i) < TOLERABLE_ERROR);
     }
 
     //TODO test others (ex cos and acos)

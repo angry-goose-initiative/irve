@@ -16,6 +16,7 @@
 #include "rvsw_asm.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 /* ------------------------------------------------------------------------------------------------
  * External Variables
