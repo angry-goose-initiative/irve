@@ -11,7 +11,7 @@
 
 #TODO when IRVE is complete, make these suitable for a release build by default
 
-#Build type
+#Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
     #set(CMAKE_BUILD_TYPE Release)
@@ -25,20 +25,27 @@ endif()
 
 #Do logging on a separate thread
 if(NOT DEFINED IRVE_ASYNC_LOGGING)
-    #set(IRVE_ASYNC_LOGGING 0)
-    set(IRVE_ASYNC_LOGGING 1)
-endif()
-
-#Enable ASAN, UBSAN, etc
-if(NOT DEFINED IRVE_SANITIZE)
-    set(IRVE_SANITIZE 0)
-    #set(IRVE_SANITIZE 1)
+    set(IRVE_ASYNC_LOGGING 0)
+    #set(IRVE_ASYNC_LOGGING 1)
 endif()
 
 #Optional to use most things, but notably required for pretty disassembly
 if(NOT DEFINED IRVE_RUST)
     set(IRVE_RUST 0)
     #set(IRVE_RUST 1)
+endif()
+
+#Enable ASAN, UBSAN, etc
+if(NOT DEFINED IRVE_SANITIZE)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        if (IRVE_RUST)#TODO remove this check once irvers issues are resolved
+            set(IRVE_SANITIZE 0)
+        else()
+            set(IRVE_SANITIZE 1)
+        endif()
+    else()
+        set(IRVE_SANITIZE 0)
+    endif()
 endif()
 
 #If you want a collection of RISC-V software to mess with
@@ -49,8 +56,11 @@ endif()
 
 #Enable pseudo-fuzzing
 if(NOT DEFINED IRVE_FUZZISH)
-    #set(IRVE_FUZZISH 0)
-    set(IRVE_FUZZISH 1)
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(IRVE_FUZZISH 1)
+    else()
+        set(IRVE_FUZZISH 0)
+    endif()
 endif()
 
 #################################################################################################################################
@@ -65,18 +75,17 @@ include(CTest)
 
 set(GIT_EXECUTABLE git)
 
-set(CMAKE_CXX_FLAGS "")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /Wall")# /WX")#TODO in the future, given enough time, fix all warnings on MSVC
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wall -Wextra -Werror")
-endif()
+set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -Werror")
 
 if (IRVE_SANITIZE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined")
+    if (NOT APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined")
+    endif()
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb3")
 if (IRVE_RUST)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")#FIXME irvers dosn't like to compile with lto enabled; though regular irve and irve_disassemble are fine
 else()
