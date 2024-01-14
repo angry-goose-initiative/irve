@@ -50,28 +50,28 @@
 
 #define RVMODEL_HALT                                              \
     li x1, 'H'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'A'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'L'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'T'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, '\n'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     .insn r CUSTOM_0, 0, 0, zero, zero, zero;
 
 #define RVMODEL_BOOT \
     li x1, 'B'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'O'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'O'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, 'T'; \
-    sw x1, -1(zero); \
+    sb x1, -1(zero); \
     li x1, '\n'; \
-    sw x1, -1(zero);
+    sb x1, -1(zero);
 
 #define RVMODEL_DATA_BEGIN                                              \
     .data; \

@@ -345,8 +345,6 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         //Otherwise, let RISC-V code handle the EBREAK
     }
 
-    this->m_cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
-
     word_t raw_cause = (uint32_t)cause;
     assert((raw_cause.bits(30, 0).u < 32) && "Unsupported cause!");
 
@@ -383,10 +381,11 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         //Jump to the exception handler
         word_t mtvec = this->m_CSR.implicit_read(CSR::address::MTVEC);
         bool vectored = mtvec.bits(1, 0) == 0b01;
+        word_t vector_table_base_addr = mtvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
-            this->m_cpu_state.set_pc((mtvec & 0xFFFFFFFC) + (raw_cause.bits(30, 0).u * 4));
+            this->m_cpu_state.set_pc(vector_table_base_addr + (raw_cause.bits(30, 0) * 4));
         } else {
-            this->m_cpu_state.set_pc(mtvec & 0xFFFFFFFC);
+            this->m_cpu_state.set_pc(vector_table_base_addr);
         }
     } else {//Exception should be handled by supervisor mode
         //Manage the privilege stack
@@ -407,10 +406,11 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         //Jump to the exception handler
         word_t stvec = this->m_CSR.implicit_read(CSR::address::STVEC);
         bool vectored = stvec.bits(1, 0) == 0b01;
+        word_t vector_table_base_addr = stvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
-            this->m_cpu_state.set_pc((stvec & 0xFFFFFFFC) + (raw_cause.bits(30, 0).u * 4));
+            this->m_cpu_state.set_pc(vector_table_base_addr + (raw_cause.bits(30, 0) * 4));
         } else {
-            this->m_cpu_state.set_pc(stvec & 0xFFFFFFFC);
+            this->m_cpu_state.set_pc(vector_table_base_addr);
         }
     }
 }

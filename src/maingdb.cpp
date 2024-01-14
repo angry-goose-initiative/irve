@@ -84,11 +84,11 @@ int main(int argc, const char* const* argv) {
 
 static void print_startup_message() {
     irvelog_always(0, "\x1b[1mStarting \x1b[94mIRVE\x1b[0m (GDB Server Mode)");
-    irvelog_always(0, "\x1b[1m\x1b[94m ___ ______     _______ \x1b[0m");
-    irvelog_always(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____|\x1b[0m");
-    irvelog_always(0, "\x1b[1m\x1b[94m | || |_) \\ \\ / /|  _|  \x1b[0m"); 
-    irvelog_always(0, "\x1b[1m\x1b[94m | ||  _ < \\ V / | |___ \x1b[0m");
-    irvelog_always(0, "\x1b[1m\x1b[94m|___|_| \\_\\ \\_/  |_____|\x1b[0m");
+    irvelog_always(0, "\x1b[1m\x1b[94m ___ ______     _______  \x1b[90m__\x1b[0m");
+    irvelog_always(0, "\x1b[1m\x1b[94m|_ _|  _ \\ \\   / / ____| \x1b[90m\\ \\\x1b[0m");
+    irvelog_always(0, "\x1b[1m\x1b[94m | || |_) \\ \\ / /|  _|    \x1b[90m\\ \\\x1b[0m");
+    irvelog_always(0, "\x1b[1m\x1b[94m | ||  _ < \\ V / | |___   \x1b[90m/ /\x1b[0m");
+    irvelog_always(0, "\x1b[1m\x1b[94m|___|_| \\_\\ \\_/  |_____| \x1b[90m/_/\x1b[0m");
     irvelog_always(0, "");
     irvelog_always(0, "\x1b[1mThe Inextensible RISC-V Emulator\x1b[0m");
     irvelog_always(0, "\x1b[1mCopyright (C) 2023 \x1b[95mJohn Jekel\x1b[37m and \x1b[92mNick Chan\x1b[0m");
@@ -96,7 +96,7 @@ static void print_startup_message() {
     irvelog_always(0, "");
     irvelog_always(0, "\x1b[90mlibirve %s\x1b[0m", irve::about::get_version_string());
     irvelog_always(0, "\x1b[90mlibirve built at %s on %s\x1b[0m", irve::about::get_build_time_string(), irve::about::get_build_date_string());
-    irvelog_always(0, "\x1b[90mirve executable built at %s on %s\x1b[0m", __TIME__, __DATE__);
+    irvelog_always(0, "\x1b[90mirvegdb executable built at %s on %s\x1b[0m", __TIME__, __DATE__);
     irvelog(0, "\x1b[90mBuild System: %s\x1b[0m", irve::about::get_build_system_string());
     irvelog(0, "\x1b[90mBuilt from %s for %s\x1b[0m", irve::about::get_build_host_string(), irve::about::get_compile_target_string());
     irvelog(0, "\x1b[90mCompiler: %s\x1b[0m", irve::about::get_compiler_string());

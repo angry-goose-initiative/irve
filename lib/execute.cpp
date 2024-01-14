@@ -988,6 +988,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 mstatus |= mpie << 3;//Set MIE to the old MPIE
                 CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
 
+                cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
+
                 //Return to the address in MEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
@@ -1009,6 +1011,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 sstatus |= 1 << 5;//Set SPIE to 1
                 sstatus |= spie << 1;//Set SIE to the old SPIE
                 CSR.implicit_write(CSR::address::SSTATUS, sstatus);//Write changes back to the CSR
+
+                cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
                 //Return to the address in SEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));

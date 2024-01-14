@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [ubuntu-latest, macos-latest, windows-latest]#For now, we only do RVSW tests on linux
+        #os: [ubuntu-latest, macos-latest]#For now, we only do RVSW tests on linux
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
@@ -75,7 +75,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [ubuntu-latest, macos-latest, windows-latest]#For now, we only do RVSW tests on linux
+        #os: [ubuntu-latest, macos-latest]#For now, we only do RVSW tests on linux
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     

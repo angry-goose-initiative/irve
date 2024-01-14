@@ -2,10 +2,10 @@
 
 <img src="logo.jpg" width=400>
 
-[![IRVE Smoke Tests](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/smoke_tests.yml)
-[![IRVE Unit Tests](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/unit_tests.yml)
-[![IRVE Integration Tests](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/integration_tests.yml)
-[![IRVE RVSW Tests](https://github.com/JZJisawesome/irve/actions/workflows/rvsw_tests.yml/badge.svg?branch=main)](https://github.com/JZJisawesome/irve/actions/workflows/rvsw_tests.yml)
+[![IRVE Smoke Tests](https://github.com/angry-goose-initiative/irve/actions/workflows/smoke_tests.yml/badge.svg?branch=main)](https://github.com/angry-goose-initiative/irve/actions/workflows/smoke_tests.yml)
+[![IRVE Unit Tests](https://github.com/angry-goose-initiative/irve/actions/workflows/unit_tests.yml/badge.svg?branch=main)](https://github.com/angry-goose-initiative/irve/actions/workflows/unit_tests.yml)
+[![IRVE Integration Tests](https://github.com/angry-goose-initiative/irve/actions/workflows/integration_tests.yml/badge.svg?branch=main)](https://github.com/angry-goose-initiative/irve/actions/workflows/integration_tests.yml)
+[![IRVE RVSW Tests](https://github.com/angry-goose-initiative/irve/actions/workflows/rvsw_tests.yml/badge.svg?branch=main)](https://github.com/angry-goose-initiative/irve/actions/workflows/rvsw_tests.yml)
 
 The Inextensible RISC-V Emulator
 
@@ -16,15 +16,15 @@ IRVE was intended as a "quick and dirty" emulator capable of running the Linux k
 IRVE is the first step on our journey within an overarching project called AGI, the Angry Goose Initiative.
 
 The plan is to use it to better understand the RISC-V architecture (with a focus on Volume 2 in particular).
-Once we do, we can move on to a hardware implementation in SystemVerilog called [LETC](https://github.com/JZJisawesome/letc)!
+Once we do, we can move on to a hardware implementation in SystemVerilog called [LETC](https://github.com/angry-goose-initiative/letc)!
 
 If you're reading this, as of writing we're in a transition period between wrapping up IRVE and beginning LETC. Exciting stuff!
 
 We do a lot of our planning in [this semi-coherent Google Doc](https://docs.google.com/document/d/1HeZ4l5OxooQuh2kdJ1o-uWJXWzGPsVntSPlf_ByFmWA/edit?usp=drivesdk) if you're interested!
 
-(Also at some point we split IRVE test code off into a hardware-independent repo called [RVSW](https://github.com/JZJisawesome/rvsw)).
+(Also at some point we split IRVE test code off into a hardware-independent repo called [RVSW](https://github.com/angry-goose-initiative/rvsw)).
 
-Keep in mind that IRVE is slow, managing only about 10-20MHz on a modern Ryzen system even in release mode. The purpose of this was to learn the architecture, not knock the socks of QEMU or anything :)
+Keep in mind that IRVE is slow, managing only about 10-20MHz on a modern Ryzen system even in release mode. The purpose of this was to learn the architecture, not knock the socks off of QEMU or anything :)
 
 ## Okay enough backstory, I want to try this out!
 
@@ -46,7 +46,7 @@ Don't forget to add all of the `riscv32-unknown-elf-gnu-*` binaries to your PATH
 Lastly, in a directory of your choice, clone this repo:
 
 ```
-$ git clone https://github.com/JZJisawesome/irve.git
+$ git clone https://github.com/angry-goose-initiative/irve.git
 Cloning into 'irve'...
 remote: Enumerating objects: 4224, done.
 remote: Counting objects: 100% (659/659), done.
@@ -73,7 +73,7 @@ Step 3: Perform the compile with `make`. For speed, you should probably do `make
 
 NOTE: If you just want to compile `irve` (ex. if you don't have a cross compiler), do `make irve` instead.
 
-### Run all of the things
+### Run all the things
 
 The `irve` front end (the one you likely care about) is placed in `build/src/irve`, but the symlink in the root of the project already links to this for your convenience.
 
@@ -147,9 +147,7 @@ $
 
 ### Run the Linux kernel
 
-TODO explain how to compile and configure the kernel
-
-TODO explain how to run both the M-mode and S-mode kernel by using `nommulinux` or `ogsbi` and then specifiying the path to the kernel `Image`
+See the [Linux shenanigans](https://github.com/angry-goose-initiative/wiki/wiki/Linux-shenanigans) page.
 
 ## Info About the IRVE RISC-V Environment / Capabilities
 
