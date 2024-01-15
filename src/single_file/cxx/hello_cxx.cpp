@@ -1,31 +1,40 @@
-/* hello_cxx.cpp
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Prints "Hello World!" and exits.
- *
+/**
+ * @file    hello_cxx.cpp
+ * @brief   Prints "Hello World!" and exits.
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>//iostream is hard, we'll make a seperate file for that
 
-/* Types */
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 class hello_world_t {
     public:
         hello_world_t(void);
 };
 
-/* Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Static Variables
+ * --------------------------------------------------------------------------------------------- */
 
-bool static_contructor_called = false;
+static bool static_contructor_called = false;
 
-hello_world_t hello_world;
+static hello_world_t hello_world;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(void) {
     puts("Hello World from main()!");

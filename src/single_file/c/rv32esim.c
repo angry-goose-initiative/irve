@@ -1,13 +1,15 @@
-/* rv32esim.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Simple test code 
- *
- * Based on code from rv32esim
+/**
+ * @file    rv32esim.c
+ * @brief   Simple test code based on code from rv32esim
+ * 
+ * @copyright
+ *  Copyright (C) 2022-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -15,7 +17,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     //printf("Testing");

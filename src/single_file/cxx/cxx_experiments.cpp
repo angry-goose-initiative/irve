@@ -1,16 +1,15 @@
-/* cxx_experiments.cpp
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Experimenting with CXX / CXX bringup in RVSW (on the software side)
- *
+/**
+ * @file    cxx_experiments.cpp
+ * @brief   Experimenting with CXX / CXX bringup in RVSW (on the software side)
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
-
-//TODO
-
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cmath>
@@ -23,16 +22,16 @@
 #include <vector>
 #include <queue>
 
-/* Types */
-
-//TODO
-
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static void example_regex_code_from_cppreference();
 static void mean();
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int, const char**) {
     //Not just a vector, but a vector that is itself on the heap
@@ -133,7 +132,9 @@ extern "C" __attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handle
     exit(1);
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static void example_regex_code_from_cppreference() {
     //Thanks https://en.cppreference.com/w/cpp/regex

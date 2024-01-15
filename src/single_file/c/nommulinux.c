@@ -2,8 +2,9 @@
  * @file    nommulinux.c
  * @brief   Jump to the a nommu (aka. M-mode) Linux kernel
  * 
- * @copyright Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO longer description
  *
@@ -55,6 +56,8 @@ int main (int, const char**) {
 
     //Set mtvec to point to just after the kernel entry point
     //This is mostly to help out "nice" linker scripts that put the vector table right after the reset section
+    //TODO actually we should really handle some things (ex. misaligned accesses) ourselves
+    //and forward on other things in software
     __asm__ volatile (
         "csrw mtvec, %[ADDR]\n"
         : /* No output registers */

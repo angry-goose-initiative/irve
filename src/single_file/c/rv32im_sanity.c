@@ -1,13 +1,15 @@
-/* rv32im_sanity.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Test code for the base RISC-V spec and M extension
- *
- * Based on code from rv32esim
+/**
+ * @file    rv32im_sanity.c
+ * @brief   Test code for the base RISC-V spec and M extension, based on code from rv32esim
+ * 
+ * @copyright
+ *  Copyright (C) 2022-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -15,7 +17,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     puts("Sanity test for base RISC-V spec and M extension\n");

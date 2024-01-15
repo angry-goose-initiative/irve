@@ -1,19 +1,24 @@
-/* hello_exceptions.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Early experiments with RISC-V exception handling
- *
+/**
+ * @file    hello_exceptions.c
+ * @brief   Early experiments with RISC-V exception handling
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     puts("Playing with RISC-V exceptions!");

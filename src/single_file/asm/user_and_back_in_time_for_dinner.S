@@ -1,5 +1,5 @@
 # user_and_back_in_time_for_dinner.s
-# Copyright (C) 2023 John Jekel and Nick Chan
+# Copyright (C) 2023-2024 John Jekel
 # See the LICENSE file at the root of the project for licensing info.
 #
 # Goin' all the way to U-Mode and back to M-Mode!

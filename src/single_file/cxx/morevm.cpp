@@ -1,12 +1,15 @@
-/* morevm.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * More virtual memory experiments!
- *
+/**
+ * @file    morevm.cpp
+ * @brief   More virtual memory experiments!
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <iostream>
@@ -16,12 +19,14 @@
 #include <cstdlib>
 #include <utility>
 
-/* Static Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Static Variables
+ * --------------------------------------------------------------------------------------------- */
 
-volatile uint32_t root_page_table[1024] __attribute__((aligned(4096)));
-volatile uint32_t one_second_level_page_table[1024] __attribute__((aligned(4096)));
+static volatile uint32_t root_page_table[1024]              __attribute__((aligned(4096)));
+static volatile uint32_t one_second_level_page_table[1024]  __attribute__((aligned(4096)));
 
-volatile struct {
+static volatile struct {
     //We initialize these with something non-zero so they aren't stored in the .bss section
     //Otherwise it can take a long time to clear them all, and we're going to fill them with random data anyway later
     volatile uint8_t a[4096] __attribute__((aligned(4096))) = {1};
@@ -30,7 +35,9 @@ volatile struct {
     volatile uint8_t d[4096] __attribute__((aligned(4096))) = {4};
 } page __attribute__((aligned(4194304)));//So we only need a single second-level page table (align to a superpage)
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static void setup_paging();
 static void switch_to_partial_two_level_paging();
@@ -38,7 +45,9 @@ static void swap_around_pages_abcd();
 static void make_everything_a();
 static std::pair<uint16_t, uint16_t> get_ppn_containing(volatile void* addr);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int, const char**) {
     uint32_t seed = 0x1234ABCD;
@@ -157,7 +166,9 @@ extern "C" __attribute__ ((interrupt ("supervisor"))) void ___rvsw_exception_han
     exit(1);
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static void setup_paging() {
     //Begin by mapping all of memory to itself (pseudo-Bare mode)

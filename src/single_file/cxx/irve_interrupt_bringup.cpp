@@ -1,24 +1,31 @@
-/* irve_interrupt_bringup.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A testfile used for interrupt bringup.
- *
+/**
+ * @file    irve_interrupt_bringup.cpp
+ * @brief   A testfile used for interrupt bringup.
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 
-/* Static Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Static Variables
+ * --------------------------------------------------------------------------------------------- */
 
-volatile bool supervisor_mode_software_interrupt_handler_called = false;
-volatile bool supervisor_mode_timer_interrupt_handler_called = false;
-volatile bool supervisor_mode_external_interrupt_handler_called = false;
+static volatile bool supervisor_mode_software_interrupt_handler_called  = false;
+static volatile bool supervisor_mode_timer_interrupt_handler_called     = false;
+static volatile bool supervisor_mode_external_interrupt_handler_called  = false;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int, const char**) {
     puts("IRVE Interrupt Bringup Tests");

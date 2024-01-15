@@ -1,12 +1,16 @@
-/* irve_exception_bringup.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A testfile used for exception bringup.
- *
+/**
+ * @file    irve_exception_bringup.c
+ * @brief   A testfile used for exception bringup
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <assert.h>
 #include <stdio.h>
@@ -14,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-/* Macros */
+/* ------------------------------------------------------------------------------------------------
+ * Macros
+ * --------------------------------------------------------------------------------------------- */
 
 #define csrrw(destination, csr, source) do { \
     __asm__ volatile ( \
@@ -106,7 +112,9 @@
     ); \
 } while (0)
 
-/* Static Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Static Variables
+ * --------------------------------------------------------------------------------------------- */
 
 static volatile struct {
     uint32_t mstatus;
@@ -115,7 +123,9 @@ static volatile struct {
     uint32_t mtval;
 } last_exception_info;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     puts("Exception Bringup Tests");

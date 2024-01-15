@@ -1,22 +1,26 @@
-/* hello_world.c
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Prints "Hello World!" and exits.
- *
+/**
+ * @file    hello_world.c
+ * @brief   Prints "Hello World!" and exits.
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
-int main(void)
-{
+int main(void) {
     puts("Hello World!");
     return 0;
 }

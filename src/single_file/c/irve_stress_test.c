@@ -1,12 +1,15 @@
-/* irve_stress_test.c
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A stress test originally from IRVE
- *
+/**
+ * @file    irve_stress_test.c
+ * @brief   A stress test originally from IRVE
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <assert.h>
 #include <stdio.h>
@@ -15,26 +18,9 @@
 #include <string.h>
 #include <math.h>
 
-/* Includes */
-
-//TODO
-
-/* Types */
-
-//TODO
-
-/* Variables */
-
-//extern int __executable_start;
-//extern int __stack_top;
-//extern int __SDATA_BEGIN__;
-//extern int __heap_start__;
-
-/* Static Function Declarations */
-
-//static void fp_math();
-
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     printf("Hello %s!\n", "World");
@@ -78,7 +64,3 @@ __attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handler___(void) 
     assert(false && "We don't expect any exceptions to occur in this test program");
     exit(1);
 }
-
-/* Static Function Implementations */
-
-//TODO

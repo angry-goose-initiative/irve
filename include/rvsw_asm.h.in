@@ -1,10 +1,13 @@
-/* rvsw_asm.h.in
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
+/**
+ * @file    rvsw_asm.h.in
+ * @brief   Standard RVSW assembly header
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
- * A header file to be included in assembly programs to access some
- * (potentially configuration dependent) constants and macros.
- *
+ *  A header file to be included in assembly programs to access some
+ *  (potentially configuration dependent) constants and macros.
 */
 
 #ifndef RVSW_ASM_H

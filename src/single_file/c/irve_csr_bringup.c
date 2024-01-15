@@ -1,12 +1,15 @@
-/* irve_csr_bringup.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A testfile used for CSR bringup (CSR instructions, not specific CSR registers quite yet)
- *
+/**
+ * @file    irve_csr_bringup.c
+ * @brief   A testfile used for CSR bringup (CSR instructions, not specific CSR registers quite yet)
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <assert.h>
 #include <stdio.h>
@@ -14,7 +17,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-/* Macros */
+/* ------------------------------------------------------------------------------------------------
+ * Macros
+ * --------------------------------------------------------------------------------------------- */
 
 #define csrrw(destination, csr, source) do { \
     __asm__ volatile ( \
@@ -106,7 +111,9 @@
     ); \
 } while (0)
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     puts("CSR (instruction) Bringup Tests");

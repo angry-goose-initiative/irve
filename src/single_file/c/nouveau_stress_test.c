@@ -1,12 +1,15 @@
-/* nouveau_stress_test.c
- * Copyright (C) 2023 John Jekel
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A much larger RVSW stress test
- *
+/**
+ * @file    nouveau_stress_test.c
+ * @brief   A much larger RVSW stress test
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 #ifdef RVSW_MMODE
 #define MODE "M-Mode"
@@ -16,7 +19,9 @@
 
 #define MAX_ITERATIONS 100
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <assert.h>
 #include <stdio.h>
@@ -27,11 +32,9 @@
 #include <complex.h>
 #include <stdint.h>
 
-/* Types */
-
-//TODO
-
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static uint64_t efficient_fibonacci(uint64_t n);
 static uint64_t inefficient_recursive_fibonacci(uint64_t n);
@@ -39,7 +42,9 @@ static uint64_t inefficient_recursive_fibonacci(uint64_t n);
 static void print_mandelbrot();
 static uint64_t mandelbrot_iterations(double complex point);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     printf("Nouveau Stress Test (%s)\n", MODE);
@@ -53,7 +58,9 @@ int main() {
     return 0;
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static uint64_t efficient_fibonacci(uint64_t n) {
     uint64_t prevprev = 0;

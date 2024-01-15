@@ -1,8 +1,10 @@
-/* smode_newlib_syscalls.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Implementation of Newlib syscalls
+/**
+ * @file    smode_newlib_syscalls.c
+ * @brief   Implementation of Newlib "syscalls"
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
  * Useful resources (partially based on):
  * https://sourceware.org/newlib/libc.html#Syscalls
@@ -11,7 +13,9 @@
  * IRVE M-Mode syscalls
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <errno.h>
 #include <sys/stat.h>
@@ -20,12 +24,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-/* Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Global Variables
+ * --------------------------------------------------------------------------------------------- */
 
 #undef errno
 extern int errno;
 
-/* Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 extern void __libc_init_array(void);
 
@@ -42,7 +50,9 @@ int _lseek(int file, int ptr, int dir);
 int _read(int file, char* str, int len);
 int _write(int file, char* str, int len);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //TODO implement others eventually
 

@@ -1,12 +1,15 @@
-/* irve_vm_bringup.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * A testfile used for virtual memory bringup.
- *
+/**
+ * @file    irve_vm_bringup.cpp
+ * @brief   A testfile used for virtual memory bringup.
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <iostream>
@@ -14,16 +17,22 @@
 #include <cstdint>
 #include <cstring>
 
-/* Static Variables */
+/* ------------------------------------------------------------------------------------------------
+ * Static Variables
+ * --------------------------------------------------------------------------------------------- */
 
-volatile uint32_t root_page_table[1024] __attribute__((aligned(4096)));
+static volatile uint32_t root_page_table[1024] __attribute__((aligned(4096)));
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static void setup_page_table();
 static void enable_paging();
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int, const char**) {
     std::cout << "IRVE Virtual Memory Bringup/Experiments" << std::endl;
@@ -45,7 +54,9 @@ extern "C" __attribute__ ((interrupt ("supervisor"))) void ___rvsw_exception_han
     exit(1);
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static void setup_page_table() {
     //TESTING

@@ -1,17 +1,21 @@
-/* software_floating_point_fun.c
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Stress-testing with software floating point provided by libgcc
- *
- * Based on code from rv32esim
+/**
+ * @file    software_floating_point_fun.c
+ * @brief   Stress-testing with software floating point provided by libgcc, based on code from rv32esim
+ * 
+ * @copyright
+ *  Copyright (C) 2022-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Constants And Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 #define TOLERABLE_ERROR 0.000000000001
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -20,7 +24,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main() {
     puts("Testing software floating point!\n");
