@@ -2,10 +2,13 @@
  * File:    TODO.rs
  * Brief:   TODO
  *
- * Copyright (C) 2023 John Jekel and Nick Chan
+ * Copyright (C) YEAR1-YEAR2 AUTHOR1\n
+ * Copyright (C) YEAR1-YEAR2 AUTHOR2\n
+ * ...
+ * Copyright (C) YEAR1-YEAR2 AUTHORn\n
  * See the LICENSE file at the root of the project for licensing info.
  *
- * TODO longer description
+ * TODO optional longer description
  *
 */
 

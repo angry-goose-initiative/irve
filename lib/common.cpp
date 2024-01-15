@@ -2,8 +2,10 @@
  * @file    common.cpp
  * @brief   Common things for IRVE code
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
 /* ------------------------------------------------------------------------------------------------
@@ -33,7 +35,7 @@ word_t word_t::bits(uint8_t top_bit, uint8_t bottom_bit) const {
     
     //Generate the mask
     uint8_t num_bits = top_bit - bottom_bit + 1;
-    word_t mask = (1 << num_bits) - 1;
+    word_t mask = (1 << num_bits) - 1;//FIXME on this line this sometimes occurs: "runtime error: signed integer overflow: -2147483648 - 1 cannot be represented in type 'int'"
 
     //Apply the mask and return
     return intermediate & mask;

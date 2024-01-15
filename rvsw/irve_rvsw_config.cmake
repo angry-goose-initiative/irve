@@ -1,5 +1,5 @@
 # irve_rvsw_config.cmake
-# Copyright (C) 2023 John Jekel and Nick Chan
+# Copyright (C) 2023-2024 John Jekel
 # See the LICENSE file at the root of the project for licensing info.
 #
 # IRVE RVSW configuration file
@@ -13,7 +13,7 @@ set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
 set(RVSW_DTB_PATH "${PROJECT_SOURCE_DIR}/../irve.dtb")
 
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")                          
-set(RVSW_COMMON_FLAGS_DEBUG "-O0 -g3")
+set(RVSW_COMMON_FLAGS_DEBUG "-O0 -ggdb3")
 #set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")#TODO re-enable when nommulinux issue is fixed
 set(RVSW_COMMON_FLAGS_RELEASE "-O3")
 

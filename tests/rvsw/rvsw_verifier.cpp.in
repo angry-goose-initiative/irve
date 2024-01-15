@@ -1,6 +1,10 @@
-/* rvsw_verifier.cpp.in
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+/**
+ * @file    rvsw_verifier.cpp.in
+ * @brief   Tests IRVE with RVSW
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
  * Uses compiled testfiles to test IRVE (may look at internal state like unit tests, but evaluates the entire
  * program like integration tests)
@@ -9,7 +13,9 @@
 
 //FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <iostream>
 #include <cassert>
@@ -18,7 +24,9 @@
 #include <string>
 #include <unordered_map>
 
-/* Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Constants/Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //CMake will populate this
 #define TEST_LIST @RVSW_TEST_LIST@
@@ -29,15 +37,15 @@
 TEST_LIST
 #undef X
 
-/* Constants */
-
 #define X(test_name) {#test_name, verify_##test_name},
 const std::unordered_map<std::string, int (*)()> TEST_MAP = {
     TEST_LIST
 };
 #undef X
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int argc, char** argv) {
     assert(argc == 2 && "Incorrect number of arguments. Usage: rvsw_verifier test_to_run");

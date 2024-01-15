@@ -1,12 +1,15 @@
-/* logging.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's logging.h and logging.cpp
- *
+/**
+ * @file    logging.cpp
+ * @brief   Performs unit tests for IRVE's logging.h and logging.cpp
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdint>
@@ -16,7 +19,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_logging_irvelog() {
     for (int i = -1; i < 123; i++) {

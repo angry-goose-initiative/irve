@@ -41,7 +41,7 @@ We use [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain
 It's **imperative** that you build the Newlib version (since the RVSW test programs don't use dynamic linking as they are bare-metal).
 Also, since IRVE implements RV32IMA (and some other smaller extensions), you **must** append `--with-arch=rv32ima` and `--with-abi=ilp32` to the `./configure` command.
 
-Don't forget to add all of the `riscv32-unknown-elf-gnu-*` binaries to your PATH too!
+Don't forget to add all of the `riscv32-unknown-elf-*` binaries to your PATH too!
 
 Lastly, in a directory of your choice, clone this repo:
 

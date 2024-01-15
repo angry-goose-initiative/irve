@@ -2,8 +2,9 @@
  * @file    irve_newlib.c
  * @brief   Implementation of Newlib syscalls and setup/teardown for IRVE Machine Mode programs
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
  * Useful resources (partially based on):
  * https://sourceware.org/newlib/libc.html#Syscalls

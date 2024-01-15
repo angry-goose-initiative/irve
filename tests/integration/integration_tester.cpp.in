@@ -1,14 +1,18 @@
-/* integration_tester.cpp.in
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs integration tests for IRVE 
- *
+/**
+ * @file    integration_tester.cpp.in
+ * @brief   Performs integration tests for IRVE
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
+
 
 //FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <iostream>
 #include <cassert>
@@ -17,18 +21,24 @@
 #include <string>
 #include <unordered_map>
 
-/* Defines */
+/* ------------------------------------------------------------------------------------------------
+ * Defines
+ * --------------------------------------------------------------------------------------------- */
 
 //CMake will populate this
 #define TEST_LIST @INTEGRATION_TEST_LIST@
 
-/* External Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * External Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 #define X(test_name) extern int test_##test_name();
 TEST_LIST
 #undef X
 
-/* Constants */
+/* ------------------------------------------------------------------------------------------------
+ * Constants
+ * --------------------------------------------------------------------------------------------- */
 
 #define X(test_name) {#test_name, test_##test_name},
 const std::unordered_map<std::string, int (*)()> TEST_MAP = {
@@ -36,7 +46,9 @@ const std::unordered_map<std::string, int (*)()> TEST_MAP = {
 };
 #undef X
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int main(int argc, char** argv) {
     assert(argc == 2 && "Incorrect number of arguments. Usage: integration_tester test_to_run");

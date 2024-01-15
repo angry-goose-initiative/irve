@@ -1,12 +1,15 @@
-/* common.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's common.h and common.cpp
- *
+/**
+ * @file    common.cpp
+ * @brief   Performs unit tests for IRVE's common.h and common.cpp
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cmath>
 #include <cassert>
@@ -18,7 +21,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_common_word_t() {
     assert(word_t(1) + word_t(1) == word_t(2));

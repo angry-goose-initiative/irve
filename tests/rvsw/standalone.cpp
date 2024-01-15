@@ -1,12 +1,16 @@
-/* rv32esim.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Verifies the rv32esim rvsw single_file assembly program
- *
+/**
+ * @file    standalone.cpp
+ * @brief   Verifies several standalone RVSW single_file assembly programs
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #define private public//Since we need to access internal emulator state for testing
 
@@ -20,7 +24,9 @@
 #include <cstdint>
 #include <cstring>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //TODO also check CSRs, memory, etc
 

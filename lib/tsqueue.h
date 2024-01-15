@@ -2,8 +2,9 @@
  * @file    tsqueue.h
  * @brief   A dead simple thread safe queue based purely on things in the C++ standard library
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO make this lock-free?
  * FIXME this isn't really usable if we have multiple readers since we don't provide a way to check if the queue is empty
