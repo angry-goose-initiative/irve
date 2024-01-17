@@ -75,7 +75,7 @@ include(CTest)
 
 set(GIT_EXECUTABLE git)
 
-set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "-std=c++2b -Wall -Wextra -Werror")
 
 if (IRVE_SANITIZE)
     if (NOT APPLE)

@@ -34,7 +34,7 @@ Awesome! We'll walk you through the steps!
 
 We highly recommend doing all of this from a Linux system. We have had some success on macOS, but with the RISC-V toolchain in particular you might encounter issues.
 
-Ensure you have a modern G++ compiler installed than supports C++20. (Clang++ works too with some CMake variable tweaks).
+Ensure you have a modern G++ compiler installed than supports C++23. (Clang++ works too with some CMake variable tweaks).
 
 You'll also want a cross compiler if you actually want something to *run on the emulator* (though you don't need it for the emulator itself).
 We use [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) for this.
