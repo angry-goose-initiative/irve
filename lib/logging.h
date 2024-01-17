@@ -55,6 +55,8 @@
  * The magic of __VA_OPT__ automatically chooses the more efficient function if there are no variadic arguments
 */
 
+//TODO add verbosity support
+
 #if IRVE_INTERNAL_CONFIG_DISABLE_LOGGING
 
 //Compiles down to nothing, but prevents warnings/errors if logging is disabled
