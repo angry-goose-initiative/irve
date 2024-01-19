@@ -1,12 +1,16 @@
-/* rv32esim.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Verifies the rv32esim rvsw single_file assembly program
- *
+/**
+ * @file    standalone.cpp
+ * @brief   Verifies several standalone RVSW single_file assembly programs
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #define private public//Since we need to access internal emulator state for testing
 
@@ -20,7 +24,9 @@
 #include <cstdint>
 #include <cstring>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //TODO also check CSRs, memory, etc
 
@@ -110,6 +116,119 @@ int verify_rv32esim() {
     emulator.tick();//Execute the IRVE.EXIT
     assert(emulator.get_inst_count() == ++expected_inst_count);
     assert(cpu_state_ref.get_pc() == 0x40);
+
+    return 0;
+}
+
+int verify_atomics() {
+    //Load atomics program
+    const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/atomics.vhex8";
+    __attribute__((unused)) irve::emulator::emulator_t emulator(1, &file_name_ptr);
+    __attribute__((unused)) irve::internal::cpu_state::cpu_state_t& cpu_state_ref =
+        emulator.m_emulator_ptr->m_cpu_state;
+    __attribute__((unused)) uint64_t expected_inst_count = 0;
+
+    emulator.tick(); // la a0, my_words
+    emulator.tick();
+    if(cpu_state_ref.get_r(6) != 0x12345678) {
+        emulator.tick();
+    }
+    assert(cpu_state_ref.get_r(6) == 0x12345678);
+
+    // Testing load reserved and store conditional
+
+    emulator.tick(); // lr.w t0, 0(a0)
+    assert(cpu_state_ref.get_r(5) == 0x12345678);
+    emulator.tick(); // lw t0, 4(a0)
+    emulator.tick(); // sc.w t1, t0, 0(a0)
+    assert(cpu_state_ref.get_r(6) == 0);
+    emulator.tick(); // sc.w t1, t2, (a0)
+    assert(cpu_state_ref.get_r(6) == 1);
+    emulator.tick(); // lw t1, 0(a0)
+    assert(cpu_state_ref.get_r(6) == 0x87654321);
+
+    // Testing amo
+
+    // swap
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0xABCDEF01);
+    assert(cpu_state_ref.get_r(7) == 0x87654321);
+
+    // add
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0x11111111);
+    assert(cpu_state_ref.get_r(7) == 0x44444444);
+
+    // and
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0x11111111);
+    assert(cpu_state_ref.get_r(7) == 0x11111111);
+
+    // or
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0x11111111);
+    assert(cpu_state_ref.get_r(7) == 0x33333333);
+
+    // xor
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0x11111111);
+    assert(cpu_state_ref.get_r(7) == 0x22222222);
+
+    // max
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0xFFFFFFFF);
+    assert(cpu_state_ref.get_r(7) == 0x7FFFFFFF);
+
+    // maxu
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0xFFFFFFFF);
+    assert(cpu_state_ref.get_r(7) == 0xFFFFFFFF);
+
+    // min
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0xFFFFFFFF);
+    assert(cpu_state_ref.get_r(7) == 0xFFFFFFFF);
+
+    // minu
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    emulator.tick();
+    assert(cpu_state_ref.get_r(6) == 0xFFFFFFFF);
+    assert(cpu_state_ref.get_r(7) == 0x7FFFFFFF);
 
     return 0;
 }

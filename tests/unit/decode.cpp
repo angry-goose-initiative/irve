@@ -1,12 +1,15 @@
-/* decode.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's decode.h and decode.cpp
- *
+/**
+ * @file    decode.cpp
+ * @brief   Performs unit tests for IRVE's decode.h and decode.cpp
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdint>
@@ -16,7 +19,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_decode_decoded_inst_t() {
     decode::decoded_inst_t nop(0x00000013);

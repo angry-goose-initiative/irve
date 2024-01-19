@@ -1,12 +1,15 @@
-/* CSR.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's CSR.h and CSR.cpp
- *
+/**
+ * @file    CSR.cpp
+ * @brief   Performs unit tests for IRVE's CSR.h and CSR.cpp
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstddef>
@@ -15,7 +18,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_CSR_CSR_t_init() {
     CSR::CSR_t csr;

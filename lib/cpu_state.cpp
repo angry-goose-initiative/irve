@@ -2,11 +2,9 @@
  * @file    cpu_state.cpp
  * @brief   Holds a RISC-V hart's state including registers and the PC
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
- *
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
 /* ------------------------------------------------------------------------------------------------

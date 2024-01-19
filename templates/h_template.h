@@ -2,15 +2,18 @@
  * @file    TODO.h
  * @brief   TODO
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) YEAR1-YEAR2 AUTHOR1\n
+ *  Copyright (C) YEAR1-YEAR2 AUTHOR2\n
+ *  ...
+ *  Copyright (C) YEAR1-YEAR2 AUTHORn\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO longer description
+ * TODO optional longer description
  *
 */
 
-#ifndef NAME_H//TODO
-#define NAME_H//TODO
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -35,5 +38,3 @@
  * --------------------------------------------------------------------------------------------- */
 
 //TODO
-
-#endif//NAME_H//TODO

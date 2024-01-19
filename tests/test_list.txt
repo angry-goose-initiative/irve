@@ -1,5 +1,6 @@
 # test_list.txt
-# Copyright (C) 2023 John Jekel and Nick Chan
+# Copyright (C) 2023-2024 John Jekel
+# Copyright (C) 2023 Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 #
 # List of all IRVE tests (read in by CMake)
@@ -86,6 +87,7 @@ add_rvsw_test(jzjcoresoftware_uncondjumptest2)
 add_rvsw_test(jzjcoresoftware_xoritoggle)
 
 add_rvsw_test(rv32esim)
+add_rvsw_test(atomics)
 
 #TODO add more
 

@@ -1,12 +1,11 @@
 /**
  * @file    common.h
- * @brief   Common things for irve code
+ * @brief   Common things for IRVE code
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
- *
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
 #ifndef COMMON_H
@@ -23,26 +22,25 @@
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-#define BYTE_MASK               0xFF
-
-// DT prefix stands for 'data type'
-#define DT_BYTE                 0b000
-#define DT_HALFWORD             0b001
-#define DT_WORD                 0b010
-#define DT_SIGNED_BYTE          0b000
-#define DT_SIGNED_HALFWORD      0b001
-#define DT_UNSIGNED_BYTE        0b100
-#define DT_UNSIGNED_HALFWORD    0b101
+//Data types (width and signed/unsigned if applicable)
+//Based on the funct3 field of load and store instructions
+#define DT_BYTE                 ((uint8_t)0b000)
+#define DT_HALFWORD             ((uint8_t)0b001)
+#define DT_WORD                 ((uint8_t)0b010)
+#define DT_SIGNED_BYTE          ((uint8_t)0b000)
+#define DT_SIGNED_HALFWORD      ((uint8_t)0b001)
+#define DT_UNSIGNED_BYTE        ((uint8_t)0b100)
+#define DT_UNSIGNED_HALFWORD    ((uint8_t)0b101)
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-// Code standard exception: Not irve::internal::common since it is, after all, "common"
+//Code standard exception: Not irve::internal::common since it is, after all, "common"
 namespace irve::internal {
 
 /**
- * @brief A RISC-V 32-bit word union, containing abstractions that make operations more explicit and easier
+ * @brief       A RISC-V 32-bit word union, containing abstractions that make operations more explicit and easier
  *
  * Ex. This protects us from accidental arithmetic shifts when we want logical shifts
  *
@@ -53,22 +51,21 @@ typedef union word_t {
 public:
 
     /**
-     * @brief Default word_t constructor
-     * 
-     * Instead of defining the constructor as empty elsewhere, use the default keyword so that we
-     * can put word_t in places like in other unions
+     * @brief       The default word_t constructor.
+     * @details     Instead of defining the constructor as empty elsewhere, use the default keyword
+     *              so that we can put word_t in places like in other unions.
     */
     word_t() = default;
 
     /**
-     * @brief Construct a word_t from a uint32_t
-     * @param data The uint32_t to construct the word_t from
+     * @brief       Construct a word_t from a uint32_t.
+     * @param[in]   data The uint32_t to construct the word_t from.
     */
     inline word_t(uint32_t data) : u(data) {}
 
     /**
-     * @brief Construct a word_t from a int32_t
-     * @param data The int32_t to construct the word_t from
+     * @brief       Construct a word_t from a int32_t.
+     * @param[in]   data The int32_t to construct the word_t from.
     */
     inline word_t(int32_t data) : s(data) {}
     
@@ -88,48 +85,46 @@ public:
     
     //TODO make all of these constexpr and inline
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Arithmetic
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /* ---------- Arithmetic ------------------------------------------------------------------- */
     
     /**
-     * @brief Negate a word_t (two's complement)
-     * @return The negated word_t
+     * @brief       Negate a word_t (two's complement).
+     * @return      The negated word_t.
     */
     inline word_t signed_negate() const {
         return word_t(-this->s);
     }
 
     /**
-     * @brief Add two word_ts together
-     * @param other A reference to the word_t to add to this one
-     * @return The sum of the two word_ts
+     * @brief       Add two word_t's together.
+     * @param[in]   other A reference to the word_t to add to this one.
+     * @return      The sum of the two word_ts
     */
     inline word_t operator+(const word_t& other) const {
         return word_t(this->u + other.u);
     }
 
     /**
-     * @brief Add a word_t to this one
-     * @param other A reference to the word_t to add
-     * @return A reference to this word_t
+     * @brief       Add a word_t to this one.
+     * @param[in]   other A reference to the word_t to add.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator+=(const word_t& other) {
         return *this = *this + other;
     }
 
     /**
-     * @brief Increment this word_t by one
-     * @return A reference to this word_t
+     * @brief       Increment this word_t by one.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator++() {
         return *this += 1;
     }
 
     /**
-     * @brief Subtract two word_ts
-     * @param other A reference to the word_t to subtract from this one
-     * @return The difference of the two word_ts
+     * @brief       Subtract two word_t's.
+     * @param[in]   other A reference to the word_t to subtract from this one.
+     * @return      The difference of the two word_t's.
     */
     inline word_t operator-(const word_t& other) const {
         //TODO ensure this is the same for signed
@@ -137,35 +132,35 @@ public:
     }
 
     /**
-     * @brief Subtract a word_t from this one
-     * @param other A reference to the word_t to subtract
-     * @return A reference to this word_t
+     * @brief       Subtract a word_t from this one.
+     * @param[in]   other A reference to the word_t to subtract.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator-=(const word_t& other) {
         return *this = *this - other;
     }
 
     /**
-     * @brief Decrement this word_t by one
-     * @return A reference to this word_t
+     * @brief       Decrement this word_t by one.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator--() {
         return *this -= 1;
     }
 
     /**
-     * @brief Multiply two word_ts together (Lowest 32 bits ONLY)
-     * @param other A reference to the word_t to multiply this one by
-     * @return The product of the two word_ts
+     * @brief       Multiply two word_ts together (Lowest 32 bits ONLY).
+     * @param[in]   other A reference to the word_t to multiply this one by.
+     * @return      The product of the two word_t's.
     */
     inline word_t operator*(const word_t& other) const {
         return word_t(this->u * other.u);
     }
 
     /**
-     * @brief Multiply a word_t by this one (Lowest 32 bits ONLY)
-     * @param other A reference to the word_t to multiply by
-     * @return A reference to this word_t
+     * @brief       Multiply a word_t by this one (Lowest 32 bits ONLY).
+     * @param[in]   other A reference to the word_t to multiply by.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator*=(const word_t& other) {
         return *this = *this * other;
@@ -173,76 +168,74 @@ public:
     
     //TODO different division types
     
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Logical
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /* ---------- Logical ---------------------------------------------------------------------- */
 
     /**
-     * @brief Bitwise NOT a word_t
-     * @return The bitwise NOT of this word_t
+     * @brief       Bitwise NOT a word_t (one's compliment).
+     * @return      The bitwise NOT of this word_t.
     */
     inline word_t operator~() const {
         return word_t(~this->u);
     }
 
     /**
-     * @brief Bitwise OR two word_ts together
-     * @param other A reference to the word_t to OR this one with
-     * @return The bitwise OR of the two word_ts
+     * @brief       Bitwise OR two word_t's together.
+     * @param[in]   other A reference to the word_t to OR this one with.
+     * @return      The bitwise OR of the two word_t's.
     */
     inline word_t operator|(const word_t& other) const {
         return word_t(this->u | other.u);
     }
 
     /**
-     * @brief Bitwise OR a word_t into this one
-     * @param other A reference to the word_t to OR into this one
-     * @return A reference to this word_t
+     * @brief       Bitwise OR a word_t into this one.
+     * @param[in]   other A reference to the word_t to OR into this one.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator|=(const word_t& other) {
         return *this = *this | other;
     }
 
     /**
-     * @brief Bitwise AND two word_ts together
-     * @param other A reference to the word_t to AND this one with
-     * @return The bitwise AND of the two word_ts
+     * @brief       Bitwise AND two word_ts together.
+     * @param[in]   other A reference to the word_t to AND this one with.
+     * @return      The bitwise AND of the two word_t's.
     */
     inline word_t operator&(const word_t& other) const {
         return word_t(this->u & other.u);
     }
 
     /**
-     * @brief Bitwise AND a word_t with this one
-     * @param other A reference to the word_t to AND with this one
-     * @return A reference to this word_t
+     * @brief       Bitwise AND a word_t with this one.
+     * @param[in]   other A reference to the word_t to AND with this one.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator&=(const word_t& other) {
         return *this = *this & other;
     }
 
     /**
-     * @brief Bitwise XOR two word_ts together
-     * @param other A reference to the word_t to XOR this one with
-     * @return The bitwise XOR of the two word_ts
+     * @brief       Bitwise XOR two word_t's together.
+     * @param[in]   other A reference to the word_t to XOR this one with.
+     * @return      The bitwise XOR of the two word_t's.
     */
     inline word_t operator^(const word_t& other) const {
         return word_t(this->u ^ other.u);
     }
 
     /**
-     * @brief Bitwise XOR a word_t into this one
-     * @param other A reference to the word_t to XOR into this one
-     * @return A reference to this word_t
+     * @brief       Bitwise XOR a word_t into this one.
+     * @param[in]   other A reference to the word_t to XOR into this one.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator^=(const word_t& other) {
         return *this = *this ^ other;
     }
 
     /**
-     * @brief Logically shift a word_t left by another
-     * @param other A reference to the word_t to shift this one by
-     * @return The resulting shifted word_t
+     * @brief       Logically shift a word_t left by another.
+     * @param[in]   other A reference to the word_t to shift this one by.
+     * @return      The resulting shifted word_t.
     */
     inline word_t operator<<(const word_t& other) const {
         assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
@@ -250,9 +243,9 @@ public:
     }
 
     /**
-     * @brief Logically shift this word_t left by another
-     * @param other A reference to the word_t to shift this one by
-     * @return A reference to this word_t
+     * @brief       Logically shift this word_t left by another.
+     * @param[in]   other A reference to the word_t to shift this one by.
+     * @return      A reference to this word_t.
     */
     inline word_t& operator<<=(const word_t& other) {
         assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
@@ -260,9 +253,9 @@ public:
     }
 
     /**
-     * @brief Logically shift a word_t right by another
-     * @param other A reference to the word_t to shift this one by
-     * @return The resulting shifted word_t
+     * @brief       Logically shift a word_t right by another.
+     * @param[in]   other A reference to the word_t to shift this one by.
+     * @return      The resulting shifted word_t.
     */
     inline word_t srl(const word_t& other) const {
         assert((other.u < 32) && "Attempt to logically shift right by more than 32 bits!");
@@ -270,9 +263,9 @@ public:
     }
 
     /**
-     * @brief Arithmetically shift a word_t right by another
-     * @param other A reference to the word_t to shift this one by
-     * @return The resulting shifted word_t
+     * @brief       Arithmetically shift a word_t right by another.
+     * @param[in]   other A reference to the word_t to shift this one by.
+     * @return      The resulting shifted word_t.
     */
     inline word_t sra(const word_t& other) const {
         assert((other.u < 32) &&
@@ -281,31 +274,29 @@ public:
         return word_t(this->s >> other.s);
     }
     
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Comparison
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /* ---------- Comparison ------------------------------------------------------------------- */
 
     /**
-     * @brief Determine if this word_t is nonzero
-     * @return True if this word_t is nonzero, false otherwise
+     * @brief       Determine if this word_t is nonzero.
+     * @return      True if this word_t is nonzero, false otherwise.
     */
     inline bool operator!() const {
         return *this == 0;
     }
 
     /**
-     * @brief Determine if this word_t is equal to another
-     * @param other A reference to the word_t to compare this one with
-     * @return True if this word_t is equal to the other, false otherwise
+     * @brief       Determine if this word_t is equal to another.
+     * @param[in]   other A reference to the word_t to compare this one with.
+     * @return      True if this word_t is equal to the other, false otherwise.
     */
     inline bool operator==(const word_t& other) const {
         return this->u == other.u;
     }
 
     /**
-     * @brief Determine if this word_t is not equal to another
-     * @param other A reference to the word_t to compare this one with
-     * @return True if this word_t is not equal to the other, false otherwise
+     * @brief       Determine if this word_t is not equal to another.
+     * @param[in]   other A reference to the word_t to compare this one with.
+     * @return      True if this word_t is not equal to the other, false otherwise.
     */
     inline bool operator!=(const word_t& other) const {
         return !(*this == other);
@@ -313,14 +304,12 @@ public:
 
     //TODO others
     
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Bonus!
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /* ---------- Bonus ------------------------------------------------------------------------ */
 
     /**
-     * @brief Extract a single bit from this word_t
-     * @param bit The bit to extract. Must be between 0 and 31 inclusive.
-     * @return A word_t containing the bit in the least significant position
+     * @brief       Extract a single bit from this word_t.
+     * @param[in]   bit The bit to extract. Must be between 0 and 31 inclusive.
+     * @return      A word_t containing the bit in the least significant position.
     */
     inline word_t bit(word_t bit) const {//TODO should we overload operator()
         assert((bit.u < 32) && "Bad argument to bit()");
@@ -328,43 +317,43 @@ public:
     }
 
     /**
-     * @brief Extract a range of bits from this word_t
-     * @param top_bit The top bit to extract (inclusive). Must be between bottom_bit and 31
-     *                inclusive.
-     * @param bottom_bit The bottom bit to extract (inclusive). Must be between 0 and top_bit
-     *                   inclusive.
-     * @return A word_t containing the bits in the range in the least significant positions
+     * @brief       Extract a range of bits from this word_t.
+     * @param[in]   top_bit The top bit to extract (inclusive). Must be between bottom_bit and 31
+     *              inclusive.
+     * @param[in]   bottom_bit The bottom bit to extract (inclusive). Must be between 0 and top_bit
+     *              inclusive.
+     * @return      A word_t containing the bits in the range in the least significant positions.
     */
     word_t bits(uint8_t top_bit, uint8_t bottom_bit) const; // TODO should we overload operator()
 
     /**
-     * @brief Sign extend this word_t from a bit upward to 32 bits (so that all bits above the
-     *        bit are the same as the bit)
-     * @param bit The bit to sign extend from. Must be between 0 and 31 inclusive
-     * @return The resulting word_t
+     * @brief       Sign extend this word_t from a bit upward to 32 bits (so that all bits above
+     *              the bit are the same as the bit).
+     * @param[in]   bit The bit to sign extend from. Must be between 0 and 31 inclusive.
+     * @return      The resulting word_t.
      *
      * Equivalent to sign_extend_from_size(bit + 1)
     */
     word_t sign_extend_from_bit_number(uint8_t bit) const;
 
     /**
-     * @brief Sign extend this word_t from a size upward to 32 bits assuming the data within is
-     *        original_size bits wide
-     * @param original_size The size of the original data within. Must be between 1 and 32
-     *                      inclusive
-     * @return The resulting word_t
+     * @brief       Sign extend this word_t from a size upward to 32 bits assuming the data within
+     *              is original_size bits wide.
+     * @param[in]   original_size The size of the original data within. Must be between 1 and 32
+     *              inclusive.
+     * @return      The resulting word_t.
      *
      * Equivalent to sign_extend_from_bit_number(original_size - 1)
     */
     word_t sign_extend_from_size(uint8_t original_size) const;
 
     /**
-     * @brief Access the contents of this word_t as an unsigned integer
+     * @brief       Access the contents of this word_t as an unsigned integer.
     */
     uint32_t u;
 
     /**
-     * @brief Access the contents of this word_t as a signed integer
+     * @brief       Access the contents of this word_t as a signed integer.
     */
     int32_t s;
 
@@ -381,18 +370,18 @@ typedef word_t reg_t;
 //TODO should these become part of word_t?
 
 /**
- * @brief Raise an unsigned integer to a power
- * @param base The base of the operation
- * @param exp The exponent of the operation
- * @return base ** exp
+ * @brief       Raise an unsigned integer to a power.
+ * @param[in]   base The base of the operation.
+ * @param[in]   exp The exponent of the operation.
+ * @return      base ** exp
 */
 uint32_t upow(uint32_t base, uint32_t exp);
 
 /**
- * @brief Raise a signed integer to a power
- * @param base The base of the operation
- * @param exp The exponent of the operation
- * @return base ** exp
+ * @brief       Raise a signed integer to a power.
+ * @param[in]   base The base of the operation.
+ * @param[in]   exp The exponent of the operation.
+ * @return      base ** exp
 */
 int32_t spow(int32_t base, int32_t exp);
 

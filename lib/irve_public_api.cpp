@@ -2,8 +2,10 @@
  * @file    irve_public_api.cpp
  * @brief   Implementation of the public API for IRVE (sort of a ABI-compatibility wrapper)
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO longer description
  *
@@ -24,8 +26,8 @@
 #define INST_COUNT 0
 #include "logging.h"
 
-// NO using statements here to make it obvious if we are refering to the internal namespace or the
-// public namespace
+//NO using statements here to make it obvious if we are refering to the internal namespace or the
+//public namespace
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -34,7 +36,7 @@
 //Namepace: irve::emulator
 
 irve::emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
-        m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
+    m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
 
 irve::emulator::emulator_t::~emulator_t() {
     delete this->m_emulator_ptr;

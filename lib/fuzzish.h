@@ -1,9 +1,10 @@
 /**
  * @file    fuzzish.h
- * @brief   TODO
+ * @brief   Random emulator initialization
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
  * Facilities for random initialization of certain parts of the emulator
  * (depending on configuration options) in order to help catch bugs

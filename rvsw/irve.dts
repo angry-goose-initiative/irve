@@ -2,7 +2,7 @@
  * File:    irve.dts
  * Brief:   The IRVE Device Tree for the Linux kernel
  * 
- * Copyright (C) 2023 John Jekel and Nick Chan
+ * Copyright (C) 2023-2024 John Jekel
  * See the LICENSE file at the root of the project for licensing info.
  * 
  * AFTER COMPILING THIS with `dtc`, IT IS IMPERATIVE IT IS PLACED IN MEMORY AT

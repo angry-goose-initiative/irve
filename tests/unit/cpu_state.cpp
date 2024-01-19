@@ -1,12 +1,15 @@
-/* cpu_state.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Performs unit tests for IRVE's cpu_state.h and cpu_state.cpp
- *
+/**
+ * @file    cpu_state.cpp
+ * @brief   Performs unit tests for IRVE's cpu_state.h and cpu_state.cpp
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include <cassert>
 #include <cstdint>
@@ -18,7 +21,9 @@
 
 using namespace irve::internal;
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_cpu_state_cpu_state_t() {
     CSR::CSR_t CSR;

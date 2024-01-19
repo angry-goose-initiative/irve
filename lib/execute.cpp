@@ -2,10 +2,10 @@
  * @file    execute.cpp
  * @brief   Utility functions for executing instructions
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  Copyright (C) 2023 Nick Chan\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
  * Some inspiration from rv32esim
 */
@@ -34,7 +34,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -71,23 +72,18 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
             invoke_rv_exception(ILLEGAL_INSTRUCTION);
             break;
     }
-    //try {
-        word_t loaded = memory.load(r1 + imm, funct3);
-        irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
-        cpu_state.set_r(decoded_inst.get_rd(), loaded);
-    /*}
-    catch(...) {
-        assert(false && "TODO");
-        // TODO what happens when we access invalid memory?
-        //Actually we probably shouldn't catch here, but rather pass this up to the emulator
-        //TODO priority of this exception vs. the illegal instruction exception?
-    }*/
+    //This could cause an exception
+    word_t loaded = memory.load(r1 + imm, funct3);
+
+    irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
+    cpu_state.set_r(decoded_inst.get_rd(), loaded);
 
     //Increment PC
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& /* cpu_state */, memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
+void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& /* cpu_state */,
+                        memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert(
@@ -121,7 +117,8 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     }
 }
 
-void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        const CSR::CSR_t& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -138,7 +135,8 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
@@ -218,11 +216,18 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::AUIPC) && "auipc instruction must have opcode AUIPC");
-    assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "auipc instruction must be U_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::AUIPC) &&
+        "auipc instruction must have opcode AUIPC"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::U_TYPE) &&
+        "auipc instruction must be U_TYPE"
+    );
 
     word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
 
@@ -233,11 +238,18 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
-    assert((decoded_inst.get_opcode() == decode::opcode_t::STORE) && "store instruction must have opcode STORE");
-    assert((decoded_inst.get_format() == decode::inst_format_t::S_TYPE) && "store instruction must be S_TYPE");
+    assert(
+        (decoded_inst.get_opcode() == decode::opcode_t::STORE) &&
+        "store instruction must have opcode STORE"
+    );
+    assert(
+        (decoded_inst.get_format() == decode::inst_format_t::S_TYPE) &&
+        "store instruction must be S_TYPE"
+    );
 
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
@@ -260,22 +272,17 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
             break;
     }
     
-    //try {
-        // Note this will throw an excepteion if the memory address isn't valid (TODO)
-        irvelog(3, "Storing 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
-        memory.store(r1.u + imm.u, funct3, r2.s);
-    /*}
-    catch(...) {
-        assert(false && "TODO");// TODO what happens when we access invalid memory?
-        //Actually we probably shouldn't catch here, but rather pass this up to the emulator
-        //TODO priority of this exception vs. the illegal instruction exception?
-    }*/
+    irvelog(3, "Storing 0x%08X in 0x%08X", r2.u, r1.u + imm.u);
+
+    //This could raise an exception
+    memory.store(r1.u + imm.u, funct3, r2.s);
 
     //Increment PC
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, const CSR::CSR_t& CSR) {
+void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
@@ -506,7 +513,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    const CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
@@ -739,7 +747,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    const CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
@@ -761,7 +770,8 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        const CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
@@ -833,7 +843,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     }
 }
 
-void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
@@ -857,11 +868,13 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.set_pc(destination_pc);
 
     //The "link" part of jump and link
-    //Critically this must be done after the jump to the destination_pc to avoid clobbering the register before it is used
+    //Critically this must be done after the jump to the destination_pc to avoid clobbering the
+    //register before it is used
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, const CSR::CSR_t& CSR) {
+void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    const CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(
@@ -884,7 +897,8 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, CSR::CSR_t& CSR) {
+void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
     assert(
@@ -1004,7 +1018,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
                 //Return to the address in SEPC
                 cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
-                //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
+                //We do NOT go to the PC after the instruction that caused the exception (PC + 4);
+                //the handler must do this manually
             }
             else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
                 irvelog(3, "Mnemonic: SFENCE.VMA");

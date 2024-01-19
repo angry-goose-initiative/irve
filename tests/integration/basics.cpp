@@ -1,19 +1,26 @@
-/* basics.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+/**
+ * @file    basics.cpp
+ * @brief   Basic intergration tests
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  *
  * Performs integration tests to ensure that all the trivial functions
  * (ex. in the irve::about namespace, logging, etc.) work as expected
- *
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #include "irve_public_api.h"
 
 #include <iostream>
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 int test_about() {
     //None of these functions should crash or throw exceptions

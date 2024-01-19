@@ -1,12 +1,15 @@
-/* jzjcoresoftware.cpp
- * Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
- *
- * Verifies that assembly programs originally from JZJCoreSoftware run as expected
- *
+/**
+ * @file    jzjcoresoftware.cpp
+ * @brief   Verifies that assembly programs originally from JZJCoreSoftware run as expected
+ * 
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
 */
 
-/* Includes */
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
 
 #define private public//Since we need to access internal emulator state for testing
 
@@ -19,18 +22,24 @@
 #include <cassert>
 #include <cstdint>
 
-/* Macros */
+/* ------------------------------------------------------------------------------------------------
+ * Macros
+ * --------------------------------------------------------------------------------------------- */
 
 #define setup_emulator_with_program(program_name) \
     const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex8"; \
     irve::emulator::emulator_t emulator(1, &file_name_ptr); \
     irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
-/* Static Function Declarations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Declarations
+ * --------------------------------------------------------------------------------------------- */
 
 static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::cpu_state::cpu_state_t& cpu_state_ref);
 
-/* Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 //TODO also check CSRs, memory, etc
 
@@ -750,7 +759,9 @@ int verify_jzjcoresoftware_xoritoggle() {
     return 0;
 }
 
-/* Static Function Implementations */
+/* ------------------------------------------------------------------------------------------------
+ * Static Function Implementations
+ * --------------------------------------------------------------------------------------------- */
 
 static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::cpu_state::cpu_state_t& cpu_state_ref) {
     uint64_t expected_inst_count = 0;

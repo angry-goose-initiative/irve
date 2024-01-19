@@ -2,8 +2,9 @@
  * @file    riscv_arch_tester.cpp
  * @brief   TODO
  * 
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
+ * @copyright
+ *  Copyright (C) 2023-2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
  * 
  * TODO longer description
  *
@@ -13,7 +14,7 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#define private public
+#define private public//This is okay since the purpose of this is to test the emulator
 
 #include "irve_public_api.h"
 

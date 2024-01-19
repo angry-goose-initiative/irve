@@ -1,5 +1,5 @@
 # CMakeLists.txt
-# Copyright (C) 2023 John Jekel and Nick Chan
+# Copyright (C) 2023-2024 John Jekel
 # See the LICENSE file at the root of the project for licensing info.
 #
 # CMake configuration file for irve testfile verification and parsing tests
@@ -15,7 +15,7 @@ set(
     RVSW_TESTER_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/rvsw_verifier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jzjcoresoftware.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/rv32esim.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/standalone.cpp
 )
 
 add_executable(rvsw_verifier ${RVSW_TESTER_SOURCES})
