@@ -92,7 +92,7 @@ IRVE> |___|_| \_\ \_/  |_____| /_/
 IRVE> 
 IRVE> The Inextensible RISC-V Emulator
 IRVE> Copyright (C) 2023-2024 John Jekel
-IRVE> Copyright (C) 2023 Nick Chan
+IRVE> Copyright (C) 2023-2024 Nick Chan
 IRVE> See the LICENSE file at the root of the project for licensing info.
 IRVE> 
 IRVE> libirve Version 0.8.0 Commit 6371bf50e0bf3525ebee081a3c7fa3a31ffbf58e

@@ -11,6 +11,8 @@
 
 #TODO when IRVE is complete, make these suitable for a release build by default
 
+#TODO add option to disable instruction cache
+
 #Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)

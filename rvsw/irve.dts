@@ -13,6 +13,7 @@
  * Partialy based on https://github.com/cnlohr/mini-rv32ima/blob/master/configs/minimal.dts
  * Also useful: https://github.com/riscv-non-isa/riscv-device-tree-doc/blob/master/bindings/riscv/cpus.txt
  * https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/Documentation/devicetree/bindings/interrupt-controller/riscv%2Ccpu-intc.txt
+ * https://github.com/PiMaker/rvc/blob/master/dts.dts
  *
 */
 
@@ -33,13 +34,16 @@
         timebase-frequency = <1000>;//mtime ticks at 1kHz
 
         cpu@0 {
-            /* phandle = <0x01>; */
+            phandle = <0x01>;
             device_type = "cpu";
             reg = <0x00000000>;/* mhartid is 0 */
             status = "okay";/* The CPU begins online */
             compatible = "riscv";
             riscv,isa = "rv32ima";/* TODO do we need to specify zicsr, zifencei, etc as well? */
             mmu-type = "riscv,sv32";
+            clock-frequency = <0>; /* TODO what is this? */
+            riscv,isa-base = "rv32i";
+            riscv,isa-extensions = "i", "m", "a", "zifencei", "zicsr";
 
             /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
             interrupt-controller {
@@ -50,14 +54,13 @@
             };
         };
 
-        /* cpu-map {
+         cpu-map {
             cluster0 {
                 core0 {
                     cpu = <0x01>;
                 };
             };
         };
-        */
     };
 
     /* TODO add other things we may need */
