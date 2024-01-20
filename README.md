@@ -84,19 +84,20 @@ Assuming you've build all of the RVSW testfiles, you can run a test program like
 ```
 $ ./irve rvsw/compiled/src/single_file/c/hello_world.vhex8 
 IRVE> Starting IRVE
-IRVE>  ___ ______     _______ 
-IRVE> |_ _|  _ \ \   / / ____|
-IRVE>  | || |_) \ \ / /|  _|  
-IRVE>  | ||  _ < \ V / | |___ 
-IRVE> |___|_| \_\ \_/  |_____|
+IRVE>  ___ ______     _______  __
+IRVE> |_ _|  _ \ \   / / ____| \ \
+IRVE>  | || |_) \ \ / /|  _|    \ \
+IRVE>  | ||  _ < \ V / | |___   / /
+IRVE> |___|_| \_\ \_/  |_____| /_/
 IRVE> 
 IRVE> The Inextensible RISC-V Emulator
-IRVE> Copyright (C) 2023 John Jekel and Nick Chan
+IRVE> Copyright (C) 2023-2024 John Jekel
+IRVE> Copyright (C) 2023 Nick Chan
 IRVE> See the LICENSE file at the root of the project for licensing info.
 IRVE> 
-IRVE> libirve Version 0.7.0 Commit 5893f445e8638dc6015d3a9731ad45db78310698
-IRVE> libirve built at 21:16:56 on Jul 27 2023
-IRVE> irve executable built at 21:16:57 on Jul 27 2023
+IRVE> libirve Version 0.8.0 Commit 6371bf50e0bf3525ebee081a3c7fa3a31ffbf58e
+IRVE> libirve built at 23:21:03 on Jan 18 2024
+IRVE> irve executable built at 23:21:10 on Jan 18 2024
 IRVE> ------------------------------------------------------------------------
 IRVE> 
 IRVE> 
