@@ -77,7 +77,7 @@ CSR::CSR_t::CSR_t() :
     irve_fuzzish_meminit(this->pmpaddr, sizeof(this->pmpaddr));
 }
 
-reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
+reg_t CSR::CSR_t::explicit_read(uint16_t csr) {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     } else {
@@ -94,7 +94,7 @@ void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege
 }
 
 //We assume the CSRs within the class are "safe" for the purposes of reads
-reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any privilege checks
+reg_t CSR::CSR_t::implicit_read(uint16_t csr) {//Does not perform any privilege checks
     switch (csr) {
         case address::SSTATUS:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
         case address::SIE:              return this->sie;
@@ -140,8 +140,8 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return 0;
 
-        case address::MTIME:            return (uint32_t)(this->mtime            & 0xFFFFFFFF);//Custom
-        case address::MTIMEH:           return (uint32_t)((this->mtime    >> 32) & 0xFFFFFFFF);//Custom
+        case address::MTIME:            this->update_timer(); return (uint32_t)(this->mtime            & 0xFFFFFFFF);//Custom
+        case address::MTIMEH:           this->update_timer(); return (uint32_t)((this->mtime    >> 32) & 0xFFFFFFFF);//Custom
         case address::MTIMECMP:         return (uint32_t)(this->mtimecmp         & 0xFFFFFFFF);//Custom
         case address::MTIMECMPH:        return (uint32_t)((this->mtimecmp >> 32) & 0xFFFFFFFF);//Custom
 
@@ -216,8 +216,18 @@ void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform a
 
         case address::MHPMCOUNTERH_START ... address::MHPMCOUNTERH_END: return;//We simply ignore writes to the HPMCOUNTERH CSRs, NOT throw exceptions
 
-        case address::MTIME:            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);         return;//Custom
-        case address::MTIMEH:           this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);  return;//Custom
+        case address::MTIME: {//Custom
+            this->mtime     = (this->mtime    & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);
+            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+            this->m_last_time_update = now;
+            return;
+        }
+        case address::MTIMEH: {//Custom
+            this->mtime     = (this->mtime    & 0x00000000FFFFFFFF) | (((uint64_t) data.u) << 32);
+            std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+            this->m_last_time_update = now;
+            return;
+        }
         case address::MTIMECMP://Custom
             this->mtimecmp  = (this->mtimecmp & 0xFFFFFFFF00000000) | ((uint64_t)  data.u);
             this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
@@ -240,21 +250,31 @@ CSR::privilege_mode_t CSR::CSR_t::get_privilege_mode() const {
 }
 
 void CSR::CSR_t::update_timer() {
-    //Only actually check if we should increment the timer every 65535 times this function is called
+    //This is really, really slow
+    //TODO make this function faster
+    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+    double time_since_last_update_us = std::chrono::duration_cast<std::chrono::microseconds>(now - this->m_last_time_update).count();
+    if (time_since_last_update_us > 1000.0) {//1ms
+        this->m_last_time_update = now;
+        //++(this->mtime);
+        this->mtime += (uint32_t)(time_since_last_update_us / 1000.0);//FIXME is it okay to skip values like this if we're behind?
+    }
+
+    //If the timer has passed the comparison value, cause an interrupt
+    if (this->mtime >= this->mtimecmp) {
+        this->mip |= 1 << 7;//Set the machine timer interrupt as pending
+    }
+}
+
+void CSR::CSR_t::occasional_update_timer() {
+    //Only actually update the timer every 65535 times this function is called
     //This is since chrono is REALLY REALLY REALLY slow
+    //FIXME this however reduces the accuracy of the timer unless software is constantly checking mtime and causing update_timer() to be called more often!
     ++m_delay_update_counter;
     if (m_delay_update_counter) return;//Counter didn't overflow, so don't update the timer
 
     //This is really, really slow. Like, we couldn't even run at 1MHz if we did this every time
-    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
-    double last_time_update_us = std::chrono::duration_cast<std::chrono::microseconds>(now - this->m_last_time_update).count();
-    if (last_time_update_us > 1000) {//1ms
-        this->m_last_time_update = now;
-        ++(this->mtime);
-        if (this->mtime >= this->mtimecmp) {
-            this->mip |= 1 << 7;//Set the machine timer interrupt as pending
-        }
-    }
+    update_timer();
 }
 
 bool CSR::CSR_t::current_privilege_mode_can_explicitly_read(uint16_t csr) const {

@@ -14,8 +14,8 @@ set(RVSW_DTB_PATH "${PROJECT_SOURCE_DIR}/../irve.dtb")
 
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")                          
 set(RVSW_COMMON_FLAGS_DEBUG "-O0 -ggdb3")
-#set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")#TODO re-enable when nommulinux issue is fixed
-set(RVSW_COMMON_FLAGS_RELEASE "-O3")
+set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")#TODO re-enable when nommulinux issue is fixed
+#set(RVSW_COMMON_FLAGS_RELEASE "-O3")
 
 set(RVSW_MMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_mmode.ld")
 set(RVSW_MTVEC_IS_HARDWIRED "VECTORED")
@@ -44,3 +44,8 @@ set(RVSW_SMODE_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C start
 set(RVSW_SMODE_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
 set(RVSW_SMODE_MARCH "rv32ima_zicsr_zifencei")#Your -march=[...] here (can be different from M-mode; ex if mmode code is emulating certain instructions)
 set(RVSW_SMODE_MABI "ilp32")#Your -mabi=[...] here (can be different from M-mode)
+
+set(RVSW_MTIME_ADDR     0xFFFFFFE0)
+set(RVSW_MTIMEH_ADDR    0xFFFFFFE4)
+set(RVSW_MTIMECMP_ADDR  0xFFFFFFE8)
+set(RVSW_MTIMECMPH_ADDR 0xFFFFFFEC)

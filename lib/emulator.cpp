@@ -64,7 +64,8 @@ bool emulator::emulator_t::tick() {
         return false;
     }
 
-    this->m_CSR.update_timer();
+    //May or may not set the timer interrupt pending bit depending on if the timer has expired
+    this->m_CSR.occasional_update_timer();
 
     //TODO also add a function to memory to update peripherals (they will set the relevant pending bit if needed, or we could have them return a bool indicating if we should set the external interrupt pending bit here)
 
@@ -91,7 +92,7 @@ void emulator::emulator_t::run_gdbserver(uint16_t port) {
     gdbserver::start(*this, this->m_cpu_state, this->m_memory, port);
 }
 
-uint64_t emulator::emulator_t::get_inst_count() const {
+uint64_t emulator::emulator_t::get_inst_count() {
     return INST_COUNT;
 }
 

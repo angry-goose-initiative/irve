@@ -35,7 +35,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -118,7 +118,7 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
 }
 
 void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        const CSR::CSR_t& CSR) {
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -136,7 +136,7 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
 }
 
 void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        const CSR::CSR_t& CSR) {
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
@@ -217,7 +217,7 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 }
 
 void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    const CSR::CSR_t& CSR) {
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert(
@@ -239,7 +239,7 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
 }
 
 void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
@@ -282,7 +282,7 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
 }
 
 void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, const CSR::CSR_t& CSR) {
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
@@ -514,7 +514,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 }
 
 void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    const CSR::CSR_t& CSR) {
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
@@ -748,7 +748,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
 }
 
 void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    const CSR::CSR_t& CSR) {
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
@@ -771,7 +771,7 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 }
 
 void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        const CSR::CSR_t& CSR) {
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
@@ -844,7 +844,7 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 }
 
 void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    const CSR::CSR_t& CSR) {
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
@@ -874,7 +874,7 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 }
 
 void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    const CSR::CSR_t& CSR) {
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(
