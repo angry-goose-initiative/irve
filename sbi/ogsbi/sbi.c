@@ -14,6 +14,8 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#include "rvsw.h"
+
 #include "asm_c_interface.h"
 #include "common.h"
 
@@ -96,34 +98,19 @@ sbiret_t handle_sbi_smode_ecall(
                 case 4:
                     dputs("Function: sbi_get_mvendorid()");
                     result.error = SBI_SUCCESS;
-                    __asm__ volatile (
-                        "csrr %[rd], mvendorid"
-                        : [rd] "=r" (result.value)
-                        : /* No source registers */
-                        : /* No clobbered registers */
-                    );
+                    result.value = RVSW_CSRR(mvendorid);
                     dprintf("  mvendorid: 0x%lX", result.value);
                     break;
                 case 5:
                     dputs("Function: sbi_get_marchid()");
                     result.error = SBI_SUCCESS;
-                    __asm__ volatile (
-                        "csrr %[rd], marchid"
-                        : [rd] "=r" (result.value)
-                        : /* No source registers */
-                        : /* No clobbered registers */
-                    );
+                    result.value = RVSW_CSRR(marchid);
                     dprintf("  marchid: 0x%lX", result.value);
                     break;
                 case 6:
                     dputs("Function: sbi_get_mimpid()");
                     result.error = SBI_SUCCESS;
-                    __asm__ volatile (
-                        "csrr %[rd], mimpid"
-                        : [rd] "=r" (result.value)
-                        : /* No source registers */
-                        : /* No clobbered registers */
-                    );
+                    result.value = RVSW_CSRR(mimpid);
                     dprintf("  mimpid: 0x%lX", result.value);
                     break;
                 default:

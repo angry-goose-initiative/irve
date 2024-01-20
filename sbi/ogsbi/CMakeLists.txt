@@ -35,4 +35,4 @@ macro(add_c_target NAME)
 endmacro()
 
 add_c_target(ogsbi ${OGSBI_SOURCES})
-target_include_directories(sbi__ogsbi__ogsbi PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw_asm.h
+target_include_directories(sbi__ogsbi__ogsbi PRIVATE ${PROJECT_BINARY_DIR}/include)#To get the generated rvsw.h

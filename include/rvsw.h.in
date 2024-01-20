@@ -1,0 +1,106 @@
+/**
+ * @file    rvsw.h.in
+ * @brief   Standard RVSW C/C++ header
+ * 
+ * @copyright
+ *  Copyright (C) 2024 John Jekel\n
+ *  See the LICENSE file at the root of the project for licensing info.
+ *
+ *  A header file to be included in C/C++ programs to access some
+ *  (potentially configuration dependent) constants and macros.
+*/
+
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "rvsw_asm.h"
+
+#define RVSW_MTIME       (*((volatile uint32_t*)RVSW_MTIME_ADDR))
+#define RVSW_MTIMEH      (*((volatile uint32_t*)RVSW_MTIMEH_ADDR))
+#define RVSW_MTIMECMP    (*((volatile uint32_t*)RVSW_MTIMECMP_ADDR))
+#define RVSW_MTIMECMPH   (*((volatile uint32_t*)RVSW_MTIMECMPH_ADDR))
+
+//Uses GCC statement expressions and inline assembly
+#define RVSW_CSRRW(csr, value) ({ \
+    uint32_t ___rvsw_csr_old_value___; \
+    __asm__ volatile ( \
+        "csrrw %[rd], " #csr ", %[rs1]" \
+        : [rd] "=r" (___rvsw_csr_old_value___) \
+        : [rs1] "r" (value) \
+        : /* No clobbered registers */ \
+    ); \
+    ___rvsw_csr_value___; \
+})
+
+#define RVSW_CSRR(csr) ({\
+    uint32_t ___rvsw_csr_value___; \
+    __asm__ volatile ( \
+        "csrr %[rd], " #csr "\n" \
+        : [rd] "=r" (___rvsw_csr_value___) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+    ___rvsw_csr_value___; \
+})
+
+#define RVSW_CSRW(csr, value) do { \
+    __asm__ volatile ( \
+        "csrw " #csr ", %[rs1]" \
+        : /* No destination registers */ \
+        : [rs1] "r" (value) \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
+#define RVSW_CSR_ZERO(csr) do { \
+    __asm__ volatile ( \
+        "csrw " #csr ", zero\n" \
+        : /* No destination registers */ \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+} while (0)
+
+//TODO other CSR macros
+
+#define RVSW_RDTIME() ({\
+    uint32_t ___rvsw_rdtime_value___; \
+    __asm__ volatile ( \
+        "rdtime %[rd]\n" \
+        : [rd] "=r" (___rvsw_rdtime_value___) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+    ___rvsw_rdtime_value___; \
+})
+
+#define RVSW_RDCYCLE() ({\
+    uint32_t ___rvsw_rdcycle_value___; \
+    __asm__ volatile ( \
+        "rdcycle %[rd]\n" \
+        : [rd] "=r" (___rvsw_rdcycle_value___) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+    ___rvsw_rdcycle_value___; \
+})
+
+#define RVSW_RDINSTRET() ({\
+    uint32_t ___rvsw_rdinstret_value___; \
+    __asm__ volatile ( \
+        "rdinstret %[rd]\n" \
+        : [rd] "=r" (___rvsw_rdinstret_value___) \
+        : /* No source registers */ \
+        : /* No clobbered registers */ \
+    ); \
+    ___rvsw_rdinstret_value___; \
+})
+
+//TODO high 32 bit variant of these as well
+
+#ifdef __cplusplus
+}
+#endif

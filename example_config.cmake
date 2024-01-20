@@ -64,3 +64,8 @@ set(RVSW_SMODE_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C start
 set(RVSW_SMODE_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
 set(RVSW_SMODE_MARCH "rv32ima_zicsr_zifencei")#Your -march=[...] here (can be different from M-mode; ex if mmode code is emulating certain instructions)
 set(RVSW_SMODE_MABI "ilp32")#Your -mabi=[...] here (can be different from M-mode)
+
+set(RVSW_MTIME_ADDR     0xABCD1230)#Your address here
+set(RVSW_MTIMEH_ADDR    0xABCD1234)#Your address here
+set(RVSW_MTIMECMP_ADDR  0xABCD1238)#Your address here
+set(RVSW_MTIMECMPH_ADDR 0xABCD123C)#Your address here

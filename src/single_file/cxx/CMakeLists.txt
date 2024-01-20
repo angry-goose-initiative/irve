@@ -14,6 +14,7 @@ include(${PROJECT_SOURCE_DIR}/macros.cmake)
 
 macro(add_cxx_target NAME)
     add_target(${NAME} ${ARGN})
+    target_include_directories(src__single_file__cxx__${NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)#For the rvsw.h header
 
     target_link_libraries(src__single_file__cxx__${NAME} rvsw_cxx_runtime)
 
@@ -24,6 +25,7 @@ endmacro()
 
 macro(add_smode_cxx_target NAME)
     add_smode_target(${NAME} ${ARGN})
+    target_include_directories(src__single_file__cxx__${NAME}_smode PRIVATE ${PROJECT_BINARY_DIR}/include)#For the rvsw.h header
 
     target_link_libraries(src__single_file__cxx__${NAME}_smode rvsw_cxx_runtime_smode)
 
