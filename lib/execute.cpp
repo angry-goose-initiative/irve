@@ -33,8 +33,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    Memory& memory, const Csr& CSR) {
+void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -116,8 +116,8 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* 
     }
 }
 
-void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                        const Csr& CSR) {
+void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -134,8 +134,8 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                        const Csr& CSR) {
+void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
@@ -215,8 +215,8 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    const Csr& CSR) {
+void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert(
@@ -237,8 +237,8 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    Memory& memory, const Csr& CSR) {
+void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
@@ -280,8 +280,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    Memory& memory, const Csr& CSR) {
+void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    memory::memory_t& memory, CSR::CSR_t& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
@@ -512,8 +512,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    const Csr& CSR) {
+void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
@@ -746,8 +746,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    const Csr& CSR) {
+void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
@@ -769,8 +769,8 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                        const Csr& CSR) {
+void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                        CSR::CSR_t& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
@@ -842,8 +842,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     }
 }
 
-void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    const Csr& CSR) {
+void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
@@ -872,8 +872,8 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::jal(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    const Csr& CSR) {
+void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
+                    CSR::CSR_t& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(

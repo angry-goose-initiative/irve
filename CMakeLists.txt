@@ -11,6 +11,8 @@
 
 #TODO when IRVE is complete, make these suitable for a release build by default
 
+#TODO add option to disable instruction cache
+
 #Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -75,7 +77,7 @@ include(CTest)
 
 set(GIT_EXECUTABLE git)
 
-set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "-std=c++2b -Wall -Wextra -Werror -Wno-error=cpp")
 
 if (IRVE_SANITIZE)
     if (NOT APPLE)

@@ -20,7 +20,7 @@
 #include <string>
 
 /**
- * @brief The namespace containing the IRVE's UART implementation
+ * @brief The namespace containing IRVE's UART implementation
 */
 namespace irve::internal::uart {
 

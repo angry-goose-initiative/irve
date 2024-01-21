@@ -5,7 +5,6 @@
  *  Copyright (C) 2023-2024 John Jekel\n
  *  Copyright (C) 2023 Nick Chan\n
  *  See the LICENSE file at the root of the project for licensing info.
- *
 */
 
 #pragma once
@@ -18,6 +17,8 @@
 #include <memory>
 
 #include "common.h"
+
+#include "aclint.h"
 #include "CSR.h"
 #include "uart.h"
 
@@ -123,7 +124,7 @@ private:
 
     Word read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
     Word read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    Word read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_aclint(uint64_t addr, uint8_t data_type, access_status_t& access_status);
     Word read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     /**
@@ -138,7 +139,7 @@ private:
 
     void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
     void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
-    void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
     void write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
     void write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
 
@@ -180,6 +181,11 @@ private:
 
     // Pointer to kernel ram.
     std::unique_ptr<uint8_t[]> m_kernel_ram;
+
+    /**
+     * @brief       ACLINT
+    */
+    aclint::aclint_t m_aclint;
 
     // 16550 UART.
     uart::uart_t m_uart;

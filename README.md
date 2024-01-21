@@ -34,7 +34,7 @@ Awesome! We'll walk you through the steps!
 
 We highly recommend doing all of this from a Linux system. We have had some success on macOS, but with the RISC-V toolchain in particular you might encounter issues.
 
-Ensure you have a modern G++ compiler installed than supports C++20. (Clang++ works too with some CMake variable tweaks).
+Ensure you have a modern G++ compiler installed than supports C++23. (Clang++ works too with some CMake variable tweaks).
 
 You'll also want a cross compiler if you actually want something to *run on the emulator* (though you don't need it for the emulator itself).
 We use [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) for this.
@@ -84,19 +84,20 @@ Assuming you've build all of the RVSW testfiles, you can run a test program like
 ```
 $ ./irve rvsw/compiled/src/single_file/c/hello_world.vhex8 
 IRVE> Starting IRVE
-IRVE>  ___ ______     _______ 
-IRVE> |_ _|  _ \ \   / / ____|
-IRVE>  | || |_) \ \ / /|  _|  
-IRVE>  | ||  _ < \ V / | |___ 
-IRVE> |___|_| \_\ \_/  |_____|
+IRVE>  ___ ______     _______  __
+IRVE> |_ _|  _ \ \   / / ____| \ \
+IRVE>  | || |_) \ \ / /|  _|    \ \
+IRVE>  | ||  _ < \ V / | |___   / /
+IRVE> |___|_| \_\ \_/  |_____| /_/
 IRVE> 
 IRVE> The Inextensible RISC-V Emulator
-IRVE> Copyright (C) 2023 John Jekel and Nick Chan
+IRVE> Copyright (C) 2023-2024 John Jekel
+IRVE> Copyright (C) 2023-2024 Nick Chan
 IRVE> See the LICENSE file at the root of the project for licensing info.
 IRVE> 
-IRVE> libirve Version 0.7.0 Commit 5893f445e8638dc6015d3a9731ad45db78310698
-IRVE> libirve built at 21:16:56 on Jul 27 2023
-IRVE> irve executable built at 21:16:57 on Jul 27 2023
+IRVE> libirve Version 0.8.0 Commit 6371bf50e0bf3525ebee081a3c7fa3a31ffbf58e
+IRVE> libirve built at 23:21:03 on Jan 18 2024
+IRVE> irve executable built at 23:21:10 on Jan 18 2024
 IRVE> ------------------------------------------------------------------------
 IRVE> 
 IRVE> 

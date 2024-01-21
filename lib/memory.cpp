@@ -122,6 +122,7 @@ Memory::Memory(Csr& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
+        m_aclint(CSR_ref),
         m_uart(),
         m_output_line_buffer() {
 
@@ -140,6 +141,7 @@ Memory::Memory(int imagec, const char* const* imagev, Csr& CSR_ref):
     m_CSR_ref(CSR_ref),
     m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
     m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
+    m_aclint(CSR_ref),
     m_uart(),
     m_output_line_buffer()
 {
@@ -377,8 +379,8 @@ Word Memory::read_memory(
     else if ((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
         data = read_memory_region_kernel_ram(addr, data_type, access_status);
     }
-    else if ((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
-        data = read_memory_region_mmcsr(addr, data_type, access_status);
+    else if ((addr >= MEM_MAP_REGION_START_ACLINT) && (addr <= MEM_MAP_REGION_END_ACLINT)) {
+        data = read_memory_region_aclint(addr, data_type, access_status);
     }
     else if ((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART)) {
         data = read_memory_region_uart(addr, data_type, access_status);
@@ -482,10 +484,10 @@ Word Memory::read_memory_region_kernel_ram(
     return data;
 }
 
-Word Memory::read_memory_region_mmcsr(
-        uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
+Word Memory::read_memory_region_aclint(
+        uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
-    assert((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR) &&
+    assert((addr >= MEM_MAP_REGION_START_ACLINT) && (addr <= MEM_MAP_REGION_END_ACLINT) &&
             "This should never happen");
 
     //These registers must be accessed as words only
@@ -501,25 +503,7 @@ Word Memory::read_memory_region_mmcsr(
         return Word(0);
     }
 
-    Csr::Address csr;
-    switch (addr & WORD_ADDR_MASK) {
-        case MEM_MAP_ADDR_MTIME:
-            csr = Csr::Address::kMtime;
-            break;
-        case MEM_MAP_ADDR_MTIMEH:
-            csr = Csr::Address::kMtimeh;
-            break;
-        case MEM_MAP_ADDR_MTIMECMP:
-            csr = Csr::Address::kMtimecmp;
-            break;
-        case MEM_MAP_ADDR_MTIMECMPH:
-            csr = Csr::Address::kMtimecmph;
-            break;
-        default:
-            assert(false && "Should never be reached");
-            break;
-    }
-    return m_CSR_ref.implicit_read(csr);
+    return this->m_aclint.read(addr - MEM_MAP_REGION_START_ACLINT);
 }
 
 Word Memory::read_memory_region_uart(
@@ -567,8 +551,8 @@ void Memory::write_memory(uint64_t addr, uint8_t data_type, Word data,
     else if ((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM)) {
         write_memory_region_kernel_ram(addr, data_type, data, access_status);
     }
-    else if ((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR)) {
-        write_memory_region_mmcsr(addr, data_type, data, access_status);
+    else if ((addr >= MEM_MAP_REGION_START_ACLINT) && (addr <= MEM_MAP_REGION_END_ACLINT)) {
+        write_memory_region_aclint(addr, data_type, data, access_status);
     }
     else if ((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART)) {
         write_memory_region_uart(addr, data_type, data, access_status);
@@ -647,9 +631,9 @@ void Memory::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Wo
     }
 }
     
-void Memory::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
-    assert(((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR))
+    assert(((addr >= MEM_MAP_REGION_START_ACLINT) && (addr <= MEM_MAP_REGION_END_ACLINT))
             && "This should never happen");
 
     //These registers must be accessed as words only
@@ -666,26 +650,7 @@ void Memory::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word da
         return;
     }
 
-    Csr::Address csr;
-    switch (addr & WORD_ADDR_MASK) {
-        case MEM_MAP_ADDR_MTIME:
-            csr = Csr::Address::kMtime;
-            break;
-        case MEM_MAP_ADDR_MTIMEH:
-            csr = Csr::Address::kMtimeh;
-            break;
-        case MEM_MAP_ADDR_MTIMECMP:
-            csr = Csr::Address::kMtimecmp;
-            break;
-        case MEM_MAP_ADDR_MTIMECMPH:
-            csr = Csr::Address::kMtimecmph;
-            break;
-        default:
-            assert(false && "Should never be reached");
-            break;
-    }
-
-    m_CSR_ref.implicit_write(csr, data);
+    this->m_aclint.write(addr - MEM_MAP_REGION_START_ACLINT, data);
 }
 
 void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,

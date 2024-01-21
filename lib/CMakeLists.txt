@@ -18,7 +18,12 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h @ONLY)
 
 set(LIBIRVE_SOURCES
+    ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
+
     ${CMAKE_CURRENT_BINARY_DIR}/cmake_config.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/aclint.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/aclint.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu_state.cpp
@@ -49,7 +54,6 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tsqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/uart.h
-    ${CMAKE_SOURCE_DIR}/include/irve_public_api.h
 )
 
 #Attempt to avoid needing to double compile everything:

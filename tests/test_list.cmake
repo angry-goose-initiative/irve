@@ -91,27 +91,36 @@ add_rvsw_test(atomics)
 
 #TODO add more
 
-#rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
+#rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
+#C
 add_rvsw_parse_test(hello_exceptions src/single_file/c/hello_exceptions)
 add_rvsw_parse_test(hello_world src/single_file/c/hello_world)
 add_rvsw_parse_test(irve_csr_bringup src/single_file/c/irve_csr_bringup)
 add_rvsw_parse_test(irve_debugging_puts_weirdness src/single_file/c/irve_debugging_puts_weirdness)
 add_rvsw_parse_test(irve_exception_bringup src/single_file/c/irve_exception_bringup)
 add_rvsw_parse_test(irve_stress_test src/single_file/c/irve_stress_test)
+add_rvsw_parse_test(nouveau_stress_test src/single_file/c/nouveau_stress_test)
+add_rvsw_parse_test(poll_timer_interrupt_mmode src/single_file/c/poll_timer_interrupt_mmode)
+add_rvsw_parse_test(poll_timer_mmode src/single_file/c/poll_timer_mmode)
 add_rvsw_parse_test(rv32esim src/single_file/c/rv32esim)
 add_rvsw_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity)
 add_rvsw_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun)
+add_rvsw_parse_test(timer_interrupt_mmode src/single_file/c/timer_interrupt_mmode)
+#C++
 add_rvsw_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx)
 add_rvsw_parse_test(irve_interrupt_bringup src/single_file/cxx/irve_interrupt_bringup)
 
-#S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C RISC-V programs))
+#S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
+#C
 add_rvsw_smode_parse_test(hello_world src/single_file/c/hello_world_smode)
 add_rvsw_smode_parse_test(irve_debugging_puts_weirdness src/single_file/c/irve_debugging_puts_weirdness_smode)
 add_rvsw_smode_parse_test(irve_stress_test src/single_file/c/irve_stress_test_smode)
+add_rvsw_smode_parse_test(nouveau_stress_test src/single_file/c/nouveau_stress_test_smode)
 add_rvsw_smode_parse_test(rv32esim src/single_file/c/rv32esim_smode)
 add_rvsw_smode_parse_test(rv32im_sanity src/single_file/c/rv32im_sanity_smode)
 add_rvsw_smode_parse_test(software_floating_point_fun src/single_file/c/software_floating_point_fun_smode)
+#C++
 add_rvsw_smode_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_smode_parse_test(hello_cxx src/single_file/cxx/hello_cxx_smode)
 add_rvsw_smode_parse_test(irve_vm_bringup src/single_file/cxx/irve_vm_bringup_smode)

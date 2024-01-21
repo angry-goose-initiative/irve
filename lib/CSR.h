@@ -138,7 +138,7 @@ public:
      * @param[in]   csr The CSR to read from.
      * @return      The value of the CSR.
     */
-    Reg explicit_read(Csr::Address csr) const;
+    Reg explicit_read(Csr::Address csr);//Not constant due to possible read side effects
 
     /**
      * @brief       Writes a CSR explicitly (checking for adequate privilege and writability).
@@ -158,7 +158,7 @@ public:
      * @param[in]   csr The CSR to read from.
      * @return      The value of the CSR.
     */
-    Reg implicit_read(Csr::Address csr) const;
+    Reg implicit_read(Csr::Address csr);//Not constant due to possible read side effects
 
     /**
      * @brief       Writes a CSR implicitly (without checking privilege; still checks writability).
@@ -184,10 +184,16 @@ public:
     PrivilegeMode get_privilege_mode() const;
 
     /**
-     * @brief       Updates the RISC-V CPU's mtime timer; may also set a timer interrupt as pending
-     *              in the mip CSR.
+     * @brief       Updates the RISC-V CPU's mtime timer based on the host system's time.
+     *              May also set a timer interrupt as pending in the mip CSR.
     */
     void update_timer();
+
+    /**
+     * @brief       Occasionally calls update_timer(), but not necessarily on every call since
+     *              this may be too expensive.
+    */
+    void occasional_update_timer();
 
 private:
 

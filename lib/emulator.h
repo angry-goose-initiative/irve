@@ -76,7 +76,7 @@ namespace irve::internal::emulator {
          * @brief       Get the current instruction count.
          * @return      minstret
         */
-        uint64_t get_inst_count() const;
+        uint64_t get_inst_count();
 
         /**
          * @brief       Determine if a breakpoint was encountered and clear the flag indicating so
