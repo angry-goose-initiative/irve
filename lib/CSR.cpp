@@ -13,7 +13,6 @@
 
 #include "CSR.h"
 
-#include <_types/_uint16_t.h>
 #include <cassert>
 #include <chrono>
 #include <cstddef>

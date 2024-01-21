@@ -11,7 +11,6 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#include <_types/_uint16_t.h>
 #include <cassert>
 #include <cstddef>
 #include "common.h"
