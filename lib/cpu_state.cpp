@@ -51,7 +51,7 @@ void CpuState::set_pc(Word new_pc) {
     this->m_pc = new_pc;
 }
 
-reg_t CpuState::get_r(uint8_t reg_num) const {
+Reg CpuState::get_r(uint8_t reg_num) const {
     assert(reg_num < 32 && "Attempt to get invalid register");
     if (reg_num) {
         return this->m_regs[reg_num - 1];
@@ -60,7 +60,7 @@ reg_t CpuState::get_r(uint8_t reg_num) const {
     }
 }
 
-void CpuState::set_r(uint8_t reg_num, reg_t new_val) {
+void CpuState::set_r(uint8_t reg_num, Reg new_val) {
     assert(reg_num < 32 && "Attempt to set invalid register");
     if (reg_num) {
         this->m_regs[reg_num - 1] = new_val;

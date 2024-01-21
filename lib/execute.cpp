@@ -47,8 +47,8 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_sta
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t imm = decoded_inst.get_imm();
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     switch (funct3) {
@@ -148,7 +148,7 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     );
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
     Word imm = decoded_inst.get_imm();
     uint8_t funct7 = imm.bits(11, 5).u;
 
@@ -251,8 +251,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
     Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
@@ -298,8 +298,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     //NOTE: All possible aq and rl values are valid, so we don't need to check them
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
     Word loaded_word;
     switch (decoded_inst.get_funct5()) {
@@ -526,8 +526,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state
     );
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
     //Perform the ALU operation
     Word result;
@@ -783,8 +783,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
     Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
@@ -912,8 +912,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     //TODO also handle supervisor mode instructions
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    //reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    //Reg rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
     Word imm = decoded_inst.get_imm();
     PrivilegeMode privilege_mode = CSR.get_privilege_mode();
@@ -1058,7 +1058,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     
     //Read the CSR into the destination register
     //TODO avoid read side effects if destination register is x0
-    reg_t csr = CSR.explicit_read(csr_addr);
+    Reg csr = CSR.explicit_read(csr_addr);
     cpu_state.set_r(decoded_inst.get_rd(), csr);
 
     //What we write back depends on the instruction (and we may not write back at all)

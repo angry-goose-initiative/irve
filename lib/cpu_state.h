@@ -42,27 +42,27 @@ public:
      * @brief       Get the current value of the PC (program counter).
      * @return      The PC.
     */
-    reg_t get_pc() const;
+    Reg get_pc() const;
 
     /**
      * @brief       Set the PC to a new value.
      * @param[in]   new_pc The new value of the PC.
     */
-    void set_pc(reg_t new_pc);
+    void set_pc(Reg new_pc);
 
     /**
      * @brief       Get the current value of a register.
      * @param[in]   reg_num The register number to get the value of (between 0 and 31 inclusive).
      * @return      The value of the register.
     */
-    reg_t get_r(uint8_t reg_num) const;
+    Reg get_r(uint8_t reg_num) const;
 
     /**
      * @brief       Set the value of a register.
      * @param[in]   reg_num The register number to set the value of (between 0 and 31 inclusive).
      * @param[in]   new_val The new value of the register.
     */
-    void set_r(uint8_t reg_num, reg_t new_val);
+    void set_r(uint8_t reg_num, Reg new_val);
 
     /**
      * @brief       TODO
@@ -97,14 +97,14 @@ private:
     /**
      * @brief       The program counter.
     */
-    reg_t m_pc;
+    Reg m_pc;
 
     /**
      * @brief       The register file.
      * @note        The array size is 31 since we don't bother storing x0. Thus, m_regs[0] is x1
      *              and so on.
     */
-    reg_t m_regs[31];
+    Reg m_regs[31];
 
     /**
      * @brief       Reference to the CSR's.

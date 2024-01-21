@@ -138,7 +138,7 @@ public:
      * @param[in]   csr The CSR to read from.
      * @return      The value of the CSR.
     */
-    reg_t explicit_read(Csr::Address csr) const;
+    Reg explicit_read(Csr::Address csr) const;
 
     /**
      * @brief       Writes a CSR explicitly (checking for adequate privilege and writability).
@@ -158,7 +158,7 @@ public:
      * @param[in]   csr The CSR to read from.
      * @return      The value of the CSR.
     */
-    reg_t implicit_read(Csr::Address csr) const;
+    Reg implicit_read(Csr::Address csr) const;
 
     /**
      * @brief       Writes a CSR implicitly (without checking privilege; still checks writability).
@@ -205,33 +205,33 @@ private:
     */
     bool current_privilege_mode_can_explicitly_write(Csr::Address csr) const;
 
-    reg_t sie;
-    reg_t stvec;
-    reg_t scounteren;
-    reg_t senvcfg;
-    reg_t sscratch;
-    reg_t sepc;
-    reg_t scause;
+    Reg sie;
+    Reg stvec;
+    Reg scounteren;
+    Reg senvcfg;
+    Reg sscratch;
+    Reg sepc;
+    Reg scause;
     //stval is NOT here
-    reg_t sip;
-    reg_t satp;
-    reg_t mstatus;
+    Reg sip;
+    Reg satp;
+    Reg mstatus;
     //misa is NOT here
-    reg_t medeleg;
-    reg_t mideleg;
-    reg_t mie;
-    reg_t mtvec;
-    reg_t menvcfg;
+    Reg medeleg;
+    Reg mideleg;
+    Reg mie;
+    Reg mtvec;
+    Reg menvcfg;
     //mstatush is NOT here
     //menvcfgh is NOT here
-    reg_t mscratch;
-    reg_t mepc;
-    reg_t mcause;
+    Reg mscratch;
+    Reg mepc;
+    Reg mcause;
     //mtval is NOT here
-    reg_t mip;
+    Reg mip;
 
-    reg_t pmpcfg[64];
-    reg_t pmpaddr[64];
+    Reg pmpcfg[64];
+    Reg pmpaddr[64];
 
     uint64_t minstret;//Handles both minstret and minstreth
     uint64_t mcycle;//Handles both mcycle and mcycleh

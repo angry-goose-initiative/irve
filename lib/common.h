@@ -211,8 +211,8 @@ struct Word {
 
 static_assert(sizeof(Word) == 4); // A word should be exactly 4 bytes
 
-///A register is just a Word, but seeing it a reg_t can be more insightful in other code
-typedef Word reg_t;
+// A register is just a Word, but seeing it a Reg can be more insightful in other code
+using Reg = Word;
 
 /* ------------------------------------------------------------------------------------------------
  * Function Declarations
@@ -237,4 +237,4 @@ uint32_t upow(uint32_t base, uint32_t exp);
 */
 int32_t spow(int32_t base, int32_t exp);
 
-}//namespace irve::internal
+} // namespace irve::internal

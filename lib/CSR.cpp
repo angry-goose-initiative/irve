@@ -76,7 +76,7 @@ Csr::Csr()
     irve_fuzzish_meminit(this->pmpaddr, sizeof(this->pmpaddr));
 }
 
-reg_t Csr::explicit_read(Csr::Address csr) const {//Performs privilege checks
+Reg Csr::explicit_read(Csr::Address csr) const {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_read(csr)) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     } else {
@@ -93,7 +93,7 @@ void Csr::explicit_write(Csr::Address csr, Word data) {//Performs privilege chec
 }
 
 //We assume the CSRs within the class are "safe" for the purposes of reads
-reg_t Csr::implicit_read(Csr::Address csr) const {//Does not perform any privilege checks
+Reg Csr::implicit_read(Csr::Address csr) const {//Does not perform any privilege checks
     switch (csr) {
         case Csr::Address::kSstatus:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
         case Csr::Address::kSie:              return this->sie;

@@ -224,7 +224,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 
     irvelog(1, "Checking for interrupts...");
 
-    reg_t mstatus = this->m_CSR.implicit_read(Csr::Address::kMstatus);
+    Reg mstatus = this->m_CSR.implicit_read(Csr::Address::kMstatus);
     bool in_m_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE;
     bool in_s_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::SUPERVISOR_MODE;
     
@@ -246,11 +246,11 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //
 
     //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
-    reg_t mip = this->m_CSR.implicit_read(Csr::Address::kMip);
-    reg_t mie = this->m_CSR.implicit_read(Csr::Address::kMie);
+    Reg mip = this->m_CSR.implicit_read(Csr::Address::kMip);
+    Reg mie = this->m_CSR.implicit_read(Csr::Address::kMie);
 
     //Also mideleg will be useful
-    reg_t mideleg = this->m_CSR.implicit_read(Csr::Address::kMideleg);
+    Reg mideleg = this->m_CSR.implicit_read(Csr::Address::kMideleg);
 
     //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
     //1. The interrupt is pending (mip/sip)
@@ -310,7 +310,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
             //Try to access the previous and next instructions in memory surrounding the EBREAK
             //It helps that we're guaranteed the instructions are always uncompressed (4 bytes)
             try {
-                reg_t pc = this->m_cpu_state.get_pc();
+                Reg pc = this->m_cpu_state.get_pc();
                 Word prev_inst = this->m_memory.instruction(pc - 4);
                 Word next_inst = this->m_memory.instruction(pc + 4);
 

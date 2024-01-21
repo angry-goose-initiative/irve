@@ -28,7 +28,7 @@ int test_CSR_Csr_init() {
     //Ensure we comply with section 3.4
     assert(csr.get_privilege_mode() == PrivilegeMode::MACHINE_MODE);//We must start in machine mode
 
-    reg_t mstatus = csr.explicit_read(Csr::Address::kMstatus);
+    Reg mstatus = csr.explicit_read(Csr::Address::kMstatus);
     assert(mstatus.bit(3) == 0);//mstatus.MIE must be 0
     assert(mstatus.bit(17) == 0);//mstatus.MPRV must be 0
     assert(csr.explicit_read(Csr::Address::kMstatush).bit(5) == 0);//mstatush.MBE must be 0
@@ -36,7 +36,7 @@ int test_CSR_Csr_init() {
     assert(csr.explicit_read(Csr::Address::kMcause) == 0);//mcause must indicate the cause of the reset, but since IRVE dosn't differentiate between reset causes, it must be 0
 
     for (auto i = static_cast<uint16_t>(Csr::Address::kPmpcfgStart); i <= static_cast<uint16_t>(Csr::Address::kPmpcfgEnd); ++i) {
-        reg_t pmpcfgi = csr.explicit_read(static_cast<Csr::Address>(i));
+        Reg pmpcfgi = csr.explicit_read(static_cast<Csr::Address>(i));
         assert(pmpcfgi.bits(4, 3) == 0);//pmpcfgi.A must be 0
         assert(pmpcfgi.bit(7) == 0);//pmpcfgi.L must be 0
     }
