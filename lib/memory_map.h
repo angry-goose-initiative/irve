@@ -28,18 +28,14 @@
 #define MEM_MAP_REGION_SIZE_KERNEL_RAM      (MEM_MAP_REGION_END_KERNEL_RAM - MEM_MAP_REGION_START_KERNEL_RAM + 1)
 
 //Region for memory mapped registers
-#define MEM_MAP_REGION_START_MMCSR          (uint64_t)0xFFFFFFE0
-#define MEM_MAP_ADDR_MTIME                  (uint64_t)0xFFFFFFE0
-#define MEM_MAP_ADDR_MTIMEH                 (uint64_t)0xFFFFFFE4
-#define MEM_MAP_ADDR_MTIMECMP               (uint64_t)0xFFFFFFE8
-#define MEM_MAP_ADDR_MTIMECMPH              (uint64_t)0xFFFFFFEC
-#define MEM_MAP_REGION_END_MMCSR            (uint64_t)0xFFFFFFEF
+#define MEM_MAP_REGION_START_ACLINT         (uint64_t)0xF0000000
+#define MEM_MAP_REGION_END_ACLINT           (uint64_t)0xF000BFFF
 
-#define MEM_MAP_REGION_SIZE_MMCSR           (MEM_MAP_REGION_END_MMCSR - MEM_MAP_REGION_START_MMCSR + 1)
+#define MEM_MAP_REGION_SIZE_ACLINT           (MEM_MAP_REGION_END_ACLINT - MEM_MAP_REGION_START_ACLINT + 1)
 
 //Region for 16550 UART
-#define MEM_MAP_REGION_START_UART           (uint64_t)0xFFFFFFF0
-#define MEM_MAP_REGION_END_UART             (uint64_t)0xFFFFFFF7
+#define MEM_MAP_REGION_START_UART           (uint64_t)0xF1000000
+#define MEM_MAP_REGION_END_UART             (uint64_t)0xF1000007
 
 //Debug output
 #define MEM_MAP_ADDR_DEBUG                  (uint64_t)0xFFFFFFFF

@@ -15,6 +15,12 @@
  * https://github.com/westerndigitalcorporation/RISC-V-Linux/blob/master/linux/Documentation/devicetree/bindings/interrupt-controller/riscv%2Ccpu-intc.txt
  * https://github.com/PiMaker/rvc/blob/master/dts.dts
  *
+ * Useful about timer stuffs:
+ * https://patchwork.kernel.org/project/linux-riscv/cover/20211007123632.697666-1-anup.patel@wdc.com/
+ *
+ * FIXME for S-mode using the SBI instead of the clint, we may need to advertize SBI features via a (seperate) device tree,
+ * ex. using the riscv,timer device tree property
+ *
 */
 
 /dts-v1/;
@@ -25,7 +31,7 @@
 
     memory@C0000000 {
         device_type = "memory";
-        reg = <0xC0000000 0x3ffffff>;
+        reg = <0xC0000000 0x4000000>;
     };
 
     cpus {
@@ -46,7 +52,7 @@
             riscv,isa-extensions = "i", "m", "a", "zifencei", "zicsr";
 
             /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
-            interrupt-controller {
+            hlic: interrupt-controller {
                 #interrupt-cells = <0x01>;
                 interrupt-controller;
                 compatible = "riscv,cpu-intc";
@@ -63,5 +69,18 @@
         };
     };
 
-    /* TODO add other things we may need */
+    soc {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "simple-bus";
+        ranges;
+
+        clint@f0000000 {
+            interrupts-extended = <&hlic 0x3 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
+            reg = <0xf0000000 0xbfff>;
+            compatible = "riscv,clint0";
+        };
+
+        /* TODO add other things we may need (ex. the UART) */
+    };
 };
