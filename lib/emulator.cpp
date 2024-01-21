@@ -18,7 +18,7 @@
 
 #include "common.h"
 #include "cpu_state.h"
-#include "CSR.h"
+#include "csr.h"
 #include "decode.h"
 #include "gdbserver.h"
 #include "execute.h"

@@ -1,5 +1,4 @@
 /**
- * @file    aclint.h
  * @brief   Implementation of RISC-V ACLINT
  * 
  * @copyright
@@ -18,7 +17,7 @@
 
 #include "common.h"
 
-#include "CSR.h"
+#include "csr.h"
 
 /**
  * @brief The namespace containing IRVE's ACLINT implementation

@@ -19,7 +19,7 @@
 #include "common.h"
 
 #include "aclint.h"
-#include "CSR.h"
+#include "csr.h"
 #include "uart.h"
 
 /* ------------------------------------------------------------------------------------------------

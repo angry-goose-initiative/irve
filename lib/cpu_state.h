@@ -15,7 +15,7 @@
 
 #include <cstdint>
 
-#include "CSR.h"
+#include "csr.h"
 #include "memory.h"
 #include "rvexception.h"
 

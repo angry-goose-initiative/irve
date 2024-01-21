@@ -11,7 +11,7 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#include "CSR.h"
+#include "csr.h"
 
 #include <cassert>
 #include <chrono>

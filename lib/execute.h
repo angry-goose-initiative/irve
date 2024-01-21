@@ -16,7 +16,7 @@
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
-#include "CSR.h"
+#include "csr.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Function Declarations

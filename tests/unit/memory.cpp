@@ -20,7 +20,7 @@
 
 #include <cassert>
 #include "memory.h"
-#include "CSR.h"
+#include "csr.h"
 #include "rvexception.h"
 #include "memory_map.h"
 #include "common.h"

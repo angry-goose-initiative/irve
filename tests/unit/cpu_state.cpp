@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstdint>
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 #include "cpu_state.h"
 
 #include "rvexception.h"

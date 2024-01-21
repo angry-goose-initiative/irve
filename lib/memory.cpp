@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "CSR.h"
+#include "csr.h"
 #include "common.h"
 #include "memory_map.h"
 #include "rvexception.h"

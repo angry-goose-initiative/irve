@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstddef>
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 
 using namespace irve::internal;
 

@@ -16,7 +16,7 @@
 #include "irve_public_api.h"
 #include "emulator.h"
 #include "cpu_state.h"
-#include "CSR.h"
+#include "csr.h"
 #include "memory.h"
 
 #include <cassert>

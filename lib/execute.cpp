@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 #include "cpu_state.h"
 #include "decode.h"
 #include "memory.h"

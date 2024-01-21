@@ -1,5 +1,4 @@
 /**
- * @file    aclint.cpp
  * @brief   Implementation of RISC-V ACLINT
  * 
  * @copyright
@@ -20,7 +19,7 @@
 #include "aclint.h"
 
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 #define INST_COUNT 0
 #include "logging.h"
 
