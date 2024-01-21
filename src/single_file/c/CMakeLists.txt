@@ -42,6 +42,7 @@ add_c_target(poll_timer_interrupt_mmode ${CMAKE_CURRENT_SOURCE_DIR}/poll_timer_i
 add_c_target(rv32esim ${CMAKE_CURRENT_SOURCE_DIR}/rv32esim.c)
 add_c_target(rv32im_sanity ${CMAKE_CURRENT_SOURCE_DIR}/rv32im_sanity.c)
 add_c_target(software_floating_point_fun ${CMAKE_CURRENT_SOURCE_DIR}/software_floating_point_fun.c)
+add_c_target(timer_interrupt_mmode ${CMAKE_CURRENT_SOURCE_DIR}/timer_interrupt_mmode.c)
 
 #S-Mode Targets
 add_smode_c_target(hello_world ${CMAKE_CURRENT_SOURCE_DIR}/hello_world.c)
