@@ -1,5 +1,4 @@
 /**
- * @file    memory.cpp
  * @brief   Handles the memory of the emulator
  * 
  * @copyright
@@ -173,11 +172,11 @@ memory::memory_t::~memory_t() {
     }
 }
 
-word_t memory::memory_t::instruction(word_t addr) {
+Word memory::memory_t::instruction(Word addr) {
     access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
-    word_t data = read_memory(machine_addr, DT_WORD, access_status);
+    Word data = read_memory(machine_addr, DT_WORD, access_status);
 
     if ((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
         invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
@@ -190,14 +189,14 @@ word_t memory::memory_t::instruction(word_t addr) {
     return data;
 }
 
-word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
+Word memory::memory_t::load(Word addr, uint8_t data_type) {
     assert((data_type <= 0b111) && "Invalid funct3");
     assert((data_type != 0b110) && "Invalid funct3");
 
     access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_LOAD);
 
-    word_t data = read_memory(machine_addr, data_type, access_status);
+    Word data = read_memory(machine_addr, data_type, access_status);
 
     if ((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
         invoke_rv_exception(LOAD_ACCESS_FAULT);
@@ -210,7 +209,7 @@ word_t memory::memory_t::load(word_t addr, uint8_t data_type) {
     return data;
 }
 
-void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
+void memory::memory_t::store(Word addr, uint8_t data_type, Word data) {
     assert((data_type <= 0b010) && "Invalid funct3");
 
     access_status_t access_status;
@@ -227,7 +226,7 @@ void memory::memory_t::store(word_t addr, uint8_t data_type, word_t data) {
     }
 }
 
-uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t access_type) {
+uint64_t memory::memory_t::translate_address(Word untranslated_addr, uint8_t access_type) {
     if(no_address_translation(access_type)) {
         irvelog(1, "No address translation");
         return (uint64_t)untranslated_addr.u;
@@ -237,7 +236,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     access_status_t access_status;
 
     //The untranslated address is a virtual address
-    word_t va = untranslated_addr;
+    Word va = untranslated_addr;
 
     //The address of a pte:
     // 33       12 11          2 1  0
@@ -248,7 +247,7 @@ uint64_t memory::memory_t::translate_address(word_t untranslated_addr, uint8_t a
     //a is the PPN left shifted to its position in the pte
     uint64_t a = satp_PPN * PAGESIZE;
     uint64_t pte_addr;
-    word_t pte;
+    Word pte;
 
     irvelog(2, "Virtual address is 0x%08X", va.u);
 
@@ -360,7 +359,7 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
     return true;
 }
 
-word_t memory::memory_t::read_memory(
+Word memory::memory_t::read_memory(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
@@ -369,7 +368,7 @@ word_t memory::memory_t::read_memory(
 
     access_status = AS_OKAY; //Set here to avoid uninitialized warning
 
-    word_t data = 0;
+    Word data = 0;
 
     //All regions that contain readable memory should be covered
     if (addr <= MEM_MAP_REGION_END_USER_RAM) {
@@ -389,14 +388,14 @@ word_t memory::memory_t::read_memory(
     }
     
     if (access_status != AS_OKAY) {
-        return word_t(0);
+        return Word(0);
     }
 
     return data;
 
 }
 
-word_t memory::memory_t::read_memory_region_user_ram(
+Word memory::memory_t::read_memory_region_user_ram(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr <= MEM_MAP_REGION_END_USER_RAM) && "This should never happen");
@@ -405,15 +404,15 @@ word_t memory::memory_t::read_memory_region_user_ram(
     if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
         //Misaligned halfword read
         access_status = AS_MISALIGNED;
-        return word_t(0);
+        return Word(0);
     }
     else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
         //Misaligned word read
         access_status = AS_MISALIGNED;
-        return word_t(0);
+        return Word(0);
     }
 
-    word_t data;
+    Word data;
     uint64_t mem_index = addr - MEM_MAP_REGION_START_USER_RAM;
     void* mem_ptr = &(m_user_ram[mem_index]);
     switch(data_type) {
@@ -439,7 +438,7 @@ word_t memory::memory_t::read_memory_region_user_ram(
     return data;
 }
 
-word_t memory::memory_t::read_memory_region_kernel_ram(
+Word memory::memory_t::read_memory_region_kernel_ram(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM) &&
@@ -449,15 +448,15 @@ word_t memory::memory_t::read_memory_region_kernel_ram(
     if (((data_type & DATA_WIDTH_MASK) == DT_HALFWORD) && ((addr & 0b1) != 0)) {
         //Misaligned halfword read
         access_status = AS_MISALIGNED;
-        return word_t(0);
+        return Word(0);
     }
     else if ((data_type == DT_WORD) && ((addr & 0b11) != 0)) {
         //Misaligned word read
         access_status = AS_MISALIGNED;
-        return word_t(0);
+        return Word(0);
     }
 
-    word_t data;
+    Word data;
     uint64_t mem_index = addr - MEM_MAP_REGION_START_KERNEL_RAM;
     void* mem_ptr = &(m_kernel_ram[mem_index]);
     switch (data_type) {
@@ -483,7 +482,7 @@ word_t memory::memory_t::read_memory_region_kernel_ram(
     return data;
 }
 
-word_t memory::memory_t::read_memory_region_mmcsr(
+Word memory::memory_t::read_memory_region_mmcsr(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR) &&
@@ -492,14 +491,14 @@ word_t memory::memory_t::read_memory_region_mmcsr(
     //These registers must be accessed as words only
     if (data_type != DT_WORD) {
         access_status = AS_VIOLATES_PMA;
-        return word_t(0);
+        return Word(0);
     }
 
     //Check for misaligned word access
     if ((addr & 0b11) != 0) {
         //Misaligned word
         access_status = AS_MISALIGNED;
-        return word_t(0);
+        return Word(0);
     }
 
     uint16_t csr_num;
@@ -523,7 +522,7 @@ word_t memory::memory_t::read_memory_region_mmcsr(
     return m_CSR_ref.implicit_read(csr_num);
 }
 
-word_t memory::memory_t::read_memory_region_uart(
+Word memory::memory_t::read_memory_region_uart(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
@@ -534,12 +533,12 @@ word_t memory::memory_t::read_memory_region_uart(
     //Only byte accesses allowed
     if ((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
         access_status = AS_VIOLATES_PMA;
-        return word_t(0);
+        return Word(0);
     }
 
     uint8_t uart_addr = (uint8_t)(addr - MEM_MAP_REGION_START_UART);
 
-    word_t data;
+    Word data;
     
     //TODO uart read should also update access_status?
     if (data_type & DATA_SIGN_MASK) {
@@ -552,7 +551,7 @@ word_t memory::memory_t::read_memory_region_uart(
     return data;
 }
 
-void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, Word data,
                                     access_status_t &access_status) {
 
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
@@ -583,7 +582,7 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, word_t dat
 
 }
 
-void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
 
     assert((addr <= MEM_MAP_REGION_END_USER_RAM) && "This should never happen");
@@ -615,7 +614,7 @@ void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_
     }
 }
 
-void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data,
                                                         access_status_t& access_status) {
 
     assert(((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM))
@@ -648,7 +647,7 @@ void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t dat
     }
 }
     
-void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
     assert(((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR))
             && "This should never happen");
@@ -689,7 +688,7 @@ void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_typ
     m_CSR_ref.implicit_write(csr_num, data);
 }
 
-void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,
                                                 access_status_t& access_status) {
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
@@ -710,7 +709,7 @@ void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type
     this->m_uart.write(uart_addr, uart_data);
 }
 
-void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data,
+void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
             
     assert((addr == MEM_MAP_ADDR_DEBUG) && "This should never happen");
@@ -798,7 +797,7 @@ memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_pat
     //Read a file into the emulator byte-by-byte
     //TODO do this more efficiently with fread()
     for (long i = 0; i < file_size; ++i) {
-        word_t data_byte = fgetc(file);
+        Word data_byte = fgetc(file);
         uint64_t addr = start_addr + (uint64_t)i;
 
         access_status_t access_status;
@@ -839,7 +838,7 @@ memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_p
             }
             
             //The data word this token represents
-            word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
+            Word data_word = (uint32_t)std::stoul(token, nullptr, 16);
 
             //Write the data word to memory and increment the address to the next word
             access_status_t access_status;
@@ -879,7 +878,7 @@ memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_
             }
             
             //The data word this token represents
-            word_t data_word = (uint32_t)std::stoul(token, nullptr, 16);
+            Word data_word = (uint32_t)std::stoul(token, nullptr, 16);
 
             //Write the data word to memory and increment the address to the next word
             access_status_t access_status;

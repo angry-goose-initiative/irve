@@ -1,5 +1,4 @@
 /**
- * @file    semihosting.cpp
  * @brief   M-Mode semihosting support for IRVE
  * 
  * @copyright
@@ -68,7 +67,7 @@ void semihosting::handler_t::handle(cpu_state::cpu_state_t& cpu_state, memory::m
     switch (cpu_state.get_r(a0).u) {
         case 0x03: {//SYS_WRITEC
             //TODO actually save this into some buffer and print out a whole line at a time
-            word_t char_pointer = cpu_state.get_r(a1);
+            Word char_pointer = cpu_state.get_r(a1);
             try {
                 char character = memory.load(char_pointer, 0b000).u;
                 switch (character) {

@@ -282,27 +282,27 @@ int test_memory_memory_t_translation_conditions() {
     // Start in M-mode
     CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
     // Start with MPRV set to 0
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000000001100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000000001100000000000));
     // Start with satp indicating bare
-    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x00000000));
 
     // No translation should occur
     assert(memory.no_address_translation(1));
 
     // MPP set to S-mode
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000000000100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000000000100000000000));
 
     // No translation should occur
     assert(memory.no_address_translation(1));
 
     // MPRV set to 1
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000100000100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000100000100000000000));
 
     // No translation should occur
     assert(memory.no_address_translation(1));
 
     // satp indicates sv32
-    CSR.implicit_write(CSR::address::SATP, word_t(0x80000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x80000000));
 
     // Translation should occur for a load and a store...
     assert(!memory.no_address_translation(1) && !memory.no_address_translation(2));
@@ -310,13 +310,13 @@ int test_memory_memory_t_translation_conditions() {
     assert(memory.no_address_translation(0));
 
     // satp indicates bare
-    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x00000000));
 
     // No translation should occur
     assert(memory.no_address_translation(2));
 
     // MPP set to 0
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000000000100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000000000100000000000));
 
     // Switch to S-mode
     CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
@@ -325,13 +325,13 @@ int test_memory_memory_t_translation_conditions() {
     assert(memory.no_address_translation(0));
 
     // satp incicates sv32
-    CSR.implicit_write(CSR::address::SATP, (word_t)0x80000000);
+    CSR.implicit_write(CSR::address::SATP, (Word)0x80000000);
 
     // Translation should occur
     assert(!memory.no_address_translation(1));
 
     // MPP set to M-mode, MPRV set to 1
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000100001100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000100001100000000000));
 
     // Translation shouldn't occur for a load and a store...
     assert(memory.no_address_translation(1) && memory.no_address_translation(2));
@@ -339,7 +339,7 @@ int test_memory_memory_t_translation_conditions() {
     assert(!memory.no_address_translation(0));
 
     // MPRV set to 0
-    CSR.implicit_write(CSR::address::MSTATUS, word_t(0b00000000000000000001100000000000));
+    CSR.implicit_write(CSR::address::MSTATUS, Word(0b00000000000000000001100000000000));
 
     // Switch to U-mode
     CSR.set_privilege_mode(CSR::privilege_mode_t::USER_MODE);
@@ -348,7 +348,7 @@ int test_memory_memory_t_translation_conditions() {
     assert(!memory.no_address_translation(1));
 
     // satp indicates bare
-    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x00000000));
 
     // No translation should occur
     assert(memory.no_address_translation(0));
@@ -361,21 +361,21 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     memory::memory_t memory(CSR);
 
     // First level pte at 0x00000000
-    word_t FIRST_LEVEL_PTE_ADDR = 0x00000000;
+    Word FIRST_LEVEL_PTE_ADDR = 0x00000000;
     // pte valid bit set
     // pte.PPN = 0x1
-    word_t pte1 = 0x00000401;
+    Word pte1 = 0x00000401;
 
     // Second level pte at 0x00001F00
-    word_t SECOND_LEVEL_PTE_ADDR = 0x00001F00;
+    Word SECOND_LEVEL_PTE_ADDR = 0x00001F00;
     // pte valid, readable, writable, accessed bit set
     // pte.PPN = 0x4
-    word_t pte2 = 0x00001047;
+    Word pte2 = 0x00001047;
 
     // Only working with S-mode here
     CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
     // Starts with bare address translation
-    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x00000000));
 
     // Write first level pte to memory
     memory.store(FIRST_LEVEL_PTE_ADDR, DT_WORD, pte1);
@@ -386,12 +386,12 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     memory.store(0x00004FF0, DT_WORD, 0x1234ABCD);
 
     // Switch to SV32 address translation
-    CSR.implicit_write(CSR::address::SATP, word_t(0x80000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x80000000));
 
     // va.VPN[1] = 0x0
     // va.VPN[0] = 0b1111000000  (0x3C0)
     // va.offset = 0xFF0
-    word_t va = 0x003C0FF0;
+    Word va = 0x003C0FF0;
 
     assert(memory.load(va, DT_WORD).u == 0x1234ABCD);
 
@@ -405,7 +405,7 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
     pte1 = 0x00000043;
 
     // Return bare address translation
-    CSR.implicit_write(CSR::address::SATP, word_t(0x00000000));
+    CSR.implicit_write(CSR::address::SATP, Word(0x00000000));
 
     // Write first level pte to memory
     memory.store(FIRST_LEVEL_PTE_ADDR, DT_WORD, pte1);
@@ -415,7 +415,7 @@ int test_memory_memory_t_supervisor_loads_with_translation() {
 
     // Switch to SV32 address translation
     // satp.PPN = 0x10A1
-    CSR.implicit_write(CSR::address::SATP, word_t(0x800010A1));
+    CSR.implicit_write(CSR::address::SATP, Word(0x800010A1));
 
     // va.VPN[1] = 0b0010100001
     // va.VPN[0] = 0xE0

@@ -17,7 +17,7 @@
 # Unit Test List (unit_tester)
 ####################################################################################################
 
-add_unit_test(common_word_t)
+add_unit_test(common_Word)
 add_unit_test(common_upow)
 add_unit_test(common_ipow)
 add_unit_test(cpu_state_cpu_state_t)

@@ -1,5 +1,4 @@
 /**
- * @file    plic.cpp
  * @brief   TODO
  * 
  * @copyright
@@ -48,13 +47,13 @@ plic::plic_t::~plic_t() {
     //TODO
 }
 
-word_t plic::plic_t::read(word_t register_address) {
+Word plic::plic_t::read(Word register_address) {
     assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
     
     return 0; assert(false && "TODO");
 }
 
-void plic::plic_t::write(word_t register_address, word_t /*data*/) {
+void plic::plic_t::write(Word register_address, Word /*data*/) {
     assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
 
     assert(false && "TODO");

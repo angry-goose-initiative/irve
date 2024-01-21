@@ -1,5 +1,4 @@
 /**
- * @file    logging.cpp
  * @brief   Logging facilities for irve
  * 
  * @copyright

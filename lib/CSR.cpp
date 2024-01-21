@@ -1,5 +1,4 @@
 /**
- * @file    CSR.cpp
  * @brief   Contains (mostly) CSRs for IRVE as well as methods to read and write them.
  * 
  * @copyright
@@ -35,7 +34,7 @@ using namespace irve::internal;
 
 //TODO actually implement MISA and friends at some point
 //                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
-//#define MISA_CONTENTS word_t(0b01000010000000100010000010100100)
+//#define MISA_CONTENTS Word(0b01000010000000100010000010100100)
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -85,7 +84,7 @@ reg_t CSR::CSR_t::explicit_read(uint16_t csr) const {//Performs privilege checks
     }
 }
 
-void CSR::CSR_t::explicit_write(uint16_t csr, word_t data) {//Performs privilege checks
+void CSR::CSR_t::explicit_write(uint16_t csr, Word data) {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_write(csr)) {
         invoke_rv_exception(ILLEGAL_INSTRUCTION);
     } else {
@@ -168,7 +167,7 @@ reg_t CSR::CSR_t::implicit_read(uint16_t csr) const {//Does not perform any priv
 }
 
 //implicit_write must always ensure all CSRs in the class are legal
-void CSR::CSR_t::implicit_write(uint16_t csr, word_t data) {//Does not perform any privilege checks
+void CSR::CSR_t::implicit_write(uint16_t csr, Word data) {//Does not perform any privilege checks
     //FIXME handle WARL in this function
 
     switch (csr) {

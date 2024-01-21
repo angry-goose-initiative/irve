@@ -1,5 +1,4 @@
 /**
- * @file    semihosting.h
  * @brief   M-Mode semihosting support for IRVE
  * 
  * @copyright
@@ -10,8 +9,7 @@
  *
 */
 
-#ifndef SEMIHOSTING_H
-#define SEMIHOSTING_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -46,11 +44,3 @@ namespace irve::internal::semihosting {
         std::string m_output_line_buffer;
     };
 }
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Function Declarations
- * --------------------------------------------------------------------------------------------- */
-
-#endif//SEMIHOSTING_H

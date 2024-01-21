@@ -1,5 +1,4 @@
 /**
- * @file    rvexception.cpp
  * @brief   C++ exceptions corresponding to RISC-V exceptions
  * 
  * @copyright

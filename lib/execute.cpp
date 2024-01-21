@@ -1,5 +1,4 @@
 /**
- * @file    execute.cpp
  * @brief   Utility functions for executing instructions
  * 
  * @copyright
@@ -73,7 +72,7 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
             break;
     }
     //This could cause an exception
-    word_t loaded = memory.load(r1 + imm, funct3);
+    Word loaded = memory.load(r1 + imm, funct3);
 
     irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
     cpu_state.set_r(decoded_inst.get_rd(), loaded);
@@ -150,11 +149,11 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
     //Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    word_t imm = decoded_inst.get_imm();
+    Word imm = decoded_inst.get_imm();
     uint8_t funct7 = imm.bits(11, 5).u;
 
     //Perform the ALU operation
-    word_t result;
+    Word result;
     switch (decoded_inst.get_funct3()) {
         case 0b000://ADDI
             irvelog(3, "Mnemonic: ADDI");
@@ -229,7 +228,7 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
         "auipc instruction must be U_TYPE"
     );
 
-    word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
+    Word result = decoded_inst.get_imm() + cpu_state.get_pc();
 
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
@@ -254,7 +253,7 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    word_t imm = decoded_inst.get_imm();
+    Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     switch(funct3) {
@@ -302,7 +301,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
-    word_t loaded_word;
+    Word loaded_word;
     switch (decoded_inst.get_funct5()) {
         case 0b00010://LR.W
             irvelog(3, "Mnemonic: LR.W");
@@ -475,40 +474,40 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
 
     //Perform the operation (instruction-specific)
-    word_t word_to_write;
+    Word Wordo_write;
     switch (decoded_inst.get_funct5()) {
         case 0b00001://AMOSWAP.W
-            word_to_write = r2;
+            Wordo_write = r2;
             break;
         case 0b00000://AMOADD.W
-            word_to_write = loaded_word + r2;
+            Wordo_write = loaded_word + r2;
             break;
         case 0b00100://AMOXOR.W
-            word_to_write = loaded_word ^ r2;
+            Wordo_write = loaded_word ^ r2;
             break;
         case 0b01100://AMOAND.W
-            word_to_write = loaded_word & r2;
+            Wordo_write = loaded_word & r2;
             break;
         case 0b01000://AMOOR.W
-            word_to_write = loaded_word | r2;
+            Wordo_write = loaded_word | r2;
             break;
         case 0b10000://AMOMIN.W
-            word_to_write = std::min(loaded_word.s, r2.s);
+            Wordo_write = std::min(loaded_word.s, r2.s);
             break;
         case 0b10100://AMOMAX.W
-            word_to_write = std::max(loaded_word.s, r2.s);
+            Wordo_write = std::max(loaded_word.s, r2.s);
             break;
         case 0b11000://AMOMINU.W
-            word_to_write = std::min(loaded_word.u, r2.u);
+            Wordo_write = std::min(loaded_word.u, r2.u);
             break;
         case 0b11100://AMOMAXU.W
-            word_to_write = std::max(loaded_word.u, r2.u);
+            Wordo_write = std::max(loaded_word.u, r2.u);
             break;
         default:
             assert(false && "Invalid funct5 for AMO instruction, but we already checked this!");
             break;
     }
-    memory.store(r1, DT_WORD, word_to_write);
+    memory.store(r1, DT_WORD, Wordo_write);
 
     cpu_state.goto_next_sequential_pc();
 }
@@ -531,7 +530,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
     //Perform the ALU operation
-    word_t result;
+    Word result;
     if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
         switch (decoded_inst.get_funct3()) {
             case 0b000://MUL
@@ -786,7 +785,7 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     // Get operands
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    word_t imm = decoded_inst.get_imm();
+    Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     bool branch;
@@ -827,7 +826,7 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     }
 
     if (branch) {
-        word_t target_addr = cpu_state.get_pc() + imm;
+        Word target_addr = cpu_state.get_pc() + imm;
         // Target address on branches taken must be aligned on 4 byte boundary
         // (2 byte boundary if supporting compressed instructions)
         if (target_addr.u % 4) {
@@ -858,12 +857,12 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
 
-    word_t old_pc = cpu_state.get_pc();
+    Word old_pc = cpu_state.get_pc();
 
     //Jump to the address in rs1 plus the immediate
-    word_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
-    word_t imm = decoded_inst.get_imm();
-    word_t destination_pc = rs1 + imm;
+    Word rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Word imm = decoded_inst.get_imm();
+    Word destination_pc = rs1 + imm;
     irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, imm.u, destination_pc);
     cpu_state.set_pc(destination_pc);
 
@@ -888,7 +887,7 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary
 
-    word_t old_pc = cpu_state.get_pc();
+    Word old_pc = cpu_state.get_pc();
 
     //Jump relative to the current PC
     cpu_state.set_pc(cpu_state.get_pc() + decoded_inst.get_imm().u);
@@ -916,7 +915,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
     //reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
-    word_t imm = decoded_inst.get_imm();
+    Word imm = decoded_inst.get_imm();
     CSR::privilege_mode_t privilege_mode = CSR.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
@@ -981,9 +980,9 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
                 //Manage the privilege stack
-                word_t mstatus = CSR.implicit_read(CSR::address::MSTATUS);
+                Word mstatus = CSR.implicit_read(CSR::address::MSTATUS);
                 CSR.set_privilege_mode((CSR::privilege_mode_t)mstatus.bits(12, 11).u);//Set the privilege mode to the value in MPP
-                word_t mpie = mstatus.bit(7);
+                Word mpie = mstatus.bit(7);
                 mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, and MPIE, and MIE bits
                 //MPP is set to 0b00
                 mstatus |= 1 << 7;//Set MPIE to 1
@@ -1000,14 +999,14 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 irvelog(3, "Mnemonic: SRET");
                 //TODO better logging
                 //Manage the privilege stack
-                word_t sstatus = CSR.implicit_read(CSR::address::SSTATUS);
+                Word sstatus = CSR.implicit_read(CSR::address::SSTATUS);
                 //Set the privilege mode based on the value in SPP
                 CSR.set_privilege_mode(
                     (sstatus.bit(8) == 0b1) ? 
                         CSR::privilege_mode_t::SUPERVISOR_MODE :
                         CSR::privilege_mode_t::USER_MODE
                 );
-                word_t spie = sstatus.bit(5);
+                Word spie = sstatus.bit(5);
                 sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
                 //SPP is set to 0b0
                 sstatus |= 1 << 5;//Set SPIE to 1
@@ -1055,7 +1054,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
 
     //If we got here, this is a CSR instruction
     uint16_t csr_addr = (uint16_t)((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
-    word_t uimm = decoded_inst.get_rs1();//NOT sign extended (zero extended)
+    Word uimm = decoded_inst.get_rs1();//NOT sign extended (zero extended)
     
     //Read the CSR into the destination register
     //TODO avoid read side effects if destination register is x0

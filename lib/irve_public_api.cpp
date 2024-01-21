@@ -1,5 +1,4 @@
 /**
- * @file    irve_public_api.cpp
  * @brief   Implementation of the public API for IRVE (sort of a ABI-compatibility wrapper)
  * 
  * @copyright

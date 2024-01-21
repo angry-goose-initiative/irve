@@ -1,5 +1,4 @@
 /**
- * @file    plic.h
  * @brief   TODO
  * 
  * @copyright
@@ -10,8 +9,7 @@
  *
 */
 
-#ifndef PLIC_H
-#define PLIC_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -45,8 +43,8 @@ namespace irve::internal::plic {
         ~plic_t();
 
         //26-bit addresses, 32-bit data
-        word_t read(word_t register_address);//NOT const since it could pop from the FIFO
-        void write(word_t register_address, word_t data);
+        Word read(Word register_address);//NOT const since it could pop from the FIFO
+        void write(Word register_address, Word data);
 
         //TODO other functions to check for MEI and SEI (if they should be set)
     };
@@ -57,5 +55,3 @@ namespace irve::internal::plic {
  * --------------------------------------------------------------------------------------------- */
 
 //TODO
-
-#endif//PLIC_H

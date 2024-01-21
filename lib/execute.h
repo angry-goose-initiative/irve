@@ -1,5 +1,4 @@
 /**
- * @file    execute.h
  * @brief   Utility functions for executing instructions
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef EXECUTE_H
-#define EXECUTE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -44,5 +42,3 @@ namespace irve::internal::execute {
     void jal     (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           const CSR::CSR_t& CSR);
     void system  (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                                 CSR::CSR_t& CSR);
 }
-
-#endif//EXECUTE_H

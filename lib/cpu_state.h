@@ -1,5 +1,4 @@
 /**
- * @file    cpu_state.h
  * @brief   Holds a RISC-V hart's state including registers and the PC
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef CPU_STATE_H
-#define CPU_STATE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -121,5 +119,3 @@ private:
 };
 
 }
-
-#endif//CPU_STATE_H

@@ -1,5 +1,4 @@
 /**
- * @file    rvexception.h
  * @brief   C++ exceptions corresponding to RISC-V exceptions
  * 
  * @copyright
@@ -12,8 +11,7 @@
  * 
 */
 
-#ifndef RVEXCEPTION_H
-#define RVEXCEPTION_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -161,5 +159,3 @@ public:
 };
 
 }
-
-#endif//RVEXCEPTION_H

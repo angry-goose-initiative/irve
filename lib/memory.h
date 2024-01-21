@@ -1,23 +1,14 @@
 /**
- * @file    memory.h
  * @brief   Handles the memory of the emulator
  * 
-<<<<<<< HEAD
- * @copyright Copyright (C) 2023 John Jekel and Nick Chan
- * See the LICENSE file at the root of the project for licensing info.
-=======
  * @copyright
  *  Copyright (C) 2023-2024 John Jekel\n
  *  Copyright (C) 2023 Nick Chan\n
  *  See the LICENSE file at the root of the project for licensing info.
- * 
- * TODO longer description
  *
->>>>>>> aa8aacf (Update IRVE Copyright information)
 */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -88,7 +79,7 @@ public:
      *              mode).
      * @return      The instruction from memory.
     */
-    word_t instruction(word_t addr);
+    Word instruction(Word addr);
 
     /**
      * @brief       Load data from memory.
@@ -99,7 +90,7 @@ public:
      *              signed/unsigned
      * @return      The data read from memory
     */
-    word_t load(word_t addr, uint8_t data_type);
+    Word load(Word addr, uint8_t data_type);
 
     /**
      * @brief       Store data to memory.
@@ -109,7 +100,7 @@ public:
      *              signed/unsigned.
      * @param[in]   data The data to be stored in memory.
     */
-    void store(word_t addr, uint8_t data_type, word_t data);
+    void store(Word addr, uint8_t data_type, Word data);
 
 private:
 
@@ -120,7 +111,7 @@ private:
      *              depending on the acces type.
      * @return      34 bit machine address.
     */
-    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type);
+    uint64_t translate_address(Word untranslated_addr, uint8_t access_type);
 
     /**
      * @brief       Checks if an address should be translated or not.
@@ -138,12 +129,12 @@ private:
      *              issue was).
      * @return      32 bit version of data that was read.
     */
-    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
-    word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    word_t read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    word_t read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_mmcsr(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     /**
      * @brief       Write data to memory.
@@ -153,13 +144,13 @@ private:
      * @param[out]  access_status The status of the access (success or not and if not, what the
      *              issue was).
     */
-    void write_memory(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    void write_memory(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
 
-    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
 
     /**
      * @brief       Loads memory image files (only called by the constructor).
@@ -218,6 +209,4 @@ private:
 
 };
 
-}//NAMESPACE//irve::internal::memory
-
-#endif//MEMORY_H
+} // namespace irve::internal::memory

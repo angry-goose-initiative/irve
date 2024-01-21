@@ -1,5 +1,4 @@
 /**
- * @file    memory_map.h
  * @brief   The memory map for IRVE
  * 
  * @copyright
@@ -8,12 +7,11 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
+#pragma once
+
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
-
-#ifndef MEMORY_MAP_H
-#define MEMORY_MAP_H
 
 //Region for user memory
 #define MEM_MAP_REGION_START_USER_RAM       (uint64_t)0x00000000
@@ -43,5 +41,3 @@
 
 //Debug output
 #define MEM_MAP_ADDR_DEBUG                  (uint64_t)0xFFFFFFFF
-
-#endif//MEMORY_MAP_H

@@ -1,5 +1,4 @@
 /**
- * @file    uart.cpp
  * @brief   16550 UART implementation
  * 
  * @copyright

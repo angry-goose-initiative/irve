@@ -1,5 +1,4 @@
 /**
- * @file    cpu_state.cpp
  * @brief   Holds a RISC-V hart's state including registers and the PC
  * 
  * @copyright
@@ -44,11 +43,11 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     this->log(2);
 }
 
-word_t cpu_state::cpu_state_t::get_pc() const {
+Word cpu_state::cpu_state_t::get_pc() const {
     return this->m_pc;
 }
 
-void cpu_state::cpu_state_t::set_pc(word_t new_pc) {
+void cpu_state::cpu_state_t::set_pc(Word new_pc) {
     this->m_pc = new_pc;
 }
 

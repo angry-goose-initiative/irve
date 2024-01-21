@@ -1,5 +1,4 @@
 /**
- * @file    uart.h
  * @brief   16550 UART implementation
  * 
  * @copyright
@@ -11,8 +10,7 @@
  *
 */
 
-#ifndef UART_H
-#define UART_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -113,5 +111,3 @@ private:
 };
 
 }//namespace irve::internal::uart
-
-#endif//UART_H

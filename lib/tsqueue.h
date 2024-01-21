@@ -1,5 +1,4 @@
 /**
- * @file    tsqueue.h
  * @brief   A dead simple thread safe queue based purely on things in the C++ standard library
  * 
  * @copyright
@@ -12,8 +11,7 @@
  *
 */
 
-#ifndef TSQUEUE_H
-#define TSQUEUE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -128,5 +126,3 @@ void tsqueue_t<T, C>::unlock() const {
 }
 
 }
-
-#endif//TSQUEUE_H

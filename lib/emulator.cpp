@@ -1,5 +1,4 @@
 /**
- * @file    emulator.cpp
  * @brief   The main emulator class used to instantiate an instance of IRVE.
  * 
  * @copyright
@@ -106,7 +105,7 @@ void emulator::emulator_t::flush_icache() {
 }
 
 decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
-    word_t pc = this->m_cpu_state.get_pc();
+    Word pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
 
     //Note: Using exceptions instead to catch misses is (very slightly) faster when using the same
@@ -120,7 +119,7 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
 
         //Read a word from memory at the PC
         //NOTE: It may throw an exception for various reasons
-        word_t inst = this->m_memory.instruction(pc);
+        Word inst = this->m_memory.instruction(pc);
 
         //Log what we fetched and return it
         irvelog(1, "Fetched 0x%08x from 0x%08x", inst, pc);
@@ -312,8 +311,8 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
             //It helps that we're guaranteed the instructions are always uncompressed (4 bytes)
             try {
                 reg_t pc = this->m_cpu_state.get_pc();
-                word_t prev_inst = this->m_memory.instruction(pc - 4);
-                word_t next_inst = this->m_memory.instruction(pc + 4);
+                Word prev_inst = this->m_memory.instruction(pc - 4);
+                Word next_inst = this->m_memory.instruction(pc + 4);
 
                 //Detect the semihosting sequence:
                 //slli x0, x0, 0x1F
@@ -347,7 +346,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         //Otherwise, let RISC-V code handle the EBREAK
     }
 
-    word_t raw_cause = (uint32_t)cause;
+    Word raw_cause = (uint32_t)cause;
     assert((raw_cause.bits(30, 0).u < 32) && "Unsupported cause!");
 
     bool is_interrupt = raw_cause.bit(31) == 1;
@@ -366,8 +365,8 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
 
     if (handle_in_m_mode) {//Exception should be handled in machine mode
         //Manage the privilege stack
-        word_t mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
-        word_t mie = mstatus.bit(3);
+        Word mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
+        Word mie = mstatus.bit(3);
         mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, MPIE, and MIE bits
         mstatus |= ((uint32_t)this->m_CSR.get_privilege_mode()) << 11;//Set the MPP bits to the current privilege mode
         mstatus |= mie << 7;//Set MPIE to MIE
@@ -381,9 +380,9 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         this->m_CSR.implicit_write(CSR::address::MTVAL, 0);
 
         //Jump to the exception handler
-        word_t mtvec = this->m_CSR.implicit_read(CSR::address::MTVEC);
+        Word mtvec = this->m_CSR.implicit_read(CSR::address::MTVEC);
         bool vectored = mtvec.bits(1, 0) == 0b01;
-        word_t vector_table_base_addr = mtvec & 0xFFFFFFFC;
+        Word vector_table_base_addr = mtvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
             this->m_cpu_state.set_pc(vector_table_base_addr + (raw_cause.bits(30, 0) * 4));
         } else {
@@ -391,8 +390,8 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         }
     } else {//Exception should be handled by supervisor mode
         //Manage the privilege stack
-        word_t sstatus = this->m_CSR.implicit_read(CSR::address::SSTATUS);
-        word_t sie = sstatus.bit(1);
+        Word sstatus = this->m_CSR.implicit_read(CSR::address::SSTATUS);
+        Word sie = sstatus.bit(1);
         sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
         sstatus |= ((this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE) ? 0b1 : 0b0) << 8;//Set the SPP bit appropriately
         sstatus |= sie << 5;//Set SPIE to SIE
@@ -406,9 +405,9 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         this->m_CSR.implicit_write(CSR::address::STVAL, 0);
 
         //Jump to the exception handler
-        word_t stvec = this->m_CSR.implicit_read(CSR::address::STVEC);
+        Word stvec = this->m_CSR.implicit_read(CSR::address::STVEC);
         bool vectored = stvec.bits(1, 0) == 0b01;
-        word_t vector_table_base_addr = stvec & 0xFFFFFFFC;
+        Word vector_table_base_addr = stvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
             this->m_cpu_state.set_pc(vector_table_base_addr + (raw_cause.bits(30, 0) * 4));
         } else {

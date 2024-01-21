@@ -1,5 +1,4 @@
 /**
- * @file    CSR.h
  * @brief   Contains (mostly) CSRs for IRVE as well as methods to read and write them.
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef CSR_H
-#define CSR_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -156,7 +154,7 @@ public:
      * @param[in]   csr The CSR to write to.
      * @param[in]   data The data to write to the CSR.
     */
-    void explicit_write(uint16_t csr, word_t data);
+    void explicit_write(uint16_t csr, Word data);
 
     /**
      * @brief       Reads a CSR implicitly (without checking privilege; still checks readablity).
@@ -178,7 +176,7 @@ public:
      * @param[in]   csr The CSR to write to.
      * @param[in]   data The data to write to the CSR.
     */
-    void implicit_write(uint16_t csr, word_t data);//Does not perform privilege checks
+    void implicit_write(uint16_t csr, Word data);//Does not perform privilege checks
 
     /**
      * @brief       Sets the privilege mode of the RISC-V CPU.
@@ -266,5 +264,3 @@ private:
 };
 
 }
-
-#endif

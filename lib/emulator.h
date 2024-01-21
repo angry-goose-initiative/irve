@@ -1,5 +1,4 @@
 /**
- * @file    emulator.h
  * @brief   The main emulator class used to instantiate an instance of IRVE.
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef EMULATOR_H
-#define EMULATOR_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -122,10 +120,8 @@ namespace irve::internal::emulator {
         cpu_state::cpu_state_t m_cpu_state;
 
         semihosting::handler_t m_semihosting_handler;
-        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for word_t
+        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
     };
 }
-
-#endif//EMULATOR_H
