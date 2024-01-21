@@ -48,81 +48,81 @@ public:
      * @brief       The addresses of the CSR's that are implemented by IRVE.
     */
     enum class Address : uint16_t {
-        kSstatus            = 0x100,
-        kSie                = 0x104,
-        kStvec              = 0x105,
-        kScounteren         = 0x106,
-        kSenvcfg            = 0x10A,
-        kSscratch           = 0x140,
-        kSepc               = 0x141,
-        kScause             = 0x142,
-        kStval              = 0x143,
-        kSip                = 0x144,
-        kSatp               = 0x180,
-        kMstatus            = 0x300,
-        kMisa               = 0x301,
-        kMedeleg            = 0x302,
-        kMideleg            = 0x303,
-        kMie                = 0x304,
-        kMtvec              = 0x305,
-        kMcounteren         = 0x306,
-        kMenvcfg            = 0x30A,
-        kMstatush           = 0x310,
-        kMenvcfgh           = 0x31A,
-        kMcountinhibit      = 0x320,
+        SSTATUS              = 0x100,
+        SIE                  = 0x104,
+        STVEC                = 0x105,
+        SCOUNTEREN           = 0x106,
+        SENVCFG              = 0x10A,
+        SSCRATCH             = 0x140,
+        SEPC                 = 0x141,
+        SCAUSE               = 0x142,
+        STVAL                = 0x143,
+        SIP                  = 0x144,
+        SATP                 = 0x180,
+        MSTATUS              = 0x300,
+        MISA                 = 0x301,
+        MEDELEG              = 0x302,
+        MIDELEG              = 0x303,
+        MIE                  = 0x304,
+        MTVEC                = 0x305,
+        MCOUNTEREN           = 0x306,
+        MENVCFG              = 0x30A,
+        MSTATUSH             = 0x310,
+        MENVCFGH             = 0x31A,
+        MCOUNTINHIBIT        = 0x320,
 
-        kMhpmeventStart      = 0x323, // Inclusive
-        kMhpmeventEnd        = 0x33F, // Inclusive
+        MHPMEVENT_START      = 0x323, // Inclusive
+        MHPMEVENT_END        = 0x33F, // Inclusive
 
-        kMscratch           = 0x340,
-        kMepc               = 0x341,
-        kMcause             = 0x342,
-        kMtval              = 0x343,
-        kMip                = 0x344,
-        kMinst              = 0x34A,
-        kMtval2             = 0x34B,
+        MSCRATCH             = 0x340,
+        MEPC                 = 0x341,
+        MCAUSE               = 0x342,
+        MTVAL                = 0x343,
+        MIP                  = 0x344,
+        MTINST               = 0x34A,
+        MTVAL2               = 0x34B,
+        
+        PMPCFG_START         = 0x3A0, // Inclusive
+        PMPCFG_END           = 0x3AF, // Inclusive
+        PMPADDR_START        = 0x3B0, // Inclusive
+        PMPADDR_END          = 0x3EF, // Inclusive
+        
+        MCYCLE               = 0xB00,
+        MINSTRET             = 0xB02,
 
-        kPmpcfgStart        = 0x3A0, // Inclusive
-        kPmpcfgEnd          = 0x3AF, // Inclusive
-        kPmpaddrStart       = 0x3B0, // Inclusive
-        kPmpaddrEnd         = 0x3EF, // Inclusive
+        MHPMCOUNTER_START    = 0xB03, // Inclusive
+        MHPMCOUNTER_END      = 0xB1F, // Inclusive
 
-        kMcycle             = 0xB00,
-        kMinstret           = 0xB02,
+        MCYCLEH              = 0xB80,
+        MINSTRETH            = 0xB82,
 
-        kMhpmcounterStart   = 0xB03, // Inclusive
-        kMhpmcounterEnd     = 0xB1F, // Inclusive
+        MHPMCOUNTERH_START   = 0xB83, // Inclusive
+        MHPMCOUNTERH_END     = 0xB9F, // Inclusive
 
-        kMcycleh            = 0xB80,
-        kMinstreth          = 0xB82,
+        MTIME                = 0xBC0, // Custom
+        MTIMEH               = 0xBC4, // Custom
+        MTIMECMP             = 0xBD0, // Custom
+        MTIMECMPH            = 0xBD4, // Custom
 
-        kMhpmcounterhStart  = 0xB83,
-        kMhpmcounterhEnd    = 0xB9F,
+        CYCLE                = 0xC00,
+        TIME                 = 0xC01,
+        INSTRET              = 0xC02,
 
-        kMtime              = 0xBC0, // Custom
-        kMtimeh             = 0xBC4, // Custom
-        kMtimecmp           = 0xBD0, // Custom
-        kMtimecmph          = 0xBD4, // Custom
+        HPMCOUNTER_START     = 0xC03, // Inclusive
+        HPMCOUNTER_END       = 0xC1F, // Inclusive
 
-        kCycle              = 0xC00,
-        kTime               = 0xC01,
-        kInstret            = 0xC02,
+        CYCLEH               = 0xC80,
+        TIMEH                = 0xC81,
+        INSTRETH             = 0xC82,
 
-        kHpmcounterStart    = 0xC03, // Inclusive
-        kHpmcounterEnd      = 0xC1F, // Inclusive
+        HPMCOUNTERH_START    = 0xC83, // Inclusive
+        HPMCOUNTERH_END      = 0xC9F, // Inclusive
 
-        kCycleh             = 0xC80,
-        kTimeh              = 0xC81,
-        kInstreth           = 0xC82,
-
-        kHpmcounterhStart   = 0xC83, // Inclusive
-        kHpmcounterhEnd     = 0xC9F, // Inclusive
-
-        kMvendorid          = 0xF11,
-        kMarchid            = 0xF12,
-        kMimpid             = 0xF13,
-        kMhartid            = 0xF14,
-        kMconfigptr         = 0xF15,
+        MVENDORID            = 0xF11,
+        MARCHID              = 0xF12,
+        MIMPID               = 0xF13,
+        MHARTID              = 0xF14,
+        MCONFIGPTR           = 0xF15,
     };
 
     /**
