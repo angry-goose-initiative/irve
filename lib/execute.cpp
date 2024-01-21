@@ -995,6 +995,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 //Return to the address in MEPC
                 cpu_state.set_pc(CSR.implicit_read(Csr::Address::MEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
+
+                //FIXME if MRET or SRET change the privilege mode, then we need to clear MPRV in mstatus
             }
             else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
@@ -1020,6 +1022,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 cpu_state.set_pc(CSR.implicit_read(Csr::Address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4);
                 //the handler must do this manually
+
+                //FIXME if MRET or SRET change the privilege mode, then we need to clear MPRV in mstatus
             }
             else if ((funct7 == 0b0001001) && (decoded_inst.get_rd() == 0b00000)) {//SFENCE.VMA
                 irvelog(3, "Mnemonic: SFENCE.VMA");
