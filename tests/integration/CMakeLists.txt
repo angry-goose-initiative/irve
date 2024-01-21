@@ -41,7 +41,7 @@ macro(add_rvsw_smode_parse_test)
     #Do nothing
 endmacro()
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../test_list.txt)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../test_list.cmake)
 
 #Put the list of integration tests in the integration tester file (THIS MUST COME AFTER INCLUDING THE TEST LIST)
 configure_file(

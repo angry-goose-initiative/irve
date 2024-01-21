@@ -10,8 +10,7 @@
  *
 */
 
-#ifndef GDBSERVER_H
-#define GDBSERVER_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -44,5 +43,3 @@ namespace irve::internal::gdbserver {
         uint16_t port
     );
 }
-
-#endif//GDBSERVER_H
