@@ -30,8 +30,10 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 //Only some bits of mstatus are accessible in S-mode
-#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
-
+#define SSTATUS_MASK    0b10000000'00001101'11100111'01100010
+#define SIP_MASK        0b00000000'00000000'00000010'00100010
+#define SIE_MASK        0b00000000'00000000'00000010'00100010
+#define SATP_MASK       0b1'000000000'1111111111111111111111
 //TODO actually implement MISA and friends at some point
 //                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
 //#define MISA_CONTENTS Word(0b01000010000000100010000010100100)
@@ -41,34 +43,32 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 //See Volume 2 Section 3.4
-Csr::Csr()
-    : sie(0) //Only needs to be initialized for implicit_read() guarantees
-    , stvec(0) //Only needs to be initialized for implicit_read() guarantees
-    , scounteren(0) //Only needs to be initialized for implicit_read() guarantees
-    , senvcfg(0) //Only needs to be initialized for implicit_read() guarantees
-    , sscratch(irve_fuzzish_rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
-    , sepc(0) //Only needs to be initialized for implicit_read() guarantees
-    , scause(0) //Only needs to be initialized for implicit_read() guarantees
-    , sip(0) //Only needs to be initialized for implicit_read() guarantees
-    , satp(0) //Only needs to be initialized for implicit_read() guarantees
-    , mstatus(0) //MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value??
-    , medeleg(0) //Only needs to be initialized for implicit_read() guarantees
-    , mideleg(0) //Only needs to be initialized for implicit_read() guarantees
-    , mie(0) //Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
-    , mtvec(0x00000004 | 0b01) //Doesn't need to be initialized, but this is convenient for RVSW
-    , menvcfg(0) //Only needs to be initialized for implicit_read() guarantees
-    , mscratch(irve_fuzzish_rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
-    , mepc(0) //Only needs to be initialized for implicit_read() guarantees
-    , mcause(0) //MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
-    , mip(0) //Only needs to be initialized for implicit_read() guarantees
-      //PMPCFG and PMPADDR registers done below
-    , minstret(0) //Implied it should be initialized according to the spec
-    , mcycle(0) //Implied it should be initialized according to the spec
-    , mtime(0) //Implied it should be initialized according to the spec
-    , mtimecmp(0xFFFFFFFFFFFFFFFF) //Implied it should be initialized according to the spec
-    , m_last_time_update(std::chrono::steady_clock::now())
-    , m_delay_update_counter(0)
-    , m_privilege_mode(PrivilegeMode::MACHINE_MODE) //MUST BE INITIALIZED ACCORDING TO THE SPEC
+Csr::Csr() :
+    stvec(0),                       //Only needs to be initialized for implicit_read() guarantees
+    scounteren(0),                  //Only needs to be initialized for implicit_read() guarantees
+    senvcfg(0),                     //Only needs to be initialized for implicit_read() guarantees
+    sscratch(irve_fuzzish_rand()),  //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    sepc(0),                        //Only needs to be initialized for implicit_read() guarantees
+    scause(0),                      //Only needs to be initialized for implicit_read() guarantees
+    satp(0),                        //Only needs to be initialized for implicit_read() guarantees
+    mstatus(0),                     //MUST BE INITIALIZED ACCORDING TO THE SPEC//FIXME is this the correct starting value??
+    medeleg(0),                     //Only needs to be initialized for implicit_read() guarantees
+    mideleg(0),                     //Only needs to be initialized for implicit_read() guarantees
+    mie(0),                         //Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
+    mtvec(0x00000004 | 0b01),       //Doesn't need to be initialized, but this is convenient for RVSW
+    menvcfg(0),                     //Only needs to be initialized for implicit_read() guarantees
+    mscratch(irve_fuzzish_rand()),  //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    mepc(0),                        //Only needs to be initialized for implicit_read() guarantees
+    mcause(0),                      //MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
+    mip(0),                         //Only needs to be initialized for implicit_read() guarantees
+    //PMPCFG and PMPADDR registers done in the constructor's body
+    minstret(0),                    //Implied it should be initialized according to the spec
+    mcycle(0),                      //Implied it should be initialized according to the spec
+    mtime(0),                       //Implied it should be initialized according to the spec
+    mtimecmp(0xFFFFFFFFFFFFFFFF),   //Implied it should be initialized according to the spec
+    m_last_time_update(std::chrono::steady_clock::now()),
+    m_delay_update_counter(0),
+    m_privilege_mode(PrivilegeMode::MACHINE_MODE) //MUST BE INITIALIZED ACCORDING TO THE SPEC
 {
     std::memset(this->pmpcfg, 0x00, sizeof(this->pmpcfg)); // We need the A and L bits to be 0
 
@@ -95,7 +95,7 @@ void Csr::explicit_write(Csr::Address csr, Word data) {//Performs privilege chec
 Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege checks
     switch (csr) {
         case Csr::Address::SSTATUS:          return this->mstatus & SSTATUS_MASK;//Only some bits of mstatus are accessible in S-mode
-        case Csr::Address::SIE:              return this->sie;
+        case Csr::Address::SIE:              return this->mie & SIE_MASK;//Only some bits of mie are accessible in S-mode
         case Csr::Address::STVEC:            return this->stvec;
         case Csr::Address::SCOUNTEREN:       return this->scounteren;
         case Csr::Address::SENVCFG:          return this->senvcfg;
@@ -103,7 +103,7 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
         case Csr::Address::SEPC:             return this->sepc;
         case Csr::Address::SCAUSE:           return this->scause;
         case Csr::Address::STVAL:            return 0;
-        case Csr::Address::SIP:              return this->sip;
+        case Csr::Address::SIP:              return this->mip & SIP_MASK;//Only some bits of mip are accessible in S-mode
         case Csr::Address::SATP:             return this->satp;
         case Csr::Address::MSTATUS:          return this->mstatus;
         case Csr::Address::MISA:             return 0;
@@ -173,7 +173,7 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
 
     switch (csr) {
         case Csr::Address::SSTATUS:          this->mstatus = (this->mstatus & ~SSTATUS_MASK) | (data & SSTATUS_MASK); return;//Only some parts of mstatus are writable from sstatus
-        case Csr::Address::SIE:              this->sie = data; return;//FIXME WARL
+        case Csr::Address::SIE:              this->mie = (this->mie & ~SIE_MASK) | (data & SIE_MASK); return;//Only some parts of mie are writable from sie
         case Csr::Address::STVEC:            this->stvec = data; return;//FIXME WARL
         case Csr::Address::SCOUNTEREN:       this->scounteren = data; return;//FIXME WARL
         case Csr::Address::SENVCFG:          this->senvcfg = data & 0b1; return;//Only lowest bit is RW
@@ -181,8 +181,8 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
         case Csr::Address::SEPC:             this->sepc = data & 0xFFFFFFFC; return;//IALIGN=32
         case Csr::Address::SCAUSE:           this->scause = data; return;//FIXME WARL
         case Csr::Address::STVAL:            return;//We simply ignore writes to STVAL, NOT throw an exception
-        case Csr::Address::SIP:              this->sip = data; return;//FIXME WARL
-        case Csr::Address::SATP:             this->satp = data; return;//FIXME WARL
+        case Csr::Address::SIP:              this->mip = (this->mip & ~SIP_MASK) | (data & SIP_MASK); return;//Only some parts of mip are writable from sip
+        case Csr::Address::SATP:             this->satp = data & SATP_MASK; return;//ASIDs are unsupported
         case Csr::Address::MSTATUS:          this->mstatus = data; return;//FIXME WARL (less critical assuming safe M-mode code)
         case Csr::Address::MISA:             return;//We simply ignore writes to MISA, NOT throw an exception
         case Csr::Address::MEDELEG:          this->medeleg = data & 0b0000000000000000'1011001111111111; return;//Note it dosn't make sense to delegate ECALL from M-mode since we can never delagte to high levels

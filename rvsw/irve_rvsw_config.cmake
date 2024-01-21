@@ -14,8 +14,7 @@ set(RVSW_DTB_PATH "${PROJECT_SOURCE_DIR}/../irve.dtb")
 
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")                          
 set(RVSW_COMMON_FLAGS_DEBUG "-O0 -ggdb3")
-set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")#TODO re-enable when nommulinux issue is fixed
-#set(RVSW_COMMON_FLAGS_RELEASE "-O3")
+set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(RVSW_MMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_mmode.ld")
 set(RVSW_MTVEC_IS_HARDWIRED "VECTORED")
