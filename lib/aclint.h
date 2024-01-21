@@ -56,27 +56,27 @@ public:
      * @brief   The constructor
      * @param   csrs A reference to the CSR's.
     */
-    aclint_t(CSR::CSR_t& csrs);
+    aclint_t(Csr& csrs);
     
     /**
      * @brief                   Read from the aclint
      * @param register_address  The register to read from
      * @return                  The register value
     */
-    word_t read(uint16_t register_address);
+    Word read(uint16_t register_address);
 
     /**
      * @brief                   Write to the aclint
      * @param register_address  The register to write to
      * @param data              The data to write
     */
-    void write(uint16_t register_address, word_t data);
+    void write(uint16_t register_address, Word data);
 
 private:
     /**
      * @brief       Reference to the CSRs since some operations depend on them.
     */
-    CSR::CSR_t& m_csrs;
+    Csr& m_csrs;
 };
 
 }//namespace irve::internal::aclint

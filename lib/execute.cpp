@@ -22,9 +22,10 @@
 #include "CSR.h"
 #include "cpu_state.h"
 #include "decode.h"
+#include "memory.h"
 #include "rvexception.h"
 
-#define INST_COUNT CSR.implicit_read(Csr::Address::kMinstret).u
+#define INST_COUNT CSR.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
 using namespace irve::internal;
@@ -33,8 +34,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -116,8 +117,8 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* 
     }
 }
 
-void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -134,8 +135,8 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
@@ -215,8 +216,8 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert(
@@ -237,8 +238,8 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
@@ -280,8 +281,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
@@ -512,8 +513,8 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
@@ -746,8 +747,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
@@ -769,8 +770,8 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
@@ -842,8 +843,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     }
 }
 
-void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
@@ -872,8 +873,8 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::jal(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(
@@ -933,8 +934,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 // ECALL dosn't actually retire, but we already incremented minstret, so we need to
                 // decrement it to compensate
                 CSR.implicit_write(
-                    Csr::Address::kMinstret,
-                    CSR.implicit_read(Csr::Address::kMinstret) - 1
+                    Csr::Address::MINSTRET,
+                    CSR.implicit_read(Csr::Address::MINSTRET) - 1
                 );
 
                 //Different exception case base on the current privilege mode
@@ -965,8 +966,8 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 // EBREAK dosn't actually retire, but we already incremented minstret, so we need
                 // to decrement it to compensate
                 CSR.implicit_write(
-                    Csr::Address::kMinstret,
-                    CSR.implicit_read(Csr::Address::kMinstret) - 1
+                    Csr::Address::MINSTRET,
+                    CSR.implicit_read(Csr::Address::MINSTRET) - 1
                 );
 
                 invoke_rv_exception(BREAKPOINT);
@@ -980,26 +981,26 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
                 //Manage the privilege stack
-                Word mstatus = CSR.implicit_read(Csr::Address::kMstatus);
+                Word mstatus = CSR.implicit_read(Csr::Address::MSTATUS);
                 CSR.set_privilege_mode((PrivilegeMode)mstatus.bits(12, 11).u);//Set the privilege mode to the value in MPP
                 Word mpie = mstatus.bit(7);
                 mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, and MPIE, and MIE bits
                 //MPP is set to 0b00
                 mstatus |= 1 << 7;//Set MPIE to 1
                 mstatus |= mpie << 3;//Set MIE to the old MPIE
-                CSR.implicit_write(Csr::Address::kMstatus, mstatus);//Write changes back to the CSR
+                CSR.implicit_write(Csr::Address::MSTATUS, mstatus);//Write changes back to the CSR
 
                 cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
                 //Return to the address in MEPC
-                cpu_state.set_pc(CSR.implicit_read(Csr::Address::kMepc));
+                cpu_state.set_pc(CSR.implicit_read(Csr::Address::MEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
             }
             else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 //TODO better logging
                 //Manage the privilege stack
-                Word sstatus = CSR.implicit_read(Csr::Address::kSstatus);
+                Word sstatus = CSR.implicit_read(Csr::Address::SSTATUS);
                 //Set the privilege mode based on the value in SPP
                 CSR.set_privilege_mode(
                     (sstatus.bit(8) == 0b1) ? 
@@ -1011,12 +1012,12 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
                 //SPP is set to 0b0
                 sstatus |= 1 << 5;//Set SPIE to 1
                 sstatus |= spie << 1;//Set SIE to the old SPIE
-                CSR.implicit_write(Csr::Address::kSstatus, sstatus);//Write changes back to the CSR
+                CSR.implicit_write(Csr::Address::SSTATUS, sstatus);//Write changes back to the CSR
 
                 cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
                 //Return to the address in SEPC
-                cpu_state.set_pc(CSR.implicit_read(Csr::Address::kSepc));
+                cpu_state.set_pc(CSR.implicit_read(Csr::Address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4);
                 //the handler must do this manually
             }

@@ -56,18 +56,18 @@ using namespace irve::internal;
 //Current address translation scheme
 //0 = Bare (no address translation)
 //1 = SV32
-#define satp_MODE       (m_CSR_ref.implicit_read(Csr::Address::kSatp).bit(31).u)
+#define satp_MODE       (m_CSR_ref.implicit_read(Csr::Address::SATP).bit(31).u)
 //The physical page number field of the satp CSR
-#define satp_PPN        ((uint64_t)m_CSR_ref.implicit_read(Csr::Address::kSatp).bits(21, 0).u)
+#define satp_PPN        ((uint64_t)m_CSR_ref.implicit_read(Csr::Address::SATP).bits(21, 0).u)
 
 //Make eXecutable readable field of the mstatus CSR
-#define mstatus_MXR     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(19).u)
+#define mstatus_MXR     (m_CSR_ref.implicit_read(Csr::Address::MSTATUS).bit(19).u)
 //permit Superisor User Memory access field of the mstatus CSR
-#define mstatus_SUM     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(18).u)
+#define mstatus_SUM     (m_CSR_ref.implicit_read(Csr::Address::MSTATUS).bit(18).u)
 //Modify PriVilege field of the mstatus CSR
-#define mstatus_MPRV    (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(17).u)
+#define mstatus_MPRV    (m_CSR_ref.implicit_read(Csr::Address::MSTATUS).bit(17).u)
 //Previous privilige mode field of the mstatus CSR
-#define mstatus_MPP     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bits(12, 11).u)
+#define mstatus_MPP     (m_CSR_ref.implicit_read(Csr::Address::MSTATUS).bits(12, 11).u)
 
 //The virtual page number (VPN) of a virtual address (va)
 #define va_VPN(i)       ((uint64_t)va.bits(21 + (10 * i), 12 + (10 * i)).u)

@@ -15,7 +15,7 @@
 #include <cassert>
 #include <cstdint>
 
-#define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::kMinstret).u
+#define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
 #include "rvexception.h"

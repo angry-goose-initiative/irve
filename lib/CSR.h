@@ -44,9 +44,7 @@ enum class PrivilegeMode : uint8_t {
 class Csr {
 public:
 
-    /**
-     * @brief       The addresses of the CSR's that are implemented by IRVE.
-    */
+    // The addresses of the CSR's that are implemented by IRVE.
     enum class Address : uint16_t {
         SSTATUS              = 0x100,
         SIE                  = 0x104,
