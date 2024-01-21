@@ -56,18 +56,18 @@ using namespace irve::internal;
 //Current address translation scheme
 //0 = Bare (no address translation)
 //1 = SV32
-#define satp_MODE       (m_CSR_ref.implicit_read(CSR::address::SATP).bit(31).u)
+#define satp_MODE       (m_CSR_ref.implicit_read(Csr::Address::kSatp).bit(31).u)
 //The physical page number field of the satp CSR
-#define satp_PPN        ((uint64_t)m_CSR_ref.implicit_read(CSR::address::SATP).bits(21, 0).u)
+#define satp_PPN        ((uint64_t)m_CSR_ref.implicit_read(Csr::Address::kSatp).bits(21, 0).u)
 
 //Make eXecutable readable field of the mstatus CSR
-#define mstatus_MXR     (m_CSR_ref.implicit_read(CSR::address::MSTATUS).bit(19).u)
+#define mstatus_MXR     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(19).u)
 //permit Superisor User Memory access field of the mstatus CSR
-#define mstatus_SUM     (m_CSR_ref.implicit_read(CSR::address::MSTATUS).bit(18).u)
+#define mstatus_SUM     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(18).u)
 //Modify PriVilege field of the mstatus CSR
-#define mstatus_MPRV    (m_CSR_ref.implicit_read(CSR::address::MSTATUS).bit(17).u)
+#define mstatus_MPRV    (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bit(17).u)
 //Previous privilige mode field of the mstatus CSR
-#define mstatus_MPP     (m_CSR_ref.implicit_read(CSR::address::MSTATUS).bits(12, 11).u)
+#define mstatus_MPP     (m_CSR_ref.implicit_read(Csr::Address::kMstatus).bits(12, 11).u)
 
 //The virtual page number (VPN) of a virtual address (va)
 #define va_VPN(i)       ((uint64_t)va.bits(21 + (10 * i), 12 + (10 * i)).u)
@@ -103,7 +103,7 @@ using namespace irve::internal;
     /* 4. Either the current privilege mode is S or the effective privilege mode is S with the */ \
     /*    access being a load or a store (not an instruction) and S-mode can't access U-mode */   \
     /*    pages and the page is markes as accessible in U-mode */                                 \
-    (((CURR_PMODE == CSR::privilege_mode_t::SUPERVISOR_MODE) ||                                   \
+    (((CURR_PMODE == PrivilegeMode::SUPERVISOR_MODE) ||                                   \
         ((access_type != AT_INSTRUCTION) && (mstatus_MPP == 0b01) && (mstatus_MPRV == 1))) &&     \
         (mstatus_SUM == 0) && (pte_U == 1))
 
@@ -118,7 +118,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(Csr& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
@@ -136,7 +136,7 @@ memory::memory_t::memory_t(CSR::CSR_t& CSR_ref):
     irvelog(1, "Created new Memory instance");
 }
 
-memory::memory_t::memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref):
+memory::memory_t::memory_t(int imagec, const char* const* imagev, Csr& CSR_ref):
     m_CSR_ref(CSR_ref),
     m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
     m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
@@ -348,7 +348,7 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
         }
     }
     else {
-        if((CURR_PMODE == CSR::privilege_mode_t::MACHINE_MODE) || (satp_MODE == 0)) {
+        if((CURR_PMODE == PrivilegeMode::MACHINE_MODE) || (satp_MODE == 0)) {
             return true;
         }
         else {
@@ -501,25 +501,25 @@ Word memory::memory_t::read_memory_region_mmcsr(
         return Word(0);
     }
 
-    uint16_t csr_num;
+    Csr::Address csr;
     switch (addr & WORD_ADDR_MASK) {
         case MEM_MAP_ADDR_MTIME:
-            csr_num = CSR::address::MTIME;
+            csr = Csr::Address::kMtime;
             break;
         case MEM_MAP_ADDR_MTIMEH:
-            csr_num = CSR::address::MTIMEH;
+            csr = Csr::Address::kMtimeh;
             break;
         case MEM_MAP_ADDR_MTIMECMP:
-            csr_num = CSR::address::MTIMECMP;
+            csr = Csr::Address::kMtimecmp;
             break;
         case MEM_MAP_ADDR_MTIMECMPH:
-            csr_num = CSR::address::MTIMECMPH;
+            csr = Csr::Address::kMtimecmph;
             break;
         default:
             assert(false && "Should never be reached");
             break;
     }
-    return m_CSR_ref.implicit_read(csr_num);
+    return m_CSR_ref.implicit_read(csr);
 }
 
 Word memory::memory_t::read_memory_region_uart(
@@ -666,26 +666,26 @@ void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_typ
         return;
     }
 
-    uint16_t csr_num;
+    Csr::Address csr;
     switch (addr & WORD_ADDR_MASK) {
         case MEM_MAP_ADDR_MTIME:
-            csr_num = CSR::address::MTIME;
+            csr = Csr::Address::kMtime;
             break;
         case MEM_MAP_ADDR_MTIMEH:
-            csr_num = CSR::address::MTIMEH;
+            csr = Csr::Address::kMtimeh;
             break;
         case MEM_MAP_ADDR_MTIMECMP:
-            csr_num = CSR::address::MTIMECMP;
+            csr = Csr::Address::kMtimecmp;
             break;
         case MEM_MAP_ADDR_MTIMECMPH:
-            csr_num = CSR::address::MTIMECMPH;
+            csr = Csr::Address::kMtimecmph;
             break;
         default:
             assert(false && "Should never be reached");
             break;
     }
 
-    m_CSR_ref.implicit_write(csr_num, data);
+    m_CSR_ref.implicit_write(csr, data);
 }
 
 void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,

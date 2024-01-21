@@ -69,7 +69,7 @@ typedef std::variant<std::string, special_packet_t> packet_t;//You can tell I'm 
 
 static bool client_loop(
     emulator::emulator_t& emulator,
-    cpu_state::cpu_state_t& cpu_state,
+    CpuState& cpu_state,
     memory::memory_t& memory,
     int connection_file_descriptor
 );//Returns false if it's time to accept a new connection
@@ -90,7 +90,7 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
 void gdbserver::start(
     emulator::emulator_t& emulator,
-    cpu_state::cpu_state_t& cpu_state,
+    CpuState& cpu_state,
     memory::memory_t& memory,
     uint16_t port
 ) {
@@ -124,7 +124,7 @@ void gdbserver::start(
 
 static bool client_loop(
     emulator::emulator_t& emulator,
-    cpu_state::cpu_state_t& cpu_state,
+    CpuState& cpu_state,
     memory::memory_t& memory,
     int connection_file_descriptor
 ) {//Returns false if it's time to accept a new connection

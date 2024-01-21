@@ -115,9 +115,9 @@ namespace irve::internal::emulator {
         */
         void handle_trap(rvexception::cause_t cause);
         
-        CSR::CSR_t m_CSR;
+        Csr m_CSR;
         memory::memory_t m_memory;
-        cpu_state::cpu_state_t m_cpu_state;
+        CpuState m_cpu_state;
 
         semihosting::handler_t m_semihosting_handler;
         std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word

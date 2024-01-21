@@ -62,7 +62,7 @@ semihosting::handler_t::~handler_t() {
     }
 }
 
-void semihosting::handler_t::handle(cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory/*, const CSR::CSR_t& CSR*/) {
+void semihosting::handler_t::handle(CpuState& cpu_state, memory::memory_t& memory/*, const Csr& CSR*/) {
     //TODO don't use always stdout for everything
     switch (cpu_state.get_r(a0).u) {
         case 0x03: {//SYS_WRITEC

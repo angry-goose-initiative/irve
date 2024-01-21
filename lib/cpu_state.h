@@ -17,27 +17,26 @@
 
 #include "CSR.h"
 #include "memory.h"
-
 #include "rvexception.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-namespace irve::internal::cpu_state {
+namespace irve::internal {
 
 /**
  * @brief       Holds a RISC-V hart's "CPU state" including registers, the PC, and the current load
  *              reservation, but not CSR's.
 */
-class cpu_state_t {
+class CpuState {
 public:
     /**
-     * @brief       Construct a new cpu_state_t.
-     * @param[in]   CSR_ref A reference to the CSR object that this cpu_state_t object will use
+     * @brief       Construct a new CpuState.
+     * @param[in]   CSR_ref A reference to the CSR object that this CpuState object will use
      *              internally.
     */
-    cpu_state_t(irve::internal::CSR::CSR_t& CSR_ref);
+    CpuState(irve::internal::Csr& CSR_ref);
 
     /**
      * @brief       Get the current value of the PC (program counter).
@@ -110,7 +109,7 @@ private:
     /**
      * @brief       Reference to the CSR's.
     */
-    CSR::CSR_t& m_CSR_ref;
+    Csr& m_CSR_ref;
 
     /**
      * @brief       True if the hart has a valid atomic reseravtion, false othersise.

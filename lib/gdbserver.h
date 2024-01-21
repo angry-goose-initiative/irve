@@ -37,7 +37,7 @@ namespace irve::internal::gdbserver {
     */
     void start(
         emulator::emulator_t& emulator,
-        cpu_state::cpu_state_t& cpu_state,
+        CpuState& cpu_state,
         memory::memory_t& memory,
         uint16_t port
     );

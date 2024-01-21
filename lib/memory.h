@@ -57,7 +57,7 @@ public:
      * @brief       The constructor when not loading memory image files.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(CSR::CSR_t& CSR_ref);
+    memory_t(Csr& CSR_ref);
 
     /**
      * @brief       The constructor when loading memory image files.
@@ -65,7 +65,7 @@ public:
      * @param[in]   imagev Vector of memory image file names.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
+    memory_t(int imagec, const char* const* imagev, Csr& CSR_ref);
 
     /**
      * @brief       The destructor.
@@ -185,7 +185,7 @@ private:
     /**
      * @brief       Reference to the CSRs since memory operations depend on them.
     */
-    CSR::CSR_t& m_CSR_ref;
+    Csr& m_CSR_ref;
 
     /**
      * @brief       Pointer to user ram.

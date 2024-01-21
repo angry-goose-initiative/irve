@@ -26,7 +26,7 @@
 #include "rvexception.h"
 #include "semihosting.h"
 
-#define INST_COUNT this->m_CSR.implicit_read(CSR::address::MINSTRET).u
+#define INST_COUNT this->m_CSR.implicit_read(Csr::Address::kMinstret).u
 #include "logging.h"
 
 using namespace irve::internal;
@@ -45,8 +45,8 @@ emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
 }
 
 bool emulator::emulator_t::tick() {
-    this->m_CSR.implicit_write(CSR::address::MINSTRET, this->m_CSR.implicit_read(CSR::address::MINSTRET) + 1);
-    this->m_CSR.implicit_write(CSR::address::MCYCLE,   this->m_CSR.implicit_read(CSR::address::MCYCLE  ) + 1);
+    this->m_CSR.implicit_write(Csr::Address::kMinstret, this->m_CSR.implicit_read(Csr::Address::kMinstret) + 1);
+    this->m_CSR.implicit_write(Csr::Address::kMcycle,   this->m_CSR.implicit_read(Csr::Address::kMcycle  ) + 1);
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
@@ -224,9 +224,9 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 
     irvelog(1, "Checking for interrupts...");
 
-    reg_t mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
-    bool in_m_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
-    bool in_s_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE;
+    reg_t mstatus = this->m_CSR.implicit_read(Csr::Address::kMstatus);
+    bool in_m_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE;
+    bool in_s_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::SUPERVISOR_MODE;
     
     if (in_m_mode) {
         if (!mstatus.bit(3)) {//mstatus.MIE is not set, so since we're in M-mode, this means interrupts are disabled
@@ -246,11 +246,11 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //
 
     //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
-    reg_t mip = this->m_CSR.implicit_read(CSR::address::MIP);
-    reg_t mie = this->m_CSR.implicit_read(CSR::address::MIE);
+    reg_t mip = this->m_CSR.implicit_read(Csr::Address::kMip);
+    reg_t mie = this->m_CSR.implicit_read(Csr::Address::kMie);
 
     //Also mideleg will be useful
-    reg_t mideleg = this->m_CSR.implicit_read(CSR::address::MIDELEG);
+    reg_t mideleg = this->m_CSR.implicit_read(Csr::Address::kMideleg);
 
     //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
     //1. The interrupt is pending (mip/sip)
@@ -306,7 +306,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         //This is okay to do in M-mode because, with a real hardware debugger, it would be intercepting things in this way too
         //(either in hardware or, for example, OpenOCD on the host would be reading behind and ahead to detect the semihosting call)
         bool semihosting_ebreak = false;
-        if (this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE) {
+        if (this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE) {
             //Try to access the previous and next instructions in memory surrounding the EBREAK
             //It helps that we're guaranteed the instructions are always uncompressed (4 bytes)
             try {
@@ -327,7 +327,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
             }
         }
 
-        bool interscept_ebreak = this->m_intercept_breakpoints && (this->m_CSR.get_privilege_mode() != CSR::privilege_mode_t::USER_MODE);
+        bool interscept_ebreak = this->m_intercept_breakpoints && (this->m_CSR.get_privilege_mode() != PrivilegeMode::USER_MODE);
 
         //Semihosting takes priority over breakpoint interception (hopefully this dosn't cause too many headaches)
         if (semihosting_ebreak) {
@@ -355,32 +355,32 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
     if (is_interrupt) {//The cause was an interrupt
         //With interrupts, they don't "come" from a particular mode
         //We assume check_and_handle_interrupts() has already checked that the interrupt is "interrupting", so this should be enough
-        bool interrupt_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MIDELEG).bit(raw_cause.bits(30, 0)) == 0;
+        bool interrupt_delegated_to_machine_mode = this->m_CSR.implicit_read(Csr::Address::kMideleg).bit(raw_cause.bits(30, 0)) == 0;
         handle_in_m_mode = interrupt_delegated_to_machine_mode;
     } else {//The cause was an exception
-        bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE;
-        bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(CSR::address::MEDELEG).bit(raw_cause) == 0;
+        bool exception_from_machine_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE;
+        bool exception_delegated_to_machine_mode = this->m_CSR.implicit_read(Csr::Address::kMedeleg).bit(raw_cause) == 0;
         handle_in_m_mode = exception_from_machine_mode || exception_delegated_to_machine_mode;
     }
 
     if (handle_in_m_mode) {//Exception should be handled in machine mode
         //Manage the privilege stack
-        Word mstatus = this->m_CSR.implicit_read(CSR::address::MSTATUS);
+        Word mstatus = this->m_CSR.implicit_read(Csr::Address::kMstatus);
         Word mie = mstatus.bit(3);
         mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, MPIE, and MIE bits
         mstatus |= ((uint32_t)this->m_CSR.get_privilege_mode()) << 11;//Set the MPP bits to the current privilege mode
         mstatus |= mie << 7;//Set MPIE to MIE
         //MIE is set to 0
-        this->m_CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
-        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::MACHINE_MODE);
+        this->m_CSR.implicit_write(Csr::Address::kMstatus, mstatus);//Write changes back to the CSR
+        this->m_CSR.set_privilege_mode(PrivilegeMode::MACHINE_MODE);
 
         //Write other CSRs to indicate information about the exception
-        this->m_CSR.implicit_write(CSR::address::MCAUSE, (uint32_t) cause);
-        this->m_CSR.implicit_write(CSR::address::MEPC, this->m_cpu_state.get_pc());
-        this->m_CSR.implicit_write(CSR::address::MTVAL, 0);
+        this->m_CSR.implicit_write(Csr::Address::kMcause, (uint32_t) cause);
+        this->m_CSR.implicit_write(Csr::Address::kMepc, this->m_cpu_state.get_pc());
+        this->m_CSR.implicit_write(Csr::Address::kMtval, 0);
 
         //Jump to the exception handler
-        Word mtvec = this->m_CSR.implicit_read(CSR::address::MTVEC);
+        Word mtvec = this->m_CSR.implicit_read(Csr::Address::kMtvec);
         bool vectored = mtvec.bits(1, 0) == 0b01;
         Word vector_table_base_addr = mtvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
@@ -390,22 +390,22 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
         }
     } else {//Exception should be handled by supervisor mode
         //Manage the privilege stack
-        Word sstatus = this->m_CSR.implicit_read(CSR::address::SSTATUS);
+        Word sstatus = this->m_CSR.implicit_read(Csr::Address::kSstatus);
         Word sie = sstatus.bit(1);
         sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
-        sstatus |= ((this->m_CSR.get_privilege_mode() == CSR::privilege_mode_t::SUPERVISOR_MODE) ? 0b1 : 0b0) << 8;//Set the SPP bit appropriately
+        sstatus |= ((this->m_CSR.get_privilege_mode() == PrivilegeMode::SUPERVISOR_MODE) ? 0b1 : 0b0) << 8;//Set the SPP bit appropriately
         sstatus |= sie << 5;//Set SPIE to SIE
         //SIE is set to 0
-        this->m_CSR.implicit_write(CSR::address::SSTATUS, sstatus);//Write changes back to the CSR
-        this->m_CSR.set_privilege_mode(CSR::privilege_mode_t::SUPERVISOR_MODE);
+        this->m_CSR.implicit_write(Csr::Address::kSstatus, sstatus);//Write changes back to the CSR
+        this->m_CSR.set_privilege_mode(PrivilegeMode::SUPERVISOR_MODE);
 
         //Write other CSRs to indicate information about the exception
-        this->m_CSR.implicit_write(CSR::address::SCAUSE, (uint32_t) cause);
-        this->m_CSR.implicit_write(CSR::address::SEPC, this->m_cpu_state.get_pc());
-        this->m_CSR.implicit_write(CSR::address::STVAL, 0);
+        this->m_CSR.implicit_write(Csr::Address::kScause, (uint32_t) cause);
+        this->m_CSR.implicit_write(Csr::Address::kSepc, this->m_cpu_state.get_pc());
+        this->m_CSR.implicit_write(Csr::Address::kStval, 0);
 
         //Jump to the exception handler
-        Word stvec = this->m_CSR.implicit_read(CSR::address::STVEC);
+        Word stvec = this->m_CSR.implicit_read(Csr::Address::kStvec);
         bool vectored = stvec.bits(1, 0) == 0b01;
         Word vector_table_base_addr = stvec & 0xFFFFFFFC;
         if (vectored && is_interrupt) {
