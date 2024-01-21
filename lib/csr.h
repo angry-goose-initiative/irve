@@ -26,6 +26,10 @@
 #include "common.h"
 #include "rvexception.h"
 
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
+
 namespace irve::internal {
 
 /**
@@ -209,7 +213,6 @@ private:
     */
     bool current_privilege_mode_can_explicitly_write(Csr::Address csr) const;
 
-    Reg sie;
     Reg stvec;
     Reg scounteren;
     Reg senvcfg;
@@ -217,7 +220,6 @@ private:
     Reg sepc;
     Reg scause;
     //stval is NOT here
-    Reg sip;
     Reg satp;
     Reg mstatus;
     //misa is NOT here

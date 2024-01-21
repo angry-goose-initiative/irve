@@ -278,8 +278,7 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
         }
         irvelog(2, "pte found = 0x%08X", pte.u);
 
-        //TODO what to do with the global bit?
-        //assert(pte_G == 0 && "Global bit was set by software (but we haven't implemented it)");
+        //We don't care about the global bit since we don't support ASIDs in the first place
 
         //STEP 3
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
@@ -332,6 +331,7 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
         machine_addr |= pte_PPN1 << 22;
     }
     else {
+        assert(i == 0);
         machine_addr |= pte_PPN << 12;
     }
     irvelog(2, "Translation resulted in address 0x%09X", machine_addr);
