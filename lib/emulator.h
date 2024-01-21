@@ -116,7 +116,7 @@ namespace irve::internal::emulator {
         void handle_trap(rvexception::cause_t cause);
         
         Csr m_CSR;
-        memory::memory_t m_memory;
+        Memory m_memory;
         CpuState m_cpu_state;
 
         semihosting::handler_t m_semihosting_handler;

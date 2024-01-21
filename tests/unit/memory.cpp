@@ -32,9 +32,9 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 // Test that user ram is little endian
-int test_memory_memory_t_user_ram_endianness() {
+int test_memory_Memory_user_ram_endianness() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     
     // Check endianness for words
     memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_WORD, 0x00010203);
@@ -52,9 +52,9 @@ int test_memory_memory_t_user_ram_endianness() {
 }
 
 // Test sign extending for user ram
-int test_memory_memory_t_user_ram_sign_extending() {
+int test_memory_Memory_user_ram_sign_extending() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_HALFWORD, 0x00008080);
 
@@ -71,9 +71,9 @@ int test_memory_memory_t_user_ram_sign_extending() {
 }
 
 // Test that valid accesses to user ram do not raise exceptions
-int test_memory_memory_t_user_ram_valid_byte_access() {
+int test_memory_Memory_user_ram_valid_byte_access() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // It's way too slow to check every byte so we choose a prime number
     for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
@@ -87,9 +87,9 @@ int test_memory_memory_t_user_ram_valid_byte_access() {
 }
 
 // Test that valid stores to the debug address don't raise exceptions
-int test_memory_memory_t_valid_debugaddr() {
+int test_memory_Memory_valid_debugaddr() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'I');
     memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'R');
@@ -101,9 +101,9 @@ int test_memory_memory_t_valid_debugaddr() {
 }
 
 // "Halfword writes", but anything reads (byte, halfword, word) are tested
-int test_memory_memory_t_valid_ramaddrs_halfwords() {//None of these should throw an exception
+int test_memory_Memory_valid_ramaddrs_halfwords() {//None of these should throw an exception
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 2
     assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 2 == 0);
@@ -120,9 +120,9 @@ int test_memory_memory_t_valid_ramaddrs_halfwords() {//None of these should thro
 }
 
 // "Word writes", but anything reads (byte, halfword, word) are tested
-int test_memory_memory_t_valid_ramaddrs_words() {//None of these should throw an exception
+int test_memory_Memory_valid_ramaddrs_words() {//None of these should throw an exception
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 4
     assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 4 == 0);
@@ -139,9 +139,9 @@ int test_memory_memory_t_valid_ramaddrs_words() {//None of these should throw an
 }
 
 // Test that invalid accesses to the debug address throw exceptions
-int test_memory_memory_t_invalid_debugaddr() {
+int test_memory_Memory_invalid_debugaddr() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // The debug address is write-only. Attempting to read from it violates PMA check and causes a
     // load access-fault exception
@@ -174,9 +174,9 @@ int test_memory_memory_t_invalid_debugaddr() {
 }
 
 // Test that misaligned halfword accesses to user ram cause exceptions
-int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {
+int test_memory_Memory_invalid_ramaddrs_misaligned_halfwords() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // It's way too slow to check every byte so we choose a prime number
     for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 607) {
@@ -208,9 +208,9 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_halfwords() {
 }
 
 // Test that misaligned word accesses to user ram cause exceptions
-int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {
+int test_memory_Memory_invalid_ramaddrs_misaligned_words() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     for (uint32_t misalignment = 0b01; misalignment <= 0b11; ++misalignment) {
         // It's way too slow to check every byte so we choose a prime number
@@ -234,50 +234,50 @@ int test_memory_memory_t_invalid_ramaddrs_misaligned_words() {
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_bytes() {
+int test_memory_Memory_invalid_unmappedaddrs_bytes() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     //Invalid accesses in unmapped memory (NOT misaligned)
     //TODO
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_halfwords() {
+int test_memory_Memory_invalid_unmappedaddrs_halfwords() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     //Invalid accesses in unmapped memory (NOT misaligned)
     //TODO
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_words() {
+int test_memory_Memory_invalid_unmappedaddrs_words() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     //Invalid accesses in unmapped memory (NOT misaligned)
     //TODO
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_misaligned_halfwords() {
+int test_memory_Memory_invalid_unmappedaddrs_misaligned_halfwords() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     //Invalid accesses in unmapped memory (also misaligned)
     //TODO
     return 0;
 }
 
-int test_memory_memory_t_invalid_unmappedaddrs_misaligned_words() {
+int test_memory_Memory_invalid_unmappedaddrs_misaligned_words() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     //Invalid accesses in unmapped memory (also misaligned)
     //TODO
     return 0;
 }
 
 // Tests that the address translation scheme is being chosen correctly
-int test_memory_memory_t_translation_conditions() {
+int test_memory_Memory_translation_conditions() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
     
     // Start in M-mode
     CSR.set_privilege_mode(PrivilegeMode::MACHINE_MODE);
@@ -356,9 +356,9 @@ int test_memory_memory_t_translation_conditions() {
     return 0;
 }
 
-int test_memory_memory_t_supervisor_loads_with_translation() {
+int test_memory_Memory_supervisor_loads_with_translation() {
     Csr CSR;
-    memory::memory_t memory(CSR);
+    Memory memory(CSR);
 
     // First level pte at 0x00000000
     Word FIRST_LEVEL_PTE_ADDR = 0x00000000;

@@ -34,7 +34,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    memory::memory_t& memory, const Csr& CSR) {
+                    Memory& memory, const Csr& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -82,7 +82,7 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_sta
 }
 
 void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* cpu_state */,
-                        memory::memory_t& /* memory */, Csr& CSR) {
+                        Memory& /* memory */, Csr& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert(
@@ -238,7 +238,7 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
 }
 
 void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    memory::memory_t& memory, const Csr& CSR) {
+                    Memory& memory, const Csr& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
@@ -281,7 +281,7 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
 }
 
 void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
-                    memory::memory_t& memory, const Csr& CSR) {
+                    Memory& memory, const Csr& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant

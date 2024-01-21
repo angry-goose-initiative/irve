@@ -368,7 +368,7 @@ int verify_jzjcoresoftware_memoryreadtest() {
 int verify_jzjcoresoftware_memorywritetest() {
     //Load the memorywritetest program
     setup_emulator_with_program("memorywritetest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -429,7 +429,7 @@ int verify_jzjcoresoftware_nop() {
 int verify_jzjcoresoftware_sbtest() {
     //Load the sbtest program
     setup_emulator_with_program("sbtest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -453,7 +453,7 @@ int verify_jzjcoresoftware_sbtest() {
 int verify_jzjcoresoftware_sbtest2() {
     //Load the sbtest2 program
     setup_emulator_with_program("sbtest2");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -477,7 +477,7 @@ int verify_jzjcoresoftware_sbtest2() {
 int verify_jzjcoresoftware_shtest() {
     //Load the shtest program
     setup_emulator_with_program("shtest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions

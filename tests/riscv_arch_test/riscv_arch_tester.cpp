@@ -91,7 +91,7 @@ int main(int argc, const char* const* argv) {
     irvelog_always(0, "Dumping signature to \"%s\"...", signature_filename);
     //https://github.com/riscv-non-isa/riscv-arch-test/blob/main/spec/TestFormatSpec.adoc#the-test-signature
     FILE* signature_file = fopen(signature_filename, "w");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     //We are guaranteed 4 byte alignment which is nice :)
     for (uint32_t addr = signature_start_addr_inclusive; addr < signature_end_addr_exclusive; addr += 4) {
         uint32_t signature_word = memory_ref.load(addr, 0b010).u;

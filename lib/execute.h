@@ -28,13 +28,13 @@
  * Split into functions by major (5-bit) opcode
 */
 namespace irve::internal::execute {
-    void load    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, memory::memory_t& memory, const Csr& CSR);
-    void custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, memory::memory_t& memory,       Csr& CSR);
+    void load    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, const Csr& CSR);
+    void custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory,       Csr& CSR);
     void misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);
     void op_imm  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);
     void auipc   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);
-    void store   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, memory::memory_t& memory, const Csr& CSR);
-    void amo     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, memory::memory_t& memory, const Csr& CSR);
+    void store   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, const Csr& CSR);
+    void amo     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, const Csr& CSR);
     void op      (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);
     void lui     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);
     void branch  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                           const Csr& CSR);

@@ -118,7 +118,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-memory::memory_t::memory_t(Csr& CSR_ref):
+Memory::Memory(Csr& CSR_ref):
         m_CSR_ref(CSR_ref),
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
@@ -136,7 +136,7 @@ memory::memory_t::memory_t(Csr& CSR_ref):
     irvelog(1, "Created new Memory instance");
 }
 
-memory::memory_t::memory_t(int imagec, const char* const* imagev, Csr& CSR_ref):
+Memory::Memory(int imagec, const char* const* imagev, Csr& CSR_ref):
     m_CSR_ref(CSR_ref),
     m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
     m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
@@ -162,7 +162,7 @@ memory::memory_t::memory_t(int imagec, const char* const* imagev, Csr& CSR_ref):
     irvelog(1, "Created new Memory instance");
 }
 
-memory::memory_t::~memory_t() {
+Memory::~Memory() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
@@ -172,7 +172,7 @@ memory::memory_t::~memory_t() {
     }
 }
 
-Word memory::memory_t::instruction(Word addr) {
+Word Memory::instruction(Word addr) {
     access_status_t access_status;
     uint64_t machine_addr = translate_address(addr, AT_INSTRUCTION);
 
@@ -189,7 +189,7 @@ Word memory::memory_t::instruction(Word addr) {
     return data;
 }
 
-Word memory::memory_t::load(Word addr, uint8_t data_type) {
+Word Memory::load(Word addr, uint8_t data_type) {
     assert((data_type <= 0b111) && "Invalid funct3");
     assert((data_type != 0b110) && "Invalid funct3");
 
@@ -209,7 +209,7 @@ Word memory::memory_t::load(Word addr, uint8_t data_type) {
     return data;
 }
 
-void memory::memory_t::store(Word addr, uint8_t data_type, Word data) {
+void Memory::store(Word addr, uint8_t data_type, Word data) {
     assert((data_type <= 0b010) && "Invalid funct3");
 
     access_status_t access_status;
@@ -226,7 +226,7 @@ void memory::memory_t::store(Word addr, uint8_t data_type, Word data) {
     }
 }
 
-uint64_t memory::memory_t::translate_address(Word untranslated_addr, uint8_t access_type) {
+uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) {
     if(no_address_translation(access_type)) {
         irvelog(1, "No address translation");
         return (uint64_t)untranslated_addr.u;
@@ -337,7 +337,7 @@ uint64_t memory::memory_t::translate_address(Word untranslated_addr, uint8_t acc
     return machine_addr;
 }
 
-bool memory::memory_t::no_address_translation(uint8_t access_type) const {
+bool Memory::no_address_translation(uint8_t access_type) const {
     if(mstatus_MPRV && (access_type != AT_INSTRUCTION)) {
         //The modify privilege mode flag is set and the access type is not instruction
         if(mstatus_MPP == MPP_M_MODE || (satp_MODE == 0)) {
@@ -359,7 +359,7 @@ bool memory::memory_t::no_address_translation(uint8_t access_type) const {
     return true;
 }
 
-Word memory::memory_t::read_memory(
+Word Memory::read_memory(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
@@ -395,7 +395,7 @@ Word memory::memory_t::read_memory(
 
 }
 
-Word memory::memory_t::read_memory_region_user_ram(
+Word Memory::read_memory_region_user_ram(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr <= MEM_MAP_REGION_END_USER_RAM) && "This should never happen");
@@ -438,7 +438,7 @@ Word memory::memory_t::read_memory_region_user_ram(
     return data;
 }
 
-Word memory::memory_t::read_memory_region_kernel_ram(
+Word Memory::read_memory_region_kernel_ram(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM) &&
@@ -482,7 +482,7 @@ Word memory::memory_t::read_memory_region_kernel_ram(
     return data;
 }
 
-Word memory::memory_t::read_memory_region_mmcsr(
+Word Memory::read_memory_region_mmcsr(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) const {
 
     assert((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR) &&
@@ -522,7 +522,7 @@ Word memory::memory_t::read_memory_region_mmcsr(
     return m_CSR_ref.implicit_read(csr);
 }
 
-Word memory::memory_t::read_memory_region_uart(
+Word Memory::read_memory_region_uart(
         uint64_t addr, uint8_t data_type, access_status_t& access_status) {
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
@@ -551,7 +551,7 @@ Word memory::memory_t::read_memory_region_uart(
     return data;
 }
 
-void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory(uint64_t addr, uint8_t data_type, Word data,
                                     access_status_t &access_status) {
 
     assert(((addr & 0xFFFFFFFC00000000) == 0) && "Address should only be 34 bits!");
@@ -582,7 +582,7 @@ void memory::memory_t::write_memory(uint64_t addr, uint8_t data_type, Word data,
 
 }
 
-void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
 
     assert((addr <= MEM_MAP_REGION_END_USER_RAM) && "This should never happen");
@@ -614,7 +614,7 @@ void memory::memory_t::write_memory_region_user_ram(uint64_t addr, uint8_t data_
     }
 }
 
-void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data,
                                                         access_status_t& access_status) {
 
     assert(((addr >= MEM_MAP_REGION_START_KERNEL_RAM) && (addr <= MEM_MAP_REGION_END_KERNEL_RAM))
@@ -647,7 +647,7 @@ void memory::memory_t::write_memory_region_kernel_ram(uint64_t addr, uint8_t dat
     }
 }
     
-void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_mmcsr(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
     assert(((addr >= MEM_MAP_REGION_START_MMCSR) && (addr <= MEM_MAP_REGION_END_MMCSR))
             && "This should never happen");
@@ -688,7 +688,7 @@ void memory::memory_t::write_memory_region_mmcsr(uint64_t addr, uint8_t data_typ
     m_CSR_ref.implicit_write(csr, data);
 }
 
-void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,
                                                 access_status_t& access_status) {
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
@@ -709,7 +709,7 @@ void memory::memory_t::write_memory_region_uart(uint64_t addr, uint8_t data_type
     this->m_uart.write(uart_addr, uart_data);
 }
 
-void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
             
     assert((addr == MEM_MAP_ADDR_DEBUG) && "This should never happen");
@@ -746,7 +746,7 @@ void memory::memory_t::write_memory_region_debug(uint64_t addr, uint8_t data_typ
     }
 }
 
-memory::image_load_status_t memory::memory_t::load_memory_image_files(
+image_load_status_t Memory::load_memory_image_files(
         int imagec, const char* const* imagev) {
 
     // Load each memory file
@@ -773,7 +773,7 @@ memory::image_load_status_t memory::memory_t::load_memory_image_files(
     return IL_OKAY;
 }
 
-memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_path,
+image_load_status_t Memory::load_raw_bin(std::string image_path,
                                                             uint64_t start_addr) {
     //Open the file
     const char* filename = image_path.c_str();
@@ -814,7 +814,7 @@ memory::image_load_status_t memory::memory_t::load_raw_bin(std::string image_pat
     return IL_OKAY;
 }
 
-memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_path) {
+image_load_status_t Memory::load_verilog_8(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     if (!fin) {
         return IL_FAIL;
@@ -852,7 +852,7 @@ memory::image_load_status_t memory::memory_t::load_verilog_8(std::string image_p
     return IL_OKAY;
 }
 
-memory::image_load_status_t memory::memory_t::load_verilog_32(std::string image_path) {
+image_load_status_t Memory::load_verilog_32(std::string image_path) {
     std::fstream fin = std::fstream(image_path);
     if (!fin) {
         return IL_FAIL;

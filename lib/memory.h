@@ -25,11 +25,8 @@
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-namespace irve::internal::memory {
+namespace irve::internal {
 
-/**
- * @brief TODO
-*/
 typedef enum {
     AS_OKAY = 0,
     AS_VIOLATES_PMP = 1,
@@ -37,27 +34,20 @@ typedef enum {
     AS_MISALIGNED = 3
 } access_status_t;
 
-/**
- * @brief TODO
-*/
 typedef enum {
     IL_OKAY,
     IL_FAIL
 } image_load_status_t;
 
-/**
- * @brief TODO
- * 
- * Facilitates address translation, memory protection, and loading the memory image file
-*/
-class memory_t {
+// Facilitates address translation, memory protection, and loading the memory image file
+class Memory {
 public:
 
     /**
      * @brief       The constructor when not loading memory image files.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(Csr& CSR_ref);
+    Memory(Csr& CSR_ref);
 
     /**
      * @brief       The constructor when loading memory image files.
@@ -65,12 +55,12 @@ public:
      * @param[in]   imagev Vector of memory image file names.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(int imagec, const char* const* imagev, Csr& CSR_ref);
+    Memory(int imagec, const char* const* imagev, Csr& CSR_ref);
 
     /**
      * @brief       The destructor.
     */
-    ~memory_t();
+    ~Memory();
 
     /**
      * @brief       Fetch an instruction from memory.
@@ -182,31 +172,20 @@ private:
     */
     image_load_status_t load_verilog_32(std::string image_path);
 
-    /**
-     * @brief       Reference to the CSRs since memory operations depend on them.
-    */
+    // Reference to the CSRs since memory operations depend on them.
     Csr& m_CSR_ref;
 
-    /**
-     * @brief       Pointer to user ram.
-    */
+    // Pointer to user ram.
     std::unique_ptr<uint8_t[]> m_user_ram;
 
-    /**
-     * @brief       Pointer to kernel ram.
-    */
+    // Pointer to kernel ram.
     std::unique_ptr<uint8_t[]> m_kernel_ram;
 
-    /**
-     * @brief       16550 UART.
-    */
+    // 16550 UART.
     uart::uart_t m_uart;
 
-    /**
-     * @brief       Output line buffer.
-    */
+    // Output line buffer.
     std::string m_output_line_buffer;
-
 };
 
-} // namespace irve::internal::memory
+} // namespace irve::internal

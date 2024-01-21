@@ -39,7 +39,7 @@ namespace irve::internal::semihosting {
     public:
         handler_t() = default;
         ~handler_t();
-        void handle(CpuState& cpu_state, memory::memory_t& memory/*, const Csr& CSR*/);
+        void handle(CpuState& cpu_state, Memory& memory/*, const Csr& CSR*/);
     private:
         std::string m_output_line_buffer;
     };
