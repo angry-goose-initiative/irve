@@ -18,7 +18,6 @@
 #include <stdexcept>
 
 using namespace irve::internal;
-// using irve::internal::Word;//TODO avoid this (only use irve::internal)
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations

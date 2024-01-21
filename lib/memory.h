@@ -185,7 +185,7 @@ private:
     /**
      * @brief       ACLINT
     */
-    aclint::aclint_t m_aclint;
+    Aclint m_aclint;
 
     // 16550 UART.
     uart::uart_t m_uart;

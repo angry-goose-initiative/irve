@@ -34,7 +34,6 @@
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-//Code standard exception: Not irve::internal::common since it is, after all, "common"
 namespace irve::internal {
 
 /**
