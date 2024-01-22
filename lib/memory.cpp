@@ -503,7 +503,7 @@ Word Memory::read_memory_region_aclint(
         return Word(0);
     }
 
-    return this->m_aclint.read(addr - MEM_MAP_REGION_START_ACLINT);
+    return this->m_aclint.read(static_cast<Aclint::Address>(addr - MEM_MAP_REGION_START_ACLINT));
 }
 
 Word Memory::read_memory_region_uart(
@@ -650,7 +650,7 @@ void Memory::write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word d
         return;
     }
 
-    this->m_aclint.write(addr - MEM_MAP_REGION_START_ACLINT, data);
+    this->m_aclint.write(static_cast<Aclint::Address>(addr - MEM_MAP_REGION_START_ACLINT), data);
 }
 
 void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data,
