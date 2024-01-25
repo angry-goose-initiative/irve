@@ -39,21 +39,21 @@ using namespace irve::internal;
  * Static Function Declarations
  * --------------------------------------------------------------------------------------------- */
 
-plic::plic_t::plic_t() {
+Plic::Plic() {
     //TODO
 }
 
-plic::plic_t::~plic_t() {
+Plic::~Plic() {
     //TODO
 }
 
-Word plic::plic_t::read(Word register_address) {
+Word Plic::read(Word register_address) {
     assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
     
     return 0; assert(false && "TODO");
 }
 
-void plic::plic_t::write(Word register_address, Word /*data*/) {
+void Plic::write(Word register_address, Word /*data*/) {
     assert((register_address.u < 0x04000000) && "Attempt to access out of bounds PLIC register");
 
     assert(false && "TODO");
