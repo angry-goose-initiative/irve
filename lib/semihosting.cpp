@@ -27,8 +27,8 @@ using namespace irve::internal;
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-#define a0 10
-#define a1 11
+constexpr uint8_t a0{10}; // FIXME - These should be replaced with a reg select enum
+constexpr uint8_t a1{11};
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -52,7 +52,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-semihosting::handler_t::~handler_t() {
+SemihostingHandler::~SemihostingHandler() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
@@ -62,7 +62,7 @@ semihosting::handler_t::~handler_t() {
     }
 }
 
-void semihosting::handler_t::handle(CpuState& cpu_state, Memory& memory/*, const Csr& CSR*/) {
+void SemihostingHandler::handle(CpuState& cpu_state, Memory& memory/*, const Csr& CSR*/) {
     //TODO don't use always stdout for everything
     switch (cpu_state.get_r(a0).u) {
         case 0x03: {//SYS_WRITEC

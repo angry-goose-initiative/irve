@@ -55,11 +55,11 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-uart::uart_t::uart_t() {
+Uart::Uart() {
     //TODO
 }
 
-uart::uart_t::~uart_t() {
+Uart::~Uart() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
@@ -69,10 +69,10 @@ uart::uart_t::~uart_t() {
     }
 }
 
-uint8_t uart::uart_t::read(uint8_t register_address) {
-    assert((register_address <= 0b111) && "Invalid UART register address!");
+uint8_t Uart::read(Uart::Address register_address) {
+    assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
-        case address::RHR: {//RHR or DLL (Never THR since that isn't readable)
+        case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
             if (this->dlab()) {//DLL
                 return this->m_dll;
             } else {//RHR
@@ -80,7 +80,7 @@ uint8_t uart::uart_t::read(uint8_t register_address) {
             }
             break;
         }
-        case address::IER: {//IER or DLM
+        case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
                 return this->m_dlm;
             } else {//IER
@@ -88,27 +88,27 @@ uint8_t uart::uart_t::read(uint8_t register_address) {
             }
             break;
         }
-        case address::ISR: {//NOTE: Never FCR since that isn't readable
+        case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
             assert(false && "TODO");//TODO
             break;
         }
-        case address::LCR: {
+        case Uart::Address::LCR: {
             assert(false && "TODO");//TODO
             break;
         }
-        case address::MCR: {
+        case Uart::Address::MCR: {
             assert(false && "TODO");//TODO
             break;
         }
-        case address::LSR: {//NOTE: Never PSD since that isn't readable
+        case Uart::Address::LSR: {//NOTE: Never PSD since that isn't readable
             assert(false && "TODO");//TODO
             break;
         }
-        case address::MSR: {
+        case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
             break;
         }
-        case address::SPR: {
+        case Uart::Address::SPR: {
             return this->m_spr;
             break;
         }
@@ -117,10 +117,10 @@ uint8_t uart::uart_t::read(uint8_t register_address) {
     }
 }
 
-void uart::uart_t::write(uint8_t register_address, uint8_t data) {
-    assert((register_address <= 0b111) && "Invalid UART register address!");
+void Uart::write(Uart::Address register_address, uint8_t data) {
+    assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
-        case address::THR: {//THR or DLL (Never RHR since that isn't writable)
+        case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
             if (this->dlab()) {//DLL
                 this->m_dll = data;
             } else {//THR
@@ -152,7 +152,7 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
             }
             break;
         }
-        case address::IER: {//IER or DLM
+        case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
                 this->m_dlm = data;
             } else {//IER
@@ -160,26 +160,26 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
             }
             break;
         }
-        case address::FCR: {//NOTE: Never ISR since that isn't writable
+        case Uart::Address::FCR: {//NOTE: Never ISR since that isn't writable
             assert(false && "TODO");//TODO
             break;
         }
-        case address::LCR: {
+        case Uart::Address::LCR: {
             assert(false && "TODO");//TODO
             break;
         }
-        case address::MCR: {
+        case Uart::Address::MCR: {
             assert(false && "TODO");//TODO
             break;
         }
-        case address::PSD://NOTE: Never LSR since that isn't writable
+        case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
             assert(this->dlab() && "TODO software was mean");//TODO
             this->m_psd = data;
             break;
-        case address::MSR://NOTE: Should never be written to by software
+        case Uart::Address::MSR://NOTE: Should never be written to by software
             assert(false && "TODO software was mean");//TODO
             break;
-        case uart::address::SPR: {
+        case Uart::Address::SPR: {
             this->m_spr = data;
             break;
         }
@@ -187,10 +187,10 @@ void uart::uart_t::write(uint8_t register_address, uint8_t data) {
     }
 }
 
-bool uart::uart_t::interrupt_pending() const {
+bool Uart::interrupt_pending() const {
     return this->m_isr & 0b1;
 }
 
-bool uart::uart_t::dlab() const {
+bool Uart::dlab() const {
     return this->m_lcr & (1 << 7);
 }

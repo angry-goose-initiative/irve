@@ -49,8 +49,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-int test_uart_uart_t_sanity() {
-    uart::uart_t uart;
+int test_uart_Uart_sanity() {
+    Uart uart;
 
     //FIXME init the uart first
 
@@ -63,8 +63,8 @@ int test_uart_uart_t_sanity() {
     return 0;
 }
 
-int test_uart_uart_t_init() {
-    uart::uart_t uart;
+int test_uart_Uart_init() {
+    Uart uart;
 
     assert(uart.read(uart::address::RHR) == 0x00);
     assert(uart.read(uart::address::THR) == 0x00);

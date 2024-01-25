@@ -25,8 +25,8 @@ add_unit_test(CSR_Csr_init)
 add_unit_test(decode_decoded_inst_t)
 add_unit_test(decode_decoded_inst_t_invalid)
 add_unit_test(logging_irvelog)
-add_unit_test(uart_uart_t_sanity)
-#add_unit_test(uart_uart_t_init)#FIXME re-enable this once the UART is actually wired into memory
+add_unit_test(uart_Uart_sanity)
+#add_unit_test(uart_Uart_init)#FIXME re-enable this once the UART is actually wired into memory
 
 add_unit_test(memory_Memory_user_ram_endianness)
 add_unit_test(memory_Memory_user_ram_sign_extending)

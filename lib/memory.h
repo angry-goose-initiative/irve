@@ -188,7 +188,7 @@ private:
     Aclint m_aclint;
 
     // 16550 UART.
-    uart::uart_t m_uart;
+    Uart m_uart;
 
     // Output line buffer.
     std::string m_output_line_buffer;

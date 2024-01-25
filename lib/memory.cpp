@@ -520,7 +520,7 @@ Word Memory::read_memory_region_uart(
         return Word(0);
     }
 
-    uint8_t uart_addr = (uint8_t)(addr - MEM_MAP_REGION_START_UART);
+    auto uart_addr = static_cast<Uart::Address>(addr - MEM_MAP_REGION_START_UART);
 
     Word data;
     
@@ -667,7 +667,7 @@ void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word dat
         return;
     }
 
-    uint8_t uart_addr = (uint8_t)(addr - MEM_MAP_REGION_START_UART);
+    auto uart_addr = static_cast<Uart::Address>(addr - MEM_MAP_REGION_START_UART);
     uint8_t uart_data = (uint8_t)data.u;
 
     //TODO uart write can update access_status?

@@ -119,7 +119,7 @@ namespace irve::internal::emulator {
         Memory m_memory;
         CpuState m_cpu_state;
 
-        semihosting::handler_t m_semihosting_handler;
+        SemihostingHandler m_semihosting_handler;
         std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
