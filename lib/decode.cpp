@@ -79,7 +79,7 @@ decode::decoded_inst_t::decoded_inst_t(Word instruction) :
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
     if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     switch (this->m_opcode) {
@@ -115,7 +115,7 @@ decode::decoded_inst_t::decoded_inst_t(Word instruction) :
             this->m_format = inst_format_t::J_TYPE;
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 }

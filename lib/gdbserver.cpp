@@ -282,7 +282,7 @@ static bool handle_recieved_packet(
                 }
 
                 send_packet(connection_fd, memory_contents);
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }
@@ -304,7 +304,7 @@ static bool handle_recieved_packet(
                 }
 
                 send_packet(connection_fd, "OK");
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }

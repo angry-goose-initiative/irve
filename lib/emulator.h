@@ -113,7 +113,7 @@ namespace irve::internal::emulator {
          * @brief       Handle a trap.
          * @param[in]   cause The cause of the trap.
         */
-        void handle_trap(rvexception::cause_t cause);
+        void handle_trap(rv_trap::Cause cause);
         
         Csr m_CSR;
         Memory m_memory;

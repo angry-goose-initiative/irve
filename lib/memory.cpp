@@ -181,11 +181,11 @@ Word Memory::instruction(Word addr) {
     Word data = read_memory(machine_addr, DT_WORD, access_status);
 
     if ((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
-        invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
+        rv_trap::invoke_exception(rv_trap::Cause::INSTRUCTION_ACCESS_FAULT_EXCEPTION);
     }
 
     if (access_status == AS_MISALIGNED) {
-        invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
+        rv_trap::invoke_exception(rv_trap::Cause::INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     return data;
@@ -201,11 +201,11 @@ Word Memory::load(Word addr, uint8_t data_type) {
     Word data = read_memory(machine_addr, data_type, access_status);
 
     if ((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
-        invoke_rv_exception(LOAD_ACCESS_FAULT);
+        rv_trap::invoke_exception(rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION);
     }
 
     if(access_status == AS_MISALIGNED) {
-        invoke_rv_exception(LOAD_ADDRESS_MISALIGNED);
+        rv_trap::invoke_exception(rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     return data;
@@ -220,11 +220,11 @@ void Memory::store(Word addr, uint8_t data_type, Word data) {
     write_memory(machine_addr, data_type, data, access_status);
 
     if((access_status == AS_VIOLATES_PMA) || (access_status == AS_VIOLATES_PMP)) {
-        invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
     }
 
     if(access_status == AS_MISALIGNED) {
-        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     }
 }
 
@@ -264,13 +264,13 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
                         "raising an access fault exception");
             switch(access_type) {
                 case AT_INSTRUCTION:
-                    invoke_rv_exception(INSTRUCTION_ACCESS_FAULT);
+                    rv_trap::invoke_exception(rv_trap::Cause::INSTRUCTION_ACCESS_FAULT_EXCEPTION);
                     break;
                 case AT_LOAD:
-                    invoke_rv_exception(LOAD_ACCESS_FAULT);
+                    rv_trap::invoke_exception(rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION);
                     break;
                 case AT_STORE:
-                    invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+                    rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
                     break;
                 default:
                     assert(false && "Should never get here");
@@ -285,7 +285,7 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
         if(pte_V == 0 || (pte_R == 0 && pte_W == 1)) {
             irvelog(2, "The pte is not valid or the page is writable and"
                         "not readable, raising exception");
-            invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+            rv_trap::invoke_exception(static_cast<rv_trap::Cause>(PAGE_FAULT_BASE + access_type));
         }
 
         //STEP 4
@@ -299,7 +299,7 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
             if(i < 0) {
                 irvelog(2, "Leaf pte not found at the second level of the"
                             "page table, raising exception");
-                invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+                rv_trap::invoke_exception(static_cast<rv_trap::Cause>(PAGE_FAULT_BASE + access_type));
             }
         }
     }
@@ -307,21 +307,21 @@ uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) 
     //STEP 5
     if(ACCESS_NOT_ALLOWED) {
         irvelog(2, "This access is not allowed, raising exception");
-        invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+        rv_trap::invoke_exception(static_cast<rv_trap::Cause>(PAGE_FAULT_BASE + access_type));
     }
 
     //STEP 6
     if((i == 1) && (pte_PPN0 != 0)) {
         //Misaligned superpage
         irvelog(2, "Misaligned superpage, raising exception");
-        invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+        rv_trap::invoke_exception(static_cast<rv_trap::Cause>(PAGE_FAULT_BASE + access_type));
     }
 
     //STEP 7
     if((pte_A == 0) || ((access_type == AT_STORE) && (pte_D == 0))) {
         irvelog(2, "Accessed bit not set or operation is a store and the"
                     "dirty bit is not set, raising exception");
-        invoke_rv_exception_by_num((rvexception::cause_t)(PAGE_FAULT_BASE + access_type));
+        rv_trap::invoke_exception(static_cast<rv_trap::Cause>(PAGE_FAULT_BASE + access_type));
     }
 
     //STEP 8

@@ -77,16 +77,15 @@ Csr::Csr()
 }
 
 Reg Csr::explicit_read(Csr::Address csr) {//Performs privilege checks
-    if (!this->current_privilege_mode_can_explicitly_read(csr)) {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
-    } else {
-        return this->implicit_read(csr);
-    }
+    if (!this->current_privilege_mode_can_explicitly_read(csr))
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
+    
+    return this->implicit_read(csr);
 }
 
 void Csr::explicit_write(Csr::Address csr, Word data) {//Performs privilege checks
     if (!this->current_privilege_mode_can_explicitly_write(csr)) {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     } else {
         this->implicit_write(csr, data);
     }
@@ -162,8 +161,10 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
         case Csr::Address::MHARTID:          return 0;
         case Csr::Address::MCONFIGPTR:       return 0;
 
-        default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        default: rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
+
+    return 0; // Avoid no return warning
 }
 
 //implicit_write must always ensure all CSRs in the class are legal
@@ -236,7 +237,7 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
             this->mip &= ~(1 << 7);//Clear mip.MTIP on writes to mtimecmp (which would normally be in memory, but we made it a CSR so might as well handle it here)
             return;
 
-        default:                        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        default: rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 }
 

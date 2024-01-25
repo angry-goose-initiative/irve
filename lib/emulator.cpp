@@ -53,12 +53,12 @@ bool emulator::emulator_t::tick() {
     try {
         decode::decoded_inst_t decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
-    } catch (const rvexception::rvexception_t& e) {
+    } catch (const rv_trap::rvexception_t& e) {
         uint32_t raw_cause = (uint32_t)e.cause();
         assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
         irvelog(1, "Handling exception: Cause: %u", raw_cause);
         this->handle_trap(e.cause());
-    } catch (const rvexception::irve_exit_request_t&) {
+    } catch (const rv_trap::irve_exit_request_t&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
     }
@@ -272,19 +272,19 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     };
 
     //According to the spec, the order of priority is: MEI, MSI, MTI, SEI, SSI, STI
-    rvexception::cause_t cause;
+    rv_trap::Cause cause;
     if        (is_interrupting(11)) {//MEI
-        cause = rvexception::cause_t::MACHINE_EXTERNAL_INTERRUPT;
+        cause = rv_trap::Cause::MACHINE_EXTERNAL_INTERRUPT;
     } else if (is_interrupting( 3)) {//MSI
-        cause = rvexception::cause_t::MACHINE_SOFTWARE_INTERRUPT;
+        cause = rv_trap::Cause::MACHINE_SOFTWARE_INTERRUPT;
     } else if (is_interrupting( 7)) {//MTI
-        cause = rvexception::cause_t::MACHINE_TIMER_INTERRUPT;
+        cause = rv_trap::Cause::MACHINE_TIMER_INTERRUPT;
     } else if (is_interrupting( 9)) {//SEI
-        cause = rvexception::cause_t::SUPERVISOR_EXTERNAL_INTERRUPT;
+        cause = rv_trap::Cause::SUPERVISOR_EXTERNAL_INTERRUPT;
     } else if (is_interrupting( 1)) {//SSI
-        cause = rvexception::cause_t::SUPERVISOR_SOFTWARE_INTERRUPT;
+        cause = rv_trap::Cause::SUPERVISOR_SOFTWARE_INTERRUPT;
     } else if (is_interrupting( 5)) {//STI
-        cause = rvexception::cause_t::SUPERVISOR_TIMER_INTERRUPT;
+        cause = rv_trap::Cause::SUPERVISOR_TIMER_INTERRUPT;
     } else {
         irvelog(1, "No interrupts \"interrupting\" at this time.");
         return;
@@ -295,13 +295,13 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     this->handle_trap(cause);
 }
 
-void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
+void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
     this->flush_icache();
 
     //TODO better logging
 
     //There is some special handling for the breakpoint exception
-    if (cause == rvexception::cause_t::BREAKPOINT_EXCEPTION) {
+    if (cause == rv_trap::Cause::BREAKPOINT_EXCEPTION) {
         //Check if this is a semihosting call
         //We ONLY handle semihosting calls in M-mode, since the firmware should take care of ones from S-mode
         //This is okay to do in M-mode because, with a real hardware debugger, it would be intercepting things in this way too
@@ -323,7 +323,7 @@ void emulator::emulator_t::handle_trap(rvexception::cause_t cause) {
                     semihosting_ebreak = true;
                 }
                 //Otherwise not a semihosting ebreak
-            } catch (const rvexception::rvexception_t&) {
+            } catch (const rv_trap::rvexception_t&) {
                 //Not a semihosting ebreak
             }
         }

@@ -93,7 +93,7 @@ void semihosting::handler_t::handle(CpuState& cpu_state, Memory& memory/*, const
                     case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
                     default:    this->m_output_line_buffer.push_back(character); break;
                 }
-            } catch (const rvexception::rvexception_t&) {
+            } catch (const rv_trap::rvexception_t&) {
                 irvelog(0, "SYS_WRITEC: Invalid address 0x%08x", char_pointer);
             }
             break;

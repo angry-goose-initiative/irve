@@ -9,10 +9,6 @@
 
 #pragma once
 
-/* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
 //Region for user memory
 #define MEM_MAP_REGION_START_USER_RAM       (uint64_t)0x00000000
 #define MEM_MAP_REGION_END_USER_RAM         (uint64_t)0x03FFFFFF

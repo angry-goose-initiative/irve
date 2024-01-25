@@ -148,8 +148,8 @@ int test_memory_Memory_invalid_debugaddr() {
     try {
         memory.load((uint32_t)MEM_MAP_ADDR_DEBUG, DT_UNSIGNED_BYTE);
         assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        assert(e.cause() == rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION); 
+    } catch (const rv_trap::rvexception_t& e) {
+        assert(e.cause() == rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
     // The debug address can only be accessed as a byte. Halfword and word access violates PMA
@@ -159,15 +159,15 @@ int test_memory_Memory_invalid_debugaddr() {
     try {
         memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_HALFWORD, 0xABCD);
         assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+    } catch (const rv_trap::rvexception_t& e) {
+        assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
         memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_WORD, 0xABCDEF01);
         assert(false);
-    } catch (const rvexception::rvexception_t& e) {
-        assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
+    } catch (const rv_trap::rvexception_t& e) {
+        assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     return 0;
@@ -186,20 +186,20 @@ int test_memory_Memory_invalid_ramaddrs_misaligned_halfwords() {
         try {
             memory.store(address, DT_HALFWORD, (uint16_t)(i * 12345));
             assert(false);
-        } catch (const rvexception::rvexception_t& e) {
-            assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
+        } catch (const rv_trap::rvexception_t& e) {
+            assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
             memory.load(address, DT_UNSIGNED_HALFWORD);
             assert(false);
-        } catch (const rvexception::rvexception_t& e) {
-            assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        } catch (const rv_trap::rvexception_t& e) {
+            assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
             memory.load(address, DT_SIGNED_HALFWORD);
             assert(false);
-        } catch (const rvexception::rvexception_t& e) {
-            assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+        } catch (const rv_trap::rvexception_t& e) {
+            assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
 
@@ -219,14 +219,14 @@ int test_memory_Memory_invalid_ramaddrs_misaligned_words() {
             try {
                 memory.store(address, DT_WORD, (uint32_t)(i * 12345));
                 assert(false);
-            } catch (const rvexception::rvexception_t& e) {
-                assert(e.cause() == rvexception::cause_t::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
+            } catch (const rv_trap::rvexception_t& e) {
+                assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
             }
             try {
                 memory.load(address, DT_WORD);
                 assert(false);
-            } catch (const rvexception::rvexception_t& e) {
-                assert(e.cause() == rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
+            } catch (const rv_trap::rvexception_t& e) {
+                assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
             }
         }
     }
