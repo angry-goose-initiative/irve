@@ -26,40 +26,6 @@
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-// #define invoke_rv_exception_by_num(the_cause) do {                                                \
-//     irve::internal::rv_trap::cause_t enum_cause =                                             \
-//         (irve::internal::rv_trap::cause_t)(the_cause);                                        \
-//     switch (enum_cause) {                                                                         \
-//         case irve::internal::rv_trap::Cause::INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION:      \
-//         case irve::internal::rv_trap::Cause::INSTRUCTION_ACCESS_FAULT_EXCEPTION:            \
-//         case irve::internal::rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION:                 \
-//         case irve::internal::rv_trap::Cause::BREAKPOINT_EXCEPTION:                          \
-//         case irve::internal::rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION:             \
-//         case irve::internal::rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION:                   \
-//         case irve::internal::rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION:     \
-//         case irve::internal::rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION:           \
-//         case irve::internal::rv_trap::Cause::UMODE_ECALL_EXCEPTION:                         \
-//         case irve::internal::rv_trap::Cause::SMODE_ECALL_EXCEPTION:                         \
-//         case irve::internal::rv_trap::Cause::MMODE_ECALL_EXCEPTION:                         \
-//         case irve::internal::rv_trap::Cause::INSTRUCTION_PAGE_FAULT_EXCEPTION:              \
-//         case irve::internal::rv_trap::Cause::LOAD_PAGE_FAULT_EXCEPTION:                     \
-//         case irve::internal::rv_trap::Cause::STORE_OR_AMO_PAGE_FAULT_EXCEPTION:             \
-//             break;                                                                                \
-//         default:                                                                                  \
-//             assert(false && "Attempt to invoke exception with unsupported cause!");               \
-//     }                                                                                             \
-//     throw irve::internal::rv_trap::rvexception_t(enum_cause);                                 \
-// } while (0)
-
-/**
- * @brief Invoke a RISC-V exception (more concise than using throw)
- * @param the_cause The cause of the exception
-*/
-// #define invoke_rv_exception(the_cause) do {                                                       \
-//     throw irve::internal::rv_trap::rvexception_t(                                             \
-//         irve::internal::rv_trap::Cause::the_cause ## _EXCEPTION);                           \
-// } while (0)
-
 /**
  * @brief Invoke an IRVE exit request (more concise than using throw)
 */
