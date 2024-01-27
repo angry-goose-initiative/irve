@@ -1,5 +1,4 @@
 /**
- * @file    logging.h
  * @brief   Logging facilities for irve
  * 
  * @copyright
@@ -12,8 +11,7 @@
  *
 */
 
-#ifndef LOGGING_H
-#define LOGGING_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -115,5 +113,3 @@ namespace irve::internal::logging {
     */
     void irvelog_internal_variadic_function_dont_use_this_directly(FILE* destination, uint64_t inst_num, uint8_t indent, const char* str, ...);
 }
-
-#endif//LOGGING_H

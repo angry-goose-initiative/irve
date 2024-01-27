@@ -1,5 +1,4 @@
 /**
- * @file    semihosting.cpp
  * @brief   M-Mode semihosting support for IRVE
  * 
  * @copyright
@@ -28,32 +27,14 @@ using namespace irve::internal;
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-#define a0 10
-#define a1 11
-
-/* ------------------------------------------------------------------------------------------------
- * Type/Class Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Static Variables
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Static Function Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
+constexpr uint8_t a0{10}; // FIXME - These should be replaced with a reg select enum
+constexpr uint8_t a1{11};
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-semihosting::handler_t::~handler_t() {
+SemihostingHandler::~SemihostingHandler() {
     if (this->m_output_line_buffer.size() > 0) {
         irvelog_always_stdout(
             0,
@@ -63,12 +44,12 @@ semihosting::handler_t::~handler_t() {
     }
 }
 
-void semihosting::handler_t::handle(cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory/*, const CSR::CSR_t& CSR*/) {
+void SemihostingHandler::handle(CpuState& cpu_state, Memory& memory/*, const Csr& CSR*/) {
     //TODO don't use always stdout for everything
     switch (cpu_state.get_r(a0).u) {
         case 0x03: {//SYS_WRITEC
             //TODO actually save this into some buffer and print out a whole line at a time
-            word_t char_pointer = cpu_state.get_r(a1);
+            Word char_pointer = cpu_state.get_r(a1);
             try {
                 char character = memory.load(char_pointer, 0b000).u;
                 switch (character) {
@@ -94,7 +75,7 @@ void semihosting::handler_t::handle(cpu_state::cpu_state_t& cpu_state, memory::m
                     case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
                     default:    this->m_output_line_buffer.push_back(character); break;
                 }
-            } catch (const rvexception::rvexception_t&) {
+            } catch (const rv_trap::rvexception_t&) {
                 irvelog(0, "SYS_WRITEC: Invalid address 0x%08x", char_pointer);
             }
             break;
@@ -106,9 +87,3 @@ void semihosting::handler_t::handle(cpu_state::cpu_state_t& cpu_state, memory::m
     }
     cpu_state.goto_next_sequential_pc();
 }
-
-/* ------------------------------------------------------------------------------------------------
- * Static Function Implementations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO

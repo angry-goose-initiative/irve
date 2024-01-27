@@ -1,5 +1,4 @@
 /**
- * @file    cpu_state.cpp
  * @brief   Holds a RISC-V hart's state including registers and the PC
  * 
  * @copyright
@@ -16,7 +15,7 @@
 #include <cassert>
 #include <cstdint>
 
-#define INST_COUNT this->m_CSR_ref.implicit_read(CSR::address::MINSTRET).u
+#define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
 #include "rvexception.h"
@@ -29,12 +28,12 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
+CpuState::CpuState(Csr& CSR_ref) :
     m_pc(0),
     m_CSR_ref(CSR_ref),
     m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
-    irvelog(1, "Created new cpu_state instance");
+    irvelog(1, "Created new CpuState instance");
 
     //Initialize all registers to a random number (just to prevent any sanitizers from complaining)
     for (uint8_t i = 0; i < 31; ++i) {
@@ -44,15 +43,15 @@ cpu_state::cpu_state_t::cpu_state_t(CSR::CSR_t& CSR_ref) :
     this->log(2);
 }
 
-word_t cpu_state::cpu_state_t::get_pc() const {
+Word CpuState::get_pc() const {
     return this->m_pc;
 }
 
-void cpu_state::cpu_state_t::set_pc(word_t new_pc) {
+void CpuState::set_pc(Word new_pc) {
     this->m_pc = new_pc;
 }
 
-reg_t cpu_state::cpu_state_t::get_r(uint8_t reg_num) const {
+Reg CpuState::get_r(uint8_t reg_num) const {
     assert(reg_num < 32 && "Attempt to get invalid register");
     if (reg_num) {
         return this->m_regs[reg_num - 1];
@@ -61,14 +60,14 @@ reg_t cpu_state::cpu_state_t::get_r(uint8_t reg_num) const {
     }
 }
 
-void cpu_state::cpu_state_t::set_r(uint8_t reg_num, reg_t new_val) {
+void CpuState::set_r(uint8_t reg_num, Reg new_val) {
     assert(reg_num < 32 && "Attempt to set invalid register");
     if (reg_num) {
         this->m_regs[reg_num - 1] = new_val;
     }
 }
 
-void cpu_state::cpu_state_t::log(uint8_t indent) const {
+void CpuState::log(uint8_t indent) const {
     //irvelog(indent, "Inst Count: %lu", this->get_inst_count());
     irvelog(indent, "PC:\t\t0x%08x", this->get_pc());
     irvelog(indent, "Registers:");
@@ -80,13 +79,13 @@ void cpu_state::cpu_state_t::log(uint8_t indent) const {
 
     /*
     switch (this->m_privilege_mode) {
-        case privilege_mode_t::USER_MODE:
+        case PrivilegeMode::USER_MODE:
             irvelog(indent, "Privilege Mode: User");
             break;
-        case privilege_mode_t::SUPERVISOR_MODE:
+        case PrivilegeMode::SUPERVISOR_MODE:
             irvelog(indent, "Privilege Mode: Supervisor");
             break;
-        case privilege_mode_t::MACHINE_MODE:
+        case PrivilegeMode::MACHINE_MODE:
             irvelog(indent, "Privilege Mode: Machine");
             break;
         default:
@@ -96,19 +95,19 @@ void cpu_state::cpu_state_t::log(uint8_t indent) const {
     */
 }
 
-void cpu_state::cpu_state_t::validate_reservation_set() {
+void CpuState::validate_reservation_set() {
     this->m_atomic_reservation_set_valid = true;
 }
 
-void cpu_state::cpu_state_t::invalidate_reservation_set() {
+void CpuState::invalidate_reservation_set() {
     this->m_atomic_reservation_set_valid = false;
 }
 
-bool cpu_state::cpu_state_t::reservation_set_valid() const {
+bool CpuState::reservation_set_valid() const {
     return this->m_atomic_reservation_set_valid;
 }
 
-void cpu_state::cpu_state_t::goto_next_sequential_pc() {
+void CpuState::goto_next_sequential_pc() {
     this->m_pc += 4;
     irvelog(3, "Going to next sequential PC: 0x%08X", this->m_pc);
 }

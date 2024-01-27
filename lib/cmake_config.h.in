@@ -1,5 +1,4 @@
 /**
- * @file    cmake_config.h.in
  * @brief   Holds CMake variables so they can be accessed in C++ code
  * 
  * @copyright
@@ -14,8 +13,7 @@
  *
 */
 
-#ifndef CMAKE_CONFIG_H
-#define CMAKE_CONFIG_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
@@ -37,5 +35,3 @@
 #define IRVE_CMAKE_RUST                     @IRVE_RUST@
 
 #define IRVE_CMAKE_FUZZISH                  @IRVE_FUZZISH@
-
-#endif//CMAKE_CONFIG_H

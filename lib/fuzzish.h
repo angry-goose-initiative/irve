@@ -1,5 +1,4 @@
 /**
- * @file    fuzzish.h
  * @brief   Random emulator initialization
  * 
  * @copyright
@@ -11,8 +10,7 @@
  *
 */
 
-#ifndef FUZZISH_H
-#define FUZZISH_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -45,5 +43,3 @@
 #define irve_fuzzish_meminit(ptr, size_bytes) do { std::memset(ptr, 0, size_bytes); } while (0)
 #define irve_fuzzish_rand() 0
 #endif
-
-#endif//FUZZISH_H

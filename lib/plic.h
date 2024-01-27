@@ -1,5 +1,4 @@
 /**
- * @file    plic.h
  * @brief   TODO
  * 
  * @copyright
@@ -10,52 +9,25 @@
  *
 */
 
-#ifndef PLIC_H
-#define PLIC_H
-
-/* ------------------------------------------------------------------------------------------------
- * Includes
- * --------------------------------------------------------------------------------------------- */
-
-#include <cstdint>
+#pragma once
 
 #include "common.h"
 
-/* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Type/Class Declarations
- * --------------------------------------------------------------------------------------------- */
+namespace irve::internal {
 
 /**
- * @brief The namespace containing the IRVE's PLIC implementation
+ * @brief The IRVE RISC-V PLIC
 */
-namespace irve::internal::plic {
-    //TODO
-    /**
-     * @brief The IRVE RISC-V PLIC
-    */
-    class plic_t {
-    public:
-        plic_t();
-        ~plic_t();
+class Plic {
+public:
+    Plic();
+    ~Plic();
 
-        //26-bit addresses, 32-bit data
-        word_t read(word_t register_address);//NOT const since it could pop from the FIFO
-        void write(word_t register_address, word_t data);
+    //26-bit addresses, 32-bit data
+    Word read(Word register_address);//NOT const since it could pop from the FIFO
+    void write(Word register_address, Word data);
 
-        //TODO other functions to check for MEI and SEI (if they should be set)
-    };
-}
+    //TODO other functions to check for MEI and SEI (if they should be set)
+};
 
-/* ------------------------------------------------------------------------------------------------
- * Function Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-#endif//PLIC_H
+} // namespace irve::internal

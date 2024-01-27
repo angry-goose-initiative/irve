@@ -1,5 +1,4 @@
 /**
- * @file    cpu_state.h
  * @brief   Holds a RISC-V hart's state including registers and the PC
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef CPU_STATE_H
-#define CPU_STATE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -17,55 +15,54 @@
 
 #include <cstdint>
 
-#include "CSR.h"
+#include "csr.h"
 #include "memory.h"
-
 #include "rvexception.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-namespace irve::internal::cpu_state {
+namespace irve::internal {
 
 /**
  * @brief       Holds a RISC-V hart's "CPU state" including registers, the PC, and the current load
  *              reservation, but not CSR's.
 */
-class cpu_state_t {
+class CpuState {
 public:
     /**
-     * @brief       Construct a new cpu_state_t.
-     * @param[in]   CSR_ref A reference to the CSR object that this cpu_state_t object will use
+     * @brief       Construct a new CpuState.
+     * @param[in]   CSR_ref A reference to the CSR object that this CpuState object will use
      *              internally.
     */
-    cpu_state_t(irve::internal::CSR::CSR_t& CSR_ref);
+    CpuState(irve::internal::Csr& CSR_ref);
 
     /**
      * @brief       Get the current value of the PC (program counter).
      * @return      The PC.
     */
-    reg_t get_pc() const;
+    Reg get_pc() const;
 
     /**
      * @brief       Set the PC to a new value.
      * @param[in]   new_pc The new value of the PC.
     */
-    void set_pc(reg_t new_pc);
+    void set_pc(Reg new_pc);
 
     /**
      * @brief       Get the current value of a register.
      * @param[in]   reg_num The register number to get the value of (between 0 and 31 inclusive).
      * @return      The value of the register.
     */
-    reg_t get_r(uint8_t reg_num) const;
+    Reg get_r(uint8_t reg_num) const;
 
     /**
      * @brief       Set the value of a register.
      * @param[in]   reg_num The register number to set the value of (between 0 and 31 inclusive).
      * @param[in]   new_val The new value of the register.
     */
-    void set_r(uint8_t reg_num, reg_t new_val);
+    void set_r(uint8_t reg_num, Reg new_val);
 
     /**
      * @brief       TODO
@@ -100,19 +97,19 @@ private:
     /**
      * @brief       The program counter.
     */
-    reg_t m_pc;
+    Reg m_pc;
 
     /**
      * @brief       The register file.
      * @note        The array size is 31 since we don't bother storing x0. Thus, m_regs[0] is x1
      *              and so on.
     */
-    reg_t m_regs[31];
+    Reg m_regs[31];
 
     /**
      * @brief       Reference to the CSR's.
     */
-    CSR::CSR_t& m_CSR_ref;
+    Csr& m_CSR_ref;
 
     /**
      * @brief       True if the hart has a valid atomic reseravtion, false othersise.
@@ -121,5 +118,3 @@ private:
 };
 
 }
-
-#endif//CPU_STATE_H

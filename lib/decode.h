@@ -1,5 +1,4 @@
 /**
- * @file    decode.h
  * @brief   Code to decode RISC-V instructions
  * 
  * @copyright
@@ -10,8 +9,7 @@
  * Based on code from rv32esim
 */
 
-#ifndef DECODE_H
-#define DECODE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -62,7 +60,7 @@ public:
      * @brief       The constructor, decodes an instruction.
      * @param[in]   instruction The instruction to decode.
     */
-    decoded_inst_t(word_t instruction);
+    decoded_inst_t(Word instruction);
 
     decoded_inst_t() = default;//FIXME remove this (needed for icache)
 
@@ -92,7 +90,7 @@ public:
     uint8_t get_rd() const;
     uint8_t get_rs1() const;//Also uimm//TODO how should we expose uimm?
     uint8_t get_rs2() const;
-    word_t get_imm() const;
+    Word get_imm() const;
 
 private:
     std::string disassemble() const;
@@ -104,15 +102,13 @@ private:
     uint8_t m_rd;
     uint8_t m_rs1;
     uint8_t m_rs2;
-    word_t m_imm_I;
-    word_t m_imm_S;
-    word_t m_imm_B;
-    word_t m_imm_U;
-    word_t m_imm_J;
+    Word m_imm_I;
+    Word m_imm_S;
+    Word m_imm_B;
+    Word m_imm_U;
+    Word m_imm_J;
 
     inst_format_t m_format;
 };
 
 }
-
-#endif//DECODE_H

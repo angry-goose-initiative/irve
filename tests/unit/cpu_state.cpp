@@ -14,7 +14,7 @@
 #include <cassert>
 #include <cstdint>
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 #include "cpu_state.h"
 
 #include "rvexception.h"
@@ -25,9 +25,9 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-int test_cpu_state_cpu_state_t() {
-    CSR::CSR_t CSR;
-    cpu_state::cpu_state_t cpu_state(CSR);
+int test_cpu_state_CpuState() {
+    Csr CSR;
+    CpuState cpu_state(CSR);
 
     assert(cpu_state.get_pc() == 0x00000000);//It should be 0x00000000 at reset
     cpu_state.set_pc(0xABCD1234);

@@ -17,34 +17,34 @@
 # Unit Test List (unit_tester)
 ####################################################################################################
 
-add_unit_test(common_word_t)
+add_unit_test(common_Word)
 add_unit_test(common_upow)
 add_unit_test(common_ipow)
-add_unit_test(cpu_state_cpu_state_t)
-add_unit_test(CSR_CSR_t_init)
+add_unit_test(cpu_state_CpuState)
+add_unit_test(CSR_Csr_init)
 add_unit_test(decode_decoded_inst_t)
 add_unit_test(decode_decoded_inst_t_invalid)
 add_unit_test(logging_irvelog)
-add_unit_test(uart_uart_t_sanity)
-#add_unit_test(uart_uart_t_init)#FIXME re-enable this once the UART is actually wired into memory
+add_unit_test(uart_Uart_sanity)
+#add_unit_test(uart_Uart_init)#FIXME re-enable this once the UART is actually wired into memory
 
-add_unit_test(memory_memory_t_user_ram_endianness)
-add_unit_test(memory_memory_t_user_ram_sign_extending)
-add_unit_test(memory_memory_t_user_ram_valid_byte_access)
-add_unit_test(memory_memory_t_valid_debugaddr)
-add_unit_test(memory_memory_t_valid_ramaddrs_halfwords)
-add_unit_test(memory_memory_t_valid_ramaddrs_words)
-add_unit_test(memory_memory_t_invalid_debugaddr)
-add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_halfwords)
-add_unit_test(memory_memory_t_invalid_ramaddrs_misaligned_words)
-add_unit_test(memory_memory_t_translation_conditions)
-add_unit_test(memory_memory_t_supervisor_loads_with_translation)
+add_unit_test(memory_Memory_user_ram_endianness)
+add_unit_test(memory_Memory_user_ram_sign_extending)
+add_unit_test(memory_Memory_user_ram_valid_byte_access)
+add_unit_test(memory_Memory_valid_debugaddr)
+add_unit_test(memory_Memory_valid_ramaddrs_halfwords)
+add_unit_test(memory_Memory_valid_ramaddrs_words)
+add_unit_test(memory_Memory_invalid_debugaddr)
+add_unit_test(memory_Memory_invalid_ramaddrs_misaligned_halfwords)
+add_unit_test(memory_Memory_invalid_ramaddrs_misaligned_words)
+add_unit_test(memory_Memory_translation_conditions)
+add_unit_test(memory_Memory_supervisor_loads_with_translation)
 
-#add_unit_test(memory_memory_t_invalid_unmapped_bytes)#TODO Not written yet
-#add_unit_test(memory_memory_t_invalid_unmapped_halfwords)#TODO Not written yet
-#add_unit_test(memory_memory_t_invalid_unmapped_words)#TODO Not written yet
-#add_unit_test(memory_memory_t_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
-#add_unit_test(memory_memory_t_invalid_unmapped_misaligned_words)#TODO Not written yet
+#add_unit_test(memory_Memory_invalid_unmapped_bytes)#TODO Not written yet
+#add_unit_test(memory_Memory_invalid_unmapped_halfwords)#TODO Not written yet
+#add_unit_test(memory_Memory_invalid_unmapped_words)#TODO Not written yet
+#add_unit_test(memory_Memory_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
+#add_unit_test(memory_Memory_invalid_unmapped_misaligned_words)#TODO Not written yet
 
 ####################################################################################################
 # Integration Test List (integration_tester)

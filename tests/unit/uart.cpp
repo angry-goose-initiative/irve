@@ -49,37 +49,37 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-int test_uart_uart_t_sanity() {
-    uart::uart_t uart;
+int test_uart_Uart_sanity() {
+    Uart uart;
 
     //FIXME init the uart first
 
-    uart.write(uart::address::THR, 'I');
-    uart.write(uart::address::THR, 'R');
-    uart.write(uart::address::THR, 'V');
-    uart.write(uart::address::THR, 'E');
-    uart.write(uart::address::THR, '\n');
+    uart.write(Uart::Address::THR, 'I');
+    uart.write(Uart::Address::THR, 'R');
+    uart.write(Uart::Address::THR, 'V');
+    uart.write(Uart::Address::THR, 'E');
+    uart.write(Uart::Address::THR, '\n');
 
     return 0;
 }
 
-int test_uart_uart_t_init() {
-    uart::uart_t uart;
+int test_uart_Uart_init() {
+    Uart uart;
 
-    assert(uart.read(uart::address::RHR) == 0x00);
-    assert(uart.read(uart::address::THR) == 0x00);
-    assert(uart.read(uart::address::IER) == 0x00);
-    assert(uart.read(uart::address::ISR) == 0x01);
-    assert(uart.read(uart::address::FCR) == 0x00);
-    assert(uart.read(uart::address::LCR) == 0x00);
-    assert(uart.read(uart::address::MCR) == 0x00);
-    assert(uart.read(uart::address::LSR) == 0x60);
+    assert(uart.read(Uart::Address::RHR) == 0x00);
+    assert(uart.read(Uart::Address::THR) == 0x00);
+    assert(uart.read(Uart::Address::IER) == 0x00);
+    assert(uart.read(Uart::Address::ISR) == 0x01);
+    assert(uart.read(Uart::Address::FCR) == 0x00);
+    assert(uart.read(Uart::Address::LCR) == 0x00);
+    assert(uart.read(Uart::Address::MCR) == 0x00);
+    assert(uart.read(Uart::Address::LSR) == 0x60);
     //Not testing MSR since there is some reset weirdness
-    assert(uart.read(uart::address::SPR) == 0x00);
+    assert(uart.read(Uart::Address::SPR) == 0x00);
 
     //No need to test DLL or DLM since they are undefined at reset
-    uart.write(uart::address::LCR, (1 << 7));//Set LCR.DLAB
-    assert(uart.read(uart::address::PSD) == 0x00);
+    uart.write(Uart::Address::LCR, (1 << 7));//Set LCR.DLAB
+    assert(uart.read(Uart::Address::PSD) == 0x00);
 
     return 0;
 }

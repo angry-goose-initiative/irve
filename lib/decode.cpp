@@ -1,5 +1,4 @@
 /**
- * @file    decode.cpp
  * @brief   Code to decode RISC-V instructions
  * 
  * @copyright
@@ -39,7 +38,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
+decode::decoded_inst_t::decoded_inst_t(Word instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
     m_funct3(instruction.bits(14, 12).u),
     m_funct5(instruction.bits(31, 27).u),
@@ -80,7 +79,7 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
     //These are defined invalid RISC-V instructions
     //In addition, we don't support compressed instructions
     if (!instruction || (instruction == 0xFFFFFFFF) || ((instruction & 0b11) != 0b11)) {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     switch (this->m_opcode) {
@@ -116,7 +115,7 @@ decode::decoded_inst_t::decoded_inst_t(word_t instruction) :
             this->m_format = inst_format_t::J_TYPE;
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 }
@@ -246,7 +245,7 @@ uint8_t decode::decoded_inst_t::get_rs2() const {
     return this->m_rs2;
 }
 
-word_t decode::decoded_inst_t::get_imm() const {
+Word decode::decoded_inst_t::get_imm() const {
     switch (this->get_format()) {
         case inst_format_t::R_TYPE:
             assert(false && "Attempt to get imm of R-type instruction!");
