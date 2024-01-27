@@ -25,13 +25,13 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-int test_common_word_t() {
-    assert(word_t(1) + word_t(1) == word_t(2));
-    assert(word_t(1) - word_t(-1) == word_t(2));
-    assert(word_t(-1) == word_t(0xFFFFFFFF));
-    assert(word_t(1) * word_t(-1) == word_t(0xFFFFFFFF));
-    assert(word_t(0x80000000).srl(4) == word_t(0x08000000));
-    assert(word_t(0x80000000).sra(4) == word_t(0xF8000000));
+int test_common_Word() {
+    assert(Word(1) + Word(1) == Word(2));
+    assert(Word(1) - Word(-1) == Word(2));
+    assert(Word(-1) == Word(0xFFFFFFFF));
+    assert(Word(1) * Word(-1) == Word(0xFFFFFFFF));
+    assert(Word(0x80000000).srl(4) == Word(0x08000000));
+    assert(Word(0x80000000).sra(4) == Word(0xF8000000));
 
     //TODO add more
     return 0;

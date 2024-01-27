@@ -1,5 +1,4 @@
 /**
- * @file    rvexception.cpp
  * @brief   C++ exceptions corresponding to RISC-V exceptions
  * 
  * @copyright
@@ -29,7 +28,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) :
+rv_trap::rvexception_t::rvexception_t(rv_trap::Cause cause) :
     std::runtime_error("\x1b[91mUncaught RISC-V exception, you should never see this.\x1b[0m"),
     m_cause(cause)
 {
@@ -37,12 +36,12 @@ rvexception::rvexception_t::rvexception_t(rvexception::cause_t cause) :
             "Attempt to create rvexception_t with interrupt cause");
 }
 
-rvexception::cause_t rvexception::rvexception_t::cause() const {
+rv_trap::Cause rv_trap::rvexception_t::cause() const {
     return this->m_cause;
 }
 
-rvexception::irve_exit_request_t::irve_exit_request_t() {}
+rv_trap::irve_exit_request_t::irve_exit_request_t() {}
 
-const char* rvexception::irve_exit_request_t::what() const noexcept {
+const char* rv_trap::irve_exit_request_t::what() const noexcept {
     return "\x1b[91mUncaught IRVE exit request, you should never see this.\x1b[0m";
 }

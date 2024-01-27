@@ -1,5 +1,4 @@
 /**
- * @file    emulator.h
  * @brief   The main emulator class used to instantiate an instance of IRVE.
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef EMULATOR_H
-#define EMULATOR_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -115,17 +113,15 @@ namespace irve::internal::emulator {
          * @brief       Handle a trap.
          * @param[in]   cause The cause of the trap.
         */
-        void handle_trap(rvexception::cause_t cause);
+        void handle_trap(rv_trap::Cause cause);
         
-        CSR::CSR_t m_CSR;
-        memory::memory_t m_memory;
-        cpu_state::cpu_state_t m_cpu_state;
+        Csr m_CSR;
+        Memory m_memory;
+        CpuState m_cpu_state;
 
-        semihosting::handler_t m_semihosting_handler;
-        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for word_t
+        SemihostingHandler m_semihosting_handler;
+        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
     };
 }
-
-#endif//EMULATOR_H

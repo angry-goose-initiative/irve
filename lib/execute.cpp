@@ -1,5 +1,4 @@
 /**
- * @file    execute.cpp
  * @brief   Utility functions for executing instructions
  * 
  * @copyright
@@ -20,12 +19,13 @@
 #include <cstdint>
 
 #include "common.h"
-#include "CSR.h"
+#include "csr.h"
 #include "cpu_state.h"
 #include "decode.h"
+#include "memory.h"
 #include "rvexception.h"
 
-#define INST_COUNT CSR.implicit_read(CSR::address::MINSTRET).u
+#define INST_COUNT CSR.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
 using namespace irve::internal;
@@ -34,8 +34,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
@@ -48,8 +48,8 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t imm = decoded_inst.get_imm();
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     switch (funct3) {
@@ -69,11 +69,11 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
             irvelog(3, "Mnemonic: LHU");
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
     //This could cause an exception
-    word_t loaded = memory.load(r1 + imm, funct3);
+    Word loaded = memory.load(r1 + imm, funct3);
 
     irvelog(3, "Loaded 0x%08X from 0x%08X", loaded.s, (r1 + imm).u);
     cpu_state.set_r(decoded_inst.get_rd(), loaded);
@@ -82,8 +82,8 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& /* cpu_state */,
-                        memory::memory_t& /* memory */, CSR::CSR_t& CSR) {
+void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* cpu_state */,
+                        Memory& /* memory */, Csr& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert(
@@ -99,7 +99,7 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     if (!decoded_inst.get_rd() && !decoded_inst.get_funct3() && !decoded_inst.get_rs1() &&
         !decoded_inst.get_rs2() && !decoded_inst.get_funct7()) {
         irvelog(3, "Mnemonic: IRVE.EXIT");
-        if (CSR.get_privilege_mode() == CSR::privilege_mode_t::MACHINE_MODE) {
+        if (CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
             invoke_polite_irve_exit_request();
         }
@@ -109,16 +109,16 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
                 "The IRVE.EXIT instruction is only valid in machine mode; treating as an illegal "
                 "instruction"
             );
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
         }
     }
     else {//Otherwise we don't implement any others for now
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 }
 
-void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
     if (decoded_inst.get_funct3() == 0b000) {//FENCE
@@ -126,7 +126,7 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     } else if (decoded_inst.get_funct3() == 0b001) {//FENCE.I
         irvelog(3, "Mnemonic: FENCE.I");
     } else {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     irvelog(3, "Nothing to do since the emulated system dosn't have a cache or multiple harts");
@@ -135,8 +135,8 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cp
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
@@ -149,12 +149,12 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     );
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    word_t imm = decoded_inst.get_imm();
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Word imm = decoded_inst.get_imm();
     uint8_t funct7 = imm.bits(11, 5).u;
 
     //Perform the ALU operation
-    word_t result;
+    Word result;
     switch (decoded_inst.get_funct3()) {
         case 0b000://ADDI
             irvelog(3, "Mnemonic: ADDI");
@@ -191,7 +191,7 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 result = r1.sra(imm.bits(4, 0));
                 irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", r1.u, imm.u, result.u);
             } else {
-                invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             }
             break;
         case 0b110://ORI
@@ -216,8 +216,8 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert(
@@ -229,7 +229,7 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
         "auipc instruction must be U_TYPE"
     );
 
-    word_t result = decoded_inst.get_imm() + cpu_state.get_pc();
+    Word result = decoded_inst.get_imm() + cpu_state.get_pc();
 
     irvelog(3, "Overwriting 0x%08X currently in register x%u with 0x%08X",
             cpu_state.get_r(decoded_inst.get_rd()).u, decoded_inst.get_rd(), result.u);
@@ -238,8 +238,8 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
@@ -252,9 +252,9 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    word_t imm = decoded_inst.get_imm();
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     switch(funct3) {
@@ -268,7 +268,7 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
             irvelog(3, "Mnemonic: SW");
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
     
@@ -281,8 +281,8 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    memory::memory_t& memory, CSR::CSR_t& CSR) {
+void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Memory& memory, Csr& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
@@ -294,15 +294,15 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             "amo instruction must be R_TYPE");
     
     if (decoded_inst.get_funct3() != 0b010) {
-        invoke_rv_exception(ILLEGAL_INSTRUCTION);
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
     //NOTE: All possible aq and rl values are valid, so we don't need to check them
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
-    word_t loaded_word;
+    Word loaded_word;
     switch (decoded_inst.get_funct5()) {
         case 0b00010://LR.W
             irvelog(3, "Mnemonic: LR.W");
@@ -311,28 +311,28 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             if ((r1.u % 4) != 0) {
                 // NOTE: This exception has priority over access faults but not over the illegal
                 // instruction exception. This is why we don't do this before the switch statement.
-                invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+                rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
             }
             
             //Load the word from memory at the address in rs1
             try {
                 loaded_word = memory.load(r1, DT_WORD);
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 // If we get an exception, we need to rethrow a different one to indicate this is
                 // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
-                    case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                    case rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
                         assert(
                             false &&
                             "Got a misaligned address exception when reading from memory, but we "
                             "already checked that the address was aligned!"
                         );
                         break;
-                    case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
-                        invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+                    case rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION:
+                        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
                         break;
-                    case rvexception::cause_t::LOAD_PAGE_FAULT_EXCEPTION:
-                        invoke_rv_exception(STORE_OR_AMO_PAGE_FAULT);
+                    case rv_trap::Cause::LOAD_PAGE_FAULT_EXCEPTION:
+                        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
                         break;
                     default:
                         assert(false && "Unexpected exception when reading from memory");
@@ -357,7 +357,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             if ((r1.u % 4) != 0) {
                 // NOTE: This exception has priority over access faults but not over the illegal
                 // instruction exception. This is why we don't do this before the switch statement.
-                invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+                rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
             }
 
             //Check if the reservation set is valid
@@ -375,22 +375,22 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             //Attempt to store the value in rs2 to the address in rs1
             try {
                 memory.store(r1, DT_WORD, r2);
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 // If we get an exception, we need to rethrow a different one to indicate this is
                 // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
-                    case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+                    case rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
                         assert(
                             false &&
                             "Got a misaligned address exception when reading from memory, but we "
                             " already checked that the address was aligned!"
                         );
                         break;
-                    case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
-                        invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+                    case rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION:
+                        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
                         break;
-                    case rvexception::cause_t::LOAD_PAGE_FAULT_EXCEPTION:
-                        invoke_rv_exception(STORE_OR_AMO_PAGE_FAULT);
+                    case rv_trap::Cause::LOAD_PAGE_FAULT_EXCEPTION:
+                        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
                         break;
                     default:
                         assert(false && "Unexpected exception when reading from memory");
@@ -432,7 +432,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
             irvelog(3, "Mnemonic: AMOMAXU.W");
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 
@@ -442,28 +442,28 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     if ((r1.u % 4) != 0) {
         // NOTE: This exception has priority over access faults but not over the illegal
         // instruction exception. This is why we don't do this before the switch statement.
-        invoke_rv_exception(STORE_OR_AMO_ADDRESS_MISALIGNED);
+        rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
     }
 
     //Read the word at the address in rs1
     try {
         loaded_word = memory.load(r1, DT_WORD);
-    } catch (const rvexception::rvexception_t& e) {
+    } catch (const rv_trap::rvexception_t& e) {
         // If we get an exception, we need to rethrow a different one to indicate this is due to an
         // AMO instruction
         switch (e.cause()) {//TODO ensure this is correct
-            case rvexception::cause_t::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
+            case rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION:
                 assert(
                     false &&
                     "Got a misaligned address exception when reading from memory, but we already "
                     "checked that the address was aligned!"
                 );
                 break;
-            case rvexception::cause_t::LOAD_ACCESS_FAULT_EXCEPTION:
-                invoke_rv_exception(STORE_OR_AMO_ACCESS_FAULT);
+            case rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION:
+                rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION);
                 break;
-            case rvexception::cause_t::LOAD_PAGE_FAULT_EXCEPTION:
-                invoke_rv_exception(STORE_OR_AMO_PAGE_FAULT);
+            case rv_trap::Cause::LOAD_PAGE_FAULT_EXCEPTION:
+                rv_trap::invoke_exception(rv_trap::Cause::STORE_OR_AMO_PAGE_FAULT_EXCEPTION);
                 break;
             default:
                 assert(false && "Unexpected exception when reading from memory");
@@ -475,46 +475,46 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
 
     //Perform the operation (instruction-specific)
-    word_t word_to_write;
+    Word Wordo_write;
     switch (decoded_inst.get_funct5()) {
         case 0b00001://AMOSWAP.W
-            word_to_write = r2;
+            Wordo_write = r2;
             break;
         case 0b00000://AMOADD.W
-            word_to_write = loaded_word + r2;
+            Wordo_write = loaded_word + r2;
             break;
         case 0b00100://AMOXOR.W
-            word_to_write = loaded_word ^ r2;
+            Wordo_write = loaded_word ^ r2;
             break;
         case 0b01100://AMOAND.W
-            word_to_write = loaded_word & r2;
+            Wordo_write = loaded_word & r2;
             break;
         case 0b01000://AMOOR.W
-            word_to_write = loaded_word | r2;
+            Wordo_write = loaded_word | r2;
             break;
         case 0b10000://AMOMIN.W
-            word_to_write = std::min(loaded_word.s, r2.s);
+            Wordo_write = std::min(loaded_word.s, r2.s);
             break;
         case 0b10100://AMOMAX.W
-            word_to_write = std::max(loaded_word.s, r2.s);
+            Wordo_write = std::max(loaded_word.s, r2.s);
             break;
         case 0b11000://AMOMINU.W
-            word_to_write = std::min(loaded_word.u, r2.u);
+            Wordo_write = std::min(loaded_word.u, r2.u);
             break;
         case 0b11100://AMOMAXU.W
-            word_to_write = std::max(loaded_word.u, r2.u);
+            Wordo_write = std::max(loaded_word.u, r2.u);
             break;
         default:
             assert(false && "Invalid funct5 for AMO instruction, but we already checked this!");
             break;
     }
-    memory.store(r1, DT_WORD, word_to_write);
+    memory.store(r1, DT_WORD, Wordo_write);
 
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
@@ -527,11 +527,11 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
     );
 
     //Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
     //Perform the ALU operation
-    word_t result;
+    Word result;
     if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
         switch (decoded_inst.get_funct3()) {
             case 0b000://MUL
@@ -651,14 +651,14 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                     irvelog(3, "0x%08X - 0x%08X = 0x%08X", r1.u, r2.u, result);
                 }
                 else {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
                 break;
             case 0b001://SLL
                 irvelog(3, "Mnemonic: SLL");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = r1 << r2.bits(4, 0);
@@ -669,7 +669,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 irvelog(3, "Mnemonic: SLT");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = (r1.s < r2.s) ? 1 : 0;
@@ -680,7 +680,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 irvelog(3, "Mnemonic: SLTU");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = (r1.u < r2.u) ? 1 : 0;
@@ -691,7 +691,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 irvelog(3, "Mnemonic: XOR");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = r1 ^ r2;
@@ -710,14 +710,14 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                     irvelog(3, "0x%08X >> 0x%08X arithmetic = 0x%08X", r1.u, r2.u, result.u);
                 }
                 else {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
                 break;
             case 0b110://OR
                 irvelog(3, "Mnemonic: OR");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = r1 | r2;
@@ -728,7 +728,7 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
                 irvelog(3, "Mnemonic: AND");
 
                 if (decoded_inst.get_funct7() != 0b0000000) {
-                    invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                    rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
                 }
 
                 result = r1 & r2;
@@ -747,8 +747,8 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
@@ -770,8 +770,8 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
@@ -784,9 +784,9 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     );
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    reg_t r2 = cpu_state.get_r(decoded_inst.get_rs2());
-    word_t imm = decoded_inst.get_imm();
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Word imm = decoded_inst.get_imm();
     uint8_t funct3 = decoded_inst.get_funct3();
 
     bool branch;
@@ -822,16 +822,16 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             irvelog(3, "0x%08X >= 0x%08X (unsigned) results in %X", r1.u, r2.u, branch);
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
-            break;
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
+            return; // Added to avoid compiler warning
     }
 
     if (branch) {
-        word_t target_addr = cpu_state.get_pc() + imm;
+        Word target_addr = cpu_state.get_pc() + imm;
         // Target address on branches taken must be aligned on 4 byte boundary
         // (2 byte boundary if supporting compressed instructions)
         if (target_addr.u % 4) {
-            invoke_rv_exception(INSTRUCTION_ADDRESS_MISALIGNED);
+            rv_trap::invoke_exception(rv_trap::Cause::INSTRUCTION_ADDRESS_MISALIGNED_EXCEPTION);
         }
         else {
             cpu_state.set_pc(target_addr);
@@ -843,8 +843,8 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     }
 }
 
-void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
@@ -858,12 +858,12 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary as well as the register value
 
-    word_t old_pc = cpu_state.get_pc();
+    Word old_pc = cpu_state.get_pc();
 
     //Jump to the address in rs1 plus the immediate
-    word_t rs1 = cpu_state.get_r(decoded_inst.get_rs1());
-    word_t imm = decoded_inst.get_imm();
-    word_t destination_pc = rs1 + imm;
+    Word rs1 = cpu_state.get_r(decoded_inst.get_rs1());
+    Word imm = decoded_inst.get_imm();
+    Word destination_pc = rs1 + imm;
     irvelog(3, "0x%08X + 0x%08X = 0x%08X", rs1.u, imm.u, destination_pc);
     cpu_state.set_pc(destination_pc);
 
@@ -873,8 +873,8 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_st
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                    CSR::CSR_t& CSR) {
+void execute::jal(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                    Csr& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(
@@ -888,7 +888,7 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
 
     //TODO ensure that the immediate is aligned on a 4 byte boundary
 
-    word_t old_pc = cpu_state.get_pc();
+    Word old_pc = cpu_state.get_pc();
 
     //Jump relative to the current PC
     cpu_state.set_pc(cpu_state.get_pc() + decoded_inst.get_imm().u);
@@ -897,8 +897,8 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,
-                        CSR::CSR_t& CSR) {
+void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+                        Csr& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
     assert(
@@ -913,11 +913,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
     //TODO also handle supervisor mode instructions
 
     // Get operands
-    reg_t r1 = cpu_state.get_r(decoded_inst.get_rs1());
-    //reg_t rs2 = cpu_state.get_r(decoded_inst.get_rs2());
+    Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
+    //Reg rs2 = cpu_state.get_r(decoded_inst.get_rs2());
     uint8_t funct7 = decoded_inst.get_funct7();
-    word_t imm = decoded_inst.get_imm();
-    CSR::privilege_mode_t privilege_mode = CSR.get_privilege_mode();
+    Word imm = decoded_inst.get_imm();
+    PrivilegeMode privilege_mode = CSR.get_privilege_mode();
 
     switch (decoded_inst.get_funct3()) {
         case 0b000://ECALL, EBREAK, WFI, MRET, SRET, or SFENCE.VMA
@@ -934,23 +934,23 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 // ECALL dosn't actually retire, but we already incremented minstret, so we need to
                 // decrement it to compensate
                 CSR.implicit_write(
-                    CSR::address::MINSTRET,
-                    CSR.implicit_read(CSR::address::MINSTRET) - 1
+                    Csr::Address::MINSTRET,
+                    CSR.implicit_read(Csr::Address::MINSTRET) - 1
                 );
 
                 //Different exception case base on the current privilege mode
                 switch (privilege_mode) {
-                    case CSR::privilege_mode_t::MACHINE_MODE:
+                    case PrivilegeMode::MACHINE_MODE:
                         irvelog(4, "Executing ECALL from Machine Mode");
-                        invoke_rv_exception(MMODE_ECALL);
+                        rv_trap::invoke_exception(rv_trap::Cause::MMODE_ECALL_EXCEPTION);
                         break;
-                    case CSR::privilege_mode_t::SUPERVISOR_MODE:
+                    case PrivilegeMode::SUPERVISOR_MODE:
                         irvelog(4, "Privilege Mode: Supervisor Mode");
-                        invoke_rv_exception(SMODE_ECALL);
+                        rv_trap::invoke_exception(rv_trap::Cause::SMODE_ECALL_EXCEPTION);
                         break;
-                    case CSR::privilege_mode_t::USER_MODE:
+                    case PrivilegeMode::USER_MODE:
                         irvelog(4, "Privilege Mode: User Mode");
-                        invoke_rv_exception(UMODE_ECALL);
+                        rv_trap::invoke_exception(rv_trap::Cause::UMODE_ECALL_EXCEPTION);
                         break;
                     default:
                         assert(
@@ -966,11 +966,11 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 // EBREAK dosn't actually retire, but we already incremented minstret, so we need
                 // to decrement it to compensate
                 CSR.implicit_write(
-                    CSR::address::MINSTRET,
-                    CSR.implicit_read(CSR::address::MINSTRET) - 1
+                    Csr::Address::MINSTRET,
+                    CSR.implicit_read(Csr::Address::MINSTRET) - 1
                 );
 
-                invoke_rv_exception(BREAKPOINT);
+                rv_trap::invoke_exception(rv_trap::Cause::BREAKPOINT_EXCEPTION);
             }
             else if (imm == 0b000100000101) {//WFI//FIXME techincally this is a funct7 plus rs2, but this does work
                 irvelog(3, "Mnemonic: WFI");
@@ -981,43 +981,43 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 irvelog(3, "Mnemonic: MRET");
                 //TODO better logging
                 //Manage the privilege stack
-                word_t mstatus = CSR.implicit_read(CSR::address::MSTATUS);
-                CSR.set_privilege_mode((CSR::privilege_mode_t)mstatus.bits(12, 11).u);//Set the privilege mode to the value in MPP
-                word_t mpie = mstatus.bit(7);
+                Word mstatus = CSR.implicit_read(Csr::Address::MSTATUS);
+                CSR.set_privilege_mode((PrivilegeMode)mstatus.bits(12, 11).u);//Set the privilege mode to the value in MPP
+                Word mpie = mstatus.bit(7);
                 mstatus &= 0b11111111111111111110011101110111;//Clear the MPP, and MPIE, and MIE bits
                 //MPP is set to 0b00
                 mstatus |= 1 << 7;//Set MPIE to 1
                 mstatus |= mpie << 3;//Set MIE to the old MPIE
-                CSR.implicit_write(CSR::address::MSTATUS, mstatus);//Write changes back to the CSR
+                CSR.implicit_write(Csr::Address::MSTATUS, mstatus);//Write changes back to the CSR
 
                 cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
                 //Return to the address in MEPC
-                cpu_state.set_pc(CSR.implicit_read(CSR::address::MEPC));
+                cpu_state.set_pc(CSR.implicit_read(Csr::Address::MEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4); the handler must do this manually
             }
             else if ((funct7 == 0b0001000) && (decoded_inst.get_rs2() == 0b00010)) {//SRET
                 irvelog(3, "Mnemonic: SRET");
                 //TODO better logging
                 //Manage the privilege stack
-                word_t sstatus = CSR.implicit_read(CSR::address::SSTATUS);
+                Word sstatus = CSR.implicit_read(Csr::Address::SSTATUS);
                 //Set the privilege mode based on the value in SPP
                 CSR.set_privilege_mode(
                     (sstatus.bit(8) == 0b1) ? 
-                        CSR::privilege_mode_t::SUPERVISOR_MODE :
-                        CSR::privilege_mode_t::USER_MODE
+                        PrivilegeMode::SUPERVISOR_MODE :
+                        PrivilegeMode::USER_MODE
                 );
-                word_t spie = sstatus.bit(5);
+                Word spie = sstatus.bit(5);
                 sstatus &= 0b11111111111111111111111011011101;//Clear the SPP, SPIE, and SIE bits
                 //SPP is set to 0b0
                 sstatus |= 1 << 5;//Set SPIE to 1
                 sstatus |= spie << 1;//Set SIE to the old SPIE
-                CSR.implicit_write(CSR::address::SSTATUS, sstatus);//Write changes back to the CSR
+                CSR.implicit_write(Csr::Address::SSTATUS, sstatus);//Write changes back to the CSR
 
                 cpu_state.invalidate_reservation_set();//Could have interrupted an LR/SC sequence
 
                 //Return to the address in SEPC
-                cpu_state.set_pc(CSR.implicit_read(CSR::address::SEPC));
+                cpu_state.set_pc(CSR.implicit_read(Csr::Address::SEPC));
                 //We do NOT go to the PC after the instruction that caused the exception (PC + 4);
                 //the handler must do this manually
             }
@@ -1027,7 +1027,7 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
                 cpu_state.goto_next_sequential_pc();
             }
             else {
-                invoke_rv_exception(ILLEGAL_INSTRUCTION);
+                rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             }
             return;
         case 0b001://CSRRW
@@ -1049,17 +1049,17 @@ void execute::system(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_
             irvelog(3, "Mnemonic: CSRRCI");
             break;
         default:
-            invoke_rv_exception(ILLEGAL_INSTRUCTION);
+            rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
             break;
     }
 
     //If we got here, this is a CSR instruction
-    uint16_t csr_addr = (uint16_t)((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
-    word_t uimm = decoded_inst.get_rs1();//NOT sign extended (zero extended)
+    Csr::Address csr_addr = static_cast<Csr::Address>((imm & 0xFFF).u);//In this case we do NOT sign extend the immediate
+    Word uimm = decoded_inst.get_rs1();//NOT sign extended (zero extended)
     
     //Read the CSR into the destination register
     //TODO avoid read side effects if destination register is x0
-    reg_t csr = CSR.explicit_read(csr_addr);
+    Reg csr = CSR.explicit_read(csr_addr);
     cpu_state.set_r(decoded_inst.get_rd(), csr);
 
     //What we write back depends on the instruction (and we may not write back at all)

@@ -1,5 +1,4 @@
 /**
- * @file    memory.h
  * @brief   Handles the memory of the emulator
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef MEMORY_H
-#define MEMORY_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -21,18 +19,15 @@
 #include "common.h"
 
 #include "aclint.h"
-#include "CSR.h"
+#include "csr.h"
 #include "uart.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-namespace irve::internal::memory {
+namespace irve::internal {
 
-/**
- * @brief TODO
-*/
 typedef enum {
     AS_OKAY = 0,
     AS_VIOLATES_PMP = 1,
@@ -40,27 +35,20 @@ typedef enum {
     AS_MISALIGNED = 3
 } access_status_t;
 
-/**
- * @brief TODO
-*/
 typedef enum {
     IL_OKAY,
     IL_FAIL
 } image_load_status_t;
 
-/**
- * @brief TODO
- * 
- * Facilitates address translation, memory protection, and loading the memory image file
-*/
-class memory_t {
+// Facilitates address translation, memory protection, and loading the memory image file
+class Memory {
 public:
 
     /**
      * @brief       The constructor when not loading memory image files.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(CSR::CSR_t& CSR_ref);
+    Memory(Csr& CSR_ref);
 
     /**
      * @brief       The constructor when loading memory image files.
@@ -68,12 +56,12 @@ public:
      * @param[in]   imagev Vector of memory image file names.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    memory_t(int imagec, const char* const* imagev, CSR::CSR_t& CSR_ref);
+    Memory(int imagec, const char* const* imagev, Csr& CSR_ref);
 
     /**
      * @brief       The destructor.
     */
-    ~memory_t();
+    ~Memory();
 
     /**
      * @brief       Fetch an instruction from memory.
@@ -82,7 +70,7 @@ public:
      *              mode).
      * @return      The instruction from memory.
     */
-    word_t instruction(word_t addr);
+    Word instruction(Word addr);
 
     /**
      * @brief       Load data from memory.
@@ -93,7 +81,7 @@ public:
      *              signed/unsigned
      * @return      The data read from memory
     */
-    word_t load(word_t addr, uint8_t data_type);
+    Word load(Word addr, uint8_t data_type);
 
     /**
      * @brief       Store data to memory.
@@ -103,7 +91,7 @@ public:
      *              signed/unsigned.
      * @param[in]   data The data to be stored in memory.
     */
-    void store(word_t addr, uint8_t data_type, word_t data);
+    void store(Word addr, uint8_t data_type, Word data);
 
 private:
 
@@ -114,7 +102,7 @@ private:
      *              depending on the acces type.
      * @return      34 bit machine address.
     */
-    uint64_t translate_address(word_t untranslated_addr, uint8_t access_type);
+    uint64_t translate_address(Word untranslated_addr, uint8_t access_type);
 
     /**
      * @brief       Checks if an address should be translated or not.
@@ -132,12 +120,12 @@ private:
      *              issue was).
      * @return      32 bit version of data that was read.
     */
-    word_t read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
-    word_t read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    word_t read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    word_t read_memory_region_aclint(uint64_t addr, uint8_t data_type, access_status_t& access_status);
-    word_t read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
+    Word read_memory_region_aclint(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
 
     /**
      * @brief       Write data to memory.
@@ -147,13 +135,13 @@ private:
      * @param[out]  access_status The status of the access (success or not and if not, what the
      *              issue was).
     */
-    void write_memory(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    void write_memory(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
 
-    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_aclint(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_uart(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
-    void write_memory_region_debug(uint64_t addr, uint8_t data_type, word_t data, access_status_t& access_status);
+    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
 
     /**
      * @brief       Loads memory image files (only called by the constructor).
@@ -185,38 +173,25 @@ private:
     */
     image_load_status_t load_verilog_32(std::string image_path);
 
-    /**
-     * @brief       Reference to the CSRs since memory operations depend on them.
-    */
-    CSR::CSR_t& m_CSR_ref;
+    // Reference to the CSRs since memory operations depend on them.
+    Csr& m_CSR_ref;
 
-    /**
-     * @brief       Pointer to user ram.
-    */
+    // Pointer to user ram.
     std::unique_ptr<uint8_t[]> m_user_ram;
 
-    /**
-     * @brief       Pointer to kernel ram.
-    */
+    // Pointer to kernel ram.
     std::unique_ptr<uint8_t[]> m_kernel_ram;
 
     /**
      * @brief       ACLINT
     */
-    aclint::aclint_t m_aclint;
+    Aclint m_aclint;
 
-    /**
-     * @brief       16550 UART.
-    */
-    uart::uart_t m_uart;
+    // 16550 UART.
+    Uart m_uart;
 
-    /**
-     * @brief       Output line buffer.
-    */
+    // Output line buffer.
     std::string m_output_line_buffer;
-
 };
 
-}//NAMESPACE//irve::internal::memory
-
-#endif//MEMORY_H
+} // namespace irve::internal

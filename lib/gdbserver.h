@@ -1,5 +1,4 @@
 /**
- * @file    gdbserver.h
  * @brief   Minimal GDB server implementation to ease debugging
  * 
  * @copyright
@@ -38,8 +37,8 @@ namespace irve::internal::gdbserver {
     */
     void start(
         emulator::emulator_t& emulator,
-        cpu_state::cpu_state_t& cpu_state,
-        memory::memory_t& memory,
+        CpuState& cpu_state,
+        Memory& memory,
         uint16_t port
     );
 }

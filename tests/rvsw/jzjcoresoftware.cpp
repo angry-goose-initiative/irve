@@ -16,7 +16,7 @@
 #include "irve_public_api.h"
 #include "emulator.h"
 #include "cpu_state.h"
-#include "CSR.h"
+#include "csr.h"
 #include "memory.h"
 
 #include <cassert>
@@ -29,13 +29,13 @@
 #define setup_emulator_with_program(program_name) \
     const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/jzjcoresoftware/" program_name ".vhex8"; \
     irve::emulator::emulator_t emulator(1, &file_name_ptr); \
-    irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
+    irve::internal::CpuState& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
 
 /* ------------------------------------------------------------------------------------------------
  * Static Function Declarations
  * --------------------------------------------------------------------------------------------- */
 
-static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::cpu_state::cpu_state_t& cpu_state_ref);
+static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::CpuState& cpu_state_ref);
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
@@ -171,8 +171,8 @@ int verify_jzjcoresoftware_fenceecalltest() {
     uint64_t expected_inst_count = 0;
     
     //This testcase assumes the trap vector starts at 0x4 (it forgot to set it)
-    irve::internal::CSR::CSR_t& CSR_ref = emulator.m_emulator_ptr->m_CSR;
-    assert((CSR_ref.implicit_read(irve::internal::CSR::address::MTVEC) & 0xFFFFFFFC) == 0x4);
+    irve::internal::Csr& CSR_ref = emulator.m_emulator_ptr->m_CSR;
+    assert((CSR_ref.implicit_read(irve::internal::Csr::Address::MTVEC) & 0xFFFFFFFC) == 0x4);
 
     //Checks things are as expected
     emulator.tick();//Execute the fence
@@ -368,7 +368,7 @@ int verify_jzjcoresoftware_memoryreadtest() {
 int verify_jzjcoresoftware_memorywritetest() {
     //Load the memorywritetest program
     setup_emulator_with_program("memorywritetest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -429,7 +429,7 @@ int verify_jzjcoresoftware_nop() {
 int verify_jzjcoresoftware_sbtest() {
     //Load the sbtest program
     setup_emulator_with_program("sbtest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -453,7 +453,7 @@ int verify_jzjcoresoftware_sbtest() {
 int verify_jzjcoresoftware_sbtest2() {
     //Load the sbtest2 program
     setup_emulator_with_program("sbtest2");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -477,7 +477,7 @@ int verify_jzjcoresoftware_sbtest2() {
 int verify_jzjcoresoftware_shtest() {
     //Load the shtest program
     setup_emulator_with_program("shtest");
-    irve::internal::memory::memory_t& memory_ref = emulator.m_emulator_ptr->m_memory;
+    irve::internal::Memory& memory_ref = emulator.m_emulator_ptr->m_memory;
     uint64_t expected_inst_count = 0;
 
     //Check the instructions
@@ -763,7 +763,7 @@ int verify_jzjcoresoftware_xoritoggle() {
  * Static Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::cpu_state::cpu_state_t& cpu_state_ref) {
+static int verify_jzjcoresoftware_fibonacci(irve::emulator::emulator_t& emulator, irve::internal::CpuState& cpu_state_ref) {
     uint64_t expected_inst_count = 0;
     uint32_t expected_x29 = 0;
     uint32_t expected_x30 = 1;

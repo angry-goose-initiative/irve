@@ -17,7 +17,7 @@
 #include "irve_public_api.h"
 #include "emulator.h"
 #include "cpu_state.h"
-#include "CSR.h"
+#include "csr.h"
 #include "memory.h"
 
 #include <cassert>
@@ -34,7 +34,7 @@ int verify_rv32esim() {
     //Load rv32esim program
     const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/rv32esim.vhex8";
     irve::emulator::emulator_t emulator(1, &file_name_ptr);
-    irve::internal::cpu_state::cpu_state_t& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
+    irve::internal::CpuState& cpu_state_ref = emulator.m_emulator_ptr->m_cpu_state;
     uint64_t expected_inst_count = 0;
 
     //Check the initial instructions
@@ -124,7 +124,7 @@ int verify_atomics() {
     //Load atomics program
     const char* file_name_ptr = "rvsw/compiled/src/single_file/asm/atomics.vhex8";
     __attribute__((unused)) irve::emulator::emulator_t emulator(1, &file_name_ptr);
-    __attribute__((unused)) irve::internal::cpu_state::cpu_state_t& cpu_state_ref =
+    __attribute__((unused)) irve::internal::CpuState& cpu_state_ref =
         emulator.m_emulator_ptr->m_cpu_state;
     __attribute__((unused)) uint64_t expected_inst_count = 0;
 

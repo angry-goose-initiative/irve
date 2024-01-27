@@ -1,5 +1,4 @@
 /**
- * @file    gdbserver.cpp
  * @brief   Minimal GDB server implementation to ease debugging
  * 
  * @copyright
@@ -102,8 +101,8 @@ class unused_t {};
 static bool handle_recieved_packet(
     const packet_t&         packet,
     emulator::emulator_t&   emulator,
-    cpu_state::cpu_state_t& cpu_state,
-    memory::memory_t&       memory,
+    CpuState& cpu_state,
+    Memory&       memory,
     int                     connection_fd
 );//Returns false if it's time to accept a new connection
 
@@ -125,8 +124,8 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
 
 void gdbserver::start(
     emulator::emulator_t& emulator,
-    cpu_state::cpu_state_t& cpu_state,
-    memory::memory_t& memory,
+    CpuState& cpu_state,
+    Memory& memory,
     uint16_t port
 ) {
     int socket_file_descriptor = setup_server_socket(port);
@@ -173,8 +172,8 @@ void gdbserver::start(
 static bool handle_recieved_packet(
     const packet_t&         packet,
     emulator::emulator_t&   emulator,
-    cpu_state::cpu_state_t& cpu_state,
-    memory::memory_t&       memory,
+    CpuState& cpu_state,
+    Memory&       memory,
     int                     connection_fd
 ) {//Returns false if it's time to accept a new connection
     //Extract the packet string from the packet (unless it's a special packet)
@@ -216,19 +215,19 @@ static bool handle_recieved_packet(
             //General purpose registers
             for (std::size_t i = 0; i < 32; ++i) {
                 //Little endian
-                word_t reg = cpu_state.get_r(i);
+                Word reg = cpu_state.get_r(i);
                 contents_of_registers += byte_2_string(reg.bits( 7,  0).u);
                 contents_of_registers += byte_2_string(reg.bits(15,  8).u);
                 contents_of_registers += byte_2_string(reg.bits(23, 16).u);
                 contents_of_registers += byte_2_string(reg.bits(31, 24).u);
             }
 
-            //Then the PC (also little endian)
-            word_t pc = cpu_state.get_pc();
-            contents_of_registers += byte_2_string(pc.bits( 7,  0).u);
-            contents_of_registers += byte_2_string(pc.bits(15,  8).u);
-            contents_of_registers += byte_2_string(pc.bits(23, 16).u);
-            contents_of_registers += byte_2_string(pc.bits(31, 24).u);
+        //Then the PC (also little endian)
+        Word pc = cpu_state.get_pc();
+        contents_of_registers += byte_2_string(pc.bits( 7,  0).u);
+        contents_of_registers += byte_2_string(pc.bits(15,  8).u);
+        contents_of_registers += byte_2_string(pc.bits(23, 16).u);
+        contents_of_registers += byte_2_string(pc.bits(31, 24).u);
 
             send_packet(connection_fd, contents_of_registers);
             break;
@@ -240,7 +239,7 @@ static bool handle_recieved_packet(
             //General purpose registers
             for (std::size_t i = 0; i < 32; i++) {
                 //Little endian
-                word_t reg = 0;
+                Word reg = 0;
                 reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
                 packet_string.erase(0, 2);
                 reg |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 8);
@@ -253,7 +252,7 @@ static bool handle_recieved_packet(
             }
             
             //Then the PC (also little endian)
-            word_t pc = 0;
+            Word pc = 0;
             pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
             packet_string.erase(0, 2);
             pc |= (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16) << 8);
@@ -270,20 +269,20 @@ static bool handle_recieved_packet(
         }
         case 'm': {//Read memory
             packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
-            word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
+            Word address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
             packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
-            word_t length = (uint32_t)std::strtol(packet_string.c_str(), nullptr, 16);
+            Word length = (uint32_t)std::strtol(packet_string.c_str(), nullptr, 16);
 
             try {
                 std::string memory_contents;
 
-                for (word_t i = 0; i.u < length.u; ++i) {
-                    word_t byte = memory.load(address + i, 0b000);
+                for (Word i = 0; i.u < length.u; ++i) {
+                    Word byte = memory.load(address + i, 0b000);
                     memory_contents += byte_2_string(byte.bits( 7,  0).u);
                 }
 
                 send_packet(connection_fd, memory_contents);
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }
@@ -292,20 +291,20 @@ static bool handle_recieved_packet(
         }
         case 'M': {//Write memory
             packet_string.erase(0, packet_string.find_first_not_of(" "));//Remove leading whitespace//TODO other whitespace characters?
-            word_t address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
+            Word address = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(",")).c_str(), nullptr, 16);//TODO is this correct if the address is > 8 bits?
             packet_string.erase(0, packet_string.find_first_of(",") + 1);//Remove the address
-            word_t length = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(":")).c_str(), nullptr, 16);//TODO is this correct if the length is > 8 bits?
+            Word length = (uint32_t)std::strtol(packet_string.substr(0, packet_string.find_first_of(":")).c_str(), nullptr, 16);//TODO is this correct if the length is > 8 bits?
             packet_string.erase(0, packet_string.find_first_of(":") + 1);//Remove the length
 
             try {
-                for (word_t i = 0; i.u < length.u; ++i) {
-                    word_t byte = (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
+                for (Word i = 0; i.u < length.u; ++i) {
+                    Word byte = (uint32_t)(std::strtol(packet_string.substr(0, 2).c_str(), nullptr, 16));
                     packet_string.erase(0, 2);
                     memory.store(address + i, 0b000, byte);
                 }
 
                 send_packet(connection_fd, "OK");
-            } catch (const rvexception::rvexception_t& e) {
+            } catch (const rv_trap::rvexception_t& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }

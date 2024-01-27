@@ -1,5 +1,4 @@
 /**
- * @file    config.h
  * @brief   Contains build-time configuration information for IRVE
  * 
  * @copyright
@@ -10,8 +9,7 @@
  *
 */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
@@ -148,5 +146,3 @@
 #ifndef IRVE_INTERNAL_CONFIG_FUZZISH
 #define IRVE_INTERNAL_CONFIG_FUZZISH                1
 #endif
-
-#endif//CONFIG_H

@@ -1,5 +1,4 @@
 /**
- * @file    execute.h
  * @brief   Utility functions for executing instructions
  * 
  * @copyright
@@ -8,8 +7,7 @@
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
-#ifndef EXECUTE_H
-#define EXECUTE_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -18,7 +16,7 @@
 #include "cpu_state.h"
 #include "memory.h"
 #include "decode.h"
-#include "CSR.h"
+#include "csr.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Function Declarations
@@ -30,19 +28,17 @@
  * Split into functions by major (5-bit) opcode
 */
 namespace irve::internal::execute {
-    void load    (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, CSR::CSR_t& CSR);
-    void custom_0(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, CSR::CSR_t& CSR);
-    void misc_mem(const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void op_imm  (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void auipc   (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void store   (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, CSR::CSR_t& CSR);
-    void amo     (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state, memory::memory_t& memory, CSR::CSR_t& CSR);
-    void op      (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void lui     (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void branch  (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void jalr    (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void jal     (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
-    void system  (const decode::decoded_inst_t& decoded_inst, cpu_state::cpu_state_t& cpu_state,                           CSR::CSR_t& CSR);
+    void load    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+    void custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+    void misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void op_imm  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void auipc   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void store   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+    void amo     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+    void op      (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void lui     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void branch  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void jalr    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void jal     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+    void system  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
 }
-
-#endif//EXECUTE_H
