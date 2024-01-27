@@ -18,8 +18,8 @@
 #include <cstdint>
 
 //Needed to deal with circular headers
-namespace irve::internal::emulator {
-    class emulator_t;
+namespace irve::internal {
+    class Emulator;
 }
 
 #include "emulator.h"
@@ -36,7 +36,7 @@ namespace irve::internal::gdbserver {
      * @param port The port to listen on
     */
     void start(
-        emulator::emulator_t& emulator,
+        Emulator& emulator,
         CpuState& cpu_state,
         Memory& memory,
         uint16_t port

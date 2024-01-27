@@ -34,27 +34,27 @@
 
 //Namepace: irve::emulator
 
-irve::emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
-    m_emulator_ptr(new irve::internal::emulator::emulator_t(imagec, imagev)) {}
+irve::Emulator::Emulator(int imagec, const char* const* imagev):
+    m_emulator_ptr(new irve::internal::Emulator(imagec, imagev)) {}
 
-irve::emulator::emulator_t::~emulator_t() {
+irve::Emulator::~Emulator() {
     delete this->m_emulator_ptr;
     this->m_emulator_ptr = nullptr;
 }
 
-bool irve::emulator::emulator_t::tick() {
+bool irve::Emulator::tick() {
     return this->m_emulator_ptr->tick();
 }
 
-void irve::emulator::emulator_t::run_until(uint64_t inst_count) {
+void irve::Emulator::run_until(uint64_t inst_count) {
     this->m_emulator_ptr->run_until(inst_count);
 }
 
-void irve::emulator::emulator_t::run_gdbserver(uint16_t port) {
+void irve::Emulator::run_gdbserver(uint16_t port) {
     this->m_emulator_ptr->run_gdbserver(port);
 }
 
-uint64_t irve::emulator::emulator_t::get_inst_count() const {
+uint64_t irve::Emulator::get_inst_count() const {
     return this->m_emulator_ptr->get_inst_count();
 }
 

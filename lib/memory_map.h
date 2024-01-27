@@ -9,27 +9,30 @@
 
 #pragma once
 
-//Region for user memory
-#define MEM_MAP_REGION_START_USER_RAM       (uint64_t)0x00000000
-#define MEM_MAP_REGION_END_USER_RAM         (uint64_t)0x03FFFFFF
+#include <cstdint>
 
-#define MEM_MAP_REGION_SIZE_USER_RAM        (MEM_MAP_REGION_END_USER_RAM - MEM_MAP_REGION_START_USER_RAM + 1)
+namespace irve::internal::mmap {
 
-//Region for kernel memory
-#define MEM_MAP_REGION_START_KERNEL_RAM     (uint64_t)0xC0000000
-#define MEM_MAP_REGION_END_KERNEL_RAM       (uint64_t)0xC3FFFFFF
+using Addr34 = uint64_t; // TODO(Nick) Move somewhere else
 
-#define MEM_MAP_REGION_SIZE_KERNEL_RAM      (MEM_MAP_REGION_END_KERNEL_RAM - MEM_MAP_REGION_START_KERNEL_RAM + 1)
+// Structure to hold addresses of memory mapped regions
+template<Addr34 start, Addr34 end>
+struct MRegion {
+    static_assert(start <= end);
+    static_assert((start & 0xFFFFFFFC00000000) == 0); // Ensure address is only 34 bits
+    static_assert((end & 0xFFFFFFFC00000000) == 0); // Ensure address is only 34 bits
+    inline bool in_region(const Addr34 addr) const {
+        return start <= addr && addr <= end;
+    }
+    const Addr34 START{start};
+    const Addr34 END{end};
+    const uint64_t SIZE{end - start + 1};
+};
 
-//Region for memory mapped registers
-#define MEM_MAP_REGION_START_ACLINT         (uint64_t)0xF0000000
-#define MEM_MAP_REGION_END_ACLINT           (uint64_t)0xF000BFFF
+constexpr MRegion<0x00000000U, 0x03FFFFFFU> USER_RAM;
+constexpr MRegion<0xC0000000U, 0xC3FFFFFFU> KERNEL_RAM;
+constexpr MRegion<0xF0000000U, 0xF000BFFFU> ACLINT;
+constexpr MRegion<0xF1000000U, 0xF1000007U> UART;
+constexpr MRegion<0xFFFFFFFFU, 0xFFFFFFFFU> DEBUG;
 
-#define MEM_MAP_REGION_SIZE_ACLINT           (MEM_MAP_REGION_END_ACLINT - MEM_MAP_REGION_START_ACLINT + 1)
-
-//Region for 16550 UART
-#define MEM_MAP_REGION_START_UART           (uint64_t)0xF1000000
-#define MEM_MAP_REGION_END_UART             (uint64_t)0xF1000007
-
-//Debug output
-#define MEM_MAP_ADDR_DEBUG                  (uint64_t)0xFFFFFFFF
+} // irve::internal::mmap

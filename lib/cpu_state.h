@@ -17,7 +17,7 @@
 
 #include "csr.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations

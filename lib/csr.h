@@ -21,10 +21,11 @@
 #include <chrono>
 #endif
 
+#include <array>
 #include <cstdint>
 
 #include "common.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 
 namespace irve::internal {
 
@@ -234,8 +235,8 @@ private:
     //mtval is NOT here
     Reg mip;
 
-    Reg pmpcfg[64];
-    Reg pmpaddr[64];
+    std::array<Reg, 64> pmpcfg;
+    std::array<Reg, 64> pmpaddr;
 
     uint64_t minstret;//Handles both minstret and minstreth
     uint64_t mcycle;//Handles both mcycle and mcycleh

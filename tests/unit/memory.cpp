@@ -21,7 +21,7 @@
 #include <cassert>
 #include "memory.h"
 #include "csr.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "memory_map.h"
 #include "common.h"
 
@@ -37,16 +37,16 @@ int test_memory_Memory_user_ram_endianness() {
     Memory memory(CSR);
     
     // Check endianness for words
-    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_WORD, 0x00010203);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 0, DT_UNSIGNED_BYTE) == (uint32_t)0x03);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 1, DT_UNSIGNED_BYTE) == (uint32_t)0x02);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 2, DT_UNSIGNED_BYTE) == (uint32_t)0x01);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 3, DT_UNSIGNED_BYTE) == (uint32_t)0x00);
+    memory.store(static_cast<uint32_t>(mmap::USER_RAM.START), DT_WORD, 0x00010203);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 0, DT_UNSIGNED_BYTE) == (uint32_t)0x03);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 1, DT_UNSIGNED_BYTE) == (uint32_t)0x02);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 2, DT_UNSIGNED_BYTE) == (uint32_t)0x01);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 3, DT_UNSIGNED_BYTE) == (uint32_t)0x00);
 
     // Check endianness for halfwords
-    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_HALFWORD, 0x0000F0F1);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 0, DT_UNSIGNED_BYTE) == (uint32_t)0xF1);
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM + 1, DT_UNSIGNED_BYTE) == (uint32_t)0xF0);
+    memory.store(uint32_t{mmap::USER_RAM.START}, DT_HALFWORD, 0x0000F0F1);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 0, DT_UNSIGNED_BYTE) == (uint32_t)0xF1);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START} + 1, DT_UNSIGNED_BYTE) == (uint32_t)0xF0);
 
     return 0;
 }
@@ -56,16 +56,16 @@ int test_memory_Memory_user_ram_sign_extending() {
     Csr CSR;
     Memory memory(CSR);
 
-    memory.store((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_HALFWORD, 0x00008080);
+    memory.store(static_cast<uint32_t>(mmap::USER_RAM.START), DT_HALFWORD, 0x00008080);
 
     // Unsigned byte load should zero extend
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_UNSIGNED_BYTE) == 0x00000080);
+    assert(memory.load(static_cast<uint32_t>(mmap::USER_RAM.START), DT_UNSIGNED_BYTE) == 0x00000080);
     // Signed byte load should sign extend
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_SIGNED_BYTE) == 0xFFFFFF80);
+    assert(memory.load(static_cast<uint32_t>(mmap::USER_RAM.START), DT_SIGNED_BYTE) == 0xFFFFFF80);
     // Unsigned halfword load should zero extend
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_UNSIGNED_HALFWORD) == 0x00008080);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START}, DT_UNSIGNED_HALFWORD) == 0x00008080);
     // Signed halfword load should sign extend
-    assert(memory.load((uint32_t)MEM_MAP_REGION_START_USER_RAM, DT_SIGNED_HALFWORD) == 0xFFFF8080);
+    assert(memory.load(uint32_t{mmap::USER_RAM.START}, DT_SIGNED_HALFWORD) == 0xFFFF8080);
 
     return 0;
 }
@@ -76,10 +76,10 @@ int test_memory_Memory_user_ram_valid_byte_access() {
     Memory memory(CSR);
 
     // It's way too slow to check every byte so we choose a prime number
-    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+    for (uint64_t i = mmap::USER_RAM.START; i <= mmap::USER_RAM.END; i += 13) {
         memory.store((uint32_t)i, DT_BYTE, (uint8_t)(i * 123));
     }
-    for (uint64_t i = MEM_MAP_REGION_START_USER_RAM; i <= MEM_MAP_REGION_END_USER_RAM; i += 13) {
+    for (uint64_t i = mmap::USER_RAM.START; i <= mmap::USER_RAM.END; i += 13) {
         assert(memory.load((uint32_t)i, DT_UNSIGNED_BYTE) == (uint8_t)(i * 123));
     }
 
@@ -91,11 +91,11 @@ int test_memory_Memory_valid_debugaddr() {
     Csr CSR;
     Memory memory(CSR);
 
-    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'I');
-    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'R');
-    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'V');
-    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, 'E');
-    memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_BYTE, '\n');
+    memory.store(uint32_t{mmap::DEBUG.START}, DT_BYTE, 'I');
+    memory.store(uint32_t{mmap::DEBUG.START}, DT_BYTE, 'R');
+    memory.store(uint32_t{mmap::DEBUG.START}, DT_BYTE, 'V');
+    memory.store(uint32_t{mmap::DEBUG.START}, DT_BYTE, 'E');
+    memory.store(uint32_t{mmap::DEBUG.START}, DT_BYTE, '\n');
 
     return 0;
 }
@@ -105,14 +105,14 @@ int test_memory_Memory_valid_ramaddrs_halfwords() {//None of these should throw 
     Csr CSR;
     Memory memory(CSR);
 
-    // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 2
-    assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 2 == 0);
+    // uint32_t{mmap::USER_RAM.START} must be a multiple of 2
+    assert(uint32_t{mmap::USER_RAM.START} % 2 == 0);
 
     // It's way too slow to check every byte so we choose a prime number
-    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 2); i += 2 * 13) {
+    for (uint32_t i = 0; i < (uint32_t{mmap::USER_RAM.START} / 2); i += 2 * 13) {
         memory.store(i, DT_HALFWORD, (uint16_t)(i * 12345));
     }
-    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 2); i += 2 * 13) {
+    for (uint32_t i = 0; i < (uint32_t{mmap::USER_RAM.START} / 2); i += 2 * 13) {
         assert(memory.load(i, DT_UNSIGNED_HALFWORD) == (uint16_t)(i * 12345));
     }
 
@@ -124,14 +124,14 @@ int test_memory_Memory_valid_ramaddrs_words() {//None of these should throw an e
     Csr CSR;
     Memory memory(CSR);
 
-    // (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM must be a multiple of 4
-    assert((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM % 4 == 0);
+    // uint32_t{mmap::USER_RAM.START} must be a multiple of 4
+    assert(uint32_t{mmap::USER_RAM.START} % 4 == 0);
     
     // It's way too slow to check every byte so we choose a prime number
-    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 4); i += 4 * 13) {
+    for (uint32_t i = 0; i < (uint32_t{mmap::USER_RAM.START} / 4); i += 4 * 13) {
         memory.store(i, DT_WORD, (uint32_t)(i * 987654321));
     }
-    for (uint32_t i = 0; i < ((uint32_t)MEM_MAP_REGION_SIZE_USER_RAM / 4); i += 4 * 13) {
+    for (uint32_t i = 0; i < (uint32_t{mmap::USER_RAM.START} / 4); i += 4 * 13) {
         assert(memory.load(i, DT_WORD) == (uint32_t)(i * 987654321));
     }
 
@@ -146,9 +146,9 @@ int test_memory_Memory_invalid_debugaddr() {
     // The debug address is write-only. Attempting to read from it violates PMA check and causes a
     // load access-fault exception
     try {
-        memory.load((uint32_t)MEM_MAP_ADDR_DEBUG, DT_UNSIGNED_BYTE);
+        memory.load(uint32_t{mmap::DEBUG.START}, DT_UNSIGNED_BYTE);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::LOAD_ACCESS_FAULT_EXCEPTION); 
     }
 
@@ -157,16 +157,16 @@ int test_memory_Memory_invalid_debugaddr() {
     // access-fault exceptions take priority over address-misaligned exceptions according to page
     // 40 of the RISC-V Spec Volume 2
     try {
-        memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_HALFWORD, 0xABCD);
+        memory.store(uint32_t{mmap::DEBUG.START}, DT_HALFWORD, 0xABCD);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
     try {
-        memory.store((uint32_t)MEM_MAP_ADDR_DEBUG, DT_WORD, 0xABCDEF01);
+        memory.store(uint32_t{mmap::DEBUG.START}, DT_WORD, 0xABCDEF01);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ACCESS_FAULT_EXCEPTION); 
     }
 
@@ -179,26 +179,26 @@ int test_memory_Memory_invalid_ramaddrs_misaligned_halfwords() {
     Memory memory(CSR);
 
     // It's way too slow to check every byte so we choose a prime number
-    for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 607) {
+    for (uint32_t i = 0; i < uint32_t{mmap::USER_RAM.START}; i += 607) {
         // Intentionally misalign the address
         uint32_t address = i | 0b1;
 
         try {
             memory.store(address, DT_HALFWORD, (uint16_t)(i * 12345));
             assert(false);
-        } catch (const rv_trap::rvexception_t& e) {
+        } catch (const rv_trap::RvException& e) {
             assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
             memory.load(address, DT_UNSIGNED_HALFWORD);
             assert(false);
-        } catch (const rv_trap::rvexception_t& e) {
+        } catch (const rv_trap::RvException& e) {
             assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
         try {
             memory.load(address, DT_SIGNED_HALFWORD);
             assert(false);
-        } catch (const rv_trap::rvexception_t& e) {
+        } catch (const rv_trap::RvException& e) {
             assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
         }
     }
@@ -214,18 +214,18 @@ int test_memory_Memory_invalid_ramaddrs_misaligned_words() {
 
     for (uint32_t misalignment = 0b01; misalignment <= 0b11; ++misalignment) {
         // It's way too slow to check every byte so we choose a prime number
-        for (uint32_t i = 0; i < (uint32_t)MEM_MAP_REGION_SIZE_USER_RAM; i += 607) {
+        for (uint32_t i = 0; i < uint32_t{mmap::USER_RAM.START}; i += 607) {
             uint32_t address = (i & ~0b11) | misalignment;//Misaligned intentionally
             try {
                 memory.store(address, DT_WORD, (uint32_t)(i * 12345));
                 assert(false);
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 assert(e.cause() == rv_trap::Cause::STORE_OR_AMO_ADDRESS_MISALIGNED_EXCEPTION); 
             }
             try {
                 memory.load(address, DT_WORD);
                 assert(false);
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 assert(e.cause() == rv_trap::Cause::LOAD_ADDRESS_MISALIGNED_EXCEPTION);
             }
         }
@@ -287,33 +287,33 @@ int test_memory_Memory_translation_conditions() {
     CSR.implicit_write(Csr::Address::SATP, Word(0x00000000));
 
     // No translation should occur
-    assert(memory.no_address_translation(1));
+    assert(memory.no_address_translation(Memory::AccessType::LOAD));
 
     // MPP set to S-mode
     CSR.implicit_write(Csr::Address::MSTATUS, Word(0b00000000000000000000100000000000));
 
     // No translation should occur
-    assert(memory.no_address_translation(1));
+    assert(memory.no_address_translation(Memory::AccessType::LOAD));
 
     // MPRV set to 1
     CSR.implicit_write(Csr::Address::MSTATUS, Word(0b00000000000000100000100000000000));
 
     // No translation should occur
-    assert(memory.no_address_translation(1));
+    assert(memory.no_address_translation(Memory::AccessType::LOAD));
 
     // satp indicates sv32
     CSR.implicit_write(Csr::Address::SATP, Word(0x80000000));
 
     // Translation should occur for a load and a store...
-    assert(!memory.no_address_translation(1) && !memory.no_address_translation(2));
+    assert(!memory.no_address_translation(Memory::AccessType::LOAD) && !memory.no_address_translation(Memory::AccessType::STORE));
     // ...but not for an instruction fetch
-    assert(memory.no_address_translation(0));
+    assert(memory.no_address_translation(Memory::AccessType::INSTRUCTION));
 
     // satp indicates bare
     CSR.implicit_write(Csr::Address::SATP, Word(0x00000000));
 
     // No translation should occur
-    assert(memory.no_address_translation(2));
+    assert(memory.no_address_translation(Memory::AccessType::STORE));
 
     // MPP set to 0
     CSR.implicit_write(Csr::Address::MSTATUS, Word(0b00000000000000000000100000000000));
@@ -322,21 +322,21 @@ int test_memory_Memory_translation_conditions() {
     CSR.set_privilege_mode(PrivilegeMode::SUPERVISOR_MODE);
 
     // No translation should occur
-    assert(memory.no_address_translation(0));
+    assert(memory.no_address_translation(Memory::AccessType::INSTRUCTION));
 
     // satp incicates sv32
     CSR.implicit_write(Csr::Address::SATP, (Word)0x80000000);
 
     // Translation should occur
-    assert(!memory.no_address_translation(1));
+    assert(!memory.no_address_translation(Memory::AccessType::LOAD));
 
     // MPP set to M-mode, MPRV set to 1
     CSR.implicit_write(Csr::Address::MSTATUS, Word(0b00000000000000100001100000000000));
 
     // Translation shouldn't occur for a load and a store...
-    assert(memory.no_address_translation(1) && memory.no_address_translation(2));
+    assert(memory.no_address_translation(Memory::AccessType::LOAD) && memory.no_address_translation(Memory::AccessType::STORE));
     // ...but should for an instruction fetch
-    assert(!memory.no_address_translation(0));
+    assert(!memory.no_address_translation(Memory::AccessType::INSTRUCTION));
 
     // MPRV set to 0
     CSR.implicit_write(Csr::Address::MSTATUS, Word(0b00000000000000000001100000000000));
@@ -345,13 +345,13 @@ int test_memory_Memory_translation_conditions() {
     CSR.set_privilege_mode(PrivilegeMode::USER_MODE);
 
     // Translation should occur
-    assert(!memory.no_address_translation(1));
+    assert(!memory.no_address_translation(Memory::AccessType::LOAD));
 
     // satp indicates bare
     CSR.implicit_write(Csr::Address::SATP, Word(0x00000000));
 
     // No translation should occur
-    assert(memory.no_address_translation(0));
+    assert(memory.no_address_translation(Memory::AccessType::INSTRUCTION));
 
     return 0;
 }

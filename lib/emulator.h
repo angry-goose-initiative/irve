@@ -20,7 +20,7 @@
 #include "decode.h"
 #include "gdbserver.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "semihosting.h"
 
 #include <unordered_map>
@@ -29,99 +29,93 @@
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
-/**
- * @brief       The namespace containing the actual emulator_t class (internal).
-*/
-namespace irve::internal::emulator {
+namespace irve::internal {
+
+// The main IRVE emulator class (internal).
+class Emulator {
+public:
+    // The default constructor is deleted since the emulator is useless without a memory imagefile loaded.
+    Emulator() = delete;
+
     /**
-     * @brief       The main IRVE emulator class (internal).
+        * @brief       The constructor for Emulator.
+        * @param[in]   imagec The number of memory image files to load.
+        * @param[in]   imagev Vector of memory image file names.
     */
-    class emulator_t {
-    public:
-        /**
-         * The default constructor is deleted since the emulator is useless without a memory image
-         * file loaded.
-        */
-        emulator_t() = delete;
+    Emulator(int imagec, const char* const* imagev);
 
-        /**
-         * @brief       The constructor for emulator_t.
-         * @param[in]   imagec The number of memory image files to load.
-         * @param[in]   imagev Vector of memory image file names.
-        */
-        emulator_t(int imagec, const char* const* imagev);
-
-        /**
-         * @brief       Emulate one instruction.
-         * @return      True if the emulator should continue running, false otherwise.
-        */
-        bool tick();
-         
-        /**
-         * @brief       Repeatedly emulate instructions.
-         * @details     Runs the emulator until the given instruction count is reached or an exit
-         *              request is made. For dynamic linking to libirve, this is more efficient
-         *              than calling tick() in a loop.
-         * @param[in]   inst_count The value of minstret at which to stop.
-        */
-        void run_until(uint64_t inst_count);
-
-        /**
-         * @brief       Run a GDB server on the given port.
-         * @param[in]   port The port to listen on.
-        */
-        void run_gdbserver(uint16_t port);
-
-        /**
-         * @brief       Get the current instruction count.
-         * @return      minstret
-        */
-        uint64_t get_inst_count();
-
-        /**
-         * @brief       Determine if a breakpoint was encountered and clear the flag indicating so
-         *              if it was.
-         * @return      True if a breakpoint was encountered.
-        */
-        bool test_and_clear_breakpoint_encountered_flag();
-
-        /**
-         * @brief       Flish the instruction cache.
-        */
-        void flush_icache();
-
-    private:
-
-        /**
-         * @brief       Fetches and decodes the instruciton specified by the current PC.
-         * @return      Information about the decoded instruciton.
-        */
-        decode::decoded_inst_t fetch_and_decode();
-
-        /**
-         * @brief       Executes an instruction that has been decoded.
-         * @param[in]   decoded_inst Information about the decoded instruction.
-        */
-        void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
-
-        /**
-         * @brief       Check for interrupts and if any have occurred, handle them.
-        */
-        void check_and_handle_interrupts();
-
-        /**
-         * @brief       Handle a trap.
-         * @param[in]   cause The cause of the trap.
-        */
-        void handle_trap(rv_trap::Cause cause);
+    /**
+        * @brief       Emulate one instruction.
+        * @return      True if the emulator should continue running, false otherwise.
+    */
+    bool tick();
         
-        Csr m_CSR;
-        Memory m_memory;
-        CpuState m_cpu_state;
+    /**
+        * @brief       Repeatedly emulate instructions.
+        * @details     Runs the emulator until the given instruction count is reached or an exit
+        *              request is made. For dynamic linking to libirve, this is more efficient
+        *              than calling tick() in a loop.
+        * @param[in]   inst_count The value of minstret at which to stop.
+    */
+    void run_until(uint64_t inst_count);
 
-        SemihostingHandler m_semihosting_handler;
-        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word
-        bool m_intercept_breakpoints;
-        bool m_encountered_breakpoint;
-    };
-}
+    /**
+        * @brief       Run a GDB server on the given port.
+        * @param[in]   port The port to listen on.
+    */
+    void run_gdbserver(uint16_t port);
+
+    /**
+        * @brief       Get the current instruction count.
+        * @return      minstret
+    */
+    uint64_t get_inst_count();
+
+    /**
+        * @brief       Determine if a breakpoint was encountered and clear the flag indicating so
+        *              if it was.
+        * @return      True if a breakpoint was encountered.
+    */
+    bool test_and_clear_breakpoint_encountered_flag();
+
+    /**
+        * @brief       Flish the instruction cache.
+    */
+    void flush_icache();
+
+private:
+
+    /**
+        * @brief       Fetches and decodes the instruciton specified by the current PC.
+        * @return      Information about the decoded instruciton.
+    */
+    decode::Instruction fetch_and_decode();
+
+    /**
+        * @brief       Executes an instruction that has been decoded.
+        * @param[in]   decoded_inst Information about the decoded instruction.
+    */
+    void execute(const decode::Instruction& decoded_inst);//TODO move this to a separate file
+
+    /**
+        * @brief       Check for interrupts and if any have occurred, handle them.
+    */
+    void check_and_handle_interrupts();
+
+    /**
+        * @brief       Handle a trap.
+        * @param[in]   cause The cause of the trap.
+    */
+    void handle_trap(rv_trap::Cause cause);
+    
+    Csr m_CSR;
+    Memory m_memory;
+    CpuState m_cpu_state;
+
+    SemihostingHandler m_semihosting_handler;
+    std::unordered_map<uint32_t, decode::Instruction> m_icache;//uint32_t to avoid needing to implement hash for Word
+    bool m_intercept_breakpoints;
+    bool m_encountered_breakpoint;
+};
+
+} // namespace irve::internal

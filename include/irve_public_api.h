@@ -1,5 +1,4 @@
 /**
- * @file    irve_public_api.h
  * @brief   Public API for IRVE
  * 
  * @copyright
@@ -13,21 +12,12 @@
  *
 */
 
-#ifndef IRVE_PUBLIC_API_H
-#define IRVE_PUBLIC_API_H
-
-/* ------------------------------------------------------------------------------------------------
- * Includes
- * --------------------------------------------------------------------------------------------- */
+#pragma once
 
 //CANNOT contain any private headers
 
 #include <cstddef>
 #include <cstdint>
-
-/* ------------------------------------------------------------------------------------------------
- * Type/Class Declarations
- * --------------------------------------------------------------------------------------------- */
 
 //Note: Everything must refer to a symbol in the irve library, not be a #define constant!
 //This is to support dynamic linking with different libirve.so versions
@@ -37,168 +27,161 @@
  * @brief The main irve namespace
 */
 namespace irve {//NOT irve::internal
-    namespace emulator { class emulator_t; }
+
+/**
+ * @brief Contains functions to log messages to the console
+*/
+namespace logging {
+    /**
+     * @brief Log to stderr, when logging is enabled
+     * @param indent The indentation level to use
+     * @param str The format string to use
+     * @param ... The arguments to the format string
+    */
+    void log(uint8_t indent, const char* str, ...);
 
     /**
-     * @brief Contains functions to log messages to the console
+     * @brief Log to stderr, regardless of whether logging is enabled or not
+     * @param indent The indentation level to use
+     * @param str The format string to use
+     * @param ... The arguments to the format string
     */
-    namespace logging {
-        /**
-         * @brief Log to stderr, when logging is enabled
-         * @param indent The indentation level to use
-         * @param str The format string to use
-         * @param ... The arguments to the format string
-        */
-        void log(uint8_t indent, const char* str, ...);
-
-        /**
-         * @brief Log to stderr, regardless of whether logging is enabled or not
-         * @param indent The indentation level to use
-         * @param str The format string to use
-         * @param ... The arguments to the format string
-        */
-        void log_always(uint8_t indent, const char* str, ...);//USE THIS SPARINGLY
-
-        /**
-         * @brief Check if logging is disabled in this build of libirve
-         * @return True if logging is disabled, false otherwise
-        */
-        bool logging_disabled();
-    }
+    void log_always(uint8_t indent, const char* str, ...);//USE THIS SPARINGLY
 
     /**
-     * @brief Contains functions to get information about the libirve build
+        * @brief Check if logging is disabled in this build of libirve
+        * @return True if logging is disabled, false otherwise
     */
-    namespace about {
-        /**
-         * @brief Get the major version number of libirve
-         * @return The major version number of libirve
-        */
-        std::size_t get_version_major();
+    bool logging_disabled();
+} // namespace logging
 
-        /**
-         * @brief Get the minor version number of libirve
-         * @return The minor version number of libirve
-        */
-        std::size_t get_version_minor();
-
-        /**
-         * @brief Get the patch version number of libirve
-         * @return The patch version number of libirve
-        */
-        std::size_t get_version_patch();
-
-        /**
-         * @brief Get the version string of libirve
-         * @return The version string of libirve
-        */
-        const char* get_version_string();
-
-        /**
-         * @brief Get the time of the day that libirve was built
-         * @return The time of the day that libirve was built (as a string)
-        */
-        const char* get_build_time_string();
-
-        /**
-         * @brief Get the date that libirve was built on
-         * @return The date that libirve was built (as a string)
-        */
-        const char* get_build_date_string();
-
-        /**
-         * @brief Get the build system that libirve was built with
-         * @return The build system that libirve was built with (as a string)
-        */
-        const char* get_build_system_string();
-
-        /**
-         * @brief Get the host that libirve was built on
-         * @return The host that libirve was built on (as a string)
-        */
-        const char* get_build_host_string();
-
-        /**
-         * @brief Get the target that libirve was built for
-         * @return The target that libirve was built for (as a string)
-        */
-        const char* get_compile_target_string();
-
-        /**
-         * @brief Get the compiler that libirve was built with
-         * @return The compiler that libirve was built with (as a string)
-        */
-        const char* get_compiler_string();
-
-        //TODO doxygen
-        bool fuzzish_build();
-    }
-
-    //Things that depend on previous declarations
-
-    //We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
-    namespace internal::emulator { class emulator_t; }//Forward declaration of the internal class
+/**
+ * @brief Contains functions to get information about the libirve build
+*/
+namespace about {
+    /**
+     * @brief Get the major version number of libirve
+     * @return The major version number of libirve
+    */
+    std::size_t get_version_major();
 
     /**
-     * @brief The namespace containing the actual emulator_t class
+     * @brief Get the minor version number of libirve
+     * @return The minor version number of libirve
     */
-    namespace emulator {
-        //We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
-        /**
-         * @brief The main IRVE emulator class
-        */
-        class emulator_t {//TODO provide read-only access to the CPU state at the end for integration testing
-        public:
-            emulator_t() = delete;
+    std::size_t get_version_minor();
 
-            /**
-             * @brief Construct a new emulator_t
-             * @param imagec The number of images to load into memory
-             * @param imagev The names of the images to load into memory (array of char*)
-            */
-            emulator_t(int imagec, const char* const* imagev);
+    /**
+     * @brief Get the patch version number of libirve
+     * @return The patch version number of libirve
+    */
+    std::size_t get_version_patch();
 
-            /**
-             * @brief Destroy an emulator_t and free up its resources
-            */
-            ~emulator_t();
+    /**
+     * @brief Get the version string of libirve
+     * @return The version string of libirve
+    */
+    const char* get_version_string();
 
-            /**
-             * @brief Emulate one instruction
-            */
-            bool tick();//Returns true if the emulator should continue running
+    /**
+     * @brief Get the time of the day that libirve was built
+     * @return The time of the day that libirve was built (as a string)
+    */
+    const char* get_build_time_string();
 
-            /**
-             * @brief Repeatedly emulate instructions
-             * @param inst_count The value of minstret at which to stop
-             * Runs the emulator until the given instruction count is reached or an exit request is made
-             * For dynamic linking to libirve, this is more efficient than calling tick() in a loop
-             *
-            */
-            void run_until(uint64_t inst_count);
+    /**
+     * @brief Get the date that libirve was built on
+     * @return The date that libirve was built (as a string)
+    */
+    const char* get_build_date_string();
 
-            /**
-             * @brief Run a GDB server on the given port
-             * @param port The port to listen on
-             *
-            */
-            void run_gdbserver(uint16_t port);
+    /**
+     * @brief Get the build system that libirve was built with
+     * @return The build system that libirve was built with (as a string)
+    */
+    const char* get_build_system_string();
 
-            /**
-             * @brief Get the current instruction count
-             * @return minstret
-            */
-            uint64_t get_inst_count() const;
+    /**
+     * @brief Get the host that libirve was built on
+     * @return The host that libirve was built on (as a string)
+    */
+    const char* get_build_host_string();
 
-        private:
-            /**
-             * @brief The pointer to the internal emulator_t
-             *
-             * We must do this for ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
-            */
-            irve::internal::emulator::emulator_t* m_emulator_ptr;
-        };
-    }
-}
+    /**
+     * @brief Get the target that libirve was built for
+     * @return The target that libirve was built for (as a string)
+    */
+    const char* get_compile_target_string();
 
-#endif//COMMON_H
+    /**
+     * @brief Get the compiler that libirve was built with
+     * @return The compiler that libirve was built with (as a string)
+    */
+    const char* get_compiler_string();
+
+    //TODO doxygen
+    bool fuzzish_build();
+
+} // namespace about
+
+//Things that depend on previous declarations
+
+//We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
+namespace internal { class Emulator; }//Forward declaration of the internal class
+
+//We have to do it this way to maintain ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
+/**
+ * @brief The main IRVE emulator class
+*/
+class Emulator {//TODO provide read-only access to the CPU state at the end for integration testing
+public:
+    Emulator() = delete;
+
+    /**
+     * @brief Construct a new Emulator
+     * @param imagec The number of images to load into memory
+     * @param imagev The names of the images to load into memory (array of char*)
+    */
+    Emulator(int imagec, const char* const* imagev);
+
+    /**
+     * @brief Destroy an Emulator and free up its resources
+    */
+    ~Emulator();
+
+    /**
+     * @brief Emulate one instruction
+    */
+    bool tick();//Returns true if the emulator should continue running
+
+    /**
+     * @brief Repeatedly emulate instructions
+     * @param inst_count The value of minstret at which to stop
+     * Runs the emulator until the given instruction count is reached or an exit request is made
+     * For dynamic linking to libirve, this is more efficient than calling tick() in a loop
+     *
+    */
+    void run_until(uint64_t inst_count);
+
+    /**
+     * @brief Run a GDB server on the given port
+     * @param port The port to listen on
+    */
+    void run_gdbserver(uint16_t port);
+
+    /**
+     * @brief Get the current instruction count
+     * @return minstret
+    */
+    uint64_t get_inst_count() const;
+
+private:
+    /**
+     * @brief The pointer to the internal Emulator
+     *
+     * We must do this for ABI compatibility: https://en.cppreference.com/w/cpp/language/pimpl
+    */
+    irve::internal::Emulator* m_emulator_ptr;
+};
+
+} // namespace irve

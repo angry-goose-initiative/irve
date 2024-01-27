@@ -13,11 +13,9 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
-#include <iostream>
 #include <memory>
 
 #include "common.h"
-
 #include "aclint.h"
 #include "csr.h"
 #include "uart.h"
@@ -28,35 +26,19 @@
 
 namespace irve::internal {
 
-typedef enum {
-    AS_OKAY = 0,
-    AS_VIOLATES_PMP = 1,
-    AS_VIOLATES_PMA = 2,
-    AS_MISALIGNED = 3
-} access_status_t;
-
-typedef enum {
-    IL_OKAY,
-    IL_FAIL
-} image_load_status_t;
-
 // Facilitates address translation, memory protection, and loading the memory image file
 class Memory {
 public:
 
-    /**
-     * @brief       The constructor when not loading memory image files.
-     * @param[in]   CSR_ref A reference to the CSR's.
-    */
-    Memory(Csr& CSR_ref);
+    Memory() = delete;
 
     /**
-     * @brief       The constructor when loading memory image files.
+     * @brief       The constructor.
      * @param[in]   imagec The number of memory image files to load.
      * @param[in]   imagev Vector of memory image file names.
      * @param[in]   CSR_ref A reference to the CSR's.
     */
-    Memory(int imagec, const char* const* imagev, Csr& CSR_ref);
+    Memory(Csr& CSR_ref, int imagec = 0, const char* const* imagev = nullptr);
 
     /**
      * @brief       The destructor.
@@ -95,6 +77,22 @@ public:
 
 private:
 
+    // Memory access types
+    enum class AccessType {
+        INSTRUCTION = 0,
+        LOAD = 1,
+        STORE = 3
+    };
+
+    enum class AccessStatus {
+        OKAY = 0,
+        VIOLATES_PMP = 1,
+        VIOLATES_PMA = 2,
+        MISALIGNED = 3
+    };
+
+    enum class ImageLoadStatus {OKAY, ERROR};
+
     /**
      * @brief       Translates a 32 bit address to a 34 bit machine address.
      * @param[in]   untranslated_address 32 bit address.
@@ -102,7 +100,7 @@ private:
      *              depending on the acces type.
      * @return      34 bit machine address.
     */
-    uint64_t translate_address(Word untranslated_addr, uint8_t access_type);
+    uint64_t translate_address(Word untranslated_addr, AccessType access_type);
 
     /**
      * @brief       Checks if an address should be translated or not.
@@ -110,7 +108,7 @@ private:
      *              the access type is instruction.
      * @return      True for bare translation, false for sv32 translation.
     */
-    bool no_address_translation(uint8_t access_type) const;
+    bool no_address_translation(AccessType access_type) const;
 
     /**
      * @brief       Read the specified data type from memory.
@@ -120,12 +118,12 @@ private:
      *              issue was).
      * @return      32 bit version of data that was read.
     */
-    Word read_memory(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory(uint64_t addr, uint8_t data_type, AccessStatus& access_status);
 
-    Word read_memory_region_user_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    Word read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, access_status_t& access_status) const;
-    Word read_memory_region_aclint(uint64_t addr, uint8_t data_type, access_status_t& access_status);
-    Word read_memory_region_uart(uint64_t addr, uint8_t data_type, access_status_t& access_status);
+    Word read_memory_region_user_ram(uint64_t addr, uint8_t data_type, AccessStatus& access_status) const;
+    Word read_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, AccessStatus& access_status) const;
+    Word read_memory_region_aclint(uint64_t addr, uint8_t data_type, AccessStatus& access_status);
+    Word read_memory_region_uart(uint64_t addr, uint8_t data_type, AccessStatus& access_status);
 
     /**
      * @brief       Write data to memory.
@@ -135,13 +133,15 @@ private:
      * @param[out]  access_status The status of the access (success or not and if not, what the
      *              issue was).
     */
-    void write_memory(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
 
-    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
-    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
-    void write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
-    void write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
-    void write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data, access_status_t& access_status);
+    void write_memory_region_user_ram(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
+    void write_memory_region_kernel_ram(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
+    void write_memory_region_aclint(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
+    void write_memory_region_uart(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
+    void write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data, AccessStatus& access_status);
+
+    // TODO(Nick) Move loading functions to separate file
 
     /**
      * @brief       Loads memory image files (only called by the constructor).
@@ -149,7 +149,7 @@ private:
      * @param[in]   imagev Vector of memory image file names.
      * @return      Status of the load.
     */
-    image_load_status_t load_memory_image_files(int imagec, const char* const* imagev);
+    ImageLoadStatus load_memory_image_files(int imagec, const char* const* imagev);
 
     /**
      * @brief       Loads a flat binary file to memory.
@@ -157,24 +157,24 @@ private:
      * @param[in]   start_addr The address to start loading the image at.
      * @return      Status of the load.
     */
-    image_load_status_t load_raw_bin(std::string image_path, uint64_t start_addr);
+    ImageLoadStatus load_raw_bin(std::string image_path, uint64_t start_addr);
 
     /**
      * @brief       Loads an 8-bit Verilog hex file to memory.
      * @param[in]   image_path The path to the memory image file.
      * @return      Status of the load
     */
-    image_load_status_t load_verilog_8(std::string image_path);
+    ImageLoadStatus load_verilog_8(std::string image_path);
 
     /**
      * @brief       Loads a 32-bit Verilog hex file to memory.
      * @param[in]   image_path The path to the memory image file.
      * @return      Status of the load.
     */
-    image_load_status_t load_verilog_32(std::string image_path);
+    ImageLoadStatus load_verilog_32(std::string image_path);
 
     // Reference to the CSRs since memory operations depend on them.
-    Csr& m_CSR_ref;
+    Csr& csr;
 
     // Pointer to user ram.
     std::unique_ptr<uint8_t[]> m_user_ram;
@@ -182,9 +182,7 @@ private:
     // Pointer to kernel ram.
     std::unique_ptr<uint8_t[]> m_kernel_ram;
 
-    /**
-     * @brief       ACLINT
-    */
+    // ACLINT
     Aclint m_aclint;
 
     // 16550 UART.

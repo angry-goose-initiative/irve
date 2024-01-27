@@ -23,7 +23,7 @@
 #include "gdbserver.h"
 #include "execute.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "semihosting.h"
 
 #define INST_COUNT this->m_CSR.implicit_read(Csr::Address::MINSTRET).u
@@ -35,30 +35,30 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
+Emulator::Emulator(int imagec, const char* const* imagev):
     m_CSR(),
-    m_memory(imagec, imagev, m_CSR),
+    m_memory(m_CSR, imagec, imagev),
     m_cpu_state(m_CSR),
     m_intercept_breakpoints(false)
 {
     irvelog(0, "Created new emulator instance");
 }
 
-bool emulator::emulator_t::tick() {
+bool Emulator::tick() {
     this->m_CSR.implicit_write(Csr::Address::MINSTRET, this->m_CSR.implicit_read(Csr::Address::MINSTRET) + 1);
     this->m_CSR.implicit_write(Csr::Address::MCYCLE,   this->m_CSR.implicit_read(Csr::Address::MCYCLE  ) + 1);
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
     try {
-        decode::decoded_inst_t decoded_inst = this->fetch_and_decode();
+        decode::Instruction decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         uint32_t raw_cause = (uint32_t)e.cause();
         assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
         irvelog(1, "Handling exception: Cause: %u", raw_cause);
         this->handle_trap(e.cause());
-    } catch (const rv_trap::irve_exit_request_t&) {
+    } catch (const rv_trap::IrveExitRequest&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
     }
@@ -74,7 +74,7 @@ bool emulator::emulator_t::tick() {
     return true;
 }
 
-void emulator::emulator_t::run_until(uint64_t inst_count) {
+void Emulator::run_until(uint64_t inst_count) {
     if (inst_count) {
         //Run until the given instruction count is reached or an exit request is made
         while ((this->get_inst_count() < inst_count) && this->tick());
@@ -85,27 +85,27 @@ void emulator::emulator_t::run_until(uint64_t inst_count) {
     }
 }
 
-void emulator::emulator_t::run_gdbserver(uint16_t port) {
+void Emulator::run_gdbserver(uint16_t port) {
     this->m_intercept_breakpoints = true;
     this->m_encountered_breakpoint = false;
     gdbserver::start(*this, this->m_cpu_state, this->m_memory, port);
 }
 
-uint64_t emulator::emulator_t::get_inst_count() {
+uint64_t Emulator::get_inst_count() {
     return INST_COUNT;
 }
 
-bool emulator::emulator_t::test_and_clear_breakpoint_encountered_flag() {
+bool Emulator::test_and_clear_breakpoint_encountered_flag() {
     bool breakpoint_encountered = this->m_encountered_breakpoint;
     this->m_encountered_breakpoint = false;
     return breakpoint_encountered;
 }
 
-void emulator::emulator_t::flush_icache() {
+void Emulator::flush_icache() {
     this->m_icache.clear();
 }
 
-decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
+decode::Instruction Emulator::fetch_and_decode() {
     Word pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
 
@@ -126,7 +126,7 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
         irvelog(1, "Fetched 0x%08x from 0x%08x", inst, pc);
 
         irvelog(1, "Decoding instruction 0x%08X", inst);
-        decode::decoded_inst_t decoded_inst(inst);
+        decode::Instruction decoded_inst(inst);
         decoded_inst.log(2, this->get_inst_count());
 
         //TODO be more fine-grained about this
@@ -144,7 +144,7 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
 }
 
 //TODO move this to a separate file maybe?
-void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
+void Emulator::execute(const decode::Instruction &decoded_inst) {
     irvelog(1, "Executing instruction");
 
     //We can assume the opcode exists since the instruction is valid
@@ -207,7 +207,7 @@ void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
     }
 }
 
-void emulator::emulator_t::check_and_handle_interrupts() {
+void Emulator::check_and_handle_interrupts() {
     //Section 3.1.6.1 describes when interrupts are globally enabled
     //We will never be interrupted to a lower privilege level if we are currently executing in a higher privilege level
     //Ex. if we're in M-mode, interrupts delegated to S-mode will never be triggered (will just stay pending)
@@ -295,7 +295,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     this->handle_trap(cause);
 }
 
-void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
+void Emulator::handle_trap(rv_trap::Cause cause) {
     this->flush_icache();
 
     //TODO better logging
@@ -323,7 +323,7 @@ void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
                     semihosting_ebreak = true;
                 }
                 //Otherwise not a semihosting ebreak
-            } catch (const rv_trap::rvexception_t&) {
+            } catch (const rv_trap::RvException&) {
                 //Not a semihosting ebreak
             }
         }

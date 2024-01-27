@@ -23,7 +23,7 @@
 
 #include "common.h"
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #define INST_COUNT inst_count
 #include "logging.h"
@@ -38,7 +38,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-decode::decoded_inst_t::decoded_inst_t(Word instruction) :
+decode::Instruction::Instruction(Word instruction) :
     m_opcode((opcode_t)instruction.bits(6, 2).u),
     m_funct3(instruction.bits(14, 12).u),
     m_funct5(instruction.bits(31, 27).u),
@@ -120,7 +120,7 @@ decode::decoded_inst_t::decoded_inst_t(Word instruction) :
     }
 }
 
-void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
+void decode::Instruction::log(uint8_t indent, uint64_t inst_count) const {
     switch (this->get_format()) {
         case inst_format_t::R_TYPE:
 #if IRVE_INTERNAL_CONFIG_RUST
@@ -191,17 +191,17 @@ void decode::decoded_inst_t::log(uint8_t indent, uint64_t inst_count) const {
     }
 }
 
-decode::inst_format_t decode::decoded_inst_t::get_format() const {
+decode::inst_format_t decode::Instruction::get_format() const {
     return this->m_format;
 }
 
-decode::opcode_t decode::decoded_inst_t::get_opcode() const {
+decode::opcode_t decode::Instruction::get_opcode() const {
     return this->m_opcode;
 }
 
 //FIXME all these assertions cause problems for the SYSTEM instructions
 
-uint8_t decode::decoded_inst_t::get_funct3() const {
+uint8_t decode::Instruction::get_funct3() const {
     assert((this->get_format() != inst_format_t::U_TYPE) &&
             "Attempt to get funct3 of U-type instruction!");
     assert((this->get_format() != inst_format_t::J_TYPE) &&
@@ -209,19 +209,19 @@ uint8_t decode::decoded_inst_t::get_funct3() const {
     return this->m_funct3;
 }
 
-uint8_t decode::decoded_inst_t::get_funct5() const {
+uint8_t decode::Instruction::get_funct5() const {
     assert((this->get_opcode() == opcode_t::AMO) &&
             "Attempt to get funct5 of non-AMO instruction!");
     return this->m_funct5;
 }
 
-uint8_t decode::decoded_inst_t::get_funct7() const {
+uint8_t decode::Instruction::get_funct7() const {
     //FIXME this assertion causes problems for the SYSTEM instructions (need to add an exception for them)
     //assert((this->get_format() == inst_format_t::R_TYPE) && "Attempt to get funct7 of non-R-type instruction!");
     return this->m_funct7;
 }
 
-uint8_t decode::decoded_inst_t::get_rd() const {
+uint8_t decode::Instruction::get_rd() const {
     assert((this->get_format() != inst_format_t::S_TYPE) &&
             "Attempt to get rd of S-type instruction!");
     assert((this->get_format() != inst_format_t::B_TYPE) &&
@@ -229,7 +229,7 @@ uint8_t decode::decoded_inst_t::get_rd() const {
     return this->m_rd;
 }
 
-uint8_t decode::decoded_inst_t::get_rs1() const {
+uint8_t decode::Instruction::get_rs1() const {
     assert((this->get_format() != inst_format_t::U_TYPE) &&
             "Attempt to get rs1 of U-type instruction!");
     assert((this->get_format() != inst_format_t::J_TYPE) &&
@@ -237,7 +237,7 @@ uint8_t decode::decoded_inst_t::get_rs1() const {
     return this->m_rs1;
 }
 
-uint8_t decode::decoded_inst_t::get_rs2() const {
+uint8_t decode::Instruction::get_rs2() const {
     //FIXME these assertions cause problems for the SYSTEM instructions (need to add an exception for them)
     //assert((this->get_format() != inst_format_t::I_TYPE) && "Attempt to get rs2 of I-type instruction!");
     //assert((this->get_format() != inst_format_t::U_TYPE) && "Attempt to get rs2 of U-type instruction!");
@@ -245,7 +245,7 @@ uint8_t decode::decoded_inst_t::get_rs2() const {
     return this->m_rs2;
 }
 
-Word decode::decoded_inst_t::get_imm() const {
+Word decode::Instruction::get_imm() const {
     switch (this->get_format()) {
         case inst_format_t::R_TYPE:
             assert(false && "Attempt to get imm of R-type instruction!");
@@ -272,7 +272,7 @@ Word decode::decoded_inst_t::get_imm() const {
     }
 }
 
-std::string decode::decoded_inst_t::disassemble() const {
+std::string decode::Instruction::disassemble() const {
 #if IRVE_INTERNAL_CONFIG_RUST
     disassemble::DecodedInst rust_decoded_inst = {
         .format     = (disassemble::Format)this->get_format(),//NOTE: Relies on the enum numbering being the same

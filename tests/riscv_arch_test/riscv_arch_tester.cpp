@@ -81,7 +81,7 @@ int main(int argc, const char* const* argv) {
     irvelog_always(0, "Signature destination file: \"%s\"", signature_filename);
 
     irvelog_always(0, "Initializing emulator...");
-    irve::emulator::emulator_t emulator(num_files_to_load, file_list);
+    irve::Emulator emulator(num_files_to_load, file_list);
     irvelog_always(0, "Done!");
 
     irvelog_always(0, "Running test...");

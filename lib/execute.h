@@ -28,17 +28,19 @@
  * Split into functions by major (5-bit) opcode
 */
 namespace irve::internal::execute {
-    void load    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
-    void custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
-    void misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void op_imm  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void auipc   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void store   (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
-    void amo     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
-    void op      (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void lui     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void branch  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void jalr    (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void jal     (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-    void system  (const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
-}
+
+void load    (const decode::Instruction& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+void custom_0(const decode::Instruction& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+void misc_mem(const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void op_imm  (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void auipc   (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void store   (const decode::Instruction& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+void amo     (const decode::Instruction& decoded_inst, CpuState& cpu_state, Memory& memory, Csr& CSR);
+void op      (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void lui     (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void branch  (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void jalr    (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void jal     (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+void system  (const decode::Instruction& decoded_inst, CpuState& cpu_state,                 Csr& CSR);
+
+} // namespace irve::internal::execute

@@ -15,7 +15,7 @@
 #include <cstdint>
 #include "decode.h"
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 using namespace irve::internal;
 
@@ -24,7 +24,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 int test_decode_decoded_inst_t() {
-    decode::decoded_inst_t nop(0x00000013);
+    decode::Instruction nop(0x00000013);
     assert(nop.get_opcode() == decode::opcode_t::OP_IMM);
     assert(nop.get_rd() == 0);
     assert(nop.get_funct3() == 0);
@@ -39,25 +39,25 @@ int test_decode_decoded_inst_t() {
 int test_decode_decoded_inst_t_invalid() {
     //All 0s is an invalid instruction
     try {
-        decode::decoded_inst_t invalid(0x00000000);
+        decode::Instruction invalid(0x00000000);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     //All 1s is an invalid instruction
     try {
-        decode::decoded_inst_t invalid(0xFFFFFFFF);
+        decode::Instruction invalid(0xFFFFFFFF);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
     //We don't support compressed instructions
     try {
-        decode::decoded_inst_t invalid(0x00000001);
+        decode::Instruction invalid(0x00000001);
         assert(false);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         assert(e.cause() == rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 

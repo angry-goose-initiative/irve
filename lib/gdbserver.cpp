@@ -100,7 +100,7 @@ class unused_t {};
 
 static bool handle_recieved_packet(
     const packet_t&         packet,
-    emulator::emulator_t&   emulator,
+    Emulator&   emulator,
     CpuState& cpu_state,
     Memory&       memory,
     int                     connection_fd
@@ -123,7 +123,7 @@ static struct addrinfo* get_addrinfo_ll_ptr(uint16_t port);
  * --------------------------------------------------------------------------------------------- */
 
 void gdbserver::start(
-    emulator::emulator_t& emulator,
+    Emulator& emulator,
     CpuState& cpu_state,
     Memory& memory,
     uint16_t port
@@ -171,7 +171,7 @@ void gdbserver::start(
 
 static bool handle_recieved_packet(
     const packet_t&         packet,
-    emulator::emulator_t&   emulator,
+    Emulator&   emulator,
     CpuState& cpu_state,
     Memory&       memory,
     int                     connection_fd
@@ -282,7 +282,7 @@ static bool handle_recieved_packet(
                 }
 
                 send_packet(connection_fd, memory_contents);
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }
@@ -304,7 +304,7 @@ static bool handle_recieved_packet(
                 }
 
                 send_packet(connection_fd, "OK");
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 //Let GDB know we failed to read memory
                 send_packet(connection_fd, "E00");
             }

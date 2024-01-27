@@ -18,7 +18,7 @@
 #define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #include "fuzzish.h"
 
@@ -37,7 +37,7 @@ CpuState::CpuState(Csr& CSR_ref) :
 
     //Initialize all registers to a random number (just to prevent any sanitizers from complaining)
     for (uint8_t i = 0; i < 31; ++i) {
-        this->m_regs[i] = irve_fuzzish_rand();
+        this->m_regs[i] = fuzzish::rand();
     }
 
     this->log(2);

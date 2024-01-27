@@ -22,21 +22,6 @@
 
 #include "common.h"
 
-/* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
-/**
- * @brief Invoke an IRVE exit request (more concise than using throw)
-*/
-#define invoke_polite_irve_exit_request() do {                                                    \
-    throw irve::internal::rv_trap::irve_exit_request_t();                                     \
-} while (0)
-
-/* ------------------------------------------------------------------------------------------------
- * Type/Class Declarations
- * --------------------------------------------------------------------------------------------- */
-
 namespace irve::internal::rv_trap {
 
 /* ------------------------------------------------------------------------------------------------
@@ -72,21 +57,15 @@ enum class Cause : uint32_t {
     STORE_OR_AMO_PAGE_FAULT_EXCEPTION           = 15
 };
 
-/**
- * @brief Exception thrown when an exception is invoked by the RISC-V system
- *
- * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working
- * on our first emulator. We'll stop using exceptions when we do XRVE in Rust. (We'll use Results
- * and the ? operator instead to make things nice and also fast)
-*/
-class rvexception_t : public std::runtime_error {
+// Exception thrown when an exception is invoked by the RISC-V system
+class RvException : public std::runtime_error {
 public:
     /**
-     * @brief Construct a new rvexception_t
+     * @brief Construct a new RvException
      * 
      * @param cause The cause of the interrupt/exception (see cause_t)
     */
-    rvexception_t(Cause cause);
+    RvException(Cause cause);
     
     /**
      * @brief Get the cause of the interrupt/exception
@@ -102,19 +81,10 @@ private:
     Cause m_cause;
 };
 
-/**
- * @brief Exception thrown when the RISC-V system executes IRVE.EXIT
- *
- * Yes throwing exceptions is HORRIBLY inefficient, but it's the simplest path forward when working
- * on our first emulator. We'll stop using exceptions when we do XRVE in Rust. (We'll use Results
- * and the ? operator instead to make things nice and also fast)
-*/
-class irve_exit_request_t : public std::exception {
+// Exception thrown when the RISC-V system executes IRVE.EXIT
+class IrveExitRequest : public std::exception {
 public:
-    /**
-     * @brief Construct a new irve_exit_request_t
-    */
-    irve_exit_request_t();
+    IrveExitRequest();
 
     /**
      * @brief Override of std::exception::what()
@@ -123,8 +93,8 @@ public:
     const char* what() const noexcept override;
 };
 
-inline void invoke_exception(Cause cause) {
-    throw rvexception_t(cause); 
-}
+inline void invoke_exception(Cause cause) { throw RvException(cause); }
 
-}
+inline void invoke_exit_request() { throw IrveExitRequest(); }
+
+} // namespace irve::internal::rv_trap

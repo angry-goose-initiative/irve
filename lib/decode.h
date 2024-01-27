@@ -53,19 +53,19 @@ enum class inst_format_t {
  * @brief       Holds the results from decoding a RISC-V instruction.
  * @note        We are NOT supporting compressed instructions.
 */
-class decoded_inst_t {
+class Instruction {
 public:
 
     /**
      * @brief       The constructor, decodes an instruction.
      * @param[in]   instruction The instruction to decode.
     */
-    decoded_inst_t(Word instruction);
+    Instruction(Word instruction);
 
-    decoded_inst_t() = default;//FIXME remove this (needed for icache)
+    Instruction() = default;//FIXME remove this (needed for icache)
 
-    decoded_inst_t(const decoded_inst_t& other) = default;
-    decoded_inst_t& operator=(const decoded_inst_t& other) = default;
+    Instruction(const Instruction& other) = default;
+    Instruction& operator=(const Instruction& other) = default;
 
     /**
      * @brief       Log information about the decoded instruciton.

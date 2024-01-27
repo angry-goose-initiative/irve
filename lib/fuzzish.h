@@ -12,34 +12,34 @@
 
 #pragma once
 
-/* ------------------------------------------------------------------------------------------------
- * Includes
- * --------------------------------------------------------------------------------------------- */
-
 #include "config.h"
 
-#include <cstdint>
-
-#if IRVE_FUZZISH
-#include <cstdlib>
+#if IRVE_INTERNAL_CONFIG_FUZZISH
+#   include <cstddef>
+#   include <cstdint>
+#   include <cstdlib>
 #else
-#include <cstring>
+#   include <cstring>
 #endif
 
-/* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
+namespace irve::internal::fuzzish {
 
 #if IRVE_INTERNAL_CONFIG_FUZZISH
-//TODO be more efficient (use all 32 bits)
-#define irve_fuzzish_meminit(ptr, size_bytes) do { \
-    uint8_t* byte_ptr = (uint8_t*)ptr; \
-    for (size_t i = 0; i < size_bytes; ++i) { \
-        byte_ptr[i] = std::rand(); \
-    } \
-} while (0)
-#define irve_fuzzish_rand() std::rand()
+
+inline void meminit(void *ptr, std::size_t size) {
+    uint8_t* byte_ptr{static_cast<uint8_t*>(ptr)};
+    for (std::size_t i = 0; i < size; ++i) {
+        byte_ptr[i] = std::rand();
+    }
+}
+
+inline int rand() { return std::rand(); }
+
 #else
-#define irve_fuzzish_meminit(ptr, size_bytes) do { std::memset(ptr, 0, size_bytes); } while (0)
-#define irve_fuzzish_rand() 0
+
+inline void meminit(void *ptr, std::size_t size) { std::memset(ptr, 0, size); }
+inline int rand() { return 0; }
+
 #endif
+
+} // namespace irve::internal::fuzzish

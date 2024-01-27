@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #include "fuzzish.h"
 
@@ -29,8 +29,8 @@ using namespace irve::internal;
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-//Only some bits of mstatus are accessible in S-mode
-#define SSTATUS_MASK 0b10000000'00001101'11100111'01100010
+// `sstatus` is a restricted view of `mstatus`; only some bits of mstatus are accessible in S-mode.
+constexpr uint32_t SSTATUS_MASK{0b10000000'00001101'11100111'01100010};
 
 //TODO actually implement MISA and friends at some point
 //                                   ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -46,7 +46,7 @@ Csr::Csr()
     , stvec(0) //Only needs to be initialized for implicit_read() guarantees
     , scounteren(0) //Only needs to be initialized for implicit_read() guarantees
     , senvcfg(0) //Only needs to be initialized for implicit_read() guarantees
-    , sscratch(irve_fuzzish_rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    , sscratch(fuzzish::rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     , sepc(0) //Only needs to be initialized for implicit_read() guarantees
     , scause(0) //Only needs to be initialized for implicit_read() guarantees
     , sip(0) //Only needs to be initialized for implicit_read() guarantees
@@ -57,11 +57,12 @@ Csr::Csr()
     , mie(0) //Only needs to be initialized for implicit_read() guarantees (also good to have interrupts disabled by default)
     , mtvec(0x00000004 | 0b01) //Doesn't need to be initialized, but this is convenient for RVSW
     , menvcfg(0) //Only needs to be initialized for implicit_read() guarantees
-    , mscratch(irve_fuzzish_rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
+    , mscratch(fuzzish::rand()) //We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
     , mepc(0) //Only needs to be initialized for implicit_read() guarantees
     , mcause(0) //MUST BE INITIALIZED ACCORDING TO THE SPEC (we don't distinguish reset conditions, so we just use 0 here)
     , mip(0) //Only needs to be initialized for implicit_read() guarantees
-      //PMPCFG and PMPADDR registers done below
+    , pmpcfg() // We need the A and L bits to be 0
+    // pmpaddr registers done below
     , minstret(0) //Implied it should be initialized according to the spec
     , mcycle(0) //Implied it should be initialized according to the spec
     , mtime(0) //Implied it should be initialized according to the spec
@@ -70,10 +71,8 @@ Csr::Csr()
     , m_delay_update_counter(0)
     , m_privilege_mode(PrivilegeMode::MACHINE_MODE) //MUST BE INITIALIZED ACCORDING TO THE SPEC
 {
-    std::memset(this->pmpcfg, 0x00, sizeof(this->pmpcfg)); // We need the A and L bits to be 0
-
     // We don't need to initialize this since all states are valid, but sanitizers could complain otherwise
-    irve_fuzzish_meminit(this->pmpaddr, sizeof(this->pmpaddr));
+    fuzzish::meminit(&this->pmpaddr, sizeof(this->pmpaddr));
 }
 
 Reg Csr::explicit_read(Csr::Address csr) {//Performs privilege checks
