@@ -43,6 +43,16 @@ namespace irve::internal {
  *
  * Note this is quite fast because in release builds (using LTO) the compiler will make these 0 cost
  * Plus everything is declared inline so it won't be unbearable in debug builds
+ *
+ * Word MUST ONLY CONTAIN A UNION OF A SIGNED AND UNSIGNED 32-BIT INTEGER SO THAT IT ENDS UP COMPILING
+ * DOWN TO REGULAR INTEGER OPERATIONS. We do this so we can prevent accidental casts and operations where
+ * it is unclear if they are the signed or unsigned variant. We also assert later on that the sizeof(Word)
+ * is 4 bytes as a sanity check that this is the case.
+ *
+ * This is important since when implementing RISC-V instructions we want to be very careful of the
+ * difference between arithmetic and logical shifts for example.
+ *
+ * We would just add certain functions to the standard types but this C++ is not Rust sadly
 */
 struct Word {
     union {
