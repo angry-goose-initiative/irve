@@ -68,10 +68,10 @@ struct Word {
     Word() = default;
 
     // Construct a Word from a uint32_t.
-    inline Word(uint32_t data) : u(data) {}
+    inline __attribute__((always_inline)) Word(uint32_t data) : u(data) {}
 
     // Construct a Word from a int32_t.
-    inline Word(int32_t data) : s(data) {}
+    inline __attribute__((always_inline)) Word(int32_t data) : s(data) {}
     
     //NOTE: NOT providing these transparent type conversion functions to make things more explicit
     /*
@@ -92,75 +92,75 @@ struct Word {
     /* ---------- Arithmetic ------------------------------------------------------------------- */
     
     // Negate a Word (two's complement).
-    inline Word signed_negate() const { return Word(-this->s); }
+    inline __attribute__((always_inline)) Word signed_negate() const { return Word(-this->s); }
 
     // Add two Words.
-    inline Word operator+(const Word& other) const { return Word(this->u + other.u); }
+    inline __attribute__((always_inline)) Word operator+(const Word& other) const { return Word(this->u + other.u); }
 
     // Add a Word to this one.
-    inline Word& operator+=(const Word& other) { return *this = *this + other; }
+    inline __attribute__((always_inline)) Word& operator+=(const Word& other) { return *this = *this + other; }
 
     // Increment this Word by one.
-    inline Word& operator++() { return *this += 1; }
+    inline __attribute__((always_inline)) Word& operator++() { return *this += 1; }
 
     // Subtract a word from another
-    inline Word operator-(const Word& other) const { return Word(this->u - other.u); }
+    inline __attribute__((always_inline)) Word operator-(const Word& other) const { return Word(this->u - other.u); }
 
     // Subtract a Word from this one.
-    inline Word& operator-=(const Word& other) { return *this = *this - other; }
+    inline __attribute__((always_inline)) Word& operator-=(const Word& other) { return *this = *this - other; }
 
     // Decrement this Word by one.
-    inline Word& operator--() { return *this -= 1; }
+    inline __attribute__((always_inline)) Word& operator--() { return *this -= 1; }
 
     // Multiply two Words together (Lowest 32 bits ONLY).
-    inline Word operator*(const Word& other) const { return Word(this->u * other.u); }
+    inline __attribute__((always_inline)) Word operator*(const Word& other) const { return Word(this->u * other.u); }
 
     // Multiply a Word by this one (Lowest 32 bits ONLY).
-    inline Word& operator*=(const Word& other) { return *this = *this * other; }
+    inline __attribute__((always_inline)) Word& operator*=(const Word& other) { return *this = *this * other; }
     
     /* ---------- Logical ---------------------------------------------------------------------- */
 
     // Bitwise NOT a Word (one's compliment).
-    inline Word operator~() const { return Word(~this->u); }
+    inline __attribute__((always_inline)) Word operator~() const { return Word(~this->u); }
 
     // Bitwise OR two Word's together.
-    inline Word operator|(const Word& other) const { return Word(this->u | other.u); }
+    inline __attribute__((always_inline)) Word operator|(const Word& other) const { return Word(this->u | other.u); }
 
     // Bitwise OR a Word with this one.
-    inline Word& operator|=(const Word& other) { return *this = *this | other; }
+    inline __attribute__((always_inline)) Word& operator|=(const Word& other) { return *this = *this | other; }
 
     // Bitwise AND two Words together.
-    inline Word operator&(const Word& other) const { return Word(this->u & other.u); }
+    inline __attribute__((always_inline)) Word operator&(const Word& other) const { return Word(this->u & other.u); }
 
     // Bitwise AND a Word with this one.
-    inline Word& operator&=(const Word& other) { return *this = *this & other; }
+    inline __attribute__((always_inline)) Word& operator&=(const Word& other) { return *this = *this & other; }
 
     // Bitwise XOR two Word's together.
-    inline Word operator^(const Word& other) const { return Word(this->u ^ other.u); }
+    inline __attribute__((always_inline)) Word operator^(const Word& other) const { return Word(this->u ^ other.u); }
 
     // Bitwise XOR a Word with this one.
-    inline Word& operator^=(const Word& other) { return *this = *this ^ other; }
+    inline __attribute__((always_inline)) Word& operator^=(const Word& other) { return *this = *this ^ other; }
 
     // Logically shift a Word left by another.
-    inline Word operator<<(const Word& other) const {
+    inline __attribute__((always_inline)) Word operator<<(const Word& other) const {
         assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
         return Word(this->u << other.u);
     }
 
     // Logically shift this Word left by another.
-    inline Word& operator<<=(const Word& other) {
+    inline __attribute__((always_inline)) Word& operator<<=(const Word& other) {
         assert((other.u < 32) && "Attempt to logically shift left by more than 32 bits!");
         return *this = *this << other;
     }
 
     // Logically shift a Word right by another.
-    inline Word srl(const Word& other) const {
+    inline __attribute__((always_inline)) Word srl(const Word& other) const {
         assert((other.u < 32) && "Attempt to logically shift right by more than 32 bits!");
         return Word(this->u >> other.u);
     }
 
     // Arithmetically shift a Word right by another.
-    inline Word sra(const Word& other) const {
+    inline __attribute__((always_inline)) Word sra(const Word& other) const {
         assert((other.u < 32) &&
                 "Attempt to arithmetically shift right by more than 32 bits!");
         //TODO ensure this is arithmetic shift
@@ -170,18 +170,18 @@ struct Word {
     /* ---------- Comparison ------------------------------------------------------------------- */
 
     // Determine if this Word is nonzero.
-    inline bool operator!() const { return *this == 0; }
+    inline __attribute__((always_inline)) bool operator!() const { return *this == 0; }
 
     // Determine if this Word is equal to another.
-    inline bool operator==(const Word& other) const { return this->u == other.u; }
+    inline __attribute__((always_inline)) bool operator==(const Word& other) const { return this->u == other.u; }
 
     // Determine if this Word is not equal to another.
-    inline bool operator!=(const Word& other) const { return !(*this == other); }
+    inline __attribute__((always_inline)) bool operator!=(const Word& other) const { return !(*this == other); }
     
     /* ---------- Bonus ------------------------------------------------------------------------ */
 
     // Extract a single bit from this Word.
-    inline Word bit(Word bit) const {
+    inline __attribute__((always_inline)) Word bit(Word bit) const {
         assert((bit.u < 32) && "Bad argument to bit()");
         return this->srl(bit) & 0b1;
     }
