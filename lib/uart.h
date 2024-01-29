@@ -18,6 +18,8 @@
 
 #include <cstdint>
 #include <string>
+#include <thread>
+#include "tsqueue.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -83,13 +85,17 @@ private:
     */
     bool dlab() const;
 
+    void write_thread_function();
+    void read_thread_function();
+
+
     //No need for rhr and thr since they just go directly to stdin/stdout
     //uint8_t m_ier;//Interrupt Enable Register
     uint8_t m_isr;//Interrupt Status Register
     //uint8_t m_fcr;//FIFO Control Register
     uint8_t m_lcr;//Line Control Register
     //uint8_t m_mcr;//Modem Control Register
-    //uint8_t m_lsr;//Line Status Register
+    uint8_t m_lsr;//Line Status Register
     //uint8_t m_msr;//Modem Status Register
     uint8_t m_spr;//Scratch Pad Register
 
@@ -101,6 +107,17 @@ private:
     uint8_t m_psd;//Prescaler Division
 
     std::string m_output_line_buffer;
+
+    //Threads are defined to allow reading and writting to be done in parallel, 
+    //as would occur in hardware. 
+    std::thread read_thread;//Thread for read operations.
+    std::thread write_thread;//Thread for write operations.
+    
+    tsqueue::tsqueue_t<uint8_t> async_read_queue;//A queue for interfacing
+    //with the async read thread.
+    
+    tsqueue::tsqueue_t<std::tuple<uint8_t, uint8_t>> async_write_queue;
+    //A queue for interfacing with the async write thread.
 };
 
 } // namespace irve::internal::uart
