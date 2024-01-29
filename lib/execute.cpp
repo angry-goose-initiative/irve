@@ -475,40 +475,40 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.set_r(decoded_inst.get_rd(), loaded_word);
 
     //Perform the operation (instruction-specific)
-    Word Wordo_write;
+    Word word_to_write;
     switch (decoded_inst.get_funct5()) {
         case 0b00001://AMOSWAP.W
-            Wordo_write = r2;
+            word_to_write = r2;
             break;
         case 0b00000://AMOADD.W
-            Wordo_write = loaded_word + r2;
+            word_to_write = loaded_word + r2;
             break;
         case 0b00100://AMOXOR.W
-            Wordo_write = loaded_word ^ r2;
+            word_to_write = loaded_word ^ r2;
             break;
         case 0b01100://AMOAND.W
-            Wordo_write = loaded_word & r2;
+            word_to_write = loaded_word & r2;
             break;
         case 0b01000://AMOOR.W
-            Wordo_write = loaded_word | r2;
+            word_to_write = loaded_word | r2;
             break;
         case 0b10000://AMOMIN.W
-            Wordo_write = std::min(loaded_word.s, r2.s);
+            word_to_write = std::min(loaded_word.s, r2.s);
             break;
         case 0b10100://AMOMAX.W
-            Wordo_write = std::max(loaded_word.s, r2.s);
+            word_to_write = std::max(loaded_word.s, r2.s);
             break;
         case 0b11000://AMOMINU.W
-            Wordo_write = std::min(loaded_word.u, r2.u);
+            word_to_write = std::min(loaded_word.u, r2.u);
             break;
         case 0b11100://AMOMAXU.W
-            Wordo_write = std::max(loaded_word.u, r2.u);
+            word_to_write = std::max(loaded_word.u, r2.u);
             break;
         default:
             assert(false && "Invalid funct5 for AMO instruction, but we already checked this!");
             break;
     }
-    memory.store(r1, DT_WORD, Wordo_write);
+    memory.store(r1, DT_WORD, word_to_write);
 
     cpu_state.goto_next_sequential_pc();
 }
