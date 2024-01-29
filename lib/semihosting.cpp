@@ -27,8 +27,8 @@ using namespace irve::internal;
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-constexpr uint8_t a0{10}; // FIXME - These should be replaced with a reg select enum
-constexpr uint8_t a1{11};
+constexpr uint8_t a0 = 10; // FIXME - These should be replaced with a reg select enum
+constexpr uint8_t a1 = 11;
 
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
