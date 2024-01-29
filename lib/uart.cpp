@@ -17,9 +17,9 @@
 #include <cstdint>
 #include <string>
 #include <cstdio>
+#include <thread>
 
 #include "uart.h"
-
 #include "tsqueue.h"
 
 #define INST_COUNT 0
@@ -56,6 +56,8 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
+    write_thread = std::thread(&Uart::write_thread_function, this);
+    read_thread = std::thread(&Uart::read_thread_function, this);
     //TODO
 }
 
@@ -67,6 +69,14 @@ Uart::~Uart() {
             this->m_output_line_buffer.c_str()
         );
     }
+    if (write_thread.joinable())
+    {
+        write_thread.join();
+    }
+    if (read_thread.joinable())
+    {
+        read_thread.join();
+    }
 }
 
 uint8_t Uart::read(Uart::Address register_address) {
@@ -76,7 +86,9 @@ uint8_t Uart::read(Uart::Address register_address) {
             if (this->dlab()) {//DLL
                 return this->m_dll;
             } else {//RHR
-                return std::getchar();//TODO is the fact that this is blocking a problem?
+                return std::getchar();
+                //For now, this is a call to std::getchar, but will eventually be a 
+                //read from a fd, which is a virtual UART device on the host computer.
             }
             break;
         }
@@ -100,9 +112,8 @@ uint8_t Uart::read(Uart::Address register_address) {
             assert(false && "TODO");//TODO
             break;
         }
-        case Uart::Address::LSR: {//NOTE: Never PSD since that isn't readable
-            assert(false && "TODO");//TODO
-            break;
+        case Uart::Address::LSR: {
+            return this->m_lsr;
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
@@ -193,4 +204,12 @@ bool Uart::interrupt_pending() const {
 
 bool Uart::dlab() const {
     return this->m_lcr & (1 << 7);
+}
+
+void Uart::write_thread_function(){
+
+}
+
+void Uart::read_thread_function(){
+
 }
