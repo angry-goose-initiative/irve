@@ -1,6 +1,6 @@
-# test_list.txt
+# test_list.cmake
 # Copyright (C) 2023-2024 John Jekel
-# Copyright (C) 2023 Nick Chan
+# Copyright (C) 2023-2024 Nick Chan
 # See the LICENSE file at the root of the project for licensing info.
 #
 # List of all IRVE tests (read in by CMake)
@@ -110,6 +110,7 @@ add_rvsw_parse_test(timer_interrupt_mmode src/single_file/c/timer_interrupt_mmod
 add_rvsw_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx)
 add_rvsw_parse_test(irve_interrupt_bringup src/single_file/cxx/irve_interrupt_bringup)
+add_rvsw_parse_test(uart_write_test src/single_file/cxx/uart_write_test)
 
 #S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
 #C
