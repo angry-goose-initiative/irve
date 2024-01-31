@@ -2,6 +2,7 @@
  * @brief   16550 UART implementation
  * 
  * @copyright
+ *  Copyright (C) 2024 Seb Atkinson\n
  *  Copyright (C) 2023-2024 John Jekel\n
  *  Copyright (C) 2023 Nick Chan\n
  *  See the LICENSE file at the root of the project for licensing info.

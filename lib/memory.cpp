@@ -516,8 +516,6 @@ Word Memory::read_memory_region_uart(
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
             "This should never happen");
 
-    assert(false && "Region not implemented yet");
-
     //Only byte accesses allowed
     if ((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
         access_status = AS_VIOLATES_PMA;
@@ -662,8 +660,6 @@ void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word dat
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
             "This should never happen");
-
-    assert(false && "Region not implemented yet");
 
     //Only byte accesses allowed
     if ((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
