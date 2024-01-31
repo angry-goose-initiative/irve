@@ -83,9 +83,26 @@
 #error "Unsupported RVSW_DATA_SEGMENT_ALREADY_LOADED value"
 #endif
 
+//Deal with mtime and mtimecmp addresses
+
 #define RVSW_MTIME_ADDR     @RVSW_MTIME_ADDR@
 #define RVSW_MTIMEH_ADDR    @RVSW_MTIMEH_ADDR@
 #define RVSW_MTIMECMP_ADDR  @RVSW_MTIMECMP_ADDR@
 #define RVSW_MTIMECMPH_ADDR @RVSW_MTIMECMPH_ADDR@
+
+//Deal with the UART
+#define RVSW_UART_BASE_ADDR @RVSW_UART_BASE_ADDR@
+
+#define UART_16550 0
+#define RVSW_UART_TYPE @RVSW_UART_TYPE@
+#if RVSW_UART_TYPE == UART_16550
+
+#define RVSW_UART_16550 1
+
+#else
+#error "Unsupported RVSW_UART_TYPE value"
+#endif
+#undef UART_16550
+#undef RVSW_UART_TYPE
 
 #endif//RVSW_ASM_H

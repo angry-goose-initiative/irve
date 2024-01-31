@@ -69,3 +69,6 @@ set(RVSW_MTIME_ADDR     0xABCD1230)#Your address here
 set(RVSW_MTIMEH_ADDR    0xABCD1234)#Your address here
 set(RVSW_MTIMECMP_ADDR  0xABCD1238)#Your address here
 set(RVSW_MTIMECMPH_ADDR 0xABCD123C)#Your address here
+
+set(RVSW_UART_TYPE      "UART_16550")#One of: UART_16550, or potentially others in the future
+set(RVSW_UART_BASE_ADDR 0xFEDCBA10)#Your address here (8-byte region for 16550)

@@ -18,10 +18,31 @@ extern "C" {
 
 #include "rvsw_asm.h"
 
-#define RVSW_MTIME       (*((volatile uint32_t*)RVSW_MTIME_ADDR))
-#define RVSW_MTIMEH      (*((volatile uint32_t*)RVSW_MTIMEH_ADDR))
-#define RVSW_MTIMECMP    (*((volatile uint32_t*)RVSW_MTIMECMP_ADDR))
-#define RVSW_MTIMECMPH   (*((volatile uint32_t*)RVSW_MTIMECMPH_ADDR))
+#include <stdint.h>
+
+#define RVSW_MTIME      (*((volatile uint32_t*)RVSW_MTIME_ADDR))
+#define RVSW_MTIMEH     (*((volatile uint32_t*)RVSW_MTIMEH_ADDR))
+#define RVSW_MTIMECMP   (*((volatile uint32_t*)RVSW_MTIMECMP_ADDR))
+#define RVSW_MTIMECMPH  (*((volatile uint32_t*)RVSW_MTIMECMPH_ADDR))
+
+#if RVSW_UART_16550
+#define RVSW_UART_16550_RHR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b000)))
+#define RVSW_UART_16550_THR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b000)))
+#define RVSW_UART_16550_IER (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b001)))
+#define RVSW_UART_16550_ISR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b010)))
+#define RVSW_UART_16550_FCR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b010)))
+#define RVSW_UART_16550_LCR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b011)))
+#define RVSW_UART_16550_MCR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b100)))
+#define RVSW_UART_16550_LSR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b101)))
+#define RVSW_UART_16550_MSR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b110)))
+#define RVSW_UART_16550_SPR (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b111)))
+//Only when DLAB is set
+#define RVSW_UART_16550_DLL (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b000)))
+#define RVSW_UART_16550_DLM (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b001)))
+#define RVSW_UART_16550_PSD (*((volatile uint8_t*) (RVSW_UART_BASE_ADDR + 0b101)))
+#else
+#error "RVSW configuration problem"
+#endif
 
 //Uses GCC statement expressions and inline assembly
 #define RVSW_CSRRW(csr, value) ({ \
