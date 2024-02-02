@@ -136,6 +136,7 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             if (this->dlab()) {//DLL
                 this->m_dll = data;
             } else {//THR
+                /*
                 //Note, because we "send" the character right away, the transmit fifo is always empty
                 char character = (char)data;
                 switch (character) {
@@ -161,7 +162,10 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
                     case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
                     default:    this->m_output_line_buffer.push_back(character); break;
                 }
-            }
+            }*/
+            this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
+            this->async_write_queue.push(data);
+            this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
             break;
         }
         case Uart::Address::IER: {//IER or DLM
@@ -208,9 +212,17 @@ bool Uart::dlab() const {
 }
 
 void Uart::write_thread_function(){
-
+    //This thread will wait for data from the main thread and then print it.
+    while(async_write_queue.size() == 0){
+        //Wait for data to print
+        while(async_write_queue.size() > 0){
+            char data = (char this->async_write_queue.pop());
+            std::cout<<data;
+        }
+    }
 }
 
 void Uart::read_thread_function(){
-
+    //This wile pole the input and push any data transmitted to the read fifo.
+    //Once pushed, the main thread can pop from the fifo.
 }
