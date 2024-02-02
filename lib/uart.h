@@ -113,7 +113,7 @@ private:
     tsqueue::tsqueue_t<uint8_t> async_read_queue;//A queue for interfacing
     //with the async read thread.
     
-    tsqueue::tsqueue_t<std::tuple<uint8_t, uint8_t>> async_write_queue;
+    tsqueue::tsqueue_t<uint8_t> async_write_queue;
     //A queue for interfacing with the async write thread.
 };
 
