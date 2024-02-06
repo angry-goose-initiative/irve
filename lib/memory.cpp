@@ -729,7 +729,7 @@ image_load_status_t Memory::load_memory_image_files(
         } else {//Assume it's a raw binary file
             //TODO: Make this configurable (this is a sensible default since the Linux kernel
             //produces a raw `Image` file)
-            load_status = this->load_raw_bin(path, 0xC0000000);
+            load_status = this->load_raw_bin(path, MEM_MAP_REGION_START_KERNEL_RAM);
         }
         if(load_status == IL_FAIL) {
             return IL_FAIL;
