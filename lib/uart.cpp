@@ -19,6 +19,7 @@
 #include <string>
 #include <cstdio>
 #include <thread>
+#include <iostream>
 
 #include "uart.h"
 #include "tsqueue.h"
