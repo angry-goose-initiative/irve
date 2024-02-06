@@ -167,8 +167,8 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
                 this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
                 this->async_write_queue.push(data);
                 this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
-                break;
             }
+            break;
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
