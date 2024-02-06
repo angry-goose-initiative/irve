@@ -163,10 +163,11 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
                     default:    this->m_output_line_buffer.push_back(character); break;
                 }
             }*/
-            this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
-            this->async_write_queue.push(data);
-            this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
-            break;
+                this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
+                this->async_write_queue.push(data);
+                this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
+                break;
+            }
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
@@ -216,8 +217,9 @@ void Uart::write_thread_function(){
     while(async_write_queue.size() == 0){
         //Wait for data to print
         while(async_write_queue.size() > 0){
-            char data = (char this->async_write_queue.pop());
-            std::cout<<data;
+            char data = char(this->async_write_queue.front());
+            this->async_write_queue.pop();
+            std::cout<<data<<std::flush;
         }
     }
 }
