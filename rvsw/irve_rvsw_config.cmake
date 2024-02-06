@@ -32,7 +32,7 @@ set(RVSW_BUILD_SBI "ogsbi")#Uncomment if you want to build an SBI (and specify t
 
 #TODO options for firmware
 
-set(RVSW_SMODE_AND_KERNEL_ENTRY_ADDR 0xC0000000)
+set(RVSW_SMODE_AND_KERNEL_ENTRY_ADDR 0x80000000)
 
 set(RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET "irve_rvsw_newlib_syscalls")
 
