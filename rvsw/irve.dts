@@ -29,9 +29,9 @@
     #address-cells = <1>;
     #size-cells = <1>;
 
-    memory@C0000000 {
+    memory@80000000 {
         device_type = "memory";
-        reg = <0xC0000000 0x4000000>;
+        reg = <0x80000000 0x4000000>;
     };
 
     cpus {

@@ -9,16 +9,23 @@
 
 #pragma once
 
+/* ------------------------------------------------------------------------------------------------
+ * Includes
+ * --------------------------------------------------------------------------------------------- */
+
 #include <stdint.h>
 
 #include "common.h"
 #include "csr.h"
 
+/* ------------------------------------------------------------------------------------------------
+ * Type/Class Declarations
+ * --------------------------------------------------------------------------------------------- */
+
 namespace irve::internal {
 
 class Aclint {
 public:
-
     // Aclint register addresses
     enum class Address : uint16_t {
         MSWI_BEGIN   = 0x0000, // Inclusive
@@ -30,13 +37,13 @@ public:
         MTIME        = 0xBFF8,
         MTIMEH       = 0xBFFC,
         MTIMECMP     = 0x4000,
-        MTIMECMPH    = 0x4004,
+        MTIMECMPH    = 0x4004
         // No other timecmp registers are implemented.
     };
 
     Aclint(Csr& csr);
 
-    Aclint() = delete; // 
+    Aclint() = delete;
     
     Word read(Aclint::Address register_address);
 
