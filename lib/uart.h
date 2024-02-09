@@ -83,8 +83,8 @@ private:
     */
     bool dlab() const;
 
-    void write_thread_function();
-    void read_thread_function();
+    void transmit_thread_function();
+    void receive_thread_function();
 
 
     //No need for rhr and thr since they just go directly to stdin/stdout
