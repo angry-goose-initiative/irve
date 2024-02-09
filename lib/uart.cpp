@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <thread>
 #include <iostream>
+#include <condition_variable>
 
 #include "uart.h"
 #include "tsqueue.h"
@@ -58,8 +59,8 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    write_thread = std::thread(&Uart::write_thread_function, this);
-    read_thread = std::thread(&Uart::read_thread_function, this);
+    transmit_thread = std::thread(&Uart::transmit_thread_function, this);
+    // receive_thread = std::thread(&Uart::receive_thread_function, this);
     //TODO
 }
 
@@ -71,13 +72,14 @@ Uart::~Uart() {
             this->m_output_line_buffer.c_str()
         );
     }
-    if (write_thread.joinable())
-    {
-        write_thread.join();
+
+    {                                  
+        std::lock_guard<std::mutex> lock(this->transmit_mutex); 
+        this->kill_transmit_thread = true; 
+        this->transmit_condition_variable.notify_one();          
     }
-    if (read_thread.joinable())
-    {
-        read_thread.join();
+    if(transmit_thread.joinable()){
+        transmit_thread.join();
     }
 }
 
@@ -164,8 +166,12 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
                     default:    this->m_output_line_buffer.push_back(character); break;
                 }
             }*/
+                {                                  
+                    std::lock_guard<std::mutex> lock(this->transmit_mutex); 
+                    this->transmit_condition_variable.notify_one();          
+                }       
                 this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
-                this->async_write_queue.push(data);
+                this->async_transmit_queue.push(data);
                 this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
             }
             break;
@@ -213,19 +219,20 @@ bool Uart::dlab() const {
     return this->m_lcr & (1 << 7);
 }
 
-void Uart::write_thread_function(){
-    //This thread will wait for data from the main thread and then print it.
-    while(async_write_queue.size() == 0){
-        //Wait for data to print
-        while(async_write_queue.size() > 0){
-            char data = char(this->async_write_queue.front());
-            this->async_write_queue.pop();
+void Uart::transmit_thread_function(){
+
+    std::unique_lock<std::mutex> lock(this->transmit_mutex); 
+    while (!this->kill_transmit_thread){
+        this->transmit_condition_variable.wait(lock);
+        while(this->async_transmit_queue.size() > 0){
+            char data = char(this->async_transmit_queue.front());
+            this->async_transmit_queue.pop();
             std::cout<<data<<std::flush;
         }
     }
 }
 
-void Uart::read_thread_function(){
+void Uart::receive_thread_function(){
     //This wile pole the input and push any data transmitted to the read fifo.
     //Once pushed, the main thread can pop from the fifo.
 }
