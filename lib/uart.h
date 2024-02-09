@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <string>
 #include <thread>
+#include <condition_variable>
 #include "tsqueue.h"
 
 /* ------------------------------------------------------------------------------------------------
@@ -111,14 +112,17 @@ private:
 
     //Threads are defined to allow reading and writting to be done in parallel, 
     //as would occur in hardware. 
-    std::thread read_thread;//Thread for read operations.
-    std::thread write_thread;//Thread for write operations.
+    std::thread receive_thread;//Thread for read operations.
     
-    tsqueue::tsqueue_t<uint8_t> async_read_queue;//A queue for interfacing
+    tsqueue::tsqueue_t<uint8_t> async_receive_queue;//A queue for interfacing
     //with the async read thread.
-    
-    tsqueue::tsqueue_t<uint8_t> async_write_queue;
+
+    std::thread transmit_thread;//Thread for write operations.
+    tsqueue::tsqueue_t<uint8_t> async_transmit_queue;
     //A queue for interfacing with the async write thread.
+    bool kill_transmit_thread = false;
+    std::condition_variable transmit_condition_variable;
+    std::mutex transmit_mutex;
 };
 
 } // namespace irve::internal::uart
