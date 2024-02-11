@@ -173,6 +173,13 @@ private:
     */
     image_load_status_t load_verilog_32(std::string image_path);
 
+    /**
+     * @brief       Loads a 32-bit elf file to memory.
+     * @param[in]   image_path The path to the memory image file.
+     * @return      Status of the load.
+    */
+    image_load_status_t load_elf_32(std::string image_path);
+
     // Reference to the CSRs since memory operations depend on them.
     Csr& m_CSR_ref;
 
