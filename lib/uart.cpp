@@ -60,7 +60,7 @@ using namespace irve::internal;
 
 Uart::Uart() {
     transmit_thread = std::thread(&Uart::transmit_thread_function, this);
-    // receive_thread = std::thread(&Uart::receive_thread_function, this);
+    receive_thread = std::thread(&Uart::receive_thread_function, this);
     //TODO
 }
 
@@ -72,14 +72,21 @@ Uart::~Uart() {
             this->m_output_line_buffer.c_str()
         );
     }
-
     {                                  
         std::lock_guard<std::mutex> lock(this->transmit_mutex); 
         this->kill_transmit_thread = true; 
         this->transmit_condition_variable.notify_one();          
     }
+    {                                  
+        std::lock_guard<std::mutex> lock(this->receive_mutex); 
+        this->kill_receive_thread = true;      
+    }
     if(transmit_thread.joinable()){
         transmit_thread.join();
+    }
+    if(receive_thread.joinable()){
+        std::cout<<"Press Enter to kill UART"<<std::endl;
+        receive_thread.join();
     }
 }
 
@@ -90,7 +97,26 @@ uint8_t Uart::read(Uart::Address register_address) {
             if (this->dlab()) {//DLL
                 return this->m_dll;
             } else {//RHR
-                return std::getchar();
+                char read_data;
+                if(this->async_receive_queue.size() == 0){
+                    assert(false && "No data to read from UART");//TODO
+                }
+                if(this->async_receive_queue.size() == 1){
+                    {
+                        std::lock_guard<std::mutex> lock(this->receive_mutex);
+                        this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
+                        read_data = char(this->async_receive_queue.front());
+                        this->async_receive_queue.pop();
+                    }
+                }else{
+                    {
+                        std::lock_guard<std::mutex> lock(this->receive_mutex);
+                        this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
+                        read_data = char(this->async_receive_queue.front());
+                        this->async_receive_queue.pop();
+                    }
+                }
+                return read_data;
                 //For now, this is a call to std::getchar, but will eventually be a 
                 //read from a fd, which is a virtual UART device on the host computer.
             }
@@ -117,7 +143,12 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
-            return this->m_lsr;
+            uint8_t LSR_val;//Ensures no race conditions
+            {
+                std::lock_guard<std::mutex> lock(this->receive_mutex);
+                LSR_val = this->m_lsr;
+            }
+            return LSR_val;
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
@@ -139,40 +170,11 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             if (this->dlab()) {//DLL
                 this->m_dll = data;
             } else {//THR
-                /*
-                //Note, because we "send" the character right away, the transmit fifo is always empty
-                char character = (char)data;
-                switch (character) {
-                    case '\n':
-                        //End of line; print the contents of the line buffer and clear it
-                        irvelog_always_stdout(
-                            0,
-                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
-                            this->m_output_line_buffer.c_str()
-                        );
-                        this->m_output_line_buffer.clear();
-                        break;
-                    case '\0':
-                        //Null terminator; print the contents of the line buffer and clear it
-                        //(this has helped with debugging weird issues in the past)
-                        irvelog_always_stdout(
-                            0,
-                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"",
-                            this->m_output_line_buffer.c_str()
-                        );
-                        this->m_output_line_buffer.clear();
-                        break;
-                    case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
-                    default:    this->m_output_line_buffer.push_back(character); break;
-                }
-            }*/
-                {                                  
+                {//Wake up the transmit thread                          
                     std::lock_guard<std::mutex> lock(this->transmit_mutex); 
                     this->transmit_condition_variable.notify_one();          
                 }       
-                this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
                 this->async_transmit_queue.push(data);
-                this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
             }
             break;
         }
@@ -220,7 +222,6 @@ bool Uart::dlab() const {
 }
 
 void Uart::transmit_thread_function(){
-
     std::unique_lock<std::mutex> lock(this->transmit_mutex); 
     while (!this->kill_transmit_thread){
         this->transmit_condition_variable.wait(lock);
@@ -235,4 +236,13 @@ void Uart::transmit_thread_function(){
 void Uart::receive_thread_function(){
     //This wile pole the input and push any data transmitted to the read fifo.
     //Once pushed, the main thread can pop from the fifo.
+    while (!this->kill_receive_thread) {
+        char newChar;
+        newChar = std::getchar();
+        {
+            std::lock_guard<std::mutex> lock(this->receive_mutex);
+            this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
+        }
+        this->async_receive_queue.push(newChar);
+    }
 }

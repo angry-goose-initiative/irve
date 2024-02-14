@@ -114,12 +114,13 @@ private:
     //as would occur in hardware. 
     std::thread receive_thread;//Thread for read operations.
     
-    tsqueue::tsqueue_t<uint8_t> async_receive_queue;//A queue for interfacing
-    //with the async read thread.
+    tsqueue::tsqueue_t<uint8_t> async_receive_queue;//Queue for async receieves.
+    bool kill_receive_thread = false;
+    std::condition_variable receive_condition_variable;
+    std::mutex receive_mutex;
 
     std::thread transmit_thread;//Thread for write operations.
-    tsqueue::tsqueue_t<uint8_t> async_transmit_queue;
-    //A queue for interfacing with the async write thread.
+    tsqueue::tsqueue_t<uint8_t> async_transmit_queue;//Queue for async transmits.
     bool kill_transmit_thread = false;
     std::condition_variable transmit_condition_variable;
     std::mutex transmit_mutex;
