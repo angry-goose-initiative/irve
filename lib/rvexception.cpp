@@ -17,6 +17,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <cstdint>
 
 #include "rvexception.h"
 #undef rvinterrupt_t
@@ -28,9 +29,10 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-rv_trap::rvexception_t::rvexception_t(rv_trap::Cause cause) :
+rv_trap::rvexception_t::rvexception_t(rv_trap::Cause cause, Word tval) :
     std::runtime_error("\x1b[91mUncaught RISC-V exception, you should never see this.\x1b[0m"),
-    m_cause(cause)
+    m_cause(cause),
+    m_tval(tval)
 {
     assert((((uint32_t)cause) < 0x80000000) &&
             "Attempt to create rvexception_t with interrupt cause");
@@ -38,6 +40,10 @@ rv_trap::rvexception_t::rvexception_t(rv_trap::Cause cause) :
 
 rv_trap::Cause rv_trap::rvexception_t::cause() const {
     return this->m_cause;
+}
+
+Word rv_trap::rvexception_t::tval() const {
+    return this->m_tval;
 }
 
 rv_trap::irve_exit_request_t::irve_exit_request_t() {}
