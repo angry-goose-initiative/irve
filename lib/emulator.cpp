@@ -57,7 +57,7 @@ bool emulator::emulator_t::tick() {
         uint32_t raw_cause = (uint32_t)e.cause();
         assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
         irvelog(1, "Handling exception: Cause: %u", raw_cause);
-        this->handle_trap(e.cause());
+        this->handle_trap(e.cause(), e.tval());
     } catch (const rv_trap::irve_exit_request_t&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
@@ -292,10 +292,10 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //If we make it here, we have an interrupt to handle (specifically the one in `cause)
 
     irvelog(1, "Handling interrupt: Cause: %u", (uint32_t)cause);
-    this->handle_trap(cause);
+    this->handle_trap(cause, 0);
 }
 
-void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
+void emulator::emulator_t::handle_trap(rv_trap::Cause cause, Word tval) {
     this->flush_icache();
 
     //TODO better logging
@@ -378,7 +378,7 @@ void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
         //Write other CSRs to indicate information about the exception
         this->m_CSR.implicit_write(Csr::Address::MCAUSE, (uint32_t) cause);
         this->m_CSR.implicit_write(Csr::Address::MEPC, this->m_cpu_state.get_pc());
-        this->m_CSR.implicit_write(Csr::Address::MTVAL, 0);
+        this->m_CSR.implicit_write(Csr::Address::MTVAL, tval);
 
         //Jump to the exception handler
         Word mtvec = this->m_CSR.implicit_read(Csr::Address::MTVEC);
@@ -403,7 +403,7 @@ void emulator::emulator_t::handle_trap(rv_trap::Cause cause) {
         //Write other CSRs to indicate information about the exception
         this->m_CSR.implicit_write(Csr::Address::SCAUSE, (uint32_t) cause);
         this->m_CSR.implicit_write(Csr::Address::SEPC, this->m_cpu_state.get_pc());
-        this->m_CSR.implicit_write(Csr::Address::STVAL, 0);
+        this->m_CSR.implicit_write(Csr::Address::STVAL, tval);
 
         //Jump to the exception handler
         Word stvec = this->m_CSR.implicit_read(Csr::Address::STVEC);

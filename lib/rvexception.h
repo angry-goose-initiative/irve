@@ -19,6 +19,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <cstdint>
 
 #include "common.h"
 
@@ -85,8 +86,9 @@ public:
      * @brief Construct a new rvexception_t
      * 
      * @param cause The cause of the interrupt/exception (see cause_t)
+     * @param tval Extra exception info (the value for mtval or stval)
     */
-    rvexception_t(Cause cause);
+    rvexception_t(Cause cause, Word tval);
     
     /**
      * @brief Get the cause of the interrupt/exception
@@ -94,12 +96,24 @@ public:
      * @return The cause this exception was constructed with (see cause_t)
     */
     Cause cause() const;
+
+    /**
+     * @brief Get the value of mtval or stval for this exception
+     * 
+     * @return The value of mtval or stval for this exception
+    */
+    Word tval() const;
 private:
 
     /**
      * @brief Cause of the interrupt/exception
     */ 
     Cause m_cause;
+
+    /**
+     * @brief Extra exception info (the value for mtval or stval)
+    */ 
+    Word m_tval;
 };
 
 /**
@@ -123,8 +137,8 @@ public:
     const char* what() const noexcept override;
 };
 
-inline void invoke_exception(Cause cause) {
-    throw rvexception_t(cause); 
+inline void invoke_exception(Cause cause, Word tval = 0) {
+    throw rvexception_t(cause, tval);
 }
 
 }
