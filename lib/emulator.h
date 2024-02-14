@@ -112,8 +112,9 @@ namespace irve::internal::emulator {
         /**
          * @brief       Handle a trap.
          * @param[in]   cause The cause of the trap.
+         * @param[in]   tval Extra information about the trap (mtval or stval).
         */
-        void handle_trap(rv_trap::Cause cause);
+        void handle_trap(rv_trap::Cause cause, Word tval);
         
         Csr m_CSR;
         Memory m_memory;

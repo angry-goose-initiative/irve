@@ -219,7 +219,7 @@ private:
     Reg sscratch;
     Reg sepc;
     Reg scause;
-    //stval is NOT here
+    Reg stval;
     Reg satp;
     Reg mstatus;
     //misa is NOT here

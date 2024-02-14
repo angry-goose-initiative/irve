@@ -102,7 +102,7 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
         case Csr::Address::SSCRATCH:         return this->sscratch;
         case Csr::Address::SEPC:             return this->sepc;
         case Csr::Address::SCAUSE:           return this->scause;
-        case Csr::Address::STVAL:            return 0;
+        case Csr::Address::STVAL:            return this->stval;
         case Csr::Address::SIP:              return this->mip & SIP_MASK;//Only some bits of mip are accessible in S-mode
         case Csr::Address::SATP:             return this->satp;
         case Csr::Address::MSTATUS:          return this->mstatus;
@@ -180,7 +180,7 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
         case Csr::Address::SSCRATCH:         this->sscratch = data; return;
         case Csr::Address::SEPC:             this->sepc = data & 0xFFFFFFFC; return;//IALIGN=32
         case Csr::Address::SCAUSE:           this->scause = data; return;//FIXME WARL
-        case Csr::Address::STVAL:            return;//We simply ignore writes to STVAL, NOT throw an exception
+        case Csr::Address::STVAL:            this->stval = data; return;//FIXME WARL
         case Csr::Address::SIP:              this->mip = (this->mip & ~SIP_MASK) | (data & SIP_MASK); return;//Only some parts of mip are writable from sip
         case Csr::Address::SATP:             this->satp = data & SATP_MASK; return;//ASIDs are unsupported
         case Csr::Address::MSTATUS:          this->mstatus = data; return;//FIXME WARL (less critical assuming safe M-mode code)
