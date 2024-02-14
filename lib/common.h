@@ -42,7 +42,8 @@ namespace irve::internal {
  * Ex. This protects us from accidental arithmetic shifts when we want logical shifts
  *
  * Note this is quite fast because in release builds (using LTO) the compiler will make these 0 cost
- * Plus everything is declared inline so it won't be unbearable in debug builds
+ * Plus everything is inline (implicitly, see https://en.cppreference.com/w/cpp/language/inline) so it
+ * won't be unbearable in debug builds
  *
  * Word MUST ONLY CONTAIN A UNION OF A SIGNED AND UNSIGNED 32-BIT INTEGER SO THAT IT ENDS UP COMPILING
  * DOWN TO REGULAR INTEGER OPERATIONS. We do this so we can prevent accidental casts and operations where
