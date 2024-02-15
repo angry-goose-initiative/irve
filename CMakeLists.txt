@@ -68,7 +68,7 @@ endif()
 #################################################################################################################################
 
 cmake_minimum_required(VERSION 3.16.3)
-project(irve VERSION 0.9.0)
+project(irve VERSION 0.9.1)
 #Needed for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CTest)
