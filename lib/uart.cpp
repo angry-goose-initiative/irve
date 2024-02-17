@@ -83,6 +83,7 @@ Uart::~Uart() {
 }
 
 uint8_t Uart::read(Uart::Address register_address) {
+    //irvelog_always(0, "UART RX: Reading register 0x%02x\n", static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
@@ -104,20 +105,24 @@ uint8_t Uart::read(Uart::Address register_address) {
             if (this->dlab()) {//DLM
                 return this->regs.m_dlm;
             } else {//IER
-                assert(false && "TODO");//TODO
+                irvelog_always(0, "TODO UART IMPLEMENT THE IER REGISTER\n");
+                //assert(false && "TODO");//TODO
             }
             break;
         }
         case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE ISR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::LCR: {
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE LCR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::MCR: {
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE MCR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::LSR: {
@@ -133,7 +138,8 @@ uint8_t Uart::read(Uart::Address register_address) {
             return this->regs.m_lsr | (1U << LSR_TX_READY_POS);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE MSR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::SPR: {
@@ -142,11 +148,13 @@ uint8_t Uart::read(Uart::Address register_address) {
         }
     }
 
+    return 0;//TESTING
     assert(false && "We should never get here!");
     std::unreachable();
 }
 
 void Uart::write(Uart::Address register_address, uint8_t data) {
+    //irvelog_always(0, "UART TX: Writing 0x%02x to register 0x%02x\n", data, static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
@@ -165,20 +173,24 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             if (this->dlab()) {//DLM
                 this->regs.m_dlm = data;
             } else {//IER
-                assert(false && "TODO");//TODO
+                irvelog_always(0, "TODO UART IMPLEMENT THE MCR REGISTER\n");
+                //assert(false && "TODO");//TODO
             }
             break;
         }
         case Uart::Address::FCR: {//NOTE: Never ISR since that isn't writable
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE FCR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::LCR: {
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE MCR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::MCR: {
-            assert(false && "TODO");//TODO
+            irvelog_always(0, "TODO UART IMPLEMENT THE MCR REGISTER\n");
+            //assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
