@@ -122,6 +122,13 @@ extern "C" {
 
 //TODO high 32 bit variant of these as well
 
+#define RVSW_MILLIS() RVSW_RDTIME()
+
+#define RVSW_DELAY_MILLIS(millis) do { \
+    uint32_t ___rvsw_start_time___ = RVSW_MILLIS(); \
+    while ((RVSW_MILLIS() - ___rvsw_start_time___) < millis); \
+} while (0)
+
 #ifdef __cplusplus
 }
 #endif

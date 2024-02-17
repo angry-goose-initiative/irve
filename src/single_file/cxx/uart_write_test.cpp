@@ -1,6 +1,6 @@
 /**
  * @file    uart_write_test.cpp
- * @brief   Tests out the UART
+ * @brief   Tests out the UART (writes)
  * 
  * @copyright
  *  Copyright (C) 2024 John Jekel\n
@@ -47,7 +47,10 @@ int main(void) {
     uart_write_char('o');
     uart_write_char('!');
 
+    RVSW_DELAY_MILLIS(5000);
+
     std::cout << "Did you see the text \"Hello!\" above BEFORE this line was printed?" << std::endl;
+    std::cout << "It is not guaranteed that this would have occured, but it almost certainly should have" << std::endl;
     std::cout << "Best of luck!" << std::endl;
 
     return 0;
@@ -76,7 +79,7 @@ static void double_write(const char* str) {
 static void uart_write_char(const char c) {
 #if RVSW_UART_16550
     //Poll waiting for the THR to be empty, then write the character
-    while ((RVSW_UART_16550_LSR & (1 << 1)) == 0) {}
+    while ((RVSW_UART_16550_LSR & (1 << 5)) == 0) {}
     RVSW_UART_16550_THR = c;
 #else
 #error "RVSW configuration problem"
