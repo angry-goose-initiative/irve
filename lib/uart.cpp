@@ -148,7 +148,7 @@ uint8_t Uart::read(Uart::Address register_address) {
                 std::lock_guard<std::mutex> lock(this->receive_mutex);
                 LSR_val = this->m_lsr;
             }
-            return LSR_val;
+            return LSR_val | (1 << 5);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO

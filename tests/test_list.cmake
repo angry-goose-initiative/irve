@@ -110,6 +110,7 @@ add_rvsw_parse_test(timer_interrupt_mmode src/single_file/c/timer_interrupt_mmod
 add_rvsw_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx)
 add_rvsw_parse_test(irve_interrupt_bringup src/single_file/cxx/irve_interrupt_bringup)
+add_rvsw_parse_test(uart_read_test src/single_file/cxx/uart_read_test)
 add_rvsw_parse_test(uart_write_test src/single_file/cxx/uart_write_test)
 
 #S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
