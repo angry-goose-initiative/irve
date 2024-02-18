@@ -4,6 +4,9 @@
 #
 # Entry point back into M mode upon recieving an exception
 #
+# NOTE: This cannot just be in C because the compiler just pushes registers
+# to the stack, but we need to ensure this is to the bootloader stack rather
+# than the supervisor or userspace stack
 
 #TODO support DIRECT mode too (not just vectored)
 

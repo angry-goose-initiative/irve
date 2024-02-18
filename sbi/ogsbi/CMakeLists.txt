@@ -18,7 +18,7 @@ set(OGSBI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/dtb.S
     ${CMAKE_CURRENT_SOURCE_DIR}/exception_entry.s
     ${CMAKE_CURRENT_SOURCE_DIR}/gp_tp_preserve_restore.s
-    ${CMAKE_CURRENT_SOURCE_DIR}/interrupts.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/interrupt_entry.S
     ${CMAKE_CURRENT_SOURCE_DIR}/jump2linux.S
     ${CMAKE_CURRENT_SOURCE_DIR}/legacy.c
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c

@@ -50,3 +50,9 @@ int main(int, const char**) {
 
     return 0;
 }
+
+//Regardless of the mode, this will exit, so we don't need to worry about "machine" or "supervisor" here
+__attribute__ ((interrupt ("machine"))) void ___rvsw_exception_handler___(void) {
+    assert(false && "We don't expect any exceptions to occur in this test program");
+    exit(1);
+}
