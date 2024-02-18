@@ -230,23 +230,9 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     Reg mstatus = this->m_CSR.implicit_read(Csr::Address::MSTATUS);
     bool in_m_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE;
     bool in_s_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::SUPERVISOR_MODE;
-    
-    if (in_m_mode) {
-        if (!mstatus.bit(3)) {//mstatus.MIE is not set, so since we're in M-mode, this means interrupts are disabled
-            irvelog(0, "Interrupts are currently disabled in M-mode");
-            return;
-        }
-    } else if (in_s_mode) {
-        if (!mstatus.bit(1)) {//mstatus.SIE is not set, so since we're in S-mode, this means interrupts are disabled
-            irvelog(0, "Interrupts are currently disabled in S-mode");
-            return;
-        }
-    }
-    //If we reach this point, interrupts aren't globally disabled, so we need to check for them
 
-    //
-    //Check if any interrupts are "interrupting", and choose the one with the highest priority
-    //
+    //NOTE if the interrupt is for a higher privilege, it does not matter if the global enable is unset for the current privilege
+    bool global_enable_for_current_privilege = (in_m_mode && (mstatus.bit(3) == 1)) || (in_s_mode && (mstatus.bit(1) == 1));
 
     //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
     Reg mip = this->m_CSR.implicit_read(Csr::Address::MIP);
@@ -258,18 +244,24 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
     //1. The interrupt is pending (mip/sip)
     //2. The interrupt is enabled (mie/sie)
-    //3. The interrupt is delegated to the current or higher privilege level (mideleg/sideleg)
+    //3. Interrupts are globally enabled at this level, or the interrupt is for a higher privilege level (mstatus.MIE/SIE)
+    //4. The interrupt is delegated to the current or a higher privilege level (mideleg/sideleg)
     //Also sets `delegated_to_smode` properly for later use
     auto is_interrupting = [&](uint8_t bit) {
         assert((bit < 32) && "Invalid is_interrupting() bit!");
-        bool pending = mip.bit(bit) == 1;
-        bool enabled = mie.bit(bit) == 1;
-
-        //The only time we'd ignore an interrupt is if we're in M-mode and it's delegated to S-mode
+        bool pending            = mip.bit(bit) == 1;
+        bool enabled            = mie.bit(bit) == 1;
         bool delegated_to_smode = mideleg.bit(bit) == 1;
-        bool ignored_in_current_mode = (in_m_mode && delegated_to_smode);
 
-        bool interrupting = pending && enabled && !ignored_in_current_mode;
+        //Either in user mode, or in s-mode but it is delegated to m-mode
+        bool interrupt_is_for_higher_privilege_level = !in_m_mode && (!in_s_mode || (in_s_mode && !delegated_to_smode));
+
+        //Effective global enable based on mstatus bits, or always if the interrupt is for a higher privilege level
+        bool effective_global_enable = interrupt_is_for_higher_privilege_level || global_enable_for_current_privilege;
+
+        bool interrupt_is_for_lower_privilege_level = (in_m_mode && delegated_to_smode);
+
+        bool interrupting = pending && enabled && effective_global_enable && !interrupt_is_for_lower_privilege_level;
         return interrupting;
     };
 
