@@ -35,11 +35,9 @@
     };
 
     uart0: uart@F1000000 {
-        /* interrupts = <0x9>; */
-        /* interrupt-parent = <&irqchip>; */
+        interrupts-extended = <&hlic 0x9 &hlic 0x11>;//Connects to the standard RISC-V interrupt lines
         clock-frequency = <0x384000>;
-        reg = <0xF1000000 0x100>;
-        //reg = <0xF1000000 0x8>;
+        reg = <0xF1000000 0x8>;
         compatible = "ns16550a";
     };
 
@@ -85,7 +83,7 @@
         ranges;
 
         clint@f0000000 {
-            interrupts-extended = <&hlic 0x3 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
+            interrupts-extended = <&hlic 0x5 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
             reg = <0xf0000000 0xbfff>;
             compatible = "riscv,clint0";
         };
