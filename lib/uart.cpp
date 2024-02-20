@@ -62,6 +62,7 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
+
 Uart::Uart() {
     transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
@@ -185,16 +186,10 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
 
 void Uart::update_receive() {
     uint8_t data;
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(this->receive_file_fd, &fds);
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    if (select(this->receive_file_fd+1, &fds, nullptr, nullptr, &tv)==1){
-        ::read(this->receive_file_fd, &data, 1);
-        receive_queue.push(data);
-        this->m_isr |= 0b1;
+    ssize_t bytesRead = ::read(this->receive_file_fd, &data, 1);
+    if(bytesRead > 0){
+            receive_queue.push(data);
+            this->m_isr |= 0b1;
     }else if(receive_queue.size() == 0){
         this->m_isr &= 0b11111110;
     }
