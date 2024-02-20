@@ -22,6 +22,7 @@
 #include <thread>
 #include <condition_variable>
 #include "tsqueue.h"
+#include <queue>
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -78,7 +79,7 @@ public:
     */
     void write(Address register_address, uint8_t data);
 
-    bool interrupt_pending() const;//More convenient than reading ISR and checking bits
+    bool interrupt_pending();//More convenient than reading ISR and checking bits
 
 private:
 
@@ -88,8 +89,8 @@ private:
     bool dlab() const;
 
     void transmit_thread_function();
-    void receive_thread_function();
 
+    void update_receive();
 
     //No need for rhr and thr since they just go directly to stdin/stdout
     //uint8_t m_ier;//Interrupt Enable Register
@@ -108,16 +109,8 @@ private:
     uint8_t m_dlm;//Divisor Latch MSB
     uint8_t m_psd;//Prescaler Division
 
-    std::string m_output_line_buffer;
-
-    //Threads are defined to allow reading and writting to be done in parallel, 
-    //as would occur in hardware. 
-    std::thread receive_thread;//Thread for read operations.
-    
-    tsqueue::tsqueue_t<uint8_t> async_receive_queue;//Queue for async receieves.
-    bool kill_receive_thread = false;
-    std::condition_variable receive_condition_variable;
-    std::mutex receive_mutex;
+    int receive_file_fd;
+    std::queue<uint8_t> receive_queue;
 
     std::thread transmit_thread;//Thread for write operations.
     tsqueue::tsqueue_t<uint8_t> async_transmit_queue;//Queue for async transmits.

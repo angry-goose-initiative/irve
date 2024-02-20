@@ -22,6 +22,10 @@
 #include <iostream>
 #include <condition_variable>
 
+#include <sys/select.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 #include "uart.h"
 #include "tsqueue.h"
 
@@ -60,33 +64,19 @@ using namespace irve::internal;
 
 Uart::Uart() {
     transmit_thread = std::thread(&Uart::transmit_thread_function, this);
-    receive_thread = std::thread(&Uart::receive_thread_function, this);
-    //TODO
+    this->receive_file_fd = fileno(stdin);
+    int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
+    fcntl(this->receive_file_fd, F_SETFL, flags | O_NONBLOCK);
 }
 
 Uart::~Uart() {
-    if (this->m_output_line_buffer.size() > 0) {
-        irvelog_always_stdout(
-            0,
-            "\x1b[92mRVUARTTX:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
-            this->m_output_line_buffer.c_str()
-        );
-    }
     {                                  
         std::lock_guard<std::mutex> lock(this->transmit_mutex); 
         this->kill_transmit_thread = true; 
         this->transmit_condition_variable.notify_one();          
     }
-    {                                  
-        std::lock_guard<std::mutex> lock(this->receive_mutex); 
-        this->kill_receive_thread = true;      
-    }
     if(transmit_thread.joinable()){
         transmit_thread.join();
-    }
-    if(receive_thread.joinable()){
-        std::cout<<"Press Enter to kill UART"<<std::endl;
-        receive_thread.join();
     }
 }
 
@@ -97,28 +87,14 @@ uint8_t Uart::read(Uart::Address register_address) {
             if (this->dlab()) {//DLL
                 return this->m_dll;
             } else {//RHR
-                char read_data;
-                if(this->async_receive_queue.size() == 0){
-                    assert(false && "No data to read from UART");//TODO
-                }
-                if(this->async_receive_queue.size() == 1){
-                    {
-                        std::lock_guard<std::mutex> lock(this->receive_mutex);
-                        this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
-                        read_data = char(this->async_receive_queue.front());
-                        this->async_receive_queue.pop();
-                    }
+                uint8_t data;
+                if(receive_queue.size()>0){
+                    data = receive_queue.front();
+                    receive_queue.pop();
                 }else{
-                    {
-                        std::lock_guard<std::mutex> lock(this->receive_mutex);
-                        this->m_lsr &= 0b11111110;//Clear data ready bit to HIGH
-                        read_data = char(this->async_receive_queue.front());
-                        this->async_receive_queue.pop();
-                    }
+                    assert(false && "Tried to read from empty input");
                 }
-                return read_data;
-                //For now, this is a call to std::getchar, but will eventually be a 
-                //read from a fd, which is a virtual UART device on the host computer.
+                return data;
             }
             break;
         }
@@ -143,12 +119,7 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
-            uint8_t LSR_val;//Ensures no race conditions
-            {
-                std::lock_guard<std::mutex> lock(this->receive_mutex);
-                LSR_val = this->m_lsr;
-            }
-            return LSR_val | (1 << 5);//We are always ready to transmit
+            return this->m_lsr | (1 << 5);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
@@ -158,7 +129,6 @@ uint8_t Uart::read(Uart::Address register_address) {
             return this->m_spr;
             break;
         }
-
         default: assert(false && "We should never get here!"); return 0;
     }
 }
@@ -213,7 +183,25 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
     }
 }
 
-bool Uart::interrupt_pending() const {
+void Uart::update_receive() {
+    uint8_t data;
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(this->receive_file_fd, &fds);
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    if (select(this->receive_file_fd+1, &fds, nullptr, nullptr, &tv)==1){
+        ::read(this->receive_file_fd, &data, 1);
+        receive_queue.push(data);
+        this->m_isr |= 0b1;
+    }else if(receive_queue.size() == 0){
+        this->m_isr &= 0b11111110;
+    }
+}
+
+bool Uart::interrupt_pending() {
+    update_receive();
     return this->m_isr & 0b1;
 }
 
@@ -230,19 +218,5 @@ void Uart::transmit_thread_function(){
             this->async_transmit_queue.pop();
             std::cout<<data<<std::flush;
         }
-    }
-}
-
-void Uart::receive_thread_function(){
-    //This wile pole the input and push any data transmitted to the read fifo.
-    //Once pushed, the main thread can pop from the fifo.
-    while (!this->kill_receive_thread) {
-        char newChar;
-        newChar = std::getchar();
-        {
-            std::lock_guard<std::mutex> lock(this->receive_mutex);
-            this->m_lsr |= 0b00000001;//Set data ready bit to HIGH
-        }
-        this->async_receive_queue.push(newChar);
     }
 }
