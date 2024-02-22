@@ -21,8 +21,6 @@
 #include <thread>
 #include <iostream>
 #include <condition_variable>
-
-#include <sys/select.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -61,7 +59,6 @@ using namespace irve::internal;
 /* ------------------------------------------------------------------------------------------------
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
-
 
 Uart::Uart() {
     transmit_thread = std::thread(&Uart::transmit_thread_function, this);
