@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "common.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations

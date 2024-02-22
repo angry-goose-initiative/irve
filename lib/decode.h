@@ -30,7 +30,7 @@ namespace irve::internal::decode {
  * @brief       RISC-V opcodes.
  * @note        If you change this, you must also change things on the Rust side.
 */
-enum class opcode_t : uint8_t {
+enum class Opcode : uint8_t {
     LOAD = 0b00000      , LOAD_FP = 0b00001   , CUSTOM_0 = 0b00010  , MISC_MEM = 0b00011  ,
     OP_IMM = 0b00100    , AUIPC = 0b00101     , OP_IMM_32 = 0b00110 , B48_0 = 0b00111     ,
     STORE = 0b01000     , STORE_FP = 0b01001  , CUSTOM_1 = 0b01010  , AMO = 0b01011       ,
@@ -45,7 +45,7 @@ enum class opcode_t : uint8_t {
  * @brief       RISC-V instruction formats
  * @note        If you change this, you must also change things on the Rust side.
 */
-enum class inst_format_t {
+enum class InstFormat {
     R_TYPE = 0, I_TYPE = 1, S_TYPE = 2, B_TYPE = 3, U_TYPE = 4, J_TYPE = 5
 };
 
@@ -53,19 +53,19 @@ enum class inst_format_t {
  * @brief       Holds the results from decoding a RISC-V instruction.
  * @note        We are NOT supporting compressed instructions.
 */
-class decoded_inst_t {
+class DecodedInst {
 public:
 
     /**
      * @brief       The constructor, decodes an instruction.
      * @param[in]   instruction The instruction to decode.
     */
-    decoded_inst_t(Word instruction);
+    DecodedInst(Word instruction);
 
-    decoded_inst_t() = default;//FIXME remove this (needed for icache)
+    DecodedInst() = default;//FIXME remove this (needed for icache)
 
-    decoded_inst_t(const decoded_inst_t& other) = default;
-    decoded_inst_t& operator=(const decoded_inst_t& other) = default;
+    DecodedInst(const DecodedInst& other) = default;
+    DecodedInst& operator=(const DecodedInst& other) = default;
 
     /**
      * @brief       Log information about the decoded instruciton.
@@ -81,9 +81,9 @@ public:
      *              instruction.
      * @return      The instruction format.
     */
-    inst_format_t get_format() const;
+    InstFormat get_format() const;
 
-    opcode_t get_opcode() const;
+    Opcode get_opcode() const;
     uint8_t get_funct3() const;
     uint8_t get_funct5() const;
     uint8_t get_funct7() const;
@@ -94,7 +94,7 @@ public:
 
 private:
     std::string disassemble() const;
-    opcode_t m_opcode;//Bits [6:2]
+    Opcode m_opcode;//Bits [6:2]
 
     uint8_t m_funct3;
     uint8_t m_funct5;
@@ -108,7 +108,7 @@ private:
     Word m_imm_U;
     Word m_imm_J;
 
-    inst_format_t m_format;
+    InstFormat m_format;
 };
 
-}
+} // namespace irve::internal::decode

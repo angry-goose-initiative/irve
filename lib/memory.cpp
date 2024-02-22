@@ -25,7 +25,7 @@
 #include "csr.h"
 #include "common.h"
 #include "memory_map.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "fuzzish.h"
 #include "uart.h"
 

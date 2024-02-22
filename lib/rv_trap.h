@@ -24,17 +24,6 @@
 #include "common.h"
 
 /* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
-/**
- * @brief Invoke an IRVE exit request (more concise than using throw)
-*/
-#define invoke_polite_irve_exit_request() do {                                                    \
-    throw irve::internal::rv_trap::irve_exit_request_t();                                     \
-} while (0)
-
-/* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
  * --------------------------------------------------------------------------------------------- */
 
@@ -80,15 +69,15 @@ enum class Cause : uint32_t {
  * on our first emulator. We'll stop using exceptions when we do XRVE in Rust. (We'll use Results
  * and the ? operator instead to make things nice and also fast)
 */
-class rvexception_t : public std::runtime_error {
+class RvException : public std::runtime_error {
 public:
     /**
-     * @brief Construct a new rvexception_t
+     * @brief Construct a new RvException
      * 
      * @param cause The cause of the interrupt/exception (see cause_t)
      * @param tval Extra exception info (the value for mtval or stval)
     */
-    rvexception_t(Cause cause, Word tval);
+    RvException(Cause cause, Word tval);
     
     /**
      * @brief Get the cause of the interrupt/exception
@@ -123,12 +112,12 @@ private:
  * on our first emulator. We'll stop using exceptions when we do XRVE in Rust. (We'll use Results
  * and the ? operator instead to make things nice and also fast)
 */
-class irve_exit_request_t : public std::exception {
+class IrveExitRequest : public std::exception {
 public:
     /**
-     * @brief Construct a new irve_exit_request_t
+     * @brief Construct a new IrveExitRequest
     */
-    irve_exit_request_t();
+    IrveExitRequest();
 
     /**
      * @brief Override of std::exception::what()
@@ -138,7 +127,11 @@ public:
 };
 
 inline void invoke_exception(Cause cause, Word tval = 0) {
-    throw rvexception_t(cause, tval);
+    throw RvException(cause, tval);
 }
 
+inline void invoke_polite_irve_exit_request() {
+    throw irve::internal::rv_trap::IrveExitRequest();
 }
+
+} // namespace irve::internal::rv_trap

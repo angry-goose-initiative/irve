@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #include "fuzzish.h"
 

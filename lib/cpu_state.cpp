@@ -18,7 +18,7 @@
 #define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #include "fuzzish.h"
 

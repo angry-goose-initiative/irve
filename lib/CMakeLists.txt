@@ -47,8 +47,8 @@ set(LIBIRVE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/memory_map.h
     ${CMAKE_CURRENT_SOURCE_DIR}/plic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/plic.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/rvexception.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rv_trap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rv_trap.h
     ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/semihosting.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tsqueue.h
