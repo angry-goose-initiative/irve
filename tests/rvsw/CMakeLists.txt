@@ -16,6 +16,7 @@ set(
     ${CMAKE_CURRENT_BINARY_DIR}/rvsw_verifier.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/jzjcoresoftware.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/standalone.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/elf.cpp
 )
 
 add_executable(rvsw_verifier ${RVSW_TESTER_SOURCES})

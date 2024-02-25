@@ -3,7 +3,8 @@
  * 
  * @copyright
  *  Copyright (C) 2023-2024 John Jekel\n
- *  Copyright (C) 2023 Nick Chan\n
+ *  Copyright (C) 2023-2024 Nick Chan\n
+ *  Copyright (C) 2024 Sam Graham\n
  *  See the LICENSE file at the root of the project for licensing info.
 */
 
@@ -909,16 +910,21 @@ image_load_status_t Memory::load_elf_32(std::string image_path) {
     assert((!file.bad()) && "Bad read");
 
     // Validate file header
-    if (memcmp(file_header.e_ident, "\177ELF", 4) != 0 // Not an ELF Signature
-        || file_header.e_type != 2 // Not an executable file
-        || file_header.e_machine != 0xF3 // Not a riscv file
+    const char*     ELF_SIGNATURE = "\177ELF";
+    const uint16_t  ELF_FILE_TYPE_EXEC = 2;
+    const uint16_t  ELF_MACHINE_RISCV = 0xF3;
+    if (memcmp(file_header.e_ident, ELF_SIGNATURE, std::strlen(ELF_SIGNATURE)) != 0 // Not an ELF Signature
+        || file_header.e_type != ELF_FILE_TYPE_EXEC // Not an executable file
+        || file_header.e_machine != ELF_MACHINE_RISCV // Not a riscv file
     ) {
         return IL_FAIL;
     }
 
     // Unsupported features
-    assert((file_header.e_ident[4] == 1) && "Not using 32 bit address format");
-    assert((file_header.e_ident[5] == 1) && "Not 2's complement & little endien");
+    const uint8_t ELF_ADDRESS_SIZE_32                   = 1;
+    const uint8_t ELF_TWOS_COMPLEMENT_AND_LITTLE_ENDIAN = 1;
+    assert((file_header.e_ident[4] == ELF_ADDRESS_SIZE_32) && "Not using 32 bit address format");
+    assert((file_header.e_ident[5] == ELF_TWOS_COMPLEMENT_AND_LITTLE_ENDIAN) && "Not 2's complement & little endien");
 
     // Custom data structure used for filtering and loading data
     struct elf32_chunk {
@@ -946,7 +952,8 @@ image_load_status_t Memory::load_elf_32(std::string image_path) {
     for (uint16_t i = 0; i < file_header.e_shnum; i++) {
         file.read((char*)&program_header, sizeof(program_header));
         // Cache if program page is of type PT_LOAD
-        if (program_header.p_type == 1) {
+        const uint32_t PT_LOAD = 1;
+        if (program_header.p_type == PT_LOAD) {
             program_chunks.push_back({
                 program_header.p_offset,
                 program_header.p_filesz,
@@ -975,8 +982,10 @@ image_load_status_t Memory::load_elf_32(std::string image_path) {
     // Iterate over the section header table to identify program data sections
     for (uint16_t i = 0; i < file_header.e_shnum; i++) {
         file.read((char*)&section_header, sizeof(section_header));
-        // Filter out non-SHT_PROGBITS section chunks
-        if (section_header.sh_type != 1) {
+        // Filter out section chunks that shouldn't be loaded into memory
+        const uint32_t SHT_PROGBITS = 0x1;
+        const uint32_t SHT_INIT_ARRAY = 0xe;
+        if (!((section_header.sh_type == SHT_PROGBITS) || (section_header.sh_type == SHT_INIT_ARRAY))) {
             continue;
         }
         // Cache if section is contained in any PT_LOAD program segment
