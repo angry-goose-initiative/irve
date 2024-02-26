@@ -89,6 +89,8 @@ add_rvsw_test(jzjcoresoftware_xoritoggle)
 add_rvsw_test(rv32esim)
 add_rvsw_test(atomics)
 
+add_rvsw_test(elf)#Not a normal rvsw test, rather tests the elf file parser
+
 #TODO add more
 
 #rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
