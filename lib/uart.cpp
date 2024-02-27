@@ -23,9 +23,9 @@
 #include <condition_variable>
 #include <fcntl.h>
 #include <unistd.h>
-
 #include "uart.h"
 #include "tsqueue.h"
+#include "fuzzish.h"
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -61,7 +61,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    this->regs = {0, 0, 0, 0, 0, 0, 0};
+    this->regs = {irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand()};
     this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
