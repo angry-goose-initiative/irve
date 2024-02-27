@@ -61,7 +61,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    this->regs = {irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand(), irve_fuzzish_rand()};
+    this->regs = {static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand())};
     this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
