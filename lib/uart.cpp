@@ -61,7 +61,8 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    transmit_thread = std::thread(&Uart::transmit_thread_function, this);
+    this->regs = {0, 0, 0, 0, 0, 0, 0};
+    this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
     fcntl(this->receive_file_fd, F_SETFL, flags | O_NONBLOCK);
@@ -83,14 +84,14 @@ uint8_t Uart::read(Uart::Address register_address) {
     switch (register_address) {
         case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
             if (this->dlab()) {//DLL
-                return this->m_dll;
+                return this->regs.m_dll;
             } else {//RHR
                 uint8_t data;
                 if(receive_queue.size()>0){
                     data = receive_queue.front();
                     receive_queue.pop();
                 }else{
-                    assert(false && "Tried to read from empty input");
+                    assert(false && "Tried to read from empty input");//Buggy software tried to read form empty queue.
                 }
                 return data;
             }
@@ -98,7 +99,7 @@ uint8_t Uart::read(Uart::Address register_address) {
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
-                return this->m_dlm;
+                return this->regs.m_dlm;
             } else {//IER
                 assert(false && "TODO");//TODO
             }
@@ -117,14 +118,15 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
-            return this->m_lsr | (1 << 5);//We are always ready to transmit
+            constexpr uint32_t LSR_TX_READY_POS = 1U;
+            return this->regs.m_lsr | (LSR_TX_READY_POS<<5);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::SPR: {
-            return this->m_spr;
+            return this->regs.m_spr;
             break;
         }
         default: assert(false && "We should never get here!"); return 0;
@@ -136,19 +138,19 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
     switch (register_address) {
         case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
             if (this->dlab()) {//DLL
-                this->m_dll = data;
+                this->regs.m_dll = data;
             } else {//THR
+                this->async_transmit_queue.push(data);
                 {//Wake up the transmit thread                          
                     std::lock_guard<std::mutex> lock(this->transmit_mutex); 
                     this->transmit_condition_variable.notify_one();          
                 }       
-                this->async_transmit_queue.push(data);
             }
             break;
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
-                this->m_dlm = data;
+                this->regs.m_dlm = data;
             } else {//IER
                 assert(false && "TODO");//TODO
             }
@@ -168,13 +170,13 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
         }
         case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
             assert(this->dlab() && "TODO software was mean");//TODO
-            this->m_psd = data;
+            this->regs.m_psd = data;
             break;
         case Uart::Address::MSR://NOTE: Should never be written to by software
             assert(false && "TODO software was mean");//TODO
             break;
         case Uart::Address::SPR: {
-            this->m_spr = data;
+            this->regs.m_spr = data;
             break;
         }
         default: assert(false && "We should never get here!");
@@ -186,19 +188,19 @@ void Uart::update_receive() {
     ssize_t bytesRead = ::read(this->receive_file_fd, &data, 1);
     if(bytesRead > 0){
             receive_queue.push(data);
-            this->m_isr |= 0b1;
+            this->regs.m_isr |= 0b1;
     }else if(receive_queue.size() == 0){
-        this->m_isr &= 0b11111110;
+        this->regs.m_isr &= ~0b1;
     }
 }
 
 bool Uart::interrupt_pending() {
     update_receive();
-    return this->m_isr & 0b1;
+    return this->regs.m_isr & 0b1;
 }
 
 bool Uart::dlab() const {
-    return this->m_lcr & (1 << 7);
+    return this->regs.m_lcr & (1 << 7);
 }
 
 void Uart::transmit_thread_function(){

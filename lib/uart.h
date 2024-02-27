@@ -91,23 +91,24 @@ private:
     void transmit_thread_function();
 
     void update_receive();
-
-    //No need for rhr and thr since they just go directly to stdin/stdout
-    //uint8_t m_ier;//Interrupt Enable Register
-    uint8_t m_isr;//Interrupt Status Register
-    //uint8_t m_fcr;//FIFO Control Register
-    uint8_t m_lcr;//Line Control Register
-    //uint8_t m_mcr;//Modem Control Register
-    uint8_t m_lsr;//Line Status Register
-    //uint8_t m_msr;//Modem Status Register
-    uint8_t m_spr;//Scratch Pad Register
-
-    //Note: We expose these registers, but we completely ignore their contents
-    //since the serial output is the terminal and there are no real "wires" to
-    //run at a particular baud rate
-    uint8_t m_dll;//Divisor Latch LSB
-    uint8_t m_dlm;//Divisor Latch MSB
-    uint8_t m_psd;//Prescaler Division
+    struct {
+        //No need for rhr and thr since they just go directly to stdin/stdout
+        //uint8_t m_ier;//Interrupt Enable Register
+        uint8_t m_isr;//Interrupt Status Register
+        //uint8_t m_fcr;//FIFO Control Register
+        uint8_t m_lcr;//Line Control Register
+        //uint8_t m_mcr;//Modem Control Register
+        uint8_t m_lsr;//Line Status Register
+        //uint8_t m_msr;//Modem Status Register
+        uint8_t m_spr;//Scratch Pad Register
+    
+        //Note: We expose these registers, but we completely ignore their contents
+        //since the serial output is the terminal and there are no real "wires" to
+        //run at a particular baud rate
+        uint8_t m_dll;//Divisor Latch LSB
+        uint8_t m_dlm;//Divisor Latch MSB
+        uint8_t m_psd;//Prescaler Division
+    } regs;
 
     int receive_file_fd;
     std::queue<uint8_t> receive_queue;
