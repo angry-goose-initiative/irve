@@ -118,8 +118,8 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
-            constexpr uint32_t LSR_TX_READY_POS = 1U;
-            return this->regs.m_lsr | (LSR_TX_READY_POS<<5);//We are always ready to transmit
+            constexpr uint32_t LSR_TX_READY_POS = 5U;
+            return this->regs.m_lsr | (1U << LSR_TX_READY_POS);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
