@@ -20,10 +20,12 @@
 #include <cstdio>
 #include <thread>
 #include <iostream>
-#include <utility>
 #include <condition_variable>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "common.h"
+
 #include "uart.h"
 #include "tsqueue.h"
 #include "fuzzish.h"

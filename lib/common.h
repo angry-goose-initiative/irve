@@ -16,6 +16,16 @@
 #include <cassert>
 #include <cstdint>
 
+#if  __has_include(<unreachable>)
+#include <unreachable>
+#else
+namespace std {
+    [[noreturn]] inline void unreachable() {
+        __builtin_unreachable();
+    }
+}
+#endif
+
 /* ------------------------------------------------------------------------------------------------
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */

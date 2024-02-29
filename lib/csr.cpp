@@ -18,7 +18,8 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
-#include <utility>
+
+#include "common.h"
 
 #include "rv_trap.h"
 

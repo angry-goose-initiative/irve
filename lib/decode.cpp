@@ -17,7 +17,6 @@
 
 #include <cassert>
 #include <cstdint>
-#include <utility>
 #include <string>
 
 #include "config.h"
