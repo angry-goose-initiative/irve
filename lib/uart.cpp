@@ -118,6 +118,14 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
+            //Clear the Data Ready bit in the LSR if the queue is empty
+            if (receive_queue.size() == 0) {
+                constexpr uint32_t LSR_DATA_READY_POS = 0U;
+                this->regs.m_lsr &= ~(1U << LSR_DATA_READY_POS);
+                
+                //TODO do we need to clear the interrupt pending bit too?
+            }
+
             constexpr uint32_t LSR_TX_READY_POS = 5U;
             return this->regs.m_lsr | (1U << LSR_TX_READY_POS);//We are always ready to transmit
         }
@@ -189,8 +197,10 @@ void Uart::update_receive() {
     if(bytesRead > 0){
             receive_queue.push(data);
             this->regs.m_isr |= 0b1;
+            this->regs.m_lsr |= 0b1;
     }else if(receive_queue.size() == 0){
         this->regs.m_isr &= ~0b1;
+        this->regs.m_lsr &= ~0b1;
     }
 }
 

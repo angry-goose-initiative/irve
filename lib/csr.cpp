@@ -277,6 +277,10 @@ void Csr::occasional_update_timer() {
     update_timer();
 }
 
+void Csr::set_exti_pending() {
+    this->mip |= 1 << 11;//Set the machine external interrupt as pending
+}
+
 bool Csr::current_privilege_mode_can_explicitly_read(Csr::Address csr) const {
     //FIXME special checks for cycle, instret, time, and hpmcounters
 

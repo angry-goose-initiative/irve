@@ -233,6 +233,12 @@ void Memory::store(Word addr, uint8_t data_type, Word data) {
     }
 }
 
+void Memory::update_peripherals() {
+    if (this->m_uart.interrupt_pending()) {
+        this->m_CSR_ref.set_exti_pending();
+    }//Note that we DON'T clear the interrupt pending bit otherwise; that is for software to do
+}
+
 uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) {
     //NOTE: On faults we set mtval/stval to the untranslated address, not the translated address (if any)
     if(no_address_translation(access_type)) {

@@ -66,8 +66,10 @@ bool emulator::emulator_t::tick() {
     //May or may not set the timer interrupt pending bit depending on if the timer has expired
     this->m_CSR.occasional_update_timer();
 
-    //TODO also add a function to memory to update peripherals (they will set the relevant pending bit if needed, or we could have them return a bool indicating if we should set the external interrupt pending bit here)
+    //Update peripherals and potentially set the external interrupt pending bit
+    this->m_memory.update_peripherals();
 
+    //May need to deal with interrupt if they were set by one of the above functions
     this->check_and_handle_interrupts();
 
     irvelog(0, "Tick %lu ends", this->get_inst_count());
