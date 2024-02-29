@@ -2,6 +2,7 @@
  * @brief   16550 UART implementation
  * 
  * @copyright
+ *  Copyright (C) 2024 Seb Atkinson\n
  *  Copyright (C) 2023-2024 John Jekel\n
  *  Copyright (C) 2023 Nick Chan\n
  *  See the LICENSE file at the root of the project for licensing info.
@@ -18,6 +19,10 @@
 
 #include <cstdint>
 #include <string>
+#include <thread>
+#include <condition_variable>
+#include "tsqueue.h"
+#include <queue>
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -74,7 +79,7 @@ public:
     */
     void write(Address register_address, uint8_t data);
 
-    bool interrupt_pending() const;//More convenient than reading ISR and checking bits
+    bool interrupt_pending();//More convenient than reading ISR and checking bits
 
 private:
 
@@ -83,24 +88,36 @@ private:
     */
     bool dlab() const;
 
-    //No need for rhr and thr since they just go directly to stdin/stdout
-    //uint8_t m_ier;//Interrupt Enable Register
-    uint8_t m_isr;//Interrupt Status Register
-    //uint8_t m_fcr;//FIFO Control Register
-    uint8_t m_lcr;//Line Control Register
-    //uint8_t m_mcr;//Modem Control Register
-    //uint8_t m_lsr;//Line Status Register
-    //uint8_t m_msr;//Modem Status Register
-    uint8_t m_spr;//Scratch Pad Register
+    void transmit_thread_function();
 
-    //Note: We expose these registers, but we completely ignore their contents
-    //since the serial output is the terminal and there are no real "wires" to
-    //run at a particular baud rate
-    uint8_t m_dll;//Divisor Latch LSB
-    uint8_t m_dlm;//Divisor Latch MSB
-    uint8_t m_psd;//Prescaler Division
+    void update_receive();
+    struct {
+        //No need for rhr and thr since they just go directly to stdin/stdout
+        //uint8_t m_ier;//Interrupt Enable Register
+        uint8_t m_isr;//Interrupt Status Register
+        //uint8_t m_fcr;//FIFO Control Register
+        uint8_t m_lcr;//Line Control Register
+        //uint8_t m_mcr;//Modem Control Register
+        uint8_t m_lsr;//Line Status Register
+        //uint8_t m_msr;//Modem Status Register
+        uint8_t m_spr;//Scratch Pad Register
+    
+        //Note: We expose these registers, but we completely ignore their contents
+        //since the serial output is the terminal and there are no real "wires" to
+        //run at a particular baud rate
+        uint8_t m_dll;//Divisor Latch LSB
+        uint8_t m_dlm;//Divisor Latch MSB
+        uint8_t m_psd;//Prescaler Division
+    } regs;
 
-    std::string m_output_line_buffer;
+    int receive_file_fd;
+    std::queue<uint8_t> receive_queue;
+
+    std::thread transmit_thread;//Thread for write operations.
+    tsqueue::tsqueue_t<uint8_t> async_transmit_queue;//Queue for async transmits.
+    bool kill_transmit_thread = false;
+    std::condition_variable transmit_condition_variable;
+    std::mutex transmit_mutex;
 };
 
 } // namespace irve::internal::uart

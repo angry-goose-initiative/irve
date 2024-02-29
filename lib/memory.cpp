@@ -233,6 +233,12 @@ void Memory::store(Word addr, uint8_t data_type, Word data) {
     }
 }
 
+void Memory::update_peripherals() {
+    if (this->m_uart.interrupt_pending()) {
+        this->m_CSR_ref.set_exti_pending();
+    }//Note that we DON'T clear the interrupt pending bit otherwise; that is for software to do
+}
+
 uint64_t Memory::translate_address(Word untranslated_addr, uint8_t access_type) {
     //NOTE: On faults we set mtval/stval to the untranslated address, not the translated address (if any)
     if(no_address_translation(access_type)) {
@@ -518,8 +524,6 @@ Word Memory::read_memory_region_uart(
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
             "This should never happen");
 
-    assert(false && "Region not implemented yet");
-
     //Only byte accesses allowed
     if ((data_type & DATA_WIDTH_MASK) != DT_BYTE) {
         access_status = AS_VIOLATES_PMA;
@@ -664,8 +668,6 @@ void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word dat
 
     assert((addr >= MEM_MAP_REGION_START_UART) && (addr <= MEM_MAP_REGION_END_UART) &&
             "This should never happen");
-
-    assert(false && "Region not implemented yet");
 
     //Only byte accesses allowed
     if ((data_type & DATA_WIDTH_MASK) != DT_BYTE) {

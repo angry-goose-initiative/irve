@@ -197,6 +197,7 @@ public:
     */
     void occasional_update_timer();
 
+    void set_exti_pending();
 private:
 
     /**

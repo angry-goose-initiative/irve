@@ -94,6 +94,10 @@ public:
     */
     void store(Word addr, uint8_t data_type, Word data);
 
+    /**
+     * @brief       Update peripherals (usually to check if the external interrupt pending bit should be set).
+    */
+    void update_peripherals();
 private:
 
     /**

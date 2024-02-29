@@ -2,6 +2,7 @@
  * @brief   16550 UART implementation
  * 
  * @copyright
+ *  Copyright (C) 2024 Seb Atkinson\n
  *  Copyright (C) 2023-2024 John Jekel\n
  *  See the LICENSE file at the root of the project for licensing info.
  * 
@@ -17,10 +18,14 @@
 #include <cstdint>
 #include <string>
 #include <cstdio>
-
+#include <thread>
+#include <iostream>
+#include <condition_variable>
+#include <fcntl.h>
+#include <unistd.h>
 #include "uart.h"
-
 #include "tsqueue.h"
+#include "fuzzish.h"
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -56,16 +61,21 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    //TODO
+    this->regs = {static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand())};
+    this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
+    this->receive_file_fd = fileno(stdin);
+    int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
+    fcntl(this->receive_file_fd, F_SETFL, flags | O_NONBLOCK);
 }
 
 Uart::~Uart() {
-    if (this->m_output_line_buffer.size() > 0) {
-        irvelog_always_stdout(
-            0,
-            "\x1b[92mRVUARTTX:\x1b[0m: \"\x1b[1m%s\x1b[0m\"",
-            this->m_output_line_buffer.c_str()
-        );
+    {                                  
+        std::lock_guard<std::mutex> lock(this->transmit_mutex); 
+        this->kill_transmit_thread = true; 
+        this->transmit_condition_variable.notify_one();          
+    }
+    if(transmit_thread.joinable()){
+        transmit_thread.join();
     }
 }
 
@@ -74,15 +84,22 @@ uint8_t Uart::read(Uart::Address register_address) {
     switch (register_address) {
         case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
             if (this->dlab()) {//DLL
-                return this->m_dll;
+                return this->regs.m_dll;
             } else {//RHR
-                return std::getchar();//TODO is the fact that this is blocking a problem?
+                uint8_t data;
+                if(receive_queue.size()>0){
+                    data = receive_queue.front();
+                    receive_queue.pop();
+                }else{
+                    assert(false && "Tried to read from empty input");//Buggy software tried to read form empty queue.
+                }
+                return data;
             }
             break;
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
-                return this->m_dlm;
+                return this->regs.m_dlm;
             } else {//IER
                 assert(false && "TODO");//TODO
             }
@@ -100,19 +117,26 @@ uint8_t Uart::read(Uart::Address register_address) {
             assert(false && "TODO");//TODO
             break;
         }
-        case Uart::Address::LSR: {//NOTE: Never PSD since that isn't readable
-            assert(false && "TODO");//TODO
-            break;
+        case Uart::Address::LSR: {
+            //Clear the Data Ready bit in the LSR if the queue is empty
+            if (receive_queue.size() == 0) {
+                constexpr uint32_t LSR_DATA_READY_POS = 0U;
+                this->regs.m_lsr &= ~(1U << LSR_DATA_READY_POS);
+                
+                //TODO do we need to clear the interrupt pending bit too?
+            }
+
+            constexpr uint32_t LSR_TX_READY_POS = 5U;
+            return this->regs.m_lsr | (1U << LSR_TX_READY_POS);//We are always ready to transmit
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::SPR: {
-            return this->m_spr;
+            return this->regs.m_spr;
             break;
         }
-
         default: assert(false && "We should never get here!"); return 0;
     }
 }
@@ -122,39 +146,19 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
     switch (register_address) {
         case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
             if (this->dlab()) {//DLL
-                this->m_dll = data;
+                this->regs.m_dll = data;
             } else {//THR
-                //Note, because we "send" the character right away, the transmit fifo is always empty
-                char character = (char)data;
-                switch (character) {
-                    case '\n':
-                        //End of line; print the contents of the line buffer and clear it
-                        irvelog_always_stdout(
-                            0,
-                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\n\"",
-                            this->m_output_line_buffer.c_str()
-                        );
-                        this->m_output_line_buffer.clear();
-                        break;
-                    case '\0':
-                        //Null terminator; print the contents of the line buffer and clear it
-                        //(this has helped with debugging weird issues in the past)
-                        irvelog_always_stdout(
-                            0,
-                            "\x1b[92mRVUARTTX\x1b[0m: \"\x1b[1m%s\x1b[0m\\0\"",
-                            this->m_output_line_buffer.c_str()
-                        );
-                        this->m_output_line_buffer.clear();
-                        break;
-                    case '\r':  this->m_output_line_buffer += "\x1b[0m\\r\x1b[1m"; break;//Print \r in non-bold
-                    default:    this->m_output_line_buffer.push_back(character); break;
-                }
+                this->async_transmit_queue.push(data);
+                {//Wake up the transmit thread                          
+                    std::lock_guard<std::mutex> lock(this->transmit_mutex); 
+                    this->transmit_condition_variable.notify_one();          
+                }       
             }
             break;
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
-                this->m_dlm = data;
+                this->regs.m_dlm = data;
             } else {//IER
                 assert(false && "TODO");//TODO
             }
@@ -174,23 +178,49 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
         }
         case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
             assert(this->dlab() && "TODO software was mean");//TODO
-            this->m_psd = data;
+            this->regs.m_psd = data;
             break;
         case Uart::Address::MSR://NOTE: Should never be written to by software
             assert(false && "TODO software was mean");//TODO
             break;
         case Uart::Address::SPR: {
-            this->m_spr = data;
+            this->regs.m_spr = data;
             break;
         }
         default: assert(false && "We should never get here!");
     }
 }
 
-bool Uart::interrupt_pending() const {
-    return this->m_isr & 0b1;
+void Uart::update_receive() {
+    uint8_t data;
+    ssize_t bytesRead = ::read(this->receive_file_fd, &data, 1);
+    if(bytesRead > 0){
+            receive_queue.push(data);
+            this->regs.m_isr |= 0b1;
+            this->regs.m_lsr |= 0b1;
+    }else if(receive_queue.size() == 0){
+        this->regs.m_isr &= ~0b1;
+        this->regs.m_lsr &= ~0b1;
+    }
+}
+
+bool Uart::interrupt_pending() {
+    update_receive();
+    return this->regs.m_isr & 0b1;
 }
 
 bool Uart::dlab() const {
-    return this->m_lcr & (1 << 7);
+    return this->regs.m_lcr & (1 << 7);
+}
+
+void Uart::transmit_thread_function(){
+    std::unique_lock<std::mutex> lock(this->transmit_mutex); 
+    while (!this->kill_transmit_thread){
+        this->transmit_condition_variable.wait(lock);
+        while(this->async_transmit_queue.size() > 0){
+            char data = char(this->async_transmit_queue.front());
+            this->async_transmit_queue.pop();
+            std::cout<<data<<std::flush;
+        }
+    }
 }
