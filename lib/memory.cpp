@@ -125,6 +125,7 @@ Memory::Memory(Csr& CSR_ref):
         m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
         m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
         m_aclint(CSR_ref),
+        m_delay_uart_update_counter(0),
         m_uart(),
         m_output_line_buffer() {
 
@@ -144,6 +145,7 @@ Memory::Memory(int imagec, const char* const* imagev, Csr& CSR_ref):
     m_user_ram(new uint8_t[MEM_MAP_REGION_SIZE_USER_RAM]),
     m_kernel_ram(new uint8_t[MEM_MAP_REGION_SIZE_KERNEL_RAM]),
     m_aclint(CSR_ref),
+    m_delay_uart_update_counter(0),
     m_uart(),
     m_output_line_buffer()
 {
@@ -234,6 +236,13 @@ void Memory::store(Word addr, uint8_t data_type, Word data) {
 }
 
 void Memory::update_peripherals() {
+    //Only actually update/check peripherals every 65535 times this function is called
+    //This is since, although non-blocking, the read system call in the UART is REALLY REALLY REALLY slow
+    //FIXME does this introduce software problems? I don't think so, no chance some types that fast anyways and
+    //regardless it likely wouldn't even matter
+    ++this->m_delay_uart_update_counter;
+    if (this->m_delay_uart_update_counter) return;//Counter didn't overflow, so don't update the timer
+
     if (this->m_uart.interrupt_pending()) {
         this->m_CSR_ref.set_exti_pending();
     }//Note that we DON'T clear the interrupt pending bit otherwise; that is for software to do
