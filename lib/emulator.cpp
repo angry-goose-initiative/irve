@@ -23,7 +23,7 @@
 #include "gdbserver.h"
 #include "execute.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "semihosting.h"
 
 #define INST_COUNT this->m_CSR.implicit_read(Csr::Address::MINSTRET).u
@@ -51,14 +51,14 @@ bool emulator::emulator_t::tick() {
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
     try {
-        decode::decoded_inst_t decoded_inst = this->fetch_and_decode();
+        decode::DecodedInst decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         uint32_t raw_cause = (uint32_t)e.cause();
         assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
         irvelog(1, "Handling exception: Cause: %u", raw_cause);
         this->handle_trap(e.cause(), e.tval());
-    } catch (const rv_trap::irve_exit_request_t&) {
+    } catch (const rv_trap::IrveExitRequest&) {
         irvelog(0, "Recieved exit request from emulated guest");
         return false;
     }
@@ -105,7 +105,7 @@ void emulator::emulator_t::flush_icache() {
     this->m_icache.clear();
 }
 
-decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
+decode::DecodedInst emulator::emulator_t::fetch_and_decode() {
     Word pc = this->m_cpu_state.get_pc();
     irvelog(1, "Fetching from 0x%08x", pc);
 
@@ -126,14 +126,14 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
         irvelog(1, "Fetched 0x%08x from 0x%08x", inst, pc);
 
         irvelog(1, "Decoding instruction 0x%08X", inst);
-        decode::decoded_inst_t decoded_inst(inst);
+        decode::DecodedInst decoded_inst(inst);
         decoded_inst.log(2, this->get_inst_count());
 
         //TODO be more fine-grained about this
         //Note the icache is cleared on exceptions and interrupts, so that is already handled
-        if (decoded_inst.get_opcode() == decode::opcode_t::MISC_MEM) {//To catch FENCE.i
+        if (decoded_inst.get_opcode() == decode::Opcode::MISC_MEM) {//To catch FENCE.i
             this->flush_icache();
-        } else if (decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) {//To catch satp changes, SFENCE.VMA
+        } else if (decoded_inst.get_opcode() == decode::Opcode::SYSTEM) {//To catch satp changes, SFENCE.VMA
             this->flush_icache();
         } else {//There is no need to clear the cache
             this->m_icache.emplace(pc.u, decoded_inst);
@@ -144,61 +144,61 @@ decode::decoded_inst_t emulator::emulator_t::fetch_and_decode() {
 }
 
 //TODO move this to a separate file maybe?
-void emulator::emulator_t::execute(const decode::decoded_inst_t &decoded_inst) {
+void emulator::emulator_t::execute(const decode::DecodedInst &decoded_inst) {
     irvelog(1, "Executing instruction");
 
     //We can assume the opcode exists since the instruction is valid
     switch (decoded_inst.get_opcode()) {
-        case decode::opcode_t::LOAD:
-            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
+        case decode::Opcode::LOAD:
+            assert((decoded_inst.get_format() == decode::InstFormat::I_TYPE) && "Instruction with LOAD opcode had a non-I format!");
             execute::load(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case decode::opcode_t::CUSTOM_0:
-            assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
+        case decode::Opcode::CUSTOM_0:
+            assert((decoded_inst.get_format() == decode::InstFormat::R_TYPE) && "Instruction with CUSTOM_0 opcode had a non-R format!");
             execute::custom_0(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case decode::opcode_t::MISC_MEM:
-            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
+        case decode::Opcode::MISC_MEM:
+            assert((decoded_inst.get_format() == decode::InstFormat::I_TYPE) && "Instruction with MISC_MEM opcode had a non-I format!");
             execute::misc_mem(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::OP_IMM:
-            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");
+        case decode::Opcode::OP_IMM:
+            assert((decoded_inst.get_format() == decode::InstFormat::I_TYPE) && "Instruction with OP_IMM opcode had a non-I format!");
             execute::op_imm(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::AUIPC:
-            assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "Instruction with AUIPC opcode had a non-U format!");
+        case decode::Opcode::AUIPC:
+            assert((decoded_inst.get_format() == decode::InstFormat::U_TYPE) && "Instruction with AUIPC opcode had a non-U format!");
             execute::auipc(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::STORE:
-            assert((decoded_inst.get_format() == decode::inst_format_t::S_TYPE) && "Instruction with STORE opcode had a non-S format!");
+        case decode::Opcode::STORE:
+            assert((decoded_inst.get_format() == decode::InstFormat::S_TYPE) && "Instruction with STORE opcode had a non-S format!");
             execute::store(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case decode::opcode_t::AMO:
+        case decode::Opcode::AMO:
             //TODO assertion
             execute::amo(decoded_inst, this->m_cpu_state, this->m_memory, this->m_CSR);
             break;
-        case decode::opcode_t::OP:
-            assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) && "Instruction with OP opcode had a non-R format!");
+        case decode::Opcode::OP:
+            assert((decoded_inst.get_format() == decode::InstFormat::R_TYPE) && "Instruction with OP opcode had a non-R format!");
             execute::op(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::LUI:
-            assert((decoded_inst.get_format() == decode::inst_format_t::U_TYPE) && "Instruction with LUI opcode had a non-U format!");
+        case decode::Opcode::LUI:
+            assert((decoded_inst.get_format() == decode::InstFormat::U_TYPE) && "Instruction with LUI opcode had a non-U format!");
             execute::lui(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::BRANCH:
-            assert((decoded_inst.get_format() == decode::inst_format_t::B_TYPE) && "Instruction with BRANCH opcode had a non-B format!");
+        case decode::Opcode::BRANCH:
+            assert((decoded_inst.get_format() == decode::InstFormat::B_TYPE) && "Instruction with BRANCH opcode had a non-B format!");
             execute::branch(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::JALR:
-            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with JALR opcode had a non-I format!");
+        case decode::Opcode::JALR:
+            assert((decoded_inst.get_format() == decode::InstFormat::I_TYPE) && "Instruction with JALR opcode had a non-I format!");
             execute::jalr(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::JAL:
-            assert((decoded_inst.get_format() == decode::inst_format_t::J_TYPE) && "Instruction with JAL opcode had a non-J format!");
+        case decode::Opcode::JAL:
+            assert((decoded_inst.get_format() == decode::InstFormat::J_TYPE) && "Instruction with JAL opcode had a non-J format!");
             execute::jal(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
-        case decode::opcode_t::SYSTEM:
-            assert((decoded_inst.get_format() == decode::inst_format_t::I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
+        case decode::Opcode::SYSTEM:
+            assert((decoded_inst.get_format() == decode::InstFormat::I_TYPE) && "Instruction with SYSTEM opcode had a non-I format!");
             execute::system(decoded_inst, this->m_cpu_state, this->m_CSR);
             break;
         default:
@@ -323,7 +323,7 @@ void emulator::emulator_t::handle_trap(rv_trap::Cause cause, Word tval) {
                     semihosting_ebreak = true;
                 }
                 //Otherwise not a semihosting ebreak
-            } catch (const rv_trap::rvexception_t&) {
+            } catch (const rv_trap::RvException&) {
                 //Not a semihosting ebreak
             }
         }

@@ -13,8 +13,7 @@
  *
 */
 
-#ifndef IRVE_PUBLIC_API_H
-#define IRVE_PUBLIC_API_H
+#pragma once
 
 /* ------------------------------------------------------------------------------------------------
  * Includes
@@ -200,5 +199,3 @@ namespace irve {//NOT irve::internal
         };
     }
 }
-
-#endif//COMMON_H

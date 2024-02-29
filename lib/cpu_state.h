@@ -17,7 +17,7 @@
 
 #include "csr.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -117,4 +117,4 @@ private:
     bool m_atomic_reservation_set_valid;
 };
 
-}
+} // namespace irve::internal

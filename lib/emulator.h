@@ -20,7 +20,7 @@
 #include "decode.h"
 #include "gdbserver.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 #include "semihosting.h"
 
 #include <unordered_map>
@@ -96,13 +96,13 @@ namespace irve::internal::emulator {
          * @brief       Fetches and decodes the instruciton specified by the current PC.
          * @return      Information about the decoded instruciton.
         */
-        decode::decoded_inst_t fetch_and_decode();
+        decode::DecodedInst fetch_and_decode();
 
         /**
          * @brief       Executes an instruction that has been decoded.
          * @param[in]   decoded_inst Information about the decoded instruction.
         */
-        void execute(const decode::decoded_inst_t& decoded_inst);//TODO move this to a separate file
+        void execute(const decode::DecodedInst& decoded_inst);//TODO move this to a separate file
 
         /**
          * @brief       Check for interrupts and if any have occurred, handle them.
@@ -121,7 +121,7 @@ namespace irve::internal::emulator {
         CpuState m_cpu_state;
 
         SemihostingHandler m_semihosting_handler;
-        std::unordered_map<uint32_t, decode::decoded_inst_t> m_icache;//uint32_t to avoid needing to implement hash for Word
+        std::unordered_map<uint32_t, decode::DecodedInst> m_icache;//uint32_t to avoid needing to implement hash for Word
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
     };

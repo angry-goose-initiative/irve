@@ -23,7 +23,7 @@
 #include "cpu_state.h"
 #include "decode.h"
 #include "memory.h"
-#include "rvexception.h"
+#include "rv_trap.h"
 
 #define INST_COUNT CSR.implicit_read(Csr::Address::MINSTRET).u
 #include "logging.h"
@@ -34,16 +34,16 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::load(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Memory& memory, Csr& CSR) {
     irvelog(2, "Executing LOAD instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::LOAD) &&
+        (decoded_inst.get_opcode() == decode::Opcode::LOAD) &&
         "load instruction must have opcode LOAD"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::I_TYPE) &&
         "load instruction must be I_TYPE"
     );
 
@@ -82,16 +82,16 @@ void execute::load(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_sta
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* cpu_state */,
+void execute::custom_0(const decode::DecodedInst& decoded_inst, CpuState& /* cpu_state */,
                         Memory& /* memory */, Csr& CSR) {
     irvelog(2, "Executing custom-0 instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::CUSTOM_0) &&
+        (decoded_inst.get_opcode() == decode::Opcode::CUSTOM_0) &&
         "custom-0 instruction must have opcode CUSTOM_0"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::R_TYPE) &&
         "custom-0 instruction must be R_TYPE"
     );
 
@@ -101,7 +101,7 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* 
         irvelog(3, "Mnemonic: IRVE.EXIT");
         if (CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE) {
             irvelog(3, "In machine mode, so the IRVE.EXIT instruction is valid");
-            invoke_polite_irve_exit_request();
+            rv_trap::invoke_polite_irve_exit_request();
         }
         else {
             irvelog(
@@ -117,7 +117,7 @@ void execute::custom_0(const decode::decoded_inst_t& decoded_inst, CpuState& /* 
     }
 }
 
-void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::misc_mem(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                         Csr& CSR) {
     irvelog(2, "Executing MISC-MEM instruction");
 
@@ -135,16 +135,16 @@ void execute::misc_mem(const decode::decoded_inst_t& decoded_inst, CpuState& cpu
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::op_imm(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                         Csr& CSR) {
     irvelog(2, "Executing OP-IMM instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::OP_IMM) &&
+        (decoded_inst.get_opcode() == decode::Opcode::OP_IMM) &&
         "op_imm() instruction must have opcode OP-IMM"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::I_TYPE) &&
         "op_imm() instruction must be I_TYPE"
     );
 
@@ -216,16 +216,16 @@ void execute::op_imm(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::auipc(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Csr& CSR) {
     irvelog(2, "Executing AUIPC instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::AUIPC) &&
+        (decoded_inst.get_opcode() == decode::Opcode::AUIPC) &&
         "auipc instruction must have opcode AUIPC"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::U_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::U_TYPE) &&
         "auipc instruction must be U_TYPE"
     );
 
@@ -238,16 +238,16 @@ void execute::auipc(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::store(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Memory& memory, Csr& CSR) {
     irvelog(2, "Executing STORE instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::STORE) &&
+        (decoded_inst.get_opcode() == decode::Opcode::STORE) &&
         "store instruction must have opcode STORE"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::S_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::S_TYPE) &&
         "store instruction must be S_TYPE"
     );
 
@@ -281,16 +281,16 @@ void execute::store(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_st
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::amo(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Memory& memory, Csr& CSR) {
     irvelog(2, "Executing AMO instruction");
 
     //TODO Vol 2 Page 80 comments on AMO exceptions wrt. virtual memory, it may be relevant
 
     //Sanity checks
-    assert((decoded_inst.get_opcode() == decode::opcode_t::AMO) && 
+    assert((decoded_inst.get_opcode() == decode::Opcode::AMO) && 
             "amo instruction must have opcode AMO");
-    assert((decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+    assert((decoded_inst.get_format() == decode::InstFormat::R_TYPE) &&
             "amo instruction must be R_TYPE");
     
     if (decoded_inst.get_funct3() != 0b010) {
@@ -317,7 +317,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
             //Load the word from memory at the address in rs1
             try {
                 loaded_word = memory.load(r1, DT_WORD);
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 // If we get an exception, we need to rethrow a different one to indicate this is
                 // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
@@ -375,7 +375,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
             //Attempt to store the value in rs2 to the address in rs1
             try {
                 memory.store(r1, DT_WORD, r2);
-            } catch (const rv_trap::rvexception_t& e) {
+            } catch (const rv_trap::RvException& e) {
                 // If we get an exception, we need to rethrow a different one to indicate this is
                 // due to an AMO instruction
                 switch (e.cause()) {//TODO ensure this is correct
@@ -448,7 +448,7 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     //Read the word at the address in rs1
     try {
         loaded_word = memory.load(r1, DT_WORD);
-    } catch (const rv_trap::rvexception_t& e) {
+    } catch (const rv_trap::RvException& e) {
         // If we get an exception, we need to rethrow a different one to indicate this is due to an
         // AMO instruction
         switch (e.cause()) {//TODO ensure this is correct
@@ -513,16 +513,16 @@ void execute::amo(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::op(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Csr& CSR) {
     irvelog(2, "Executing OP instruction"); 
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::OP) &&
+        (decoded_inst.get_opcode() == decode::Opcode::OP) &&
         "op instruction must have opcode OP"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::R_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::R_TYPE) &&
         "op instruction must be R_TYPE"
     );
 
@@ -747,16 +747,16 @@ void execute::op(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::lui(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Csr& CSR) {
     irvelog(2, "Executing LUI instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::LUI) &&
+        (decoded_inst.get_opcode() == decode::Opcode::LUI) &&
         "lui instruction must have opcode LUI"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::U_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::U_TYPE) &&
         "lui instruction must be U_TYPE"
     );
 
@@ -770,16 +770,16 @@ void execute::lui(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.goto_next_sequential_pc();
 }
 
-void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::branch(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                         Csr& CSR) {
     irvelog(2, "Executing BRANCH instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::BRANCH) &&
+        (decoded_inst.get_opcode() == decode::Opcode::BRANCH) &&
         "branch instruction must have opcode BRANCH"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::B_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::B_TYPE) &&
         "branch instruction must be B_TYPE"
     );
 
@@ -843,16 +843,16 @@ void execute::branch(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_s
     }
 }
 
-void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::jalr(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Csr& CSR) {
     irvelog(2, "Executing JALR instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::JALR) &&
+        (decoded_inst.get_opcode() == decode::Opcode::JALR) &&
         "jalr instruction must have opcode JALR"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::I_TYPE) &&
         "jalr instruction must be I_TYPE"
     );
 
@@ -873,16 +873,16 @@ void execute::jalr(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_sta
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::jal(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::jal(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                     Csr& CSR) {
     irvelog(2, "Executing JAL instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::JAL) &&
+        (decoded_inst.get_opcode() == decode::Opcode::JAL) &&
         "jal instruction must have opcode JAL"
     );
     assert(
-        (decoded_inst.get_format() == decode::inst_format_t::J_TYPE) &&
+        (decoded_inst.get_format() == decode::InstFormat::J_TYPE) &&
         "jal instruction must be J_TYPE"
     );
 
@@ -897,16 +897,16 @@ void execute::jal(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_stat
     cpu_state.set_r(decoded_inst.get_rd(), old_pc + 4);//Critically we use old_pc here
 }
 
-void execute::system(const decode::decoded_inst_t& decoded_inst, CpuState& cpu_state,
+void execute::system(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                         Csr& CSR) {
     irvelog(2, "Executing SYSTEM instruction");
 
     assert(
-        (decoded_inst.get_opcode() == decode::opcode_t::SYSTEM) &&
+        (decoded_inst.get_opcode() == decode::Opcode::SYSTEM) &&
         "system instruction must have opcode SYSTEM"
     );
     // assert(
-    //     (decoded_inst.get_format() == decode::inst_format_t::I_TYPE) &&
+    //     (decoded_inst.get_format() == decode::InstFormat::I_TYPE) &&
     //     "system instruction must be I_TYPE"
     // ); //TODO SYSTEM can also be R-Type
     

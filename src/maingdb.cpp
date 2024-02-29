@@ -94,6 +94,7 @@ static void print_startup_message() {
     irvelog_always(0, "\x1b[1mThe Inextensible RISC-V Emulator\x1b[0m");
     irvelog_always(0, "\x1b[1mCopyright (C) 2023-2024 \x1b[95mJohn Jekel\x1b[0m");
     irvelog_always(0, "\x1b[1mCopyright (C) 2023-2024 \x1b[92mNick Chan\x1b[0m");
+    irvelog_always(0, "\x1b[1mCopyright (C) 2024      \x1b[96mSam Graham\x1b[0m");
     irvelog_always(0, "\x1b[1mCopyright (C) 2024      \x1b[96mSeb Atkinson\x1b[0m");
     irvelog_always(0, "\x1b[90mSee the LICENSE file at the root of the project for licensing info.\x1b[0m");
     irvelog_always(0, "");

@@ -17,7 +17,7 @@
 #include "csr.h"
 #include "cpu_state.h"
 
-#include "rvexception.h"
+#include "rv_trap.h"
 
 using namespace irve::internal;
 

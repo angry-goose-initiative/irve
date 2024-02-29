@@ -26,7 +26,7 @@
 #[derive(Debug)]
 #[repr(C)]
 pub enum Format {
-    //NOTE: It is imperative these numbers match those in irve::internal::decode::inst_format_t over on the C++ side of things
+    //NOTE: It is imperative these numbers match those in irve::internal::decode::InstFormat over on the C++ side of things
     ///R-type RISC-V Instruction
     R = 0,
     
@@ -58,7 +58,7 @@ pub enum Format {
 #[derive(Debug)]
 #[repr(C)]
 pub enum Opcode {
-    //NOTE: It is imperative these numbers match those in irve::internal::decode::opcode_t over on the C++ side of things
+    //NOTE: It is imperative these numbers match those in irve::internal::decode::Opcode over on the C++ side of things
     //TODO better formatting of this
     //TODO documentations of these
     Load = 0b00000,     LoadFp = 0b00001,  Custom0 = 0b00010,     MiscMem = 0b00011, OpImm = 0b00100,   AuiPc= 0b00101,        OpImm32 = 0b00110,    B480 = 0b00111,
