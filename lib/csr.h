@@ -162,6 +162,19 @@ public:
     */
     Reg implicit_read(Csr::Address csr);//Not constant due to possible read side effects
 
+    //implicit_read is slow due to the large case statement and side-effects. 
+    //We must read several CSRs on every instruction, in particular the ones needed for handling interrupts.
+    //So we add a new function to do this more efficiently. In testing this doubles emulator performance.
+    typedef struct {
+        Reg             mstatus;
+        PrivilegeMode   privilege_mode;
+        Reg             mcause;
+        Reg             mip;
+        Reg             mie;
+        Reg             mideleg;
+    } interrupt_regs;
+    interrupt_regs fast_implicit_read_interrupt_regs() const;
+
     /**
      * @brief       Writes a CSR implicitly (without checking privilege; still checks writability).
      * @note        If the CSR number is invalid, an illegal instruction exception is invoked.

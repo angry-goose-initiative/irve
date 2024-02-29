@@ -169,6 +169,17 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
     std::unreachable();
 }
 
+Csr::interrupt_regs Csr::fast_implicit_read_interrupt_regs() const {
+    return Csr::interrupt_regs {
+        .mstatus        = this->mstatus,
+        .privilege_mode = this->m_privilege_mode,
+        .mcause         = this->mcause,
+        .mip            = this->mip,
+        .mie            = this->mie,
+        .mideleg        = this->mideleg
+    };
+}
+
 //implicit_write must always ensure all CSRs in the class are legal
 void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any privilege checks
     //FIXME handle WARL in this function

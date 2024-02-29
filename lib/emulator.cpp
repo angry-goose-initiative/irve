@@ -225,19 +225,21 @@ void emulator::emulator_t::check_and_handle_interrupts() {
 
     irvelog(1, "Checking for interrupts...");
 
-    Reg mstatus = this->m_CSR.implicit_read(Csr::Address::MSTATUS);
-    bool in_m_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::MACHINE_MODE;
-    bool in_s_mode = this->m_CSR.get_privilege_mode() == PrivilegeMode::SUPERVISOR_MODE;
+    auto interrupt_regs = this->m_CSR.fast_implicit_read_interrupt_regs();
+
+    Reg mstatus = interrupt_regs.mstatus;
+    bool in_m_mode = interrupt_regs.privilege_mode == PrivilegeMode::MACHINE_MODE;
+    bool in_s_mode = interrupt_regs.privilege_mode == PrivilegeMode::SUPERVISOR_MODE;
 
     //NOTE if the interrupt is for a higher privilege, it does not matter if the global enable is unset for the current privilege
     bool global_enable_for_current_privilege = (in_m_mode && (mstatus.bit(3) == 1)) || (in_s_mode && (mstatus.bit(1) == 1));
 
     //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
-    Reg mip = this->m_CSR.implicit_read(Csr::Address::MIP);
-    Reg mie = this->m_CSR.implicit_read(Csr::Address::MIE);
+    Reg mip = interrupt_regs.mip;
+    Reg mie = interrupt_regs.mie;
 
     //Also mideleg will be useful
-    Reg mideleg = this->m_CSR.implicit_read(Csr::Address::MIDELEG);
+    Reg mideleg = interrupt_regs.mideleg;
 
     //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
     //1. The interrupt is pending (mip/sip)
