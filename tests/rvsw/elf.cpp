@@ -18,6 +18,7 @@
 #include "memory.h"
 #include "memory_map.h"
 
+#undef NDEBUG//Asserts should work even in release mode for tests
 #include <cassert>
 #include <cstdint>
 #include <cstring>

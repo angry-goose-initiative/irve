@@ -130,7 +130,7 @@ Memory::Memory(Csr& CSR_ref):
         m_output_line_buffer() {
 
     //Check endianness of host (only little-endian hosts are supported)
-    const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
+    [[maybe_unused]] const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
     assert((host_order.value == 0x03020100) && "Host endianness not supported");
 
     //Initialize all ram to random values
@@ -151,7 +151,7 @@ Memory::Memory(int imagec, const char* const* imagev, Csr& CSR_ref):
 {
 
     //Check endianness of host (only little-endian hosts are supported)
-    const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
+    [[maybe_unused]] const union {uint8_t bytes[4]; uint32_t value;} host_order = {{0, 1, 2, 3}};
     assert((host_order.value == 0x03020100) && "Host endianness not supported");
 
     //Initialize all ram to random values
@@ -435,7 +435,7 @@ Word Memory::read_memory_region_user_ram(
         return Word(0);
     }
 
-    Word data;
+    Word data = 0;
     uint64_t mem_index = addr - MEM_MAP_REGION_START_USER_RAM;
     void* mem_ptr = &(m_user_ram[mem_index]);
     switch(data_type) {
@@ -479,7 +479,7 @@ Word Memory::read_memory_region_kernel_ram(
         return Word(0);
     }
 
-    Word data;
+    Word data = 0;
     uint64_t mem_index = addr - MEM_MAP_REGION_START_KERNEL_RAM;
     void* mem_ptr = &(m_kernel_ram[mem_index]);
     switch (data_type) {
@@ -541,7 +541,7 @@ Word Memory::read_memory_region_uart(
 
     auto uart_addr = static_cast<Uart::Address>(addr - MEM_MAP_REGION_START_UART);
 
-    Word data;
+    Word data = 0;
     
     //TODO uart read should also update access_status?
     if (data_type & DATA_SIGN_MASK) {
@@ -691,7 +691,7 @@ void Memory::write_memory_region_uart(uint64_t addr, uint8_t data_type, Word dat
     this->m_uart.write(uart_addr, uart_data);
 }
 
-void Memory::write_memory_region_debug(uint64_t addr, uint8_t data_type, Word data,
+void Memory::write_memory_region_debug([[maybe_unused]] uint64_t addr, uint8_t data_type, Word data,
                                                     access_status_t& access_status) {
             
     assert((addr == MEM_MAP_ADDR_DEBUG) && "This should never happen");
@@ -932,8 +932,8 @@ image_load_status_t Memory::load_elf_32(std::string image_path) {
     }
 
     // Unsupported features
-    const uint8_t ELF_ADDRESS_SIZE_32                   = 1;
-    const uint8_t ELF_TWOS_COMPLEMENT_AND_LITTLE_ENDIAN = 1;
+    [[maybe_unused]] const uint8_t ELF_ADDRESS_SIZE_32                   = 1;
+    [[maybe_unused]] const uint8_t ELF_TWOS_COMPLEMENT_AND_LITTLE_ENDIAN = 1;
     assert((file_header.e_ident[4] == ELF_ADDRESS_SIZE_32) && "Not using 32 bit address format");
     assert((file_header.e_ident[5] == ELF_TWOS_COMPLEMENT_AND_LITTLE_ENDIAN) && "Not 2's complement & little endien");
 

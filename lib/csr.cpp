@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <utility>
 
 #include "rv_trap.h"
 
@@ -164,7 +165,8 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
         default: rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
 
-    return 0; // Avoid no return warning
+    assert(false && "We should never get here");
+    std::unreachable();
 }
 
 //implicit_write must always ensure all CSRs in the class are legal
@@ -239,6 +241,9 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
 
         default: rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
     }
+
+    assert(false && "We should never get here");
+    std::unreachable();
 }
 
 void Csr::set_privilege_mode(PrivilegeMode new_privilege_mode) {

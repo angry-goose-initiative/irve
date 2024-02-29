@@ -17,6 +17,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <utility>
 #include <string>
 
 #include "config.h"
@@ -265,11 +266,10 @@ Word decode::DecodedInst::get_imm() const {
         case InstFormat::J_TYPE:
             return this->m_imm_J;
             break;
-        default:
-            assert(false && "We should never get here");
-            return 0x0BADDEAD;
-            break;
     }
+
+    assert(false && "We should never get here");
+    std::unreachable();
 }
 
 std::string decode::DecodedInst::disassemble() const {

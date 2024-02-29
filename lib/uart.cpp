@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <thread>
 #include <iostream>
+#include <utility>
 #include <condition_variable>
 #include <fcntl.h>
 #include <unistd.h>
@@ -86,7 +87,7 @@ uint8_t Uart::read(Uart::Address register_address) {
             if (this->dlab()) {//DLL
                 return this->regs.m_dll;
             } else {//RHR
-                uint8_t data;
+                uint8_t data = 0;
                 if(receive_queue.size()>0){
                     data = receive_queue.front();
                     receive_queue.pop();
@@ -137,8 +138,10 @@ uint8_t Uart::read(Uart::Address register_address) {
             return this->regs.m_spr;
             break;
         }
-        default: assert(false && "We should never get here!"); return 0;
     }
+
+    assert(false && "We should never get here!");
+    std::unreachable();
 }
 
 void Uart::write(Uart::Address register_address, uint8_t data) {

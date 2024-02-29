@@ -89,12 +89,12 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb3")
 if (IRVE_RUST)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")#FIXME irvers dosn't like to compile with lto enabled; though regular irve and irve_disassemble are fine
+    set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")#FIXME irvers dosn't like to compile with lto enabled; though regular irve and irve_disassemble are fine
 else()
     if (NOT APPLE)
-        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
+        set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -flto=auto -fuse-linker-plugin")
     else()
-        set(CMAKE_CXX_FLAGS_RELEASE "-O3 -flto=auto")
+        set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -flto=auto")
     endif()
 endif()
 

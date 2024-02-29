@@ -14,6 +14,7 @@
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
+#undef NDEBUG//Asserts should work even in release mode for tests
 #include <cassert>
 
 #include "uart.h"

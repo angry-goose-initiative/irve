@@ -11,13 +11,12 @@
  *
 */
 
-//FIXME when in release mode, assertions in libirve will be disabled. But we want to leave assertions actual unit tests enabled!
-
 /* ------------------------------------------------------------------------------------------------
  * Includes
  * --------------------------------------------------------------------------------------------- */
 
 #include <iostream>
+#undef NDEBUG//Asserts should work even in release mode for tests
 #include <cassert>
 #include <cstdlib>
 #include <ctime>

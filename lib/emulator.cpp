@@ -53,9 +53,8 @@ bool emulator::emulator_t::tick() {
         decode::DecodedInst decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
     } catch (const rv_trap::RvException& e) {
-        uint32_t raw_cause = (uint32_t)e.cause();
-        assert((raw_cause < 32) && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
-        irvelog(1, "Handling exception: Cause: %u", raw_cause);
+        assert((uint32_t)e.cause() && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
+        irvelog(1, "Handling exception: Cause: %u", (uint32_t)e.cause());
         this->handle_trap(e.cause(), e.tval());
     } catch (const rv_trap::IrveExitRequest&) {
         irvelog(0, "Recieved exit request from emulated guest");

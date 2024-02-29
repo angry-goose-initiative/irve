@@ -302,7 +302,7 @@ void execute::amo(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
     Reg r1 = cpu_state.get_r(decoded_inst.get_rs1());
     Reg r2 = cpu_state.get_r(decoded_inst.get_rs2());
 
-    Word loaded_word;
+    Word loaded_word = 0;
     switch (decoded_inst.get_funct5()) {
         case 0b00010://LR.W
             irvelog(3, "Mnemonic: LR.W");

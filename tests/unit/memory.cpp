@@ -18,6 +18,7 @@
 // We do this so we can access internal emulator state for testing
 #define private public
 
+#undef NDEBUG//Asserts should work even in release mode for tests
 #include <cassert>
 #include "memory.h"
 #include "csr.h"
