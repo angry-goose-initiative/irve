@@ -59,8 +59,6 @@
 
 //Compiles down to nothing, but prevents warnings/errors if logging is disabled
 #define irvelog(indent, ...) do { \
-    ((void)(INST_COUNT)); \
-    ((void)(indent)); \
 } while (0)
 
 #else//Logging is enabled

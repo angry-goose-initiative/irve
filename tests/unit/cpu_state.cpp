@@ -26,8 +26,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 int test_cpu_state_CpuState() {
-    Csr CSR;
-    CpuState cpu_state(CSR);
+    CpuState cpu_state;
 
     assert(cpu_state.get_pc() == 0x00000000);//It should be 0x00000000 at reset
     cpu_state.set_pc(0xABCD1234);

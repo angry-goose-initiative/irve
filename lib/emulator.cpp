@@ -38,15 +38,14 @@ using namespace irve::internal;
 emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
     m_CSR(),
     m_memory(imagec, imagev, m_CSR),
-    m_cpu_state(m_CSR),
+    m_cpu_state(),
     m_intercept_breakpoints(false)
 {
     irvelog(0, "Created new emulator instance");
 }
 
 bool emulator::emulator_t::tick() {
-    this->m_CSR.implicit_write(Csr::Address::MINSTRET, this->m_CSR.implicit_read(Csr::Address::MINSTRET) + 1);
-    this->m_CSR.implicit_write(Csr::Address::MCYCLE,   this->m_CSR.implicit_read(Csr::Address::MCYCLE  ) + 1);
+    this->m_CSR.increment_perf_counters();
     irvelog(0, "Tick %lu begins", this->get_inst_count());
 
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)

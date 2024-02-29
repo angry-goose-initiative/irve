@@ -249,6 +249,11 @@ PrivilegeMode Csr::get_privilege_mode() const {
     return this->m_privilege_mode;
 }
 
+void Csr::increment_perf_counters() {
+    ++this->minstret;
+    ++this->mcycle;//We don't really have clock cycles, so this will do
+}
+
 void Csr::update_timer() {
     //This is really, really slow
     //TODO make this function faster

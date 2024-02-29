@@ -15,7 +15,7 @@
 #include <cassert>
 #include <cstdint>
 
-#define INST_COUNT this->m_CSR_ref.implicit_read(Csr::Address::MINSTRET).u
+#define INST_COUNT 0
 #include "logging.h"
 
 #include "rv_trap.h"
@@ -28,9 +28,8 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-CpuState::CpuState(Csr& CSR_ref) :
+CpuState::CpuState() :
     m_pc(0),
-    m_CSR_ref(CSR_ref),
     m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
     irvelog(1, "Created new CpuState instance");
@@ -67,7 +66,7 @@ void CpuState::set_r(uint8_t reg_num, Reg new_val) {
     }
 }
 
-void CpuState::log(uint8_t indent) const {
+void CpuState::log([[maybe_unused]] uint8_t indent) const {
     //irvelog(indent, "Inst Count: %lu", this->get_inst_count());
     irvelog(indent, "PC:\t\t0x%08x", this->get_pc());
     irvelog(indent, "Registers:");

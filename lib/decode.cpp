@@ -120,7 +120,7 @@ decode::DecodedInst::DecodedInst(Word instruction) :
     }
 }
 
-void decode::DecodedInst::log(uint8_t indent, uint64_t inst_count) const {
+void decode::DecodedInst::log([[maybe_unused]] uint8_t indent, [[maybe_unused]] uint64_t inst_count) const {
     switch (this->get_format()) {
         case InstFormat::R_TYPE:
 #if IRVE_INTERNAL_CONFIG_RUST

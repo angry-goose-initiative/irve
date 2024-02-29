@@ -185,6 +185,8 @@ public:
     */
     PrivilegeMode get_privilege_mode() const;
 
+    void increment_perf_counters();//Increments mcycle and minstret
+
     /**
      * @brief       Updates the RISC-V CPU's mtime timer based on the host system's time.
      *              May also set a timer interrupt as pending in the mip CSR.

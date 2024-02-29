@@ -15,7 +15,6 @@
 
 #include <cstdint>
 
-#include "csr.h"
 #include "memory.h"
 #include "rv_trap.h"
 
@@ -33,10 +32,8 @@ class CpuState {
 public:
     /**
      * @brief       Construct a new CpuState.
-     * @param[in]   CSR_ref A reference to the CSR object that this CpuState object will use
-     *              internally.
     */
-    CpuState(irve::internal::Csr& CSR_ref);
+    CpuState();
 
     /**
      * @brief       Get the current value of the PC (program counter).
@@ -105,11 +102,6 @@ private:
      *              and so on.
     */
     Reg m_regs[31];
-
-    /**
-     * @brief       Reference to the CSR's.
-    */
-    Csr& m_CSR_ref;
 
     /**
      * @brief       True if the hart has a valid atomic reseravtion, false othersise.
