@@ -69,7 +69,6 @@ Csr::Csr() :
     mtime(0),                       //Implied it should be initialized according to the spec
     mtimecmp(0xFFFFFFFFFFFFFFFF),   //Implied it should be initialized according to the spec
     m_last_time_update(std::chrono::steady_clock::now()),
-    m_delay_update_counter(0),
     m_privilege_mode(PrivilegeMode::MACHINE_MODE) //MUST BE INITIALIZED ACCORDING TO THE SPEC
 {
     std::memset(this->pmpcfg, 0x00, sizeof(this->pmpcfg)); // We need the A and L bits to be 0
@@ -170,8 +169,8 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
     std::unreachable();
 }
 
-Csr::interrupt_regs Csr::fast_implicit_read_interrupt_regs() const {
-    return Csr::interrupt_regs {
+Csr::InterruptRegs Csr::fast_implicit_read_interrupt_regs() const {
+    return Csr::InterruptRegs {
         .mstatus        = this->mstatus,
         .privilege_mode = this->m_privilege_mode,
         .mcause         = this->mcause,
@@ -272,7 +271,7 @@ void Csr::increment_perf_counters() {
 }
 
 void Csr::update_timer() {
-    //This is really, really slow
+    //This is really, really slow. Like, we couldn't even run at 1MHz if we did this every time
     //TODO make this function faster
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     double time_since_last_update_us = std::chrono::duration_cast<std::chrono::microseconds>(now - this->m_last_time_update).count();
@@ -286,17 +285,6 @@ void Csr::update_timer() {
     if (this->mtime >= this->mtimecmp) {
         this->mip |= 1 << 7;//Set the machine timer interrupt as pending
     }
-}
-
-void Csr::occasional_update_timer() {
-    //Only actually update the timer every 65535 times this function is called
-    //This is since chrono is REALLY REALLY REALLY slow
-    //FIXME this however reduces the accuracy of the timer unless software is constantly checking mtime and causing update_timer() to be called more often!
-    ++m_delay_update_counter;
-    if (m_delay_update_counter) return;//Counter didn't overflow, so don't update the timer
-
-    //This is really, really slow. Like, we couldn't even run at 1MHz if we did this every time
-    update_timer();
 }
 
 void Csr::set_exti_pending() {

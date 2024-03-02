@@ -124,5 +124,8 @@ namespace irve::internal::emulator {
         std::unordered_map<uint32_t, decode::DecodedInst> m_icache;//uint32_t to avoid needing to implement hash for Word
         bool m_intercept_breakpoints;
         bool m_encountered_breakpoint;
+
+        //It is expensive to update peripherals each tick, so we only update them every so often
+        uint32_t m_peripheral_update_delay_counter;
     };
 }

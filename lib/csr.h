@@ -165,15 +165,15 @@ public:
     //implicit_read is slow due to the large case statement and side-effects. 
     //We must read several CSRs on every instruction, in particular the ones needed for handling interrupts.
     //So we add a new function to do this more efficiently. In testing this doubles emulator performance.
-    typedef struct {
+    struct InterruptRegs {
         Reg             mstatus;
         PrivilegeMode   privilege_mode;
         Reg             mcause;
         Reg             mip;
         Reg             mie;
         Reg             mideleg;
-    } interrupt_regs;
-    interrupt_regs fast_implicit_read_interrupt_regs() const;
+    };
+    InterruptRegs fast_implicit_read_interrupt_regs() const;
 
     /**
      * @brief       Writes a CSR implicitly (without checking privilege; still checks writability).
@@ -205,12 +205,6 @@ public:
      *              May also set a timer interrupt as pending in the mip CSR.
     */
     void update_timer();
-
-    /**
-     * @brief       Occasionally calls update_timer(), but not necessarily on every call since
-     *              this may be too expensive.
-    */
-    void occasional_update_timer();
 
     void set_exti_pending();
 private:
@@ -266,7 +260,6 @@ private:
     uint64_t mtime;//Handles both time and timeh
     uint64_t mtimecmp;//Handles both time and timeh
     std::chrono::time_point<std::chrono::steady_clock> m_last_time_update;
-    uint16_t m_delay_update_counter;//Don't check how much time has passed each tick() (much too slow)
 
     /**
      * @brief       The current privilege mode of the hart.

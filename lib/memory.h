@@ -200,7 +200,6 @@ private:
     Aclint m_aclint;
 
     // 16550 UART.
-    uint16_t m_delay_uart_update_counter;//Don't update the UART each tick() (much too slow)
     Uart m_uart;
 
     // Output line buffer.

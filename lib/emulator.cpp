@@ -32,6 +32,12 @@
 using namespace irve::internal;
 
 /* ------------------------------------------------------------------------------------------------
+ * Constants
+ * --------------------------------------------------------------------------------------------- */
+
+constexpr uint32_t MAX_PERIPHERAL_UPDATE_DELAY_COUNTER_VALUE = 65535;
+
+/* ------------------------------------------------------------------------------------------------
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
@@ -39,7 +45,8 @@ emulator::emulator_t::emulator_t(int imagec, const char* const* imagev):
     m_CSR(),
     m_memory(imagec, imagev, m_CSR),
     m_cpu_state(),
-    m_intercept_breakpoints(false)
+    m_intercept_breakpoints(false),
+    m_peripheral_update_delay_counter(MAX_PERIPHERAL_UPDATE_DELAY_COUNTER_VALUE)
 {
     irvelog(0, "Created new emulator instance");
 }
@@ -53,7 +60,7 @@ bool emulator::emulator_t::tick() {
         decode::DecodedInst decoded_inst = this->fetch_and_decode();
         this->execute(decoded_inst);
     } catch (const rv_trap::RvException& e) {
-        assert((uint32_t)e.cause() && "Unsuppored cause value!");//Makes it simpler since this means we must check medeleg always
+        assert(((uint32_t)e.cause() < 32) && "Unsuppored cause value!");
         irvelog(1, "Handling exception: Cause: %u", (uint32_t)e.cause());
         this->handle_trap(e.cause(), e.tval());
     } catch (const rv_trap::IrveExitRequest&) {
@@ -61,13 +68,23 @@ bool emulator::emulator_t::tick() {
         return false;
     }
 
-    //May or may not set the timer interrupt pending bit depending on if the timer has expired
-    this->m_CSR.occasional_update_timer();
+    //Only actually update the timer and peripherals every once in a while, rather than each time
+    //this function is called. This is since chrono (used by the timer) and the read syscall
+    //(used by the UART) are REALLY REALLY REALLY slow.
+    --this->m_peripheral_update_delay_counter;
+    if (this->m_peripheral_update_delay_counter == 0) {
+        //Reset the delay counter
+        this->m_peripheral_update_delay_counter = MAX_PERIPHERAL_UPDATE_DELAY_COUNTER_VALUE;
 
-    //Update peripherals and potentially set the external interrupt pending bit
-    this->m_memory.update_peripherals();
+        //May or may not set the timer interrupt pending bit depending on if the timer has expired
+        this->m_CSR.update_timer();
 
-    //May need to deal with interrupt if they were set by one of the above functions
+        //Update peripherals and potentially set the external interrupt pending bit
+        this->m_memory.update_peripherals();
+    }
+
+    //May need to deal with interrupt if they were set by one of the above functions,
+    //or if a software interrupt pending bit was set by the instruction executed
     this->check_and_handle_interrupts();
 
     irvelog(0, "Tick %lu ends", this->get_inst_count());
@@ -231,15 +248,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     bool in_m_mode = interrupt_regs.privilege_mode == PrivilegeMode::MACHINE_MODE;
     bool in_s_mode = interrupt_regs.privilege_mode == PrivilegeMode::SUPERVISOR_MODE;
 
-    //NOTE if the interrupt is for a higher privilege, it does not matter if the global enable is unset for the current privilege
     bool global_enable_for_current_privilege = (in_m_mode && (mstatus.bit(3) == 1)) || (in_s_mode && (mstatus.bit(1) == 1));
-
-    //Get mip and sie. NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
-    Reg mip = interrupt_regs.mip;
-    Reg mie = interrupt_regs.mie;
-
-    //Also mideleg will be useful
-    Reg mideleg = interrupt_regs.mideleg;
 
     //Helper lambda. Returns true if the given bit is "interrupting". Aka, that...
     //1. The interrupt is pending (mip/sip)
@@ -249,9 +258,10 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     //Also sets `delegated_to_smode` properly for later use
     auto is_interrupting = [&](uint8_t bit) {
         assert((bit < 32) && "Invalid is_interrupting() bit!");
-        bool pending            = mip.bit(bit) == 1;
-        bool enabled            = mie.bit(bit) == 1;
-        bool delegated_to_smode = mideleg.bit(bit) == 1;
+        //NOTE: We don't need to read sip and sie, since those are just shadows for S-mode code to use
+        bool pending            = interrupt_regs.mip.bit(bit)       == 1;
+        bool enabled            = interrupt_regs.mie.bit(bit)       == 1;
+        bool delegated_to_smode = interrupt_regs.mideleg.bit(bit)   == 1;
 
         //Either in user mode, or in s-mode but it is delegated to m-mode
         bool interrupt_is_for_higher_privilege_level = !in_m_mode && (!in_s_mode || (in_s_mode && !delegated_to_smode));
@@ -259,7 +269,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
         //Effective global enable based on mstatus bits, or always if the interrupt is for a higher privilege level
         bool effective_global_enable = interrupt_is_for_higher_privilege_level || global_enable_for_current_privilege;
 
-        bool interrupt_is_for_lower_privilege_level = (in_m_mode && delegated_to_smode);
+        bool interrupt_is_for_lower_privilege_level = in_m_mode && delegated_to_smode;
 
         bool interrupting = pending && enabled && effective_global_enable && !interrupt_is_for_lower_privilege_level;
         return interrupting;
