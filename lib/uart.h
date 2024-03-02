@@ -99,7 +99,7 @@ private:
         //uint8_t m_fcr;//FIFO Control Register
         uint8_t m_lcr;//Line Control Register
         //uint8_t m_mcr;//Modem Control Register
-        uint8_t m_lsr;//Line Status Register
+        //No need for the Line Status Register since we just construct it on-the-fly when read
         //uint8_t m_msr;//Modem Status Register
         uint8_t m_spr;//Scratch Pad Register
     

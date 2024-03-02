@@ -65,7 +65,7 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    this->regs = {static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand())};
+    this->regs = {static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand())};
     this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
@@ -135,16 +135,19 @@ uint8_t Uart::read(Uart::Address register_address) {
             break;
         }
         case Uart::Address::LSR: {
-            //Clear the Data Ready bit in the LSR if the queue is empty
-            if (receive_queue.size() == 0) {
-                constexpr uint32_t LSR_DATA_READY_POS = 0U;
-                this->regs.m_lsr &= ~(1U << LSR_DATA_READY_POS);
-                
-                //TODO do we need to clear the interrupt pending bit too?
+            if (this->dlab()) {
+                irvelog(0, "Software tried to read from the UART's PSD register, which is write only!");
+                return this->regs.m_psd;
             }
-
-            constexpr uint32_t LSR_TX_READY_POS = 5U;
-            return this->regs.m_lsr | (1U << LSR_TX_READY_POS);//We are always ready to transmit
+            //No need to implement any of the error bits, just the TX and RX ready bits
+            constexpr uint32_t LSR_TX_NOT_IN_PROGRESS_POS   = 6U;
+            constexpr uint32_t LSR_TX_READY_POS             = 5U;
+            constexpr uint32_t LSR_RX_READY_POS             = 0U;
+            uint8_t lsr = 0;
+            lsr |= 1U << LSR_TX_NOT_IN_PROGRESS_POS;//We are always ready to transmit
+            lsr |= 1U << LSR_TX_READY_POS;//We are always ready to transmit
+            lsr |= (receive_queue.size() > 0) ? (1U << LSR_RX_READY_POS) : 0;//Set this if characters are waiting!
+            return lsr;
         }
         case Uart::Address::MSR: {
             assert(false && "TODO");//TODO
@@ -196,8 +199,11 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             break;
         }
         case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
-            assert(this->dlab() && "TODO software was mean");//TODO
-            this->regs.m_psd = data;
+            if (this->dlab()) {
+                this->regs.m_psd = data & 0x0F;
+            } else {
+                irvelog(0, "Software tried to write to the UART's LSR register, which is read only!");
+            }
             break;
         case Uart::Address::MSR://NOTE: Should never be written to by software
             assert(false && "TODO software was mean");//TODO
@@ -216,10 +222,8 @@ void Uart::update_receive() {
     if(bytesRead > 0){
             receive_queue.push(data);
             this->regs.m_isr |= 0b1;
-            this->regs.m_lsr |= 0b1;
     }else if(receive_queue.size() == 0){
         this->regs.m_isr &= ~0b1;
-        this->regs.m_lsr &= ~0b1;
     }
 }
 
