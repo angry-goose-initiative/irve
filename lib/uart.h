@@ -49,7 +49,7 @@ public:
         MSR = 0b110, // Modem Status Register
         SPR = 0b111, // Scratch Pad Register
 
-        // When LCR.DLAP == 1
+        // When LCR.DLAB == 1
         DLL = 0b000, // Divisor Latch LSB
         DLM = 0b001, // Divisor Latch MSB
         PSD = 0b101, // Prescaler Division
@@ -94,13 +94,13 @@ private:
     void update_receive();
     struct {
         //No need for rhr and thr since they just go directly to stdin/stdout
-        //uint8_t m_ier;//Interrupt Enable Register
+        uint8_t m_ier;//Interrupt Enable Register
         uint8_t m_isr;//Interrupt Status Register
-        //uint8_t m_fcr;//FIFO Control Register
+        uint8_t m_fcr;//FIFO Control Register
         uint8_t m_lcr;//Line Control Register
-        //uint8_t m_mcr;//Modem Control Register
+        uint8_t m_mcr;//Modem Control Register
         //No need for the Line Status Register since we just construct it on-the-fly when read
-        //uint8_t m_msr;//Modem Status Register
+        //No need for the Modem Status Register since we just stub it with a fixed value
         uint8_t m_spr;//Scratch Pad Register
     
         //Note: We expose these registers, but we completely ignore their contents

@@ -65,7 +65,18 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 Uart::Uart() {
-    this->regs = {static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand()), static_cast<uint8_t>(irve_fuzzish_rand())};
+    this->regs = {
+        //Reset values for the UART registers per the 16550 datasheet
+        .m_ier = 0x00,
+        .m_isr = 0x01,
+        .m_fcr = 0x00,
+        .m_lcr = 0x03,//Non-standard reset value since we only support 8 bit characters
+        .m_mcr = 0x00,
+        .m_spr = 0x00,
+        .m_dll = static_cast<uint8_t>(irve_fuzzish_rand()),
+        .m_dlm = static_cast<uint8_t>(irve_fuzzish_rand()),
+        .m_psd = 0x00
+    };
     this->transmit_thread = std::thread(&Uart::transmit_thread_function, this);
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
@@ -112,27 +123,23 @@ uint8_t Uart::read(Uart::Address register_address) {
                 }
                 return data;
             }
-            break;
         }
         case Uart::Address::IER: {//IER or DLM
             if (this->dlab()) {//DLM
                 return this->regs.m_dlm;
             } else {//IER
-                assert(false && "TODO");//TODO
+                return this->regs.m_ier;
             }
-            break;
         }
         case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
             assert(false && "TODO");//TODO
             break;
         }
         case Uart::Address::LCR: {
-            assert(false && "TODO");//TODO
-            break;
+            return this->regs.m_lcr;
         }
         case Uart::Address::MCR: {
-            assert(false && "TODO");//TODO
-            break;
+            return this->regs.m_mcr;
         }
         case Uart::Address::LSR: {
             if (this->dlab()) {
@@ -150,12 +157,14 @@ uint8_t Uart::read(Uart::Address register_address) {
             return lsr;
         }
         case Uart::Address::MSR: {
-            assert(false && "TODO");//TODO
-            break;
+            //This register just reports the values of the bunch of control signals we learned about in ECE 224
+            //Making the lower four bits 0 indicates no changes have occured
+            //Making the high four bits 0 indicates (since they are active low) that the CTS, DSR, RI and CD
+            //lines are all high, which should please most software that uses this
+            return 0;
         }
         case Uart::Address::SPR: {
             return this->regs.m_spr;
-            break;
         }
     }
 
@@ -182,20 +191,26 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             if (this->dlab()) {//DLM
                 this->regs.m_dlm = data;
             } else {//IER
-                assert(false && "TODO");//TODO
+                this->regs.m_ier = data & 0xF;//Only the lower 4 bits are used
             }
             break;
         }
         case Uart::Address::FCR: {//NOTE: Never ISR since that isn't writable
-            assert(false && "TODO");//TODO
+            this->regs.m_fcr = data & 0b11000111;
             break;
         }
         case Uart::Address::LCR: {
-            assert(false && "TODO");//TODO
+            assert(((data & 0b11) == 0b11) && "Only 8 bit characters are supported!");
+            //Note: We needn't do anything special for Set Break or the parity fields
+            this->regs.m_lcr = data;
             break;
         }
         case Uart::Address::MCR: {
-            assert(false && "TODO");//TODO
+            this->regs.m_mcr = data & 0xF;
+            [[maybe_unused]] constexpr uint32_t LOOPBACK_POS = 4U;
+            if (data & (1U << LOOPBACK_POS)) {
+                assert(false && "Loopback mode not implemented, but software tried to use it!");
+            }
             break;
         }
         case Uart::Address::PSD://NOTE: Never LSR since that isn't writable
@@ -206,13 +221,16 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             }
             break;
         case Uart::Address::MSR://NOTE: Should never be written to by software
-            assert(false && "TODO software was mean");//TODO
+            irvelog(0, "Software tried to write to the UART's MSR register, which is read only!");
             break;
         case Uart::Address::SPR: {
             this->regs.m_spr = data;
             break;
         }
-        default: assert(false && "We should never get here!");
+        default: {
+            assert(false && "We should never get here!"); 
+            __builtin_unreachable();
+        }
     }
 }
 
