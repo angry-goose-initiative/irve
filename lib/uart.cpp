@@ -23,6 +23,7 @@
 #include <condition_variable>
 #include <fcntl.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "common.h"
 
@@ -69,9 +70,22 @@ Uart::Uart() {
     this->receive_file_fd = fileno(stdin);
     int flags = fcntl(this->receive_file_fd, F_GETFL, 0);
     fcntl(this->receive_file_fd, F_SETFL, flags | O_NONBLOCK);
+
+    //Save original terminal settings
+    this->m_original_receive_file_fd_settings = termios();
+    tcgetattr(this->receive_file_fd, &this->m_original_receive_file_fd_settings);
+
+    //Disable buffering characters until \n is entered, and echo
+    struct termios new_receive_file_fd_settings = this->m_original_receive_file_fd_settings;
+    new_receive_file_fd_settings.c_lflag &= ~ICANON;
+    new_receive_file_fd_settings.c_lflag &= ~ECHO;
+    tcsetattr(this->receive_file_fd, TCSANOW, &new_receive_file_fd_settings);
 }
 
 Uart::~Uart() {
+    //Restore terminal settings
+    tcsetattr(this->receive_file_fd, TCSANOW, &this->m_original_receive_file_fd_settings);
+
     {                                  
         std::lock_guard<std::mutex> lock(this->transmit_mutex); 
         this->kill_transmit_thread = true; 

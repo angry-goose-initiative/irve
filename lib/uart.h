@@ -23,6 +23,7 @@
 #include <condition_variable>
 #include "tsqueue.h"
 #include <queue>
+#include <termios.h>
 
 /* ------------------------------------------------------------------------------------------------
  * Type/Class Declarations
@@ -112,6 +113,7 @@ private:
 
     int receive_file_fd;
     std::queue<uint8_t> receive_queue;
+    struct termios m_original_receive_file_fd_settings;//To restore terminal changes we made when we're done
 
     std::thread transmit_thread;//Thread for write operations.
     tsqueue::tsqueue_t<uint8_t> async_transmit_queue;//Queue for async transmits.
