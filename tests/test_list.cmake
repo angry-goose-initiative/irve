@@ -26,7 +26,7 @@ add_unit_test(decode_decoded_inst_t)
 add_unit_test(decode_decoded_inst_t_invalid)
 add_unit_test(logging_irvelog)
 add_unit_test(uart_Uart_sanity)
-#add_unit_test(uart_Uart_init)#FIXME re-enable this once the UART is actually wired into memory
+add_unit_test(uart_Uart_init)#FIXME re-enable this once the UART is actually wired into memory
 
 add_unit_test(memory_Memory_user_ram_endianness)
 add_unit_test(memory_Memory_user_ram_sign_extending)
@@ -114,6 +114,9 @@ add_rvsw_parse_test(hello_cxx src/single_file/cxx/hello_cxx)
 add_rvsw_parse_test(irve_interrupt_bringup src/single_file/cxx/irve_interrupt_bringup)
 add_rvsw_parse_test(uart_read_test src/single_file/cxx/uart_read_test)
 add_rvsw_parse_test(uart_write_test src/single_file/cxx/uart_write_test)
+add_rvsw_parse_test(uart_read_poll_csr_interrupt_pending_test src/single_file/cxx/uart_read_poll_csr_interrupt_pending_test)
+add_rvsw_parse_test(uart_read_interrupt_test src/single_file/cxx/uart_read_interrupt_test)
+add_rvsw_parse_test(uart_write_interrupt_test src/single_file/cxx/uart_write_interrupt_test)
 
 #S-Mode rvsw_parse (using CTest to determine if an assertion in RISC-V was triggered (to test C/C++ RISC-V programs))
 #C
@@ -132,6 +135,8 @@ add_rvsw_smode_parse_test(cxx_experiments src/single_file/cxx/cxx_experiments)
 add_rvsw_smode_parse_test(hello_cxx src/single_file/cxx/hello_cxx_smode)
 add_rvsw_smode_parse_test(irve_vm_bringup src/single_file/cxx/irve_vm_bringup_smode)
 add_rvsw_smode_parse_test(morevm_smode src/single_file/cxx/morevm_smode)
+add_rvsw_smode_parse_test(uart_read_test_smode src/single_file/cxx/uart_read_test_smode)
+add_rvsw_smode_parse_test(uart_write_test_smode src/single_file/cxx/uart_write_test_smode)
 
 #Ones from cppreference
 #M-mode
