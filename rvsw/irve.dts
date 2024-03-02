@@ -29,22 +29,11 @@
     #address-cells = <1>;
     #size-cells = <1>;
 
-    memory@80000000 {
-        device_type = "memory";
-        reg = <0x80000000 0x4000000>;
-    };
-
-    uart0: uart@F1000000 {
-        interrupts-extended = <&hlic 0x9 &hlic 0x11>;//Connects to the standard RISC-V interrupt lines
-        clock-frequency = <0x384000>;
-        reg = <0xF1000000 0x8>;
-        compatible = "ns16550a";
-    };
-
     cpus {
         #address-cells = <0x01>;
         #size-cells = <0x00>;
         timebase-frequency = <1000>;//mtime ticks at 1kHz
+        //timebase-frequency = <0x1000000>;//Pretend mtime tick quite fast to avoid messing things up
 
         cpu@0 {
             phandle = <0x01>;
@@ -60,9 +49,10 @@
 
             /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
             hlic: interrupt-controller {
-                #interrupt-cells = <0x01>;
-                interrupt-controller;
+                #address-cells = <0x01>;
+                #interrupt-cells = <1>;
                 compatible = "riscv,cpu-intc";
+                interrupt-controller;
                 /* phandle = <0x02>; */
             };
         };
@@ -76,6 +66,18 @@
         };
     };
 
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x80000000 0x4000000>;
+    };
+
+    uart0: uart@f1000000 {
+        interrupts-extended = <&hlic 0x9>;//Connects to the standard RISC-V interrupt lines
+        clock-frequency = <0x384000>;
+        reg = <0xf1000000 0x8>;
+        compatible = "ns16550a";
+    };
+
     soc {
         #address-cells = <1>;
         #size-cells = <1>;
@@ -83,7 +85,7 @@
         ranges;
 
         clint@f0000000 {
-            interrupts-extended = <&hlic 0x5 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
+            interrupts-extended = <&hlic 0x3 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
             reg = <0xf0000000 0xbfff>;
             compatible = "riscv,clint0";
         };
