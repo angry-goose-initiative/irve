@@ -268,7 +268,7 @@ Word decode::DecodedInst::get_imm() const {
     }
 
     assert(false && "We should never get here");
-    std::unreachable();
+    __builtin_unreachable();
 }
 
 std::string decode::DecodedInst::disassemble() const {

@@ -166,7 +166,7 @@ Reg Csr::implicit_read(Csr::Address csr) {//Does not perform any privilege check
     }
 
     assert(false && "We should never get here");
-    std::unreachable();
+    __builtin_unreachable();
 }
 
 Csr::InterruptRegs Csr::fast_implicit_read_interrupt_regs() const {
@@ -254,7 +254,7 @@ void Csr::implicit_write(Csr::Address csr, Word data) {//Does not perform any pr
     }
 
     assert(false && "We should never get here");
-    std::unreachable();
+    __builtin_unreachable();
 }
 
 void Csr::set_privilege_mode(PrivilegeMode new_privilege_mode) {

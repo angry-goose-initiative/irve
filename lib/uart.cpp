@@ -143,7 +143,7 @@ uint8_t Uart::read(Uart::Address register_address) {
     }
 
     assert(false && "We should never get here!");
-    std::unreachable();
+    __builtin_unreachable();
 }
 
 void Uart::write(Uart::Address register_address, uint8_t data) {
