@@ -39,11 +39,16 @@ add_cxx_target(hello_cxx ${CMAKE_CURRENT_SOURCE_DIR}/hello_cxx.cpp)
 add_cxx_target(irve_interrupt_bringup ${CMAKE_CURRENT_SOURCE_DIR}/irve_interrupt_bringup.cpp)
 add_cxx_target(uart_read_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_read_test.cpp)
 add_cxx_target(uart_write_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_write_test.cpp)
+add_cxx_target(uart_read_poll_csr_interrupt_pending_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_read_poll_csr_interrupt_pending_test.cpp)
+add_cxx_target(uart_read_interrupt_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_read_interrupt_test.cpp)
+add_cxx_target(uart_write_interrupt_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_write_interrupt_test.cpp)
 
 #S-Mode Targets
 add_smode_cxx_target(cxx_experiments ${CMAKE_CURRENT_SOURCE_DIR}/cxx_experiments.cpp)
 add_smode_cxx_target(hello_cxx ${CMAKE_CURRENT_SOURCE_DIR}/hello_cxx.cpp)
 add_smode_cxx_target(irve_vm_bringup ${CMAKE_CURRENT_SOURCE_DIR}/irve_vm_bringup.cpp)
 add_smode_cxx_target(morevm ${CMAKE_CURRENT_SOURCE_DIR}/morevm.cpp)
+add_smode_cxx_target(uart_read_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_read_test.cpp)
+add_smode_cxx_target(uart_write_test ${CMAKE_CURRENT_SOURCE_DIR}/uart_write_test.cpp)
 
 add_subdirectory(cppreference)

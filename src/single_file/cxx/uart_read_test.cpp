@@ -1,5 +1,5 @@
 /**
- * @file    uart_write_test.cpp
+ * @file    uart_read_test.cpp
  * @brief   Tests out the UART (reads)
  * 
  * @copyright
@@ -22,7 +22,7 @@
  * --------------------------------------------------------------------------------------------- */
 
 int main(void) {
-    std::cout << "This program tests reading from the UART" << std::endl;
+    std::cout << "This program tests reading from the UART (polling the LSR's Data Ready bit)" << std::endl;
 
     std::cout << "For the next 10 seconds, characters sent to the UART will be echoed back." << std::endl;
     std::cout << "This won't just be your terminal echo, it will be very obvious when it works." << std::endl;
