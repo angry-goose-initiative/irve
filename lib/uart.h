@@ -95,7 +95,7 @@ private:
     struct {
         //No need for rhr and thr since they just go directly to stdin/stdout
         uint8_t m_ier;//Interrupt Enable Register
-        uint8_t m_isr;//Interrupt Status Register
+        //No need for the Interrupt Status Register since we just construct it on-the-fly when read
         uint8_t m_fcr;//FIFO Control Register
         uint8_t m_lcr;//Line Control Register
         uint8_t m_mcr;//Modem Control Register

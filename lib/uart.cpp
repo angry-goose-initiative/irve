@@ -68,7 +68,6 @@ Uart::Uart() {
     this->regs = {
         //Reset values for the UART registers per the 16550 datasheet
         .m_ier = 0x00,
-        .m_isr = 0x01,
         .m_fcr = 0x00,
         .m_lcr = 0x03,//Non-standard reset value since we only support 8 bit characters
         .m_mcr = 0x00,
@@ -132,8 +131,19 @@ uint8_t Uart::read(Uart::Address register_address) {
             }
         }
         case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
-            assert(false && "TODO");//TODO
-            break;
+            uint8_t isr = 0;
+            isr |= (this->regs.m_fcr & 0b1) ? (0b11 << 6) : 0;//Indicate the FIFOs are enabled if they infact are
+
+            //If there is a character available to read, and the Received Data Ready interrupt is enabled
+            if ((receive_queue.size() > 0) && (this->regs.m_ier & 0b1)) {
+                isr |= 0b0100;
+            } else if (this->regs.m_ier & 0b10) {//If the THR empty interrupt is enabled (since we are always ready to transmit)
+                isr |= 0b0010;
+            } else {//No enabled interrupts pending
+                isr |= 0b0001;
+            }//We don't need to support any other interrupt types
+
+            return isr;
         }
         case Uart::Address::LCR: {
             return this->regs.m_lcr;
@@ -239,15 +249,12 @@ void Uart::update_receive() {
     ssize_t bytesRead = ::read(this->receive_file_fd, &data, 1);
     if(bytesRead > 0){
             receive_queue.push(data);
-            this->regs.m_isr |= 0b1;
-    }else if(receive_queue.size() == 0){
-        this->regs.m_isr &= ~0b1;
     }
 }
 
 bool Uart::interrupt_pending() {
     update_receive();
-    return this->regs.m_isr & 0b1;
+    return (this->read(Uart::Address::ISR) & 0b1) == 0;
 }
 
 bool Uart::dlab() const {
