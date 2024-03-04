@@ -533,6 +533,9 @@ void execute::op(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
     //Perform the ALU operation
     Word result;
     if (decoded_inst.get_funct7() == 0b0000001) {//M extension instructions
+        //TESTING DO NOT MERGE THIS: This is to test instruction trapping and emulation code in OGSBI for LETC
+        rv_trap::invoke_exception(rv_trap::Cause::ILLEGAL_INSTRUCTION_EXCEPTION);
+        /*
         switch (decoded_inst.get_funct3()) {
             case 0b000://MUL
                 irvelog(3, "Mnemonic: MUL");
@@ -636,6 +639,7 @@ void execute::op(const decode::DecodedInst& decoded_inst, CpuState& cpu_state,
                 assert(false && "We should never get here");
                 break;
         }
+        */
     }
     else {//Others (base spec)
         switch (decoded_inst.get_funct3()) {
