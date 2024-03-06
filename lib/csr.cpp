@@ -283,13 +283,14 @@ void Csr::update_timer() {
 
     //If the timer has passed the comparison value, cause an interrupt
     if (this->mtime >= this->mtimecmp) {
-        this->mip |= 1 << 7;//Set the machine timer interrupt as pending
+        //this->mip |= 1 << 7;//Set the machine timer interrupt as pending
+        this->mip |= 1 << 5;//Set the supervisor timer interrupt as pending
     }
 }
 
 void Csr::set_exti_pending() {
-    this->mip |= 1 << 11;//Set the machine external interrupt as pending
-    //this->mip |= 1 << 9;//Set the supervisor external interrupt as pending
+    //this->mip |= 1 << 11;//Set the machine external interrupt as pending
+    this->mip |= 1 << 9;//Set the supervisor external interrupt as pending
 }
 
 bool Csr::current_privilege_mode_can_explicitly_read(Csr::Address csr) const {

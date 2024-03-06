@@ -29,6 +29,7 @@
     #address-cells = <1>;
     #size-cells = <1>;
     model = "qemu";
+    compatible = "riscv-virtio";
 
     cpus {
         #address-cells = <0x01>;
@@ -37,23 +38,23 @@
         //timebase-frequency = <0x1000000>;//Pretend mtime tick quite fast to avoid messing things up
 
         cpu@0 {
-            phandle = <0x01>;
+            //phandle = <0x01>;
             device_type = "cpu";
             reg = <0x00000000>;/* mhartid is 0 */
             status = "okay";/* The CPU begins online */
             compatible = "riscv";
-            riscv,isa = "rv32ima";/* TODO do we need to specify zicsr, zifencei, etc as well? */
+            riscv,isa = "rv32imasu";/* TODO do we need to specify zicsr, zifencei, etc as well? */
             mmu-type = "riscv,sv32";
-            clock-frequency = <0>; /* TODO what is this? */
-            riscv,isa-base = "rv32i";
-            riscv,isa-extensions = "i", "m", "a", "zifencei", "zicsr";
+            //clock-frequency = <0>; /* TODO what is this? */
+            //riscv,isa-base = "rv32i";
+            //riscv,isa-extensions = "i", "m", "a", "zifencei", "zicsr";
 
             /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
             hlic: interrupt-controller {
                 #address-cells = <0x01>;
                 #interrupt-cells = <1>;
-                compatible = "riscv,cpu-intc";
                 interrupt-controller;
+                compatible = "riscv,cpu-intc";
                 /* phandle = <0x02>; */
             };
         };
@@ -76,9 +77,9 @@
         //interrupts-extended = <&hlic 0x9>;//Connects to the standard RISC-V interrupt lines
         clock-frequency = <0x384000>;
         reg = <0xf1000000 0x8>;
-        compatible = "ns8250";
+        //compatible = "ns8250";
         //compatible = "ns16650a";
-        //compatible = "ns16850";
+        compatible = "ns16850";
     };
 
     soc {

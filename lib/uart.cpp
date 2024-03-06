@@ -109,7 +109,7 @@ Uart::~Uart() {
 }
 
 uint8_t Uart::read(Uart::Address register_address) {
-    irvelog_always(0, "Reading from UART register 0x%02X", static_cast<uint8_t>(register_address));
+    //irvelog_always(0, "Reading from UART register 0x%02X", static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
@@ -175,7 +175,7 @@ uint8_t Uart::read(Uart::Address register_address) {
 }
 
 void Uart::write(Uart::Address register_address, uint8_t data) {
-    irvelog_always(0, "Writing 0x%02X to UART register 0x%02X", data, static_cast<uint8_t>(register_address));
+    //irvelog_always(0, "Writing 0x%02X to UART register 0x%02X", data, static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
