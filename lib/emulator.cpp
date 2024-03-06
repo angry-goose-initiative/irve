@@ -295,7 +295,7 @@ void emulator::emulator_t::check_and_handle_interrupts() {
     }
     //If we make it here, we have an interrupt to handle (specifically the one in `cause)
 
-    irvelog_always(1, "Handling interrupt: Cause: %u", (uint32_t)cause);
+    irvelog_always(1, "Handling interrupt: Cause: 0x%X", (uint32_t)cause);
     this->handle_trap(cause, 0);
 }
 

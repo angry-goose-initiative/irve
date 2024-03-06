@@ -28,6 +28,7 @@
 / {
     #address-cells = <1>;
     #size-cells = <1>;
+    model = "qemu";
 
     cpus {
         #address-cells = <0x01>;
@@ -72,10 +73,12 @@
     };
 
     uart0: uart@f1000000 {
-        interrupts-extended = <&hlic 0x9>;//Connects to the standard RISC-V interrupt lines
+        //interrupts-extended = <&hlic 0x9>;//Connects to the standard RISC-V interrupt lines
         clock-frequency = <0x384000>;
         reg = <0xf1000000 0x8>;
-        compatible = "ns16550a";
+        compatible = "ns8250";
+        //compatible = "ns16650a";
+        //compatible = "ns16850";
     };
 
     soc {

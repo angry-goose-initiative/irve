@@ -64,7 +64,9 @@ using namespace irve::internal;
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-Uart::Uart() {
+Uart::Uart() :
+    m_isr_read_since_last_thr_write(true)
+{
     this->regs = {
         //Reset values for the UART registers per the 16550 datasheet
         .m_ier = 0x00,
@@ -107,6 +109,7 @@ Uart::~Uart() {
 }
 
 uint8_t Uart::read(Uart::Address register_address) {
+    irvelog_always(0, "Reading from UART register 0x%02X", static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::RHR: {//RHR or DLL (Never THR since that isn't readable)
@@ -131,19 +134,8 @@ uint8_t Uart::read(Uart::Address register_address) {
             }
         }
         case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
-            uint8_t isr = 0;
-            isr |= (this->regs.m_fcr & 0b1) ? (0b11 << 6) : 0;//Indicate the FIFOs are enabled if they infact are
-
-            //If there is a character available to read, and the Received Data Ready interrupt is enabled
-            if ((receive_queue.size() > 0) && (this->regs.m_ier & 0b1)) {
-                isr |= 0b0100;
-            } else if (this->regs.m_ier & 0b10) {//If the THR empty interrupt is enabled (since we are always ready to transmit)
-                isr |= 0b0010;
-            } else {//No enabled interrupts pending
-                isr |= 0b0001;
-            }//We don't need to support any other interrupt types
-
-            return isr;
+            this->m_isr_read_since_last_thr_write = true;
+            return this->construct_isr();
         }
         case Uart::Address::LCR: {
             return this->regs.m_lcr;
@@ -183,12 +175,14 @@ uint8_t Uart::read(Uart::Address register_address) {
 }
 
 void Uart::write(Uart::Address register_address, uint8_t data) {
+    irvelog_always(0, "Writing 0x%02X to UART register 0x%02X", data, static_cast<uint8_t>(register_address));
     assert((static_cast<uint8_t>(register_address) <= 0b111) && "Invalid UART register address!");
     switch (register_address) {
         case Uart::Address::THR: {//THR or DLL (Never RHR since that isn't writable)
             if (this->dlab()) {//DLL
                 this->regs.m_dll = data;
             } else {//THR
+                this->m_isr_read_since_last_thr_write = false;
                 this->async_transmit_queue.push(data);
                 {//Wake up the transmit thread                          
                     std::lock_guard<std::mutex> lock(this->transmit_mutex); 
@@ -254,7 +248,7 @@ void Uart::update_receive() {
 
 bool Uart::interrupt_pending() {
     update_receive();
-    return (this->read(Uart::Address::ISR) & 0b1) == 0;
+    return (this->construct_isr() & 0b1) == 0;
 }
 
 bool Uart::dlab() const {
@@ -271,4 +265,22 @@ void Uart::transmit_thread_function(){
             std::cout<<data<<std::flush;
         }
     }
+}
+
+uint8_t Uart::construct_isr() const {
+    uint8_t isr = 0;
+    isr |= (this->regs.m_fcr & 0b1) ? (0b11 << 6) : 0;//Indicate the FIFOs are enabled if they infact are
+
+    //If there is a character available to read, and the Received Data Ready interrupt is enabled
+    if ((receive_queue.size() > 0) && (this->regs.m_ier & 0b1)) {
+        isr |= 0b0100;
+    //If the THR empty interrupt is enabled (since we are always ready to transmit) and...
+    //the user hasn't already read the ISR to check this
+    } else if ((this->regs.m_ier & 0b10) && !this->m_isr_read_since_last_thr_write) {
+        isr |= 0b0010;
+    } else {//No enabled interrupts pending
+        isr |= 0b0001;
+    }//We don't need to support any other interrupt types
+
+    return isr;
 }

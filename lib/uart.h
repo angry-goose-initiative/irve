@@ -91,6 +91,8 @@ private:
 
     void transmit_thread_function();
 
+    uint8_t construct_isr() const;
+
     void update_receive();
     struct {
         //No need for rhr and thr since they just go directly to stdin/stdout
@@ -120,6 +122,8 @@ private:
     bool kill_transmit_thread = false;
     std::condition_variable transmit_condition_variable;
     std::mutex transmit_mutex;
+
+    bool m_isr_read_since_last_thr_write;
 };
 
 } // namespace irve::internal::uart
