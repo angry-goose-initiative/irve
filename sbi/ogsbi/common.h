@@ -24,7 +24,8 @@
  * Constants/Defines
  * --------------------------------------------------------------------------------------------- */
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
+#ifndef RVSW_OGSBI_WORKAROUND_NDEBUG//TEMPORARY until NDEBUG is fixed in release mode for RVSW
 
 #define dputc(c) fputc(c, stderr)
 
