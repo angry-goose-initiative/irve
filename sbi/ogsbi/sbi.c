@@ -62,7 +62,7 @@ sbiret_t handle_sbi_smode_ecall(
                 case 0:
                     dputs("Function: sbi_get_spec_version()");
                     result.error = SBI_SUCCESS;
-                    result.value = 0b00000001000000000000000000000000;//We implement Version 1.0.0 (the latest)
+                    result.value = 0b0'0000010'000000000000000000000000;//We implement Version 2.0.0 (the latest)
                     dprintf("  SBI Spec Version: 0x%lX", result.value);
                     break;
                 case 1:

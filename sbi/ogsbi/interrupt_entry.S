@@ -38,8 +38,13 @@ ___rvsw_machine_timer_interrupt_handler___:
     #the timer interrupt to the supervisor transparently since hardware only causes m-mode interrupts
     li t0, (1 << 5)
     csrs mip, t0//Set the supervisor timer interrupt pending bit
+
+    #Clear the machine timer interrupt pending and enable bits (otherwise, we'll just spin in this handler forever)
+    #Okay since s-mode software can simply request another timer interrupt via the SBI TIME extension and then
+    #that'll cause us to re-enable the timer interrupt; see `timers.c`
     li t0, (1 << 7)
-    csrc mip, t0//Clear the machine timer interrupt pending bit
+    csrc mip, t0
+    csrc mie, t0
 
     #Pop S-mode t0 from the M-mode stack
     lw t0, 0(sp)
@@ -52,6 +57,7 @@ ___rvsw_machine_timer_interrupt_handler___:
 
 .global ___rvsw_machine_external_interrupt_handler___
 ___rvsw_machine_external_interrupt_handler___:
+
     #Restore the M-mode stack pointer and save the S-mode one (swap with mscratch)
     csrrw sp, mscratch, sp
 
@@ -63,8 +69,22 @@ ___rvsw_machine_external_interrupt_handler___:
     #the external interrupt to the supervisor transparently since hardware only causes m-mode interrupts
     li t0, (1 << 9)
     csrs mip, t0//Set the supervisor external interrupt pending bit
+
+/*
     li t0, (1 << 11)
     csrc mip, t0//Clear the machine external interrupt pending bit
+*/
+
+    #FIXME fundamentally does this work? Not disabling external interrupts means we'll just end up
+    #right back where we started no? Looping here forever. But disabling interrupts means we can't
+    #ever recieve another external interrupt again? What to do? There's no SBI mechanism to deal with
+    #external interrupts like there is for timers!
+    #Just clear pending like above, or also disable the interrupt like below?
+
+    #Clear the machine external interrupt pending and enable bits (otherwise, we'll just spin in this handler forever)
+    li t0, (1 << 11)
+    csrc mip, t0
+    csrc mie, t0
 
     #Pop S-mode t0 from the M-mode stack
     lw t0, 0(sp)
