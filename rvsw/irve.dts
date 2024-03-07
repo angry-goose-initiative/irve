@@ -36,6 +36,7 @@
         #size-cells = <0x00>;
         timebase-frequency = <1000>;//mtime ticks at 1kHz
         //timebase-frequency = <0x1000000>;//Pretend mtime tick quite fast to avoid messing things up
+        //timebase-frequency = <0xf4240>;
 
         cpu@0 {
             //phandle = <0x01>;
@@ -75,7 +76,8 @@
 
     uart0: uart@f1000000 {
         //interrupts-extended = <&hlic 0x9>;//Connects to the standard RISC-V interrupt lines
-        clock-frequency = <0x384000>;
+        //clock-frequency = <0x384000>;
+        clock-frequency = <0x1000000>;
         reg = <0xf1000000 0x8>;
         //compatible = "ns8250";
         //compatible = "ns16650a";
@@ -88,11 +90,14 @@
         compatible = "simple-bus";
         ranges;
 
+        /*
         clint@f0000000 {
             interrupts-extended = <&hlic 0x3 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
             reg = <0xf0000000 0xbfff>;
             compatible = "riscv,clint0";
+            //compatible = "sifive,clint0";
         };
+*/
 
         /* TODO add other things we may need (ex. the UART) */
     };
