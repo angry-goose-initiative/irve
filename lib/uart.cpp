@@ -1,12 +1,12 @@
 /**
- * @brief   16550 UART implementation
+ * @brief   8250/16550 UART implementation
  * 
  * @copyright
  *  Copyright (C) 2024 Seb Atkinson\n
  *  Copyright (C) 2023-2024 John Jekel\n
  *  See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO longer description
+ * Based on specification described in http://caro.su/msx/ocm_de1/16550.pdf
  *
 */
 
@@ -37,34 +37,12 @@
 using namespace irve::internal;
 
 /* ------------------------------------------------------------------------------------------------
- * Constants/Defines
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Type/Class Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Static Variables
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
- * Static Function Declarations
- * --------------------------------------------------------------------------------------------- */
-
-//TODO
-
-/* ------------------------------------------------------------------------------------------------
  * Function Implementations
  * --------------------------------------------------------------------------------------------- */
 
-Uart::Uart() {
+Uart::Uart() :
+    m_isr_read_since_last_thr_write(true)
+{
     this->regs = {
         //Reset values for the UART registers per the 16550 datasheet
         .m_ier = 0x00,
@@ -131,18 +109,8 @@ uint8_t Uart::read(Uart::Address register_address) {
             }
         }
         case Uart::Address::ISR: {//NOTE: Never FCR since that isn't readable
-            uint8_t isr = 0;
-            isr |= (this->regs.m_fcr & 0b1) ? (0b11 << 6) : 0;//Indicate the FIFOs are enabled if they infact are
-
-            //If there is a character available to read, and the Received Data Ready interrupt is enabled
-            if ((receive_queue.size() > 0) && (this->regs.m_ier & 0b1)) {
-                isr |= 0b0100;
-            } else if (this->regs.m_ier & 0b10) {//If the THR empty interrupt is enabled (since we are always ready to transmit)
-                isr |= 0b0010;
-            } else {//No enabled interrupts pending
-                isr |= 0b0001;
-            }//We don't need to support any other interrupt types
-
+            uint8_t isr = this->construct_isr();//Do this first...
+            this->m_isr_read_since_last_thr_write = true;//Since this changes the value of the ISR
             return isr;
         }
         case Uart::Address::LCR: {
@@ -154,7 +122,7 @@ uint8_t Uart::read(Uart::Address register_address) {
         case Uart::Address::LSR: {
             if (this->dlab()) {
                 irvelog(0, "Software tried to read from the UART's PSD register, which is write only!");
-                return this->regs.m_psd;
+                return 0;
             }
             //No need to implement any of the error bits, just the TX and RX ready bits
             constexpr uint32_t LSR_TX_NOT_IN_PROGRESS_POS   = 6U;
@@ -189,6 +157,7 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             if (this->dlab()) {//DLL
                 this->regs.m_dll = data;
             } else {//THR
+                this->m_isr_read_since_last_thr_write = false;
                 this->async_transmit_queue.push(data);
                 {//Wake up the transmit thread                          
                     std::lock_guard<std::mutex> lock(this->transmit_mutex); 
@@ -244,6 +213,31 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
     }
 }
 
+uint8_t Uart::construct_isr() const {
+    uint8_t isr = 0;
+    constexpr uint32_t FIFO_ENABLED_FCR_POS = 0U;
+    if (this->regs.m_fcr & (1U << FIFO_ENABLED_FCR_POS)) {
+        constexpr uint32_t FIFO_ENABLED_ISR_VALUE   = 0b11;
+        constexpr uint32_t FIFO_ENABLED_ISR_POS     = 6U;
+        isr |= FIFO_ENABLED_ISR_VALUE << FIFO_ENABLED_ISR_POS;
+    }
+
+    //If there is a character available to read, and the Received Data Ready interrupt is enabled
+    constexpr uint32_t DATA_READY_IER_POS   = 0U;
+    constexpr uint32_t THR_EMPTY_IER_POS    = 1U;
+    if ((receive_queue.size() > 0) && (this->regs.m_ier & (1U << DATA_READY_IER_POS))) {
+        isr |= 0b0100;//Code indicating the Received Data Ready interrupt is pending
+    //If the THR empty interrupt is enabled (since we are always ready to transmit) and...
+    //the user hasn't already read the ISR to check this
+    } else if ((this->regs.m_ier & (1U << THR_EMPTY_IER_POS)) && !this->m_isr_read_since_last_thr_write) {
+        isr |= 0b0010;//Code indicating the THR empty interrupt is pending
+    } else {//No enabled interrupts pending
+        isr |= 0b0001;//Code indicating no interrupts are pending
+    }//We don't need to support any other interrupt types
+
+    return isr;
+}
+
 void Uart::update_receive() {
     uint8_t data;
     ssize_t bytesRead = ::read(this->receive_file_fd, &data, 1);
@@ -254,7 +248,8 @@ void Uart::update_receive() {
 
 bool Uart::interrupt_pending() {
     update_receive();
-    return (this->read(Uart::Address::ISR) & 0b1) == 0;
+    constexpr uint32_t INTERRUPT_STATUS_ISR_POS = 0U;
+    return (this->construct_isr() & (1U << INTERRUPT_STATUS_ISR_POS)) == 0;
 }
 
 bool Uart::dlab() const {

@@ -7,7 +7,7 @@
  *  Copyright (C) 2023 Nick Chan\n
  *  See the LICENSE file at the root of the project for licensing info.
  * 
- * TODO longer description
+ * Based on specification described in http://caro.su/msx/ocm_de1/16550.pdf
  *
 */
 
@@ -83,6 +83,7 @@ public:
     bool interrupt_pending();//More convenient than reading ISR and checking bits
 
 private:
+    uint8_t construct_isr() const;
 
     /**
      * @brief Divisor latch access bit
@@ -120,6 +121,7 @@ private:
     bool kill_transmit_thread = false;
     std::condition_variable transmit_condition_variable;
     std::mutex transmit_mutex;
+    bool m_isr_read_since_last_thr_write;
 };
 
 } // namespace irve::internal::uart
