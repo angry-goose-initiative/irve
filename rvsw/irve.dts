@@ -28,18 +28,7 @@
 / {
     #address-cells = <1>;
     #size-cells = <1>;
-
-    memory@80000000 {
-        device_type = "memory";
-        reg = <0x80000000 0x4000000>;
-    };
-
-    uart0: uart@F1000000 {
-        interrupts-extended = <&hlic 0x9 &hlic 0x11>;//Connects to the standard RISC-V interrupt lines
-        clock-frequency = <0x384000>;
-        reg = <0xF1000000 0x8>;
-        compatible = "ns16550a";
-    };
+    model = "IRVE";
 
     cpus {
         #address-cells = <0x01>;
@@ -47,23 +36,22 @@
         timebase-frequency = <1000>;//mtime ticks at 1kHz
 
         cpu@0 {
-            phandle = <0x01>;
             device_type = "cpu";
-            reg = <0x00000000>;/* mhartid is 0 */
-            status = "okay";/* The CPU begins online */
+            reg = <0x00000000>;//mhartid is 0
+            status = "okay";//The CPU begins online
             compatible = "riscv";
-            riscv,isa = "rv32ima";/* TODO do we need to specify zicsr, zifencei, etc as well? */
+            riscv,isa = "rv32ima";
             mmu-type = "riscv,sv32";
-            clock-frequency = <0>; /* TODO what is this? */
+            clock-frequency = <0>;//mcycle ticks at an unknown rate (this is an emulator)
             riscv,isa-base = "rv32i";
             riscv,isa-extensions = "i", "m", "a", "zifencei", "zicsr";
 
-            /* The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources) */
+            //The "Hart Level Interrupt Controller" (aka the built-in CPU interrupt controller with 3 sources)
             hlic: interrupt-controller {
-                #interrupt-cells = <0x01>;
+                #address-cells = <1>;
+                #interrupt-cells = <1>;
                 interrupt-controller;
                 compatible = "riscv,cpu-intc";
-                /* phandle = <0x02>; */
             };
         };
 
@@ -76,6 +64,13 @@
         };
     };
 
+    //We don't map it the lower memory used by the bootloader so the kernel doesn't interfere with it
+    kernel_memory@80000000 {
+        device_type = "memory";
+        //Starts at 0x80000000 and is 64MB long
+        reg = <0x80000000 0x4000000>;
+    };
+
     soc {
         #address-cells = <1>;
         #size-cells = <1>;
@@ -83,11 +78,23 @@
         ranges;
 
         clint@f0000000 {
-            interrupts-extended = <&hlic 0x5 &hlic 0x7>;//Connects to the standard RISC-V interrupt lines
-            reg = <0xf0000000 0xbfff>;
+            interrupts-extended = <&hlic 0x5 &hlic 0x7>;//Connects to the standard RISC-V timer interrupt lines
+            reg = <0xf0000000 0xbfff>;//Quite a big address space for timecmp registers and software interrupt registers
             compatible = "riscv,clint0";
         };
 
-        /* TODO add other things we may need (ex. the UART) */
+        uart: uart@f1000000 {
+            //For some reason letting the kernel know the UART can interrupt it makes it unhappy.
+            //It gets stuck on WARN_ON(...interrupt is per cpu devid...) in the kernel for some reason.
+            //No matter though, polling the UART is fine (but we still need timer interrupts for that, which thankfully do work)
+            //interrupts-extended = <&hlic 0x9 &hlic 0x11>;//Connects to the standard RISC-V external interrupt lines
+
+            clock-frequency = <1000000>;//Emulated UART has no real clock, but 0 doesn't work here; put 1 MHz as a sane value
+            reg = <0xf1000000 0x8>;//A 16550A only has 8 registers, each 1 byte
+            //Technically IRVE doesn't implement the 16850, however it's close enough and doing this makes things much smoother
+            //due to the larger FIFO size (so the kernel sends more at once).
+            compatible = "ns16850";
+            //compatible = "ns16550a";
+        };
     };
 };
