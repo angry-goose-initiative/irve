@@ -65,7 +65,17 @@ if(NOT DEFINED IRVE_FUZZISH)
     endif()
 endif()
 
+#Enable Inception mode: cross-compile the emulator itself for RISC-V
+if(NOT DEFINED IRVE_INCEPTION)
+    set(IRVE_INCEPTION 0)
+    #set(IRVE_INCEPTION 1)
+endif()
+
 #################################################################################################################################
+
+if (IRVE_INCEPTION)
+    set(CMAKE_CXX_COMPILER riscv32-unknown-linux-gnu-g++)
+endif()
 
 cmake_minimum_required(VERSION 3.16.3)
 project(irve VERSION 0.9.1)
@@ -78,6 +88,10 @@ include(CTest)
 set(GIT_EXECUTABLE git)
 
 set(CMAKE_CXX_FLAGS "-std=c++2b -Wall -Wextra -Werror -Wno-error=cpp")
+
+if (IRVE_INCEPTION)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
+endif()
 
 if (IRVE_SANITIZE)
     if (NOT APPLE)

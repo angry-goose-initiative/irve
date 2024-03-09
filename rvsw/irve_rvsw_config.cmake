@@ -52,3 +52,8 @@ set(RVSW_MTIMECMPH_ADDR 0xF0004004)
 
 set(RVSW_UART_TYPE      "UART_16550")
 set(RVSW_UART_BASE_ADDR 0xF1000000)
+
+if (IRVE_INCEPTION)
+    set(RVSW_MMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_mmode_inception.ld")
+    set(RVSW_SMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_smode_inception.ld")
+endif()

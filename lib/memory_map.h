@@ -9,15 +9,27 @@
 
 #pragma once
 
+#include "config.h"
+
 //Region for user memory
+//In inception mode this is only 8MB, but usually it is 64MB
 #define MEM_MAP_REGION_START_USER_RAM       (uint64_t)0x00000000
+#if IRVE_INTERNAL_CONFIG_INCEPTION
+#define MEM_MAP_REGION_END_USER_RAM         (uint64_t)0x007FFFFF
+#else
 #define MEM_MAP_REGION_END_USER_RAM         (uint64_t)0x03FFFFFF
+#endif
 
 #define MEM_MAP_REGION_SIZE_USER_RAM        (MEM_MAP_REGION_END_USER_RAM - MEM_MAP_REGION_START_USER_RAM + 1)
 
 //Region for kernel memory
+//In inception mode this is only 8MB, but usually it is 64MB
 #define MEM_MAP_REGION_START_KERNEL_RAM     (uint64_t)0x80000000
+#if IRVE_INTERNAL_CONFIG_INCEPTION
+#define MEM_MAP_REGION_END_KERNEL_RAM       (uint64_t)0x807FFFFF
+#else
 #define MEM_MAP_REGION_END_KERNEL_RAM       (uint64_t)0x83FFFFFF
+#endif
 
 #define MEM_MAP_REGION_SIZE_KERNEL_RAM      (MEM_MAP_REGION_END_KERNEL_RAM - MEM_MAP_REGION_START_KERNEL_RAM + 1)
 

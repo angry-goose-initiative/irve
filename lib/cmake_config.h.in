@@ -35,3 +35,5 @@
 #define IRVE_CMAKE_RUST                     @IRVE_RUST@
 
 #define IRVE_CMAKE_FUZZISH                  @IRVE_FUZZISH@
+
+#define IRVE_CMAKE_INCEPTION                @IRVE_INCEPTION@
