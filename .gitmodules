@@ -1,3 +1,6 @@
 [submodule "rvsw/rvsw"]
 	path = rvsw/rvsw
 	url = https://github.com/angry-goose-initiative/rvsw
+[submodule "lib/agi_utils"]
+	path = lib/agi_utils
+	url = https://github.com/angry-goose-initiative/agi_utils
