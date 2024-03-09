@@ -96,7 +96,7 @@ uint8_t Uart::read(Uart::Address register_address) {
                     data = receive_queue.front();
                     receive_queue.pop();
                 }else{
-                    assert(false && "Tried to read from empty input");//Buggy software tried to read form empty queue.
+                    irvelog(0, "Software tried to read from the RHR even though it's empty!");
                 }
                 return data;
             }
@@ -179,7 +179,10 @@ void Uart::write(Uart::Address register_address, uint8_t data) {
             break;
         }
         case Uart::Address::LCR: {
-            assert(((data & 0b11) == 0b11) && "Only 8 bit characters are supported!");
+            if ((data & 0b11) == 0b11) {
+                irvelog(0, "Software changed the character mode away from 8 bit characters, which is not supported!");
+                irvelog(0, "Upper bits written to the THR will not be ignored, and these bits will still be provided via the RHR!");
+            }
             //Note: We needn't do anything special for Set Break or the parity fields
             this->regs.m_lcr = data;
             break;
