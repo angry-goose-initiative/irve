@@ -19,7 +19,7 @@ set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 
 set(RVSW_MMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_mmode.ld")
 set(RVSW_MTVEC_IS_HARDWIRED "VECTORED")
-set(RVSW_MARCH "rv32ima_zicsr_zifencei")
+set(RVSW_MARCH "rv32ia_zicsr_zifencei")
 set(RVSW_MABI "ilp32")
 
 set(RVSW_EXIT_METHOD "CUSTOM_INSTRUCTION")
