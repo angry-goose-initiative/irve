@@ -10,14 +10,15 @@ set(CMAKE_C_COMPILER riscv32-unknown-elf-gcc)
 set(CMAKE_CXX_COMPILER riscv32-unknown-elf-g++)
 set(RVSW_OBJCOPY riscv32-unknown-elf-objcopy)
 
-set(RVSW_DTB_PATH "${PROJECT_SOURCE_DIR}/../irve.dtb")
+set(RVSW_ABS_PATH "/home/eric/agi/irve-2/rvsw")
+set(RVSW_DTB_PATH "${RVSW_ABS_PATH}/irve.dtb")
 
 set(RVSW_COMMON_FLAGS "-fomit-frame-pointer -Wall -Wextra -Werror -nostartfiles -static -static-libgcc --specs=nosys.specs -mstrict-align")                          
 set(RVSW_COMMON_FLAGS_DEBUG "-O0 -ggdb3")
 set(RVSW_COMMON_FLAGS_RELEASE "-O3 -flto=auto -fuse-linker-plugin")
 #set(RVSW_COMMON_FLAGS_RELEASE "-DNDEBUG -O3 -flto=auto -fuse-linker-plugin")#TODO eventually use this
 
-set(RVSW_MMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_mmode.ld")
+set(RVSW_MMODE_LD_SCRIPT "${RVSW_ABS_PATH}/irve_mmode.ld")
 set(RVSW_MTVEC_IS_HARDWIRED "VECTORED")
 set(RVSW_MARCH "rv32ia_zicsr_zifencei")
 set(RVSW_MABI "ilp32")
@@ -37,8 +38,9 @@ set(RVSW_SMODE_AND_KERNEL_ENTRY_ADDR 0x80000000)
 
 set(RVSW_MMODE_NEWLIB_SYSCALLS_STATICLIB_CMAKE_TARGET "irve_rvsw_newlib_syscalls")
 
-set(RVSW_BUILD_SMODE_SW "1")#Set to 1 if you want to build supervisor mode software too
-set(RVSW_SMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_smode.ld")#Your linker script here (relative to the root of the rvsw checkout)
+set(RVSW_BUILD_SMODE_SW "0")#Set to 1 if you want to build supervisor mode software too
+#set(RVSW_SMODE_LD_SCRIPT "${PROJECT_SOURCE_DIR}/../irve_smode.ld")#Your linker script here (relative to the root of the rvsw checkout)
+set(RVSW_SMODE_LD_SCRIPT "${RVSW_ABS_PATH}/irve_smode.ld")#Your linker script here (relative to the root of the rvsw checkout)
 set(RVSW_STVEC_IS_HARDWIRED "VECTORED")#Uncomment if not hardwired, else "DIRECT" if direct, or "VECTORED" if vectored
 set(RVSW_SMODE_DATA_SEGMENT_ALREADY_LOADED "1")#Set to 0 if you need the C startup code to load the data segment before calling anything
 set(RVSW_SMODE_BSS_SEGMENT_ALREADY_ZEROED "0")#Set to 0 if you need the C startup code to zero the bss segment before calling anything
