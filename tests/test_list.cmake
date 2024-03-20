@@ -46,6 +46,8 @@ add_unit_test(memory_Memory_supervisor_loads_with_translation)
 #add_unit_test(memory_Memory_invalid_unmapped_misaligned_halfwords)#TODO Not written yet
 #add_unit_test(memory_Memory_invalid_unmapped_misaligned_words)#TODO Not written yet
 
+add_unit_test(execute_high_multiply)
+
 ####################################################################################################
 # Integration Test List (integration_tester)
 ####################################################################################################
