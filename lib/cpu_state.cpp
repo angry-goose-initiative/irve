@@ -70,7 +70,8 @@ void CpuState::set_r(uint8_t reg_num, Reg new_val) {
         std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
         this->m_letc_compatible_trace << "[letc_core_rf]: " << std::hex << std::setw(8) << std::setfill('0') << new_val.u;
         this->m_letc_compatible_trace.flags(original_flags);
-        this->m_letc_compatible_trace << " was written to register " << std::dec << ((uint32_t)reg_num) << std::endl;
+        this->m_letc_compatible_trace << " was written to register " << std::dec << std::setw(2) << std::setfill(' ') << ((uint32_t)reg_num) << std::endl;
+        this->m_letc_compatible_trace.flags(original_flags);
         this->m_regs[reg_num - 1] = new_val;
     }
 }
