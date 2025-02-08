@@ -52,8 +52,8 @@ endif()
 
 #If you want a collection of RISC-V software to mess with
 if(NOT DEFINED IRVE_USE_RVSW)
-    #set(IRVE_USE_RVSW 0)
-    set(IRVE_USE_RVSW 1)
+    set(IRVE_USE_RVSW 0)
+    #set(IRVE_USE_RVSW 1)
 endif()
 
 #Enable pseudo-fuzzing
