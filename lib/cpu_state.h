@@ -14,6 +14,8 @@
  * --------------------------------------------------------------------------------------------- */
 
 #include <cstdint>
+#include <iostream>
+#include <fstream>
 
 #include "memory.h"
 #include "rv_trap.h"
@@ -107,6 +109,11 @@ private:
      * @brief       True if the hart has a valid atomic reseravtion, false othersise.
     */
     bool m_atomic_reservation_set_valid;
+
+    /**
+     * @brief       Trace file stream compatible with LETC, used for comparison
+    */
+    std::ofstream m_letc_compatible_trace;
 };
 
 } // namespace irve::internal

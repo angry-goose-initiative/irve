@@ -14,6 +14,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <iomanip>
 
 #define INST_COUNT 0
 #include "logging.h"
@@ -30,13 +31,15 @@ using namespace irve::internal;
 
 CpuState::CpuState() :
     m_pc(0),
-    m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
+    m_atomic_reservation_set_valid(false),//At reset, no LR has been executed yet
+    m_letc_compatible_trace("irve_trace.txt")//Will be closed for us when the ofstream is destroyed
 {
     irvelog(1, "Created new CpuState instance");
 
     //Initialize all registers to a random number (just to prevent any sanitizers from complaining)
     for (uint8_t i = 0; i < 31; ++i) {
-        this->m_regs[i] = irve_fuzzish_rand();
+        //this->m_regs[i] = irve_fuzzish_rand();
+        this->m_regs[i] = 0;//In LETC all registers get reset to 0
     }
 
     this->log(2);
@@ -62,6 +65,12 @@ Reg CpuState::get_r(uint8_t reg_num) const {
 void CpuState::set_r(uint8_t reg_num, Reg new_val) {
     assert(reg_num < 32 && "Attempt to set invalid register");
     if (reg_num) {
+        //$fdisplay(trace_file_handle, "[letc_core_rf]: %h was written to register %d", dut.rf_rd_val, dut.rf_rd_idx);
+        //Useful: https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
+        std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
+        this->m_letc_compatible_trace << "[letc_core_rf]: " << std::hex << std::setw(8) << std::setfill('0') << new_val.u;
+        this->m_letc_compatible_trace.flags(original_flags);
+        this->m_letc_compatible_trace << " was written to register " << std::dec << ((uint32_t)reg_num) << std::endl;
         this->m_regs[reg_num - 1] = new_val;
     }
 }
