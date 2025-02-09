@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <iostream>
 #include <fstream>
+#include <optional>
 
 #include "memory.h"
 #include "rv_trap.h"
@@ -91,7 +92,12 @@ public:
     */
     void goto_next_sequential_pc();
 
+    void retire(Word pc);
+
 private:
+
+    std::optional<Word> rd_val;
+    uint32_t rd_idx;
 
     /**
      * @brief       The program counter.

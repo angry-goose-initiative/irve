@@ -58,7 +58,9 @@ bool emulator::emulator_t::tick() {
     //Any of these could lead to exceptions (ex. faults, illegal instructions, etc.)
     try {
         decode::DecodedInst decoded_inst = this->fetch_and_decode();
+        const Word pc = this->m_cpu_state.get_pc();
         this->execute(decoded_inst);
+        this->m_cpu_state.retire(pc);
     } catch (const rv_trap::RvException& e) {
         assert(((uint32_t)e.cause() < 32) && "Unsuppored cause value!");
         irvelog(1, "Handling exception: Cause: %u", (uint32_t)e.cause());

@@ -30,6 +30,8 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 CpuState::CpuState() :
+    rd_val(std::nullopt),
+    rd_idx(0),
     m_pc(0),
     m_atomic_reservation_set_valid(false),//At reset, no LR has been executed yet
     m_letc_compatible_trace("irve_trace.txt")//Will be closed for us when the ofstream is destroyed
@@ -67,12 +69,14 @@ void CpuState::set_r(uint8_t reg_num, Reg new_val) {
     if (reg_num) {
         //$fdisplay(trace_file_handle, "[letc_core_rf]: %h was written to register %d", dut.rf_rd_val, dut.rf_rd_idx);
         //Useful: https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
-        std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
-        this->m_letc_compatible_trace << "[letc_core_rf]: " << std::hex << std::setw(8) << std::setfill('0') << new_val.u;
-        this->m_letc_compatible_trace.flags(original_flags);
-        this->m_letc_compatible_trace << " was written to register " << std::dec << std::setw(2) << std::setfill(' ') << ((uint32_t)reg_num) << std::endl;
-        this->m_letc_compatible_trace.flags(original_flags);
+        // std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
+        // this->m_letc_compatible_trace << "[letc_core_rf]: " << std::hex << std::setw(8) << std::setfill('0') << new_val.u;
+        // this->m_letc_compatible_trace.flags(original_flags);
+        // this->m_letc_compatible_trace << " was written to register " << std::dec << std::setw(2) << std::setfill(' ') << ((uint32_t)reg_num) << std::endl;
+        // this->m_letc_compatible_trace.flags(original_flags);
         this->m_regs[reg_num - 1] = new_val;
+        rd_val = new_val;
+        rd_idx = reg_num;
     }
 }
 
@@ -119,4 +123,19 @@ bool CpuState::reservation_set_valid() const {
 void CpuState::goto_next_sequential_pc() {
     this->m_pc += 4;
     irvelog(3, "Going to next sequential PC: 0x%08X", this->m_pc);
+}
+
+void CpuState::retire(Word pc) {
+    // //Useful: https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
+    std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
+    this->m_letc_compatible_trace << "0x" << std::hex << std::setw(8) << std::setfill('0') << pc.u;
+    this->m_letc_compatible_trace.flags(original_flags);
+    if (rd_val.has_value()) {
+        this->m_letc_compatible_trace << " | 0x" << std::hex << std::setw(8) << std::setfill('0') << rd_val.value().u;
+        this->m_letc_compatible_trace.flags(original_flags);
+        this->m_letc_compatible_trace << " -> x" << std::dec << rd_idx;
+        this->m_letc_compatible_trace.flags(original_flags);
+        rd_val = std::nullopt;
+    }
+    this->m_letc_compatible_trace << std::endl;
 }
