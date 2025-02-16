@@ -94,6 +94,14 @@ public:
 
     void retire(Word pc);
 
+    /**
+     * @brief       Trace file stream compatible with LETC, used for comparison
+    */
+    std::ofstream m_letc_compatible_trace;
+
+    std::optional<Word> store_val;
+    uint32_t store_addr;
+
 private:
 
     std::optional<Word> rd_val;
@@ -115,11 +123,6 @@ private:
      * @brief       True if the hart has a valid atomic reseravtion, false othersise.
     */
     bool m_atomic_reservation_set_valid;
-
-    /**
-     * @brief       Trace file stream compatible with LETC, used for comparison
-    */
-    std::ofstream m_letc_compatible_trace;
 };
 
 } // namespace irve::internal

@@ -30,11 +30,11 @@ using namespace irve::internal;
  * --------------------------------------------------------------------------------------------- */
 
 CpuState::CpuState() :
+    m_letc_compatible_trace("irve_trace.txt"),//Will be closed for us when the ofstream is destroyed
     rd_val(std::nullopt),
     rd_idx(0),
     m_pc(0),
-    m_atomic_reservation_set_valid(false),//At reset, no LR has been executed yet
-    m_letc_compatible_trace("irve_trace.txt")//Will be closed for us when the ofstream is destroyed
+    m_atomic_reservation_set_valid(false)//At reset, no LR has been executed yet
 {
     irvelog(1, "Created new CpuState instance");
 
@@ -126,16 +126,22 @@ void CpuState::goto_next_sequential_pc() {
 }
 
 void CpuState::retire(Word pc) {
-    // //Useful: https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
+    //Useful: https://stackoverflow.com/questions/2273330/restore-the-state-of-stdcout-after-manipulating-it
     std::ios_base::fmtflags original_flags = this->m_letc_compatible_trace.flags();
     this->m_letc_compatible_trace << "0x" << std::hex << std::setw(8) << std::setfill('0') << pc.u;
     this->m_letc_compatible_trace.flags(original_flags);
-    if (rd_val.has_value()) {
-        this->m_letc_compatible_trace << " | 0x" << std::hex << std::setw(8) << std::setfill('0') << rd_val.value().u;
+    if (this->rd_val.has_value()) {
+        this->m_letc_compatible_trace << " | 0x" << std::hex << std::setw(8) << std::setfill('0') << this->rd_val.value().u;
         this->m_letc_compatible_trace.flags(original_flags);
         this->m_letc_compatible_trace << " -> x" << std::dec << rd_idx;
         this->m_letc_compatible_trace.flags(original_flags);
-        rd_val = std::nullopt;
+        this->rd_val = std::nullopt;
+    } else if (this->store_val.has_value()) {
+        this->m_letc_compatible_trace << " | 0x" << std::hex << std::setw(8) << std::setfill('0') << this->store_val.value().u;
+        this->m_letc_compatible_trace << " -> 0x" << std::hex << std::setw(8) << std::setfill('0') << this->store_addr;
+        this->m_letc_compatible_trace << " ";//To match odd quirk with Verilator or SystemVerilog with %h at the end of a line
+        this->m_letc_compatible_trace.flags(original_flags);
+        this->store_val = std::nullopt;
     }
     this->m_letc_compatible_trace << std::endl;
 }

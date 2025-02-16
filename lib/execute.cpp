@@ -277,6 +277,9 @@ void execute::store(const decode::DecodedInst& decoded_inst, CpuState& cpu_state
     //This could raise an exception
     memory.store(r1.u + imm.u, funct3, r2.s);
 
+    cpu_state.store_val  = r2;
+    cpu_state.store_addr = r1.u + imm.u;
+
     //Increment PC
     cpu_state.goto_next_sequential_pc();
 }
